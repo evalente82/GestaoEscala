@@ -1,32 +1,32 @@
-# Prerequisites
-*.d
+# Ignorar arquivos gerados pelo Visual Studio
+.vs/
+bin/
+obj/
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
+# Ignorar arquivos de compilação
 *.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
 *.exe
-*.out
-*.app
+*.pdb
+
+# Ignorar arquivos de publicação
+*.publish.xml
+*.pubxml
+
+# Ignorar arquivos temporários
+[Tt]emp/
+[Oo]bj/
+
+# Ignorar arquivos de usuário
+*.user
+*.suo
+*.sln.docstates
+
+# Ignorar arquivos de cache do ReSharper
+_ReSharper*/
+*.resharper
+
+# Ignorar arquivos de log
+*.log
+
+# Ignorar arquivos de backup
+*.[Bb]ak
