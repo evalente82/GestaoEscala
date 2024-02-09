@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GestaoEscalaPermuta.Infra\GestaoEscalaPermuta.Infra.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Interfaces\Cargos\" />
+    <Folder Include="Interfaces\Empresa\" />
+    <Folder Include="Interfaces\EscalaPronta\" />
+    <Folder Include="Interfaces\Escala\" />
+    <Folder Include="Interfaces\Funcionarios\" />
+    <Folder Include="Interfaces\Permuta\" />
+    <Folder Include="Interfaces\PostoTrabalho\" />
+    <Folder Include="Interfaces\TipoEscala\" />
+    <Folder Include="Services\Cargos\" />
+    <Folder Include="Services\Empresa\" />
+    <Folder Include="Services\EscalaPronta\" />
+    <Folder Include="Services\Escala\" />
+    <Folder Include="Services\Funcionarios\" />
+    <Folder Include="Services\Permuta\" />
+    <Folder Include="Services\PostoTrabalho\" />
+    <Folder Include="Services\TipoEscala\" />
+  </ItemGroup>
+
+</Project>
