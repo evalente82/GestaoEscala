@@ -44,4 +44,8 @@
     <Folder Include="Models\Funcionarios\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
 </Project>
