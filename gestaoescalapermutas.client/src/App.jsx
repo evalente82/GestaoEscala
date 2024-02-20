@@ -1,49 +1,35 @@
-import { useEffect, useState } from 'react';
 import './App.css';
-
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Footer } from "./Components/Menu/NavBar"
+import { Home } from './Components/Pages/Home';
+import { Departamento } from './Components/Pages/Departamento/Departamento';
+//import { Postos } from './Components/Pages/PostoTrabalho/PostoTrabalho';
 function App() {
-    const [forecasts, setForecasts] = useState();
-
-    useEffect(() => {
-        populateWeatherData();
-    }, []);
-
-    const contents = forecasts === undefined
-        ? <p><em>Loading... Please refresh once the ASP.NET backend has started. See <a href="https://aka.ms/jspsintegrationreact">https://aka.ms/jspsintegrationreact</a> for more details.</em></p>
-        : <table className="table table-striped" aria-labelledby="tabelLabel">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Temp. (C)</th>
-                    <th>Temp. (F)</th>
-                    <th>Summary</th>
-                </tr>
-            </thead>
-            <tbody>
-                {forecasts.map(forecast =>
-                    <tr key={forecast.date}>
-                        <td>{forecast.date}</td>
-                        <td>{forecast.temperatureC}</td>
-                        <td>{forecast.temperatureF}</td>
-                        <td>{forecast.summary}</td>
-                    </tr>
-                )}
-            </tbody>
-        </table>;
-
     return (
-        <div>
-            <h1 id="tabelLabel">Weather forecast</h1>
-            <p>This component demonstrates fetching data from the server.</p>
-            {contents}
-        </div>
+        <>
+            
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/*" element={<Home />} />
+                    <Route path="/home" element={<Home />} />
+                    {/*<Route path="/postos" element={<Postos />} />*/}
+                    <Route path="/departamento" element={<Departamento/>} />
+                    {/*<Route path="/funcionarios" element={<Funcionarios />} />*/}
+                    {/*<Route path="/" element={<Login />} />*/}
+                    {/*<Route path="/escalas" element={<Escalas />} />*/}
+                    {/*<Route path='/exibicao' element={<ExibicaoDaEscala />} />*/}
+                    {/*<Route path="/permutas" element={<Board />} />*/}
+                    {/*<Route path="/board/:idEscala" element={<Board2 />} />*/}
+                    {/*<Route path="/exibicao/:idEscala" element={<Alteracao />} />*/}
+                    {/*<Route path="/EditarEscalaSelecionada" element={<EditarEscalaSelecionada />} />*/}
+                    {/*<Route path="/escalavigente" element={<EscalaVigente />} />*/}
+                    <Route path="/departamento" element={<Departamento />} />
+                    
+                </Routes>
+                <Footer />
+            </BrowserRouter>
+        </>
     );
-    
-    async function populateWeatherData() {
-        const response = await fetch('weatherforecast');
-        const data = await response.json();
-        setForecasts(data);
-    }
 }
 
 export default App;

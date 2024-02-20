@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using GestaoEscalaPermuta.Infra.Data.EntitiesDefesaCivilMarica;
+using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 
-namespace GestaoEscalaPermuta.Infra.Data.Context;
+namespace GestaoEscalaPermutas.Infra.Data.Context;
 
 public partial class DefesaCivilMaricaContext : DbContext
 {
@@ -132,6 +132,16 @@ public partial class DefesaCivilMaricaContext : DbContext
 
         modelBuilder.Entity<PerfilFuncionalidade>()
             .HasKey(pf => new { pf.IdPerfil, pf.IdFuncionalidade });
+
+        modelBuilder.Entity<Funcionalidade>(entity =>
+        {
+            entity.HasKey(e => e.IdFuncionalidade).HasName("PK_IdFuncionalidade");
+        });
+
+        modelBuilder.Entity<Perfil>(entity =>
+        {
+            entity.HasKey(e => e.IdPerfil).HasName("PK_IdPerfil");
+        });
 
         OnModelCreatingPartial(modelBuilder);
     }

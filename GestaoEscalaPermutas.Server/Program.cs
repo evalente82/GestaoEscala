@@ -1,17 +1,10 @@
-using GestaoEscalaPermuta.Infra.Data.Context;
+using GestaoEscalaPermutas.Infra.Data.Context;
 using GestaoEscalaPermutas.Dominio.Services.Departamento;
 using GestaoEscalaPermutas.Dominio.Interfaces.Departamento;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
-//using ConfigurationManager = GestaoEscalaPermutas.Server.Helper.ConfigurationManager;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
-using Microsoft.AspNetCore.Localization;
-using System.Globalization;
 
 
 
@@ -69,7 +62,6 @@ builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 
 builder.Services.AddDbContext<DefesaCivilMaricaContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString(connString ?? string.Empty)));
-//builder.Services.AddDbContext<DefesaCivilMaricaContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString(connString)));
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddResponseCompression();
@@ -92,6 +84,13 @@ app.Use(async (context, next) =>
     {
         await context.Response.WriteAsync(JsonConvert.SerializeObject("teste."));
     }
+});
+
+app.UseCors(builder =>
+{
+    builder.WithOrigins("https://localhost:5173") 
+           .WithMethods("GET", "POST", "PUT", "DELETE") // Especifique os métodos HTTP permitidos
+           .WithHeaders("Content-Type", "Authorization"); // Especifique os cabeçalhos permitidos
 });
 
 app.UseDefaultFiles();

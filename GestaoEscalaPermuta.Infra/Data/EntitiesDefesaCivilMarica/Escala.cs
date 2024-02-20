@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace GestaoEscalaPermuta.Infra.Data.EntitiesDefesaCivilMarica;
+namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 
 [Table("Escala")]
 public partial class Escala

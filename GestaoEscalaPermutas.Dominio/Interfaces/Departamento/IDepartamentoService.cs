@@ -10,5 +10,6 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.Departamento
     public interface IDepartamentoService
     {
         Task<DepartamentoDTO> Incluir(DepartamentoDTO departamentoModel);
+        Task<List<DepartamentoDTO>> BuscarTodos();
     }
 }

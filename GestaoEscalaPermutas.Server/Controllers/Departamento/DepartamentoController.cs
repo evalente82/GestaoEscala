@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace GestaoEscalaPermutas.Server.Controllers.Departamento
 {
     [ApiController]
-    [Route("api/departamento")]
+    [Route("departamento")]
     public class DepartamentoController :ControllerBase
     {
         private readonly IDepartamentoService _departamentoService;
@@ -30,6 +30,23 @@ namespace GestaoEscalaPermutas.Server.Controllers.Departamento
 
             //return CreatedAtAction(nameof(Get), new { id = departamento.IdDepartamento }, departamento);
             return (departamentoModel.Valido) ? Ok(departamentoModel) : BadRequest(new RetornoModel { Valido = false, Mensagem = departamentoModel.Mensagem });
-        }       
+        }
+
+        [HttpGet]
+        [Route("buscarTodos")]
+        public async Task<ActionResult> BuscarDepartamentos()
+        {
+            var departamentos = await _departamentoService.BuscarTodos();
+
+            foreach (var departamento in departamentos)
+            {
+                if (!departamento.valido)
+                {
+                    return BadRequest(new RetornoModel { Valido = false, Mensagem = departamento.mensagem });
+                }
+            }
+
+            return Ok(departamentos);
+        }
     }
 }

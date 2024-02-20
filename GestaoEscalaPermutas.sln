@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3-Infraestrutura", "3-Infra
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GestaoEscalaPermutas.Dominio", "GestaoEscalaPermutas.Dominio\GestaoEscalaPermutas.Dominio.csproj", "{C071F66A-485A-4380-9EC9-293905540D1D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GestaoEscalaPermuta.Infra", "GestaoEscalaPermuta.Infra\GestaoEscalaPermuta.Infra.csproj", "{D8B4212D-4A66-4B9B-BEE0-1452876A5C42}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GestaoEscalaPermutas.Infra", "GestaoEscalaPermuta.Infra\GestaoEscalaPermutas.Infra.csproj", "{D8B4212D-4A66-4B9B-BEE0-1452876A5C42}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{18956BB9-149A-4DC1-9294-1E17275F1FA8}"
 	ProjectSection(SolutionItems) = preProject

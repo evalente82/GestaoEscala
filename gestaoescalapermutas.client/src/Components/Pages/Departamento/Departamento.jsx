@@ -1,0 +1,346 @@
+import NavBar from "../../Menu/NavBar";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import PropTypes from 'prop-types';
+export function Departamento() {
+
+    const [content, setContent] = useState(
+        <DepartamentoList ShowForm={ShowForm} />
+    );
+
+    function ShowList() {
+        setContent(<DepartamentoList ShowForm={ShowForm} />);
+    }
+
+    function ShowForm(departamento) {
+        setContent(
+            <DepartamentoForm departamento={departamento} ShowList={ShowList} />
+        );
+    }
+    return <div className="container">{content}</div>;
+}
+function DepartamentoList(props) {
+    DepartamentoList.propTypes = {
+        ShowForm: PropTypes.func.isRequired, // Indica que ShowForm é uma função obrigatória
+    };
+    const [currentPage, setCurrentPage] = useState(1);
+    const [recordsPerPage] = useState(10); //, setRecordsPerPage
+
+    const [searchText, setSearchText] = useState("");
+
+    const [departamento, setDepartamento] = useState([]);
+
+    const API_URL = "https://localhost:7207/departamento";
+    function BuscarTodos() {
+        axios.get(`${API_URL}/buscarTodos`)
+            .then((response) => {
+                console.log(response.data);
+                setDepartamento(response.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const response = await axios.get(`${API_URL}/buscarTodos`);
+            console.log(response.data);
+            setDepartamento(response.data);
+        };
+        fetchData();
+    }, []);
+
+    function handleDelete(id) {
+        // Mostrar a popup de confirmação
+        if (window.confirm("Tem certeza que deseja excluir este registro?")) {
+            DeleteDepartamento(id);
+        }
+    }
+
+    function DeleteDepartamento(idDepartamento) {
+        axios
+            .delete(`https://localhost:7187/api/funcionario/${idDepartamento}`)
+            .then((response) => {
+                console.log(response);
+                setDepartamento(
+                    departamento.filter((usuario) => usuario.id !== idDepartamento)
+                );
+                BuscarTodos();
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
+
+    const indexOfLastRecord = currentPage * recordsPerPage;
+    const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+    const currentRecords = departamento
+        .filter(
+            (departamento) =>
+                departamento.nome.toLowerCase().includes(searchText.toLowerCase()) ||
+                departamento.cargo.toLowerCase().includes(searchText.toLowerCase())
+        )
+        .slice(indexOfFirstRecord, indexOfLastRecord);
+    useEffect(() => BuscarTodos(), []);
+
+
+    return (
+        <>
+            <NavBar />
+            <h3 className="text-center mb-3">Listagem de Departamentos</h3>
+            <button
+                onClick={() => props.ShowForm({})}
+                type="button"
+                className="btn btn-primary me-2"
+            >
+                Cadastrar
+            </button>
+            <button
+                onClick={() => BuscarTodos()}
+                type="button"
+                className="btn btn-outline-primary me-2"
+            >
+                Atualizar
+            </button>
+            <br />
+            <br />
+            <input
+                type="text"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                placeholder="Pesquisar..."
+                className="form-control mb-3"
+            />
+            <div className="d-flex justify-content-center">
+                <button
+                    type="button"
+                    className="btn btn-outline-primary me-2"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                >
+                    Anterior
+                </button>
+                <button
+                    type="button"
+                    className="btn btn-outline-primary"
+                    disabled={currentRecords.length < recordsPerPage}
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                >
+                    Próximo
+                </button>
+            </div>
+            <table className="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>NOME</th>
+                        <th>DESCRIÇÃO</th>
+                        <th>ATIVO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {currentRecords
+                        .map((departamento, index) => {
+                            return (
+                                <tr key={index}>
+                                    <td>{departamento.idDepartamento}</td>
+                                    <td>{departamento.nome}</td>
+                                    <td>{departamento.descricao}</td>
+                                    <td>
+                                        <input
+                                            type="checkbox"
+                                            checked={departamento.ativo == 1}
+                                            readOnly
+                                        />
+                                    </td>
+                                    <td style={{ width: "10px", whiteSpace: "nowrap" }}>
+                                        <button
+                                            onClick={() => props.ShowForm(departamento)}
+                                            type="button"
+                                            className="btn btn-primary btn-sm me-2"
+                                        >
+                                            Editar
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(departamento.idDepartamento)}
+                                            type="button"
+                                            className="btn btn-danger btn-sm"
+                                        >
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                </tbody>
+            </table>
+        </>
+
+    );
+} 
+
+
+function DepartamentoForm(props) {
+    DepartamentoForm.propTypes = {
+        ShowList: PropTypes.func.isRequired,
+        departamento: PropTypes.shape({
+            idDepartamento: PropTypes.number,
+            nome: PropTypes.string.isRequired,
+            descricao: PropTypes.string,
+            ativo: PropTypes.bool,
+        }).isRequired,
+    };
+    // const [errorMessage, setErrorMessage] = useState('');
+    const [nome, setNome] = useState(props.departamento.nome);
+    const [descricao, setDescricao] = useState(props.departamento.descricao);    
+    const [ativo, setAtivo] = useState(props.departamento.ativo);
+
+    function handleAtivoChange(e) {
+        setAtivo(e.target.checked);
+    }
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        if (props.departamento.idDepartamento) {
+            const data = {
+                nome: nome,
+                descricao: descricao,
+                ativo: ativo,
+            };
+            axios
+                .patch(
+                    "https://localhost:7187/api/funcionario/" +
+                    props.departamento.idDepartamento,
+                    data
+                )
+                .then(() => {
+                    props.ShowList();
+                })
+                .catch((error) => {
+                    if (error.response && error.response.status === 400) {
+                        const errors = error.response.data;
+                        console.log(errors);
+                        alert(errors.Email);
+                        // outros tratamentos de erro
+                    } else {
+                        console.log(error);
+                        // outros tratamentos de erro
+                    }
+                });
+        } else {
+            const data = {
+                nome: nome,
+                descricao: descricao,
+                ativo: ativo,
+            };
+            axios
+                .post("https://localhost:7187/api/funcionario", data)
+                .then(() => {
+                    props.ShowList();
+                })
+                .catch((error) => {
+                    if (error.response && error.response.status === 400) {
+                        const errors = error.response.data;
+                        console.log(errors);
+                        alert(errors.Email);
+                        // outros tratamentos de erro
+                    } else {
+                        console.log(error);
+                        // outros tratamentos de erro
+                    }
+                });
+        }
+    };
+    return (
+        <>
+            <NavBar />
+            <h2 className="text-center mb-3">
+                {props.departamento.idDepartamento
+                    ? "Editar Funcionário"
+                    : "Cadastrar Novo Funcionário"}
+            </h2>
+            <div className="row">
+                <div className="col-lg-6 mx-auto">
+                    {/* {errorMessage} */}
+                    <form onSubmit={(e) => handleSubmit(e)}>
+                        {props.departamento.idDepartamento && (
+                            <div className="row mb-3">
+                                <label className="col-sm-4 col-form-label">ID</label>
+                                <div className="col-sm-8">
+                                    <input
+                                        readOnly
+                                        className="form-control-plaintext"
+                                        name="idDepartamento"
+                                        defaultValue={props.departamento.idDepartamento}
+                                        required
+                                        onChange={(e) => setNome(e.target.value)}
+                                    ></input>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Nome do Departamento</label>
+                            <div className="col-sm-8">
+                                <input
+                                    className="form-control"
+                                    name="nome"
+                                    defaultValue={props.departamento.nome}
+                                    required
+                                    onChange={(e) => setNome(e.target.value)}
+                                ></input>
+                            </div>
+                        </div>
+
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Descrição</label>
+                            <div className="col-sm-8">
+                                <input
+                                    className="form-control"
+                                    type="number"
+                                    name="descricao"
+                                    defaultValue={props.departamento.descricao}
+                                    required
+                                    onChange={(e) => setDescricao(e.target.value)}
+                                ></input>
+                            </div>
+                        </div>
+
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Ativo</label>
+                            <div className="col-sm-8">
+                                <input
+                                    className="form-check-input"
+                                    name="ativo"
+                                    type="checkbox"
+                                    value={props.departamento.ativo}
+                                    checked={ativo}
+                                    onChange={handleAtivoChange}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="row">
+                            <div className="offset-sm-4 col-sm-4 d-grid">
+                                <button type="submit" className="btn btn-primary btn-sm me-3">
+                                    Salvar
+                                </button>
+                            </div>
+                            <div className="col-sm-4 d-grid">
+                                <button
+                                    onClick={() => props.ShowList()}
+                                    type="button"
+                                    className="btn btn-danger me-2"
+                                >
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </>
+    );
+}

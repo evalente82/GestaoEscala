@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using GestaoEscalaPermuta.Infra.Data.Context;
-using DepInfra = GestaoEscalaPermuta.Infra.Data.EntitiesDefesaCivilMarica;
+using GestaoEscalaPermutas.Infra.Data.Context;
+using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using GestaoEscalaPermutas.Dominio.DTO.Departamento;
 using GestaoEscalaPermutas.Dominio.Interfaces.Departamento;
 using System;
@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Globalization;
+using Microsoft.EntityFrameworkCore;
 
 namespace GestaoEscalaPermutas.Dominio.Services.Departamento
 {
@@ -45,5 +46,22 @@ namespace GestaoEscalaPermutas.Dominio.Services.Departamento
                 return new DepartamentoDTO { valido = false, mensagem = $"Erro ao receber o Objeto: {e.Message}" };
             }
         }
+
+
+
+        public async Task<List<DepartamentoDTO>> BuscarTodos()
+        {
+            try
+            {                
+                var departamentos = await _context.Departamentos.ToListAsync();
+                var departamentosDTO =  _mapper.Map<List<DepartamentoDTO>>(departamentos);
+                return departamentosDTO;
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Erro ao receber o Objeto: {e.Message}");
+            }
+        }
+       
     }
 }

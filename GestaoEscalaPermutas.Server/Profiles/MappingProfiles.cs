@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using GestaoEscalaPermuta.Infra.Data.EntitiesDefesaCivilMarica;
+using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using GestaoEscalaPermutas.Dominio.DTO.Departamento;
 using GestaoEscalaPermutas.Server.Models.Departamento;
 

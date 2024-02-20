@@ -12,10 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GestaoEscalaPermuta.Infra\GestaoEscalaPermuta.Infra.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Interfaces\Cargos\" />
     <Folder Include="Interfaces\Empresa\" />
     <Folder Include="Interfaces\EscalaPronta\" />
@@ -32,6 +28,10 @@
     <Folder Include="Services\Permuta\" />
     <Folder Include="Services\PostoTrabalho\" />
     <Folder Include="Services\TipoEscala\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GestaoEscalaPermuta.Infra\GestaoEscalaPermutas.Infra.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,22 @@
+.nav-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0.5rem;
+    margin-right: 0.5rem; /* Adicione esta linha para o espaçamento */
+}
+
+    .nav-item:hover {
+        background-color: #ccc;
+    }
+
+    .nav-item.active {
+        background-color: #ddd;
+    }
+
+.logo-image {
+    width: 100px; /* Ajuste a largura conforme necessário */
+    height: auto; /* A altura será ajustada automaticamente */
+}
