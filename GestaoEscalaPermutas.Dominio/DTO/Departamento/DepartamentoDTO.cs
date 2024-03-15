@@ -17,6 +17,7 @@ namespace GestaoEscalaPermutas.Dominio.DTO.Departamento
         {
             DtCriacao = DateTime.Now;
         }
+        public int IdDepartamento { get; set; }
         public string NmNome { get; set; } = null!;
         public string NmDescricao { get; set; } = null!;
         public bool IsAtivo { get; set; }

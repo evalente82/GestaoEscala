@@ -89,7 +89,7 @@ app.Use(async (context, next) =>
 app.UseCors(builder =>
 {
     builder.WithOrigins("https://localhost:5173") 
-           .WithMethods("GET", "POST", "PUT", "DELETE") // Especifique os métodos HTTP permitidos
+           .WithMethods("GET", "POST", "PUT","PATCH", "DELETE") // Especifique os métodos HTTP permitidos
            .WithHeaders("Content-Type", "Authorization"); // Especifique os cabeçalhos permitidos
 });
 

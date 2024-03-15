@@ -21,7 +21,7 @@ export function Departamento() {
 }
 function DepartamentoList(props) {
     DepartamentoList.propTypes = {
-        ShowForm: PropTypes.func.isRequired, // Indica que ShowForm é uma função obrigatória
+        ShowForm: PropTypes.func.required, // Indica que ShowForm é uma função obrigatória
     };
     const [currentPage, setCurrentPage] = useState(1);
     const [recordsPerPage] = useState(10); //, setRecordsPerPage
@@ -60,7 +60,7 @@ function DepartamentoList(props) {
 
     function DeleteDepartamento(idDepartamento) {
         axios
-            .delete(`https://localhost:7187/api/funcionario/${idDepartamento}`)
+            .delete(`https://localhost:7207/departamento/Deletar/${idDepartamento}`)
             .then((response) => {
                 console.log(response);
                 setDepartamento(
@@ -73,16 +73,16 @@ function DepartamentoList(props) {
             });
     }
 
-    const indexOfLastRecord = currentPage * recordsPerPage;
-    const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+    //const indexOfLastRecord = currentPage * recordsPerPage;
+    //const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
     const currentRecords = departamento
-        .filter(
-            (departamento) =>
-                departamento.nome.toLowerCase().includes(searchText.toLowerCase()) ||
-                departamento.cargo.toLowerCase().includes(searchText.toLowerCase())
-        )
-        .slice(indexOfFirstRecord, indexOfLastRecord);
-    useEffect(() => BuscarTodos(), []);
+    //    .filter(
+    //        (departamento) =>
+    //            departamento.nome.toLowerCase().includes(searchText.toLowerCase()) ||
+    //            departamento.descricao.toLowerCase().includes(searchText.toLowerCase())
+    //    )
+    //    .slice(indexOfFirstRecord, indexOfLastRecord);
+    //useEffect(() => BuscarTodos(), []);
 
 
     return (
@@ -133,7 +133,7 @@ function DepartamentoList(props) {
             <table className="table">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        {/*<th>ID</th>*/}
                         <th>NOME</th>
                         <th>DESCRIÇÃO</th>
                         <th>ATIVO</th>
@@ -144,13 +144,13 @@ function DepartamentoList(props) {
                         .map((departamento, index) => {
                             return (
                                 <tr key={index}>
-                                    <td>{departamento.idDepartamento}</td>
-                                    <td>{departamento.nome}</td>
-                                    <td>{departamento.descricao}</td>
+                                    {/*<td>{departamento.idDepartamento}</td>*/}
+                                    <td>{departamento.nmNome}</td>
+                                    <td>{departamento.nmDescricao}</td>
                                     <td>
                                         <input
                                             type="checkbox"
-                                            checked={departamento.ativo == 1}
+                                            checked={departamento.isAtivo == 1}
                                             readOnly
                                         />
                                     </td>
@@ -186,15 +186,15 @@ function DepartamentoForm(props) {
         ShowList: PropTypes.func.isRequired,
         departamento: PropTypes.shape({
             idDepartamento: PropTypes.number,
-            nome: PropTypes.string.isRequired,
-            descricao: PropTypes.string,
-            ativo: PropTypes.bool,
+            nmNome: PropTypes.string.isRequired,
+            nmDescricao: PropTypes.string,
+            isAtivo: PropTypes.bool,
         }).isRequired,
     };
     // const [errorMessage, setErrorMessage] = useState('');
-    const [nome, setNome] = useState(props.departamento.nome);
-    const [descricao, setDescricao] = useState(props.departamento.descricao);    
-    const [ativo, setAtivo] = useState(props.departamento.ativo);
+    const [nome, setNome] = useState(props.departamento.nmNome || '');
+    const [descricao, setDescricao] = useState(props.departamento.nmDescricao || '');    
+    const [ativo, setAtivo] = useState(props.departamento.isAtivo || false);
 
     function handleAtivoChange(e) {
         setAtivo(e.target.checked);
@@ -205,13 +205,13 @@ function DepartamentoForm(props) {
 
         if (props.departamento.idDepartamento) {
             const data = {
-                nome: nome,
-                descricao: descricao,
-                ativo: ativo,
+                nmNome: nome,
+                nmDescricao: descricao,
+                isAtivo: ativo,
             };
             axios
                 .patch(
-                    "https://localhost:7187/api/funcionario/" +
+                    "https://localhost:7207/departamento/Atualizar/" +
                     props.departamento.idDepartamento,
                     data
                 )
@@ -231,12 +231,12 @@ function DepartamentoForm(props) {
                 });
         } else {
             const data = {
-                nome: nome,
-                descricao: descricao,
-                ativo: ativo,
+                nmNome: nome,
+                NmDescricao: descricao,
+                isAtivo: ativo,
             };
             axios
-                .post("https://localhost:7187/api/funcionario", data)
+                .post("https://localhost:7207/departamento/Incluir", data)
                 .then(() => {
                     props.ShowList();
                 })
@@ -258,8 +258,8 @@ function DepartamentoForm(props) {
             <NavBar />
             <h2 className="text-center mb-3">
                 {props.departamento.idDepartamento
-                    ? "Editar Funcionário"
-                    : "Cadastrar Novo Funcionário"}
+                    ? "Editar Departamento"
+                    : "Cadastrar Novo Departamento"}
             </h2>
             <div className="row">
                 <div className="col-lg-6 mx-auto">
@@ -287,7 +287,7 @@ function DepartamentoForm(props) {
                                 <input
                                     className="form-control"
                                     name="nome"
-                                    defaultValue={props.departamento.nome}
+                                    defaultValue={props.departamento.nmNome}
                                     required
                                     onChange={(e) => setNome(e.target.value)}
                                 ></input>
@@ -299,9 +299,8 @@ function DepartamentoForm(props) {
                             <div className="col-sm-8">
                                 <input
                                     className="form-control"
-                                    type="number"
                                     name="descricao"
-                                    defaultValue={props.departamento.descricao}
+                                    defaultValue={props.departamento.nmDescricao}
                                     required
                                     onChange={(e) => setDescricao(e.target.value)}
                                 ></input>
@@ -315,7 +314,7 @@ function DepartamentoForm(props) {
                                     className="form-check-input"
                                     name="ativo"
                                     type="checkbox"
-                                    value={props.departamento.ativo}
+                                    value={props.departamento.isAtivo}
                                     checked={ativo}
                                     onChange={handleAtivoChange}
                                 />
