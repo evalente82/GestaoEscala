@@ -18,7 +18,7 @@ public partial class Funcionario
 
     public int NrMatricula { get; set; }
 
-    public int? NrTelefone { get; set; }
+    public long? NrTelefone { get; set; }
 
     [StringLength(200)]
     [Unicode(false)]

@@ -5,6 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using GestaoEscalaPermutas.Dominio.Services.Cargos;
+using GestaoEscalaPermutas.Dominio.Interfaces.Cargos;
+using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
+using GestaoEscalaPermutas.Dominio.Services.Funcionario;
 
 
 
@@ -67,6 +71,8 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddResponseCompression();
 
 builder.Services.AddTransient<IDepartamentoService, DepartamentoService>();
+builder.Services.AddTransient<ICargoService, CargoService>();
+builder.Services.AddTransient<IFuncionarioService, FuncionarioService>();
 
 var app = builder.Build();
 app.Use(async (context, next) =>

@@ -3,7 +3,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Footer } from "./Components/Menu/NavBar"
 import { Home } from './Components/Pages/Home';
 import { Departamento } from './Components/Pages/Departamento/Departamento';
-//import { Postos } from './Components/Pages/PostoTrabalho/PostoTrabalho';
+import { Cargo } from './Components/Pages/Cargo/Cargo';
+import { PostoTrabalho } from './Components/Pages/PostoTrabalho/PostoTrabalho';
+import { Escala } from './Components/Pages/Escala/Escala';
+import { Funcionario } from './Components/Pages/Funcionario/Funcionario';
 function App() {
     return (
         <>
@@ -12,18 +15,18 @@ function App() {
                 <Routes>
                     <Route path="/*" element={<Home />} />
                     <Route path="/home" element={<Home />} />
-                    {/*<Route path="/postos" element={<Postos />} />*/}
+                    <Route path="/cargo" element={<Cargo/>} />
                     <Route path="/departamento" element={<Departamento/>} />
-                    {/*<Route path="/funcionarios" element={<Funcionarios />} />*/}
+                    <Route path="/escalas" element={<Escala />} />
+                    <Route path="/PostoTrabalho" element={<PostoTrabalho />} />
+                    <Route path="/funcionario" element={<Funcionario />} />
                     {/*<Route path="/" element={<Login />} />*/}
-                    {/*<Route path="/escalas" element={<Escalas />} />*/}
                     {/*<Route path='/exibicao' element={<ExibicaoDaEscala />} />*/}
                     {/*<Route path="/permutas" element={<Board />} />*/}
                     {/*<Route path="/board/:idEscala" element={<Board2 />} />*/}
                     {/*<Route path="/exibicao/:idEscala" element={<Alteracao />} />*/}
                     {/*<Route path="/EditarEscalaSelecionada" element={<EditarEscalaSelecionada />} />*/}
                     {/*<Route path="/escalavigente" element={<EscalaVigente />} />*/}
-                    <Route path="/departamento" element={<Departamento />} />
                     
                 </Routes>
                 <Footer />

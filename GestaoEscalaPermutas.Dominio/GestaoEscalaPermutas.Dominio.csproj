@@ -12,19 +12,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Interfaces\Cargos\" />
     <Folder Include="Interfaces\Empresa\" />
     <Folder Include="Interfaces\EscalaPronta\" />
     <Folder Include="Interfaces\Escala\" />
-    <Folder Include="Interfaces\Funcionarios\" />
     <Folder Include="Interfaces\Permuta\" />
     <Folder Include="Interfaces\PostoTrabalho\" />
     <Folder Include="Interfaces\TipoEscala\" />
-    <Folder Include="Services\Cargos\" />
     <Folder Include="Services\Empresa\" />
     <Folder Include="Services\EscalaPronta\" />
     <Folder Include="Services\Escala\" />
-    <Folder Include="Services\Funcionarios\" />
     <Folder Include="Services\Permuta\" />
     <Folder Include="Services\PostoTrabalho\" />
     <Folder Include="Services\TipoEscala\" />

@@ -1,15 +1,12 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace GestaoEscalaPermutas.Dominio.DTO.Departamento
+namespace GestaoEscalaPermutas.Dominio.DTO.Cargo
 {
-    public class DepartamentoDTO : RetornoDTO
+    public class CargoDTO : RetornoDTO
     {
-        public DepartamentoDTO()
-        {
-            DtCriacao = DateTime.Now;
-        }
-        
-        public int IdDepartamento { get; set; }
+        public CargoDTO() => DtCriacao = DateTime.Now;
+
+        public int IdCargos { get; set; }
         public string NmNome { get; set; } = null!;
         public string NmDescricao { get; set; } = null!;
         public bool IsAtivo { get; set; }

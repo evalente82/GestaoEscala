@@ -2,8 +2,9 @@ import NavBar from "../../Menu/NavBar";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import PropTypes from 'prop-types';
-function DepartamentoList(props) {
-    DepartamentoList.propTypes = {
+
+function CargoList(props) {
+    CargoList.propTypes = {
         ShowForm: PropTypes.func.isRequired, // Indica que ShowForm é uma função obrigatória
     };
     const [currentPage, setCurrentPage] = useState(1);
@@ -11,14 +12,14 @@ function DepartamentoList(props) {
 
     const [searchText, setSearchText] = useState("");
 
-    const [departamento, setDepartamento] = useState([]);
+    const [cargo, setCargo] = useState([]);
 
-    const API_URL = "https://localhost:7207/departamento";
+    const API_URL = "https://localhost:7207/cargo";
     function BuscarTodos() {
         axios.get(`${API_URL}/buscarTodos`)
             .then((response) => {
                 console.log(response.data);
-                setDepartamento(response.data);
+                setCargo(response.data);
             })
             .catch((error) => {
                 console.log(error);
@@ -29,7 +30,7 @@ function DepartamentoList(props) {
         const fetchData = async () => {
             const response = await axios.get(`${API_URL}/buscarTodos`);
             console.log(response.data);
-            setDepartamento(response.data);
+            setCargo(response.data);
         };
         fetchData();
     }, []);
@@ -37,17 +38,17 @@ function DepartamentoList(props) {
     function handleDelete(id) {
         // Mostrar a popup de confirmação
         if (window.confirm("Tem certeza que deseja excluir este registro?")) {
-            DeleteDepartamento(id);
+            DeleteCargo(id);
         }
     }
 
-    function DeleteDepartamento(idDepartamento) {
+    function DeleteCargo(idCargos) {
         axios
-            .delete(`https://localhost:7207/departamento/Deletar/${idDepartamento}`)
+            .delete(`https://localhost:7207/cargo/Deletar/${idCargos}`)
             .then((response) => {
                 console.log(response);
-                setDepartamento(
-                    departamento.filter((usuario) => usuario.id !== idDepartamento)
+                setCargo(
+                    cargo.filter((usuario) => usuario.id !== idCargos)
                 );
                 BuscarTodos();
             })
@@ -58,7 +59,7 @@ function DepartamentoList(props) {
 
     //const indexOfLastRecord = currentPage * recordsPerPage;
     //const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-    const currentRecords = departamento
+    const currentRecords = cargo
     //    .filter(
     //        (departamento) =>
     //            departamento.nome.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -71,7 +72,7 @@ function DepartamentoList(props) {
     return (
         <>
             <NavBar />
-            <h3 className="text-center mb-3">Listagem de Departamentos</h3>
+            <h3 className="text-center mb-3">Listagem de Cargos</h3>
             <button
                 onClick={() => props.ShowForm({})}
                 type="button"
@@ -124,29 +125,29 @@ function DepartamentoList(props) {
                 </thead>
                 <tbody>
                     {currentRecords
-                        .map((departamento, index) => {
+                        .map((cargo, index) => {
                             return (
                                 <tr key={index}>
                                     {/*<td>{departamento.idDepartamento}</td>*/}
-                                    <td>{departamento.nmNome}</td>
-                                    <td>{departamento.nmDescricao}</td>
+                                    <td>{cargo.nmNome}</td>
+                                    <td>{cargo.nmDescricao}</td>
                                     <td>
                                         <input
                                             type="checkbox"
-                                            checked={departamento.isAtivo == 1}
+                                            checked={cargo.isAtivo == 1}
                                             readOnly
                                         />
                                     </td>
                                     <td style={{ width: "10px", whiteSpace: "nowrap" }}>
                                         <button
-                                            onClick={() => props.ShowForm(departamento)}
+                                            onClick={() => props.ShowForm(cargo)}
                                             type="button"
                                             className="btn btn-primary btn-sm me-2"
                                         >
                                             Editar
                                         </button>
                                         <button
-                                            onClick={() => handleDelete(departamento.idDepartamento)}
+                                            onClick={() => handleDelete(cargo.idCargos)}
                                             type="button"
                                             className="btn btn-danger btn-sm"
                                         >
@@ -161,21 +162,21 @@ function DepartamentoList(props) {
         </>
 
     );
-} 
-function DepartamentoForm(props) {
-    DepartamentoForm.propTypes = {
+}
+function CargoForm(props) {
+    CargoForm.propTypes = {
         ShowList: PropTypes.func.isRequired,
-        departamento: PropTypes.shape({
-            idDepartamento: PropTypes.number,
+        cargo: PropTypes.shape({
+            idCargos: PropTypes.number,
             nmNome: PropTypes.string,
             nmDescricao: PropTypes.string,
             isAtivo: PropTypes.bool,
         }).isRequired,
     };
-    // const [errorMessage, setErrorMessage] = useState('');
-    const [nome, setNome] = useState(props.departamento.nmNome || '');
-    const [descricao, setDescricao] = useState(props.departamento.nmDescricao || '');    
-    const [ativo, setAtivo] = useState(props.departamento.isAtivo || false);
+
+    const [nome, setNome] = useState(props.cargo.nmNome || '');
+    const [descricao, setDescricao] = useState(props.cargo.nmDescricao || '');
+    const [ativo, setAtivo] = useState(props.cargo.isAtivo || false);
 
     function handleAtivoChange(e) {
         setAtivo(e.target.checked);
@@ -184,7 +185,7 @@ function DepartamentoForm(props) {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (props.departamento.idDepartamento) {
+        if (props.cargo.idCargos) {
             const data = {
                 nmNome: nome,
                 nmDescricao: descricao,
@@ -192,8 +193,8 @@ function DepartamentoForm(props) {
             };
             axios
                 .patch(
-                    "https://localhost:7207/departamento/Atualizar/" +
-                    props.departamento.idDepartamento,
+                    "https://localhost:7207/cargo/Atualizar/" +
+                    props.cargo.idCargos,
                     data
                 )
                 .then(() => {
@@ -204,20 +205,18 @@ function DepartamentoForm(props) {
                         const errors = error.response.data;
                         console.log(errors);
                         alert(errors.Email);
-                        // outros tratamentos de erro
                     } else {
                         console.log(error);
-                        // outros tratamentos de erro
                     }
                 });
         } else {
             const data = {
                 nmNome: nome,
-                NmDescricao: descricao,
+                nmDescricao: descricao,
                 isAtivo: ativo,
             };
             axios
-                .post("https://localhost:7207/departamento/Incluir", data)
+                .post("https://localhost:7207/cargo/Incluir", data)
                 .then(() => {
                     props.ShowList();
                 })
@@ -226,35 +225,33 @@ function DepartamentoForm(props) {
                         const errors = error.response.data;
                         console.log(errors);
                         alert(errors.Email);
-                        // outros tratamentos de erro
                     } else {
                         console.log(error);
-                        // outros tratamentos de erro
                     }
                 });
         }
     };
+
     return (
         <>
             <NavBar />
             <h2 className="text-center mb-3">
-                {props.departamento.idDepartamento
-                    ? "Editar Departamento"
-                    : "Cadastrar Novo Departamento"}
+                {props.cargo.idCargos
+                    ? "Editar Cargo"
+                    : "Cadastrar Novo Cargo"}
             </h2>
             <div className="row">
                 <div className="col-lg-6 mx-auto">
-                    {/* {errorMessage} */}
                     <form onSubmit={(e) => handleSubmit(e)}>
-                        {props.departamento.idDepartamento && (
+                        {props.cargo.idCargos && (
                             <div className="row mb-3">
                                 <label className="col-sm-4 col-form-label">ID</label>
                                 <div className="col-sm-8">
                                     <input
                                         readOnly
                                         className="form-control-plaintext"
-                                        name="idDepartamento"
-                                        defaultValue={props.departamento.idDepartamento}
+                                        name="idCargos"
+                                        defaultValue={props.cargo.idCargos}
                                         required
                                         onChange={(e) => setNome(e.target.value)}
                                     ></input>
@@ -263,12 +260,12 @@ function DepartamentoForm(props) {
                         )}
 
                         <div className="row mb-3">
-                            <label className="col-sm-4 col-form-label">Nome do Departamento</label>
+                            <label className="col-sm-4 col-form-label">Nome do Cargo</label>
                             <div className="col-sm-8">
                                 <input
                                     className="form-control"
                                     name="nome"
-                                    defaultValue={props.departamento.nmNome}
+                                    defaultValue={props.cargo.nmNome}
                                     required
                                     onChange={(e) => setNome(e.target.value)}
                                 ></input>
@@ -281,7 +278,7 @@ function DepartamentoForm(props) {
                                 <input
                                     className="form-control"
                                     name="descricao"
-                                    defaultValue={props.departamento.nmDescricao}
+                                    defaultValue={props.cargo.nmDescricao}
                                     required
                                     onChange={(e) => setDescricao(e.target.value)}
                                 ></input>
@@ -295,7 +292,7 @@ function DepartamentoForm(props) {
                                     className="form-check-input"
                                     name="ativo"
                                     type="checkbox"
-                                    value={props.departamento.isAtivo}
+                                    value={props.cargo.isAtivo}
                                     checked={ativo}
                                     onChange={handleAtivoChange}
                                 />
@@ -324,20 +321,22 @@ function DepartamentoForm(props) {
         </>
     );
 }
-export function Departamento() {
+export function Cargo() {
 
     const [content, setContent] = useState(
-        <DepartamentoList ShowForm={ShowForm} />
+        <CargoList ShowForm={ShowForm} />
     );
 
     function ShowList() {
-        setContent(<DepartamentoList ShowForm={ShowForm} />);
+        setContent(<CargoList ShowForm={ShowForm} />);
     }
 
-    function ShowForm(departamento) {
+    function ShowForm(cargo) {
         setContent(
-            <DepartamentoForm departamento={departamento} ShowList={ShowList} ShowForm={ShowForm} />
+            <CargoForm cargo={cargo} ShowList={ShowList} ShowForm={ShowForm} />
         );
     }
     return <div className="container">{content}</div>;
 }
+
+export default CargoForm;

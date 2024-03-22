@@ -3,12 +3,6 @@ using GestaoEscalaPermutas.Infra.Data.Context;
 using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using GestaoEscalaPermutas.Dominio.DTO.Departamento;
 using GestaoEscalaPermutas.Dominio.Interfaces.Departamento;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestaoEscalaPermutas.Dominio.Services.Departamento
@@ -23,7 +17,6 @@ namespace GestaoEscalaPermutas.Dominio.Services.Departamento
             _context = context;
             _mapper = mapper;
         }
-
         public async Task<DepartamentoDTO> Incluir(DepartamentoDTO departamentoDTO)
         {
             try
@@ -45,8 +38,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.Departamento
             {
                 return new DepartamentoDTO { valido = false, mensagem = $"Erro ao receber o Objeto: {e.Message}" };
             }
-        }        
-       
+        }               
         public async Task<DepartamentoDTO> Alterar(int id, DepartamentoDTO departamentoModel)
         {
             try
@@ -82,8 +74,6 @@ namespace GestaoEscalaPermutas.Dominio.Services.Departamento
                 throw new Exception($"Erro ao alterar o objeto: {e.Message}");
             }
         }
-
-
         public async Task<List<DepartamentoDTO>> BuscarTodos()
         {
             try
@@ -97,7 +87,6 @@ namespace GestaoEscalaPermutas.Dominio.Services.Departamento
                 throw new Exception($"Erro ao receber o Objeto: {e.Message}");
             }
         }
-
         public async Task<DepartamentoDTO> Deletar(int id)
         {
             try

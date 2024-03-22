@@ -28,19 +28,26 @@ function NavBar() {
                     </button>
                     <div className="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                            <li className={`nav-item ${location.pathname === '/home' ? 'active' : ''}`}>
-                                <Link className="nav-link text-dark" aria-current="page" to="/home">Home</Link>
-                            </li>
+                            {/*<li className={`nav-item ${location.pathname === '/home' ? 'active' : ''}`}>*/}
+                            {/*    <Link className="nav-link text-dark" aria-current="page" to="/home">Home</Link>*/}
+                            {/*</li>*/}
+
                             <li className={`nav-item ${location.pathname === '/departamento' ? 'active' : ''}`}>
                                 <Link className="nav-link text-dark" to="/departamento">Departamento</Link>
                             </li>
-                            <li className={`nav-item ${location.pathname === '/funcionarios' ? 'active' : ''}`}>
-                                <Link className="nav-link text-dark" aria-current="page" to="/funcionarios">Funcionários</Link>
+
+                            <li className={`nav-item ${location.pathname === '/cargo' ? 'active' : ''}`}>
+                                <Link className="nav-link text-dark" to="/cargo">Cargo</Link>
+                            </li>
+
+                            <li className={`nav-item ${location.pathname === '/funcionario' ? 'active' : ''}`}>
+                                <Link className="nav-link text-dark" aria-current="page" to="/funcionario">Funcionários</Link>
                             </li>
                             
-                            {/*<li className={`nav-item ${location.pathname === '/postos' ? 'active' : ''}`}>*/}
-                            {/*    <Link className="nav-link text-dark" to="/postos">Postos</Link>*/}
-                            {/*</li>*/}
+                            <li className={`nav-item ${location.pathname === '/PostoTrabalho' ? 'active' : ''}`}>
+                                <Link className="nav-link text-dark" to="/PostoTrabalho">Postos</Link>
+                            </li>
+
                             <li className={`nav-item ${location.pathname === '/escalas' ? 'active' : ''}`}>
                                 <Link className="nav-link text-dark" to="/escalas">Escalas</Link>
                             </li>

@@ -2,8 +2,9 @@ import NavBar from "../../Menu/NavBar";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import PropTypes from 'prop-types';
-function DepartamentoList(props) {
-    DepartamentoList.propTypes = {
+
+function FuncionarioList(props) {
+    FuncionarioList.propTypes = {
         ShowForm: PropTypes.func.isRequired, // Indica que ShowForm é uma função obrigatória
     };
     const [currentPage, setCurrentPage] = useState(1);
@@ -11,14 +12,14 @@ function DepartamentoList(props) {
 
     const [searchText, setSearchText] = useState("");
 
-    const [departamento, setDepartamento] = useState([]);
+    const [funcionario, setFuncionario] = useState([]);
 
-    const API_URL = "https://localhost:7207/departamento";
+    const API_URL = "https://localhost:7207/funcionario";
     function BuscarTodos() {
         axios.get(`${API_URL}/buscarTodos`)
             .then((response) => {
                 console.log(response.data);
-                setDepartamento(response.data);
+                setFuncionario(response.data);
             })
             .catch((error) => {
                 console.log(error);
@@ -29,7 +30,7 @@ function DepartamentoList(props) {
         const fetchData = async () => {
             const response = await axios.get(`${API_URL}/buscarTodos`);
             console.log(response.data);
-            setDepartamento(response.data);
+            setFuncionario(response.data);
         };
         fetchData();
     }, []);
@@ -37,17 +38,17 @@ function DepartamentoList(props) {
     function handleDelete(id) {
         // Mostrar a popup de confirmação
         if (window.confirm("Tem certeza que deseja excluir este registro?")) {
-            DeleteDepartamento(id);
+            DeleteFuncionario(id);
         }
     }
 
-    function DeleteDepartamento(idDepartamento) {
+    function DeleteFuncionario(idFuncionario) {
         axios
-            .delete(`https://localhost:7207/departamento/Deletar/${idDepartamento}`)
+            .delete(`https://localhost:7207/funcionario/Deletar/${idFuncionario}`)
             .then((response) => {
                 console.log(response);
-                setDepartamento(
-                    departamento.filter((usuario) => usuario.id !== idDepartamento)
+                setFuncionario(
+                    funcionario.filter((usuario) => usuario.id !== idFuncionario)
                 );
                 BuscarTodos();
             })
@@ -58,7 +59,7 @@ function DepartamentoList(props) {
 
     //const indexOfLastRecord = currentPage * recordsPerPage;
     //const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-    const currentRecords = departamento
+    const currentRecords = funcionario
     //    .filter(
     //        (departamento) =>
     //            departamento.nome.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -71,7 +72,7 @@ function DepartamentoList(props) {
     return (
         <>
             <NavBar />
-            <h3 className="text-center mb-3">Listagem de Departamentos</h3>
+            <h3 className="text-center mb-3">Listagem de Funcionários</h3>
             <button
                 onClick={() => props.ShowForm({})}
                 type="button"
@@ -118,35 +119,43 @@ function DepartamentoList(props) {
                     <tr>
                         {/*<th>ID</th>*/}
                         <th>NOME</th>
-                        <th>DESCRIÇÃO</th>
+                        <th>MATRÍCULA</th>
+                        <th>TELEFONE</th>
+                        <th>ENDEREÇO</th>
+                        <th>CARGO</th>
                         <th>ATIVO</th>
+                        <th>E-MAIL</th>
                     </tr>
                 </thead>
                 <tbody>
                     {currentRecords
-                        .map((departamento, index) => {
+                        .map((funcionario, index) => {
                             return (
                                 <tr key={index}>
-                                    {/*<td>{departamento.idDepartamento}</td>*/}
-                                    <td>{departamento.nmNome}</td>
-                                    <td>{departamento.nmDescricao}</td>
+                                    {/*<td>{funcionario.idFuncionario}</td>*/}
+                                    <td>{funcionario.nmNome}</td>
+                                    <td>{funcionario.nrMatricula}</td>
+                                    <td>{funcionario.nrTelefone}</td>
+                                    <td>{funcionario.nmEndereco}</td>
+                                    <td>{funcionario.idCargos}</td>
                                     <td>
                                         <input
                                             type="checkbox"
-                                            checked={departamento.isAtivo == 1}
+                                            checked={funcionario.isAtivo == 1}
                                             readOnly
                                         />
                                     </td>
+                                    <td>{funcionario.nmEmail}</td>
                                     <td style={{ width: "10px", whiteSpace: "nowrap" }}>
                                         <button
-                                            onClick={() => props.ShowForm(departamento)}
+                                            onClick={() => props.ShowForm(funcionario)}
                                             type="button"
                                             className="btn btn-primary btn-sm me-2"
                                         >
                                             Editar
                                         </button>
                                         <button
-                                            onClick={() => handleDelete(departamento.idDepartamento)}
+                                            onClick={() => handleDelete(funcionario.idFuncionario)}
                                             type="button"
                                             className="btn btn-danger btn-sm"
                                         >
@@ -161,21 +170,50 @@ function DepartamentoList(props) {
         </>
 
     );
-} 
-function DepartamentoForm(props) {
-    DepartamentoForm.propTypes = {
+}
+function FuncionarioForm(props) {
+    FuncionarioForm.propTypes = {
         ShowList: PropTypes.func.isRequired,
-        departamento: PropTypes.shape({
-            idDepartamento: PropTypes.number,
+        funcionario: PropTypes.shape({
+            idFuncionario: PropTypes.number,
             nmNome: PropTypes.string,
-            nmDescricao: PropTypes.string,
+            nrMatricula: PropTypes.number,
+            nrTelefone: PropTypes.number,
+            nmEmail: PropTypes.string,
+            nmEndereco: PropTypes.string,
+            idCargos: PropTypes.number,
             isAtivo: PropTypes.bool,
         }).isRequired,
     };
+
     // const [errorMessage, setErrorMessage] = useState('');
-    const [nome, setNome] = useState(props.departamento.nmNome || '');
-    const [descricao, setDescricao] = useState(props.departamento.nmDescricao || '');    
-    const [ativo, setAtivo] = useState(props.departamento.isAtivo || false);
+    const [nome, setNome] = useState(props.funcionario.nmNome || '');
+    const [ativo, setAtivo] = useState(props.funcionario.isAtivo || false);
+    const [matricula, setMatricula] = useState(props.funcionario.nrMatricula || '');
+    const [telefone, setTelefone] = useState(props.funcionario.nrTelefone || '');
+    const [email, setEmail] = useState(props.funcionario.nmEmail || '');
+    const [endereco, setEndereco] = useState(props.funcionario.nmEndereco || '');
+    const [cargo, setCargo] = useState(props.funcionario.idCargos || '');
+    const [cargos, setCargos] = useState([]);
+    const [cargoSelecionado, setCargoSelecionado] = useState('');
+
+    useEffect(() => {
+        BuscarTodos();
+    }, []);
+    const API_URL = "https://localhost:7207/cargo";
+    function BuscarTodos() {
+        axios.get(`${API_URL}/buscarTodos`)
+            .then((response) => {
+                console.log(response.data);
+                setCargos(response.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
+
+
 
     function handleAtivoChange(e) {
         setAtivo(e.target.checked);
@@ -184,16 +222,20 @@ function DepartamentoForm(props) {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (props.departamento.idDepartamento) {
+        if (props.funcionario.idFuncionario) {
             const data = {
                 nmNome: nome,
-                nmDescricao: descricao,
+                nmMatricula: matricula,
+                nrTelefone: telefone,
+                nmEmail: email,
+                nmEndereco: endereco,
+                idCargos: cargoSelecionado,
                 isAtivo: ativo,
             };
             axios
                 .patch(
-                    "https://localhost:7207/departamento/Atualizar/" +
-                    props.departamento.idDepartamento,
+                    "https://localhost:7207/funcionario/Atualizar/" +
+                    props.funcionario.idFuncionario,
                     data
                 )
                 .then(() => {
@@ -213,11 +255,15 @@ function DepartamentoForm(props) {
         } else {
             const data = {
                 nmNome: nome,
-                NmDescricao: descricao,
+                nrMatricula: matricula,
+                nrTelefone: telefone,
+                nmEmail: email,
+                nmEndereco: endereco,
+                idCargos: cargoSelecionado,
                 isAtivo: ativo,
             };
             axios
-                .post("https://localhost:7207/departamento/Incluir", data)
+                .post("https://localhost:7207/funcionario/Incluir", data)
                 .then(() => {
                     props.ShowList();
                 })
@@ -238,23 +284,23 @@ function DepartamentoForm(props) {
         <>
             <NavBar />
             <h2 className="text-center mb-3">
-                {props.departamento.idDepartamento
-                    ? "Editar Departamento"
-                    : "Cadastrar Novo Departamento"}
+                {props.funcionario.idFuncionario
+                    ? "Editar Funcionario"
+                    : "Cadastrar Novo funcionario"}
             </h2>
             <div className="row">
                 <div className="col-lg-6 mx-auto">
                     {/* {errorMessage} */}
                     <form onSubmit={(e) => handleSubmit(e)}>
-                        {props.departamento.idDepartamento && (
+                        {props.funcionario.idFuncionario && (
                             <div className="row mb-3">
                                 <label className="col-sm-4 col-form-label">ID</label>
                                 <div className="col-sm-8">
                                     <input
                                         readOnly
                                         className="form-control-plaintext"
-                                        name="idDepartamento"
-                                        defaultValue={props.departamento.idDepartamento}
+                                        name="idFuncionario"
+                                        defaultValue={props.funcionario.idFuncionario}
                                         required
                                         onChange={(e) => setNome(e.target.value)}
                                     ></input>
@@ -263,12 +309,12 @@ function DepartamentoForm(props) {
                         )}
 
                         <div className="row mb-3">
-                            <label className="col-sm-4 col-form-label">Nome do Departamento</label>
+                            <label className="col-sm-4 col-form-label">Nome do Funcionário</label>
                             <div className="col-sm-8">
                                 <input
                                     className="form-control"
                                     name="nome"
-                                    defaultValue={props.departamento.nmNome}
+                                    defaultValue={props.funcionario.nmNome}
                                     required
                                     onChange={(e) => setNome(e.target.value)}
                                 ></input>
@@ -276,17 +322,63 @@ function DepartamentoForm(props) {
                         </div>
 
                         <div className="row mb-3">
-                            <label className="col-sm-4 col-form-label">Descrição</label>
+                            <label className="col-sm-4 col-form-label">Matrícula</label>
                             <div className="col-sm-8">
                                 <input
                                     className="form-control"
-                                    name="descricao"
-                                    defaultValue={props.departamento.nmDescricao}
+                                    name="matricula"
+                                    defaultValue={props.funcionario.nrMatricula}
                                     required
-                                    onChange={(e) => setDescricao(e.target.value)}
+                                    onChange={(e) => setMatricula(e.target.value)}
                                 ></input>
                             </div>
                         </div>
+
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Telefone</label>
+                            <div className="col-sm-8">
+                                <input
+                                    className="form-control"
+                                    name="telefone"
+                                    defaultValue={props.funcionario.nrTelefone}
+                                    required
+                                    onChange={(e) => setTelefone(e.target.value)}
+                                ></input>
+                            </div>
+                        </div>
+
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Endereço</label>
+                            <div className="col-sm-8">
+                                <input
+                                    className="form-control"
+                                    name="endereco"
+                                    defaultValue={props.funcionario.nmEndereco}
+                                    required
+                                    onChange={(e) => setEndereco(e.target.value)}
+                                ></input>
+                            </div>
+                        </div>
+
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Cargo</label>
+                            <div className="col-sm-8">
+                                <select
+                                    className="form-control"
+                                    name="cargo"
+                                    value={cargo}
+                                    onChange={(e) => setCargoSelecionado(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Selecione um cargo</option>
+                                    {cargos.map(cargo => (
+                                        <option key={cargo.idCargos} value={cargo.idCargos}>{cargo.nmNome}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+
 
                         <div className="row mb-3">
                             <label className="col-sm-4 col-form-label">Ativo</label>
@@ -295,10 +387,23 @@ function DepartamentoForm(props) {
                                     className="form-check-input"
                                     name="ativo"
                                     type="checkbox"
-                                    value={props.departamento.isAtivo}
+                                    value={props.funcionario.isAtivo}
                                     checked={ativo}
                                     onChange={handleAtivoChange}
                                 />
+                            </div>
+                        </div>
+
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">E-mail</label>
+                            <div className="col-sm-8">
+                                <input
+                                    className="form-control"
+                                    name="Email"
+                                    defaultValue={props.funcionario.nmEmail}
+                                    required
+                                    onChange={(e) => setEmail(e.target.value)}
+                                ></input>
                             </div>
                         </div>
 
@@ -324,19 +429,18 @@ function DepartamentoForm(props) {
         </>
     );
 }
-export function Departamento() {
-
+export function Funcionario() {
     const [content, setContent] = useState(
-        <DepartamentoList ShowForm={ShowForm} />
+        <FuncionarioList ShowForm={ShowForm} />
     );
 
     function ShowList() {
-        setContent(<DepartamentoList ShowForm={ShowForm} />);
+        setContent(<FuncionarioList ShowForm={ShowForm} />);
     }
 
-    function ShowForm(departamento) {
+    function ShowForm(funcionario) {
         setContent(
-            <DepartamentoForm departamento={departamento} ShowList={ShowList} ShowForm={ShowForm} />
+            <FuncionarioForm funcionario={funcionario} ShowList={ShowList} ShowForm={ShowForm} />
         );
     }
     return <div className="container">{content}</div>;

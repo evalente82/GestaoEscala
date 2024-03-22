@@ -11,6 +11,5 @@
   <ItemGroup>
     <Folder Include="src\Components\Login\" />
     <Folder Include="src\Components\Imagens\" />
-    <Folder Include="src\Components\Pages\PostoTrabalho\" />
   </ItemGroup>
 </Project>

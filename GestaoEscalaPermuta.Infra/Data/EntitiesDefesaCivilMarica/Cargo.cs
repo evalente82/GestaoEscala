@@ -21,5 +21,5 @@ public partial class Cargo
 
     public bool IsAtivo { get; set; }
 
-    public DateOnly? DtCriacao { get; set; }
+    public DateTime DtCriacao { get; set; }
 }

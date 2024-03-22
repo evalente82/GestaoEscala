@@ -95,15 +95,6 @@ public partial class DefesaCivilMaricaContext : DbContext
 
         });
 
-        //modelBuilder.Entity<Departamento>()
-        //.Property(e => e.DtCriacao)
-        //.HasColumnType("date")
-        //.HasConversion(
-        //    v => v,
-        //    v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
-        //);
-
-
         modelBuilder.Entity<Funcionario>(entity =>
         {
             entity.HasKey(e => e.IdFuncionario).HasName("PK_IdFuncionario");
