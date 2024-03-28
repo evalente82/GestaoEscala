@@ -33,7 +33,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.Funcionarios
 
         [HttpPatch]
         [Route("Atualizar/{id:int}")]
-        public async Task<ActionResult> AtualizarDepartamento(int id, [FromBody] FuncionarioDTO funcionario)
+        public async Task<ActionResult> AtualizarFuncionario(int id, [FromBody] FuncionarioDTO funcionario)
         {
             funcionario.IdFuncionario = id;
             var funcionarioDTO = await _funcionarioService.Alterar(id, _mapper.Map<FuncionarioDTO>(funcionario));

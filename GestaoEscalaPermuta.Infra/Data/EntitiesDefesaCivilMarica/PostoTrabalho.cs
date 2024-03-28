@@ -22,7 +22,7 @@ public partial class PostoTrabalho
 
     public bool IsAtivo { get; set; }
 
-    public DateOnly? DtCriacao { get; set; }
+    public DateTime DtCriacao { get; set; }
 
     public int IdDepartamento { get; set; }
 

@@ -1,9 +1,38 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import NavBar from "../../Menu/NavBar";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import PropTypes from 'prop-types';
 
 function FuncionarioList(props) {
+    // Definindo a função BuscarTodos dentro do componente FuncionarioList
+    function BuscarTodos() {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get("https://localhost:7207/cargo/buscarTodos");
+                setCargos(response.data);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        fetchData();
+    }
+
+    function BuscarFuncionarios() {
+        const API_URL = "https://localhost:7207/funcionario";
+        const fetchData = async () => {
+            const response = await axios.get(`${API_URL}/buscarTodos`);
+            console.log(response.data);
+            setFuncionario(response.data);
+        };
+        fetchData();
+    }
+
+    useEffect(() => {
+        // Chamando a função BuscarTodos dentro de useEffect
+        BuscarTodos();
+    }, []);
+
     FuncionarioList.propTypes = {
         ShowForm: PropTypes.func.isRequired, // Indica que ShowForm é uma função obrigatória
     };
@@ -14,17 +43,14 @@ function FuncionarioList(props) {
 
     const [funcionario, setFuncionario] = useState([]);
 
+    const [cargos, setCargos] = useState([]);
+    // Chame BuscarTodos() no início do componente para carregar os cargos
+    useEffect(() => {
+        BuscarTodos(setCargos);
+    }, []); // Passando um array vazio, o efeito será executado apenas uma vez no carregamento do componente
+
     const API_URL = "https://localhost:7207/funcionario";
-    function BuscarTodos() {
-        axios.get(`${API_URL}/buscarTodos`)
-            .then((response) => {
-                console.log(response.data);
-                setFuncionario(response.data);
-            })
-            .catch((error) => {
-                console.log(error);
-            });
-    }
+    
 
     useEffect(() => {
         const fetchData = async () => {
@@ -50,7 +76,7 @@ function FuncionarioList(props) {
                 setFuncionario(
                     funcionario.filter((usuario) => usuario.id !== idFuncionario)
                 );
-                BuscarTodos();
+                BuscarFuncionarios();
             })
             .catch((error) => {
                 console.error(error);
@@ -81,7 +107,7 @@ function FuncionarioList(props) {
                 Cadastrar
             </button>
             <button
-                onClick={() => BuscarTodos()}
+                onClick={() => BuscarFuncionarios()}
                 type="button"
                 className="btn btn-outline-primary me-2"
             >
@@ -137,7 +163,8 @@ function FuncionarioList(props) {
                                     <td>{funcionario.nrMatricula}</td>
                                     <td>{funcionario.nrTelefone}</td>
                                     <td>{funcionario.nmEndereco}</td>
-                                    <td>{funcionario.idCargos}</td>
+                                    <td>{cargos.find(cargo => cargo.idCargos === funcionario.idCargos)?.nmNome}</td>
+                                    {/*<td>{funcionario.idCargos}</td>*/}
                                     <td>
                                         <input
                                             type="checkbox"
@@ -193,7 +220,6 @@ function FuncionarioForm(props) {
     const [telefone, setTelefone] = useState(props.funcionario.nrTelefone || '');
     const [email, setEmail] = useState(props.funcionario.nmEmail || '');
     const [endereco, setEndereco] = useState(props.funcionario.nmEndereco || '');
-    const [cargo, setCargo] = useState(props.funcionario.idCargos || '');
     const [cargos, setCargos] = useState([]);
     const [cargoSelecionado, setCargoSelecionado] = useState('');
 
@@ -212,7 +238,11 @@ function FuncionarioForm(props) {
             });
     }
 
-
+    useEffect(() => {
+        if (props.funcionario.idFuncionario) {
+            setCargoSelecionado(props.funcionario.idCargos.toString());
+        }
+    }, [props.funcionario.idFuncionario]);
 
 
     function handleAtivoChange(e) {
@@ -280,13 +310,14 @@ function FuncionarioForm(props) {
                 });
         }
     };
+
     return (
         <>
             <NavBar />
             <h2 className="text-center mb-3">
                 {props.funcionario.idFuncionario
                     ? "Editar Funcionario"
-                    : "Cadastrar Novo funcionario"}
+                    : "Cadastrar Novo Funcionario"}
             </h2>
             <div className="row">
                 <div className="col-lg-6 mx-auto">
@@ -366,7 +397,7 @@ function FuncionarioForm(props) {
                                 <select
                                     className="form-control"
                                     name="cargo"
-                                    value={cargo}
+                                    value={cargoSelecionado}
                                     onChange={(e) => setCargoSelecionado(e.target.value)}
                                     required
                                 >
@@ -376,9 +407,20 @@ function FuncionarioForm(props) {
                                     ))}
                                 </select>
                             </div>
+                        </div>                        
+
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">E-mail</label>
+                            <div className="col-sm-8">
+                                <input
+                                    className="form-control"
+                                    name="Email"
+                                    defaultValue={props.funcionario.nmEmail}
+                                    required
+                                    onChange={(e) => setEmail(e.target.value)}
+                                ></input>
+                            </div>
                         </div>
-
-
 
                         <div className="row mb-3">
                             <label className="col-sm-4 col-form-label">Ativo</label>
@@ -391,19 +433,6 @@ function FuncionarioForm(props) {
                                     checked={ativo}
                                     onChange={handleAtivoChange}
                                 />
-                            </div>
-                        </div>
-
-                        <div className="row mb-3">
-                            <label className="col-sm-4 col-form-label">E-mail</label>
-                            <div className="col-sm-8">
-                                <input
-                                    className="form-control"
-                                    name="Email"
-                                    defaultValue={props.funcionario.nmEmail}
-                                    required
-                                    onChange={(e) => setEmail(e.target.value)}
-                                ></input>
                             </div>
                         </div>
 

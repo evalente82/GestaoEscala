@@ -14,16 +14,10 @@
   <ItemGroup>
     <Folder Include="Interfaces\Empresa\" />
     <Folder Include="Interfaces\EscalaPronta\" />
-    <Folder Include="Interfaces\Escala\" />
     <Folder Include="Interfaces\Permuta\" />
-    <Folder Include="Interfaces\PostoTrabalho\" />
-    <Folder Include="Interfaces\TipoEscala\" />
     <Folder Include="Services\Empresa\" />
     <Folder Include="Services\EscalaPronta\" />
-    <Folder Include="Services\Escala\" />
     <Folder Include="Services\Permuta\" />
-    <Folder Include="Services\PostoTrabalho\" />
-    <Folder Include="Services\TipoEscala\" />
   </ItemGroup>
 
   <ItemGroup>

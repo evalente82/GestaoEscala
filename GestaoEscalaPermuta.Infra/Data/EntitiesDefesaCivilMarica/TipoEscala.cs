@@ -22,7 +22,7 @@ public partial class TipoEscala
 
     public bool IsAtivo { get; set; }
 
-    public DateOnly? DtCriacao { get; set; }
+    public DateTime DtCriacao { get; set; }
 
     public int NrHorasTrabalhada { get; set; }
 

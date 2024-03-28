@@ -48,18 +48,22 @@ function NavBar() {
                                 <Link className="nav-link text-dark" to="/PostoTrabalho">Postos</Link>
                             </li>
 
+                            <li className={`nav-item ${location.pathname === '/tipoEscala' ? 'active' : ''}`}>
+                                <Link className="nav-link text-dark" to="/tipoEscala">Tipo Escala</Link>
+                            </li>
+
                             <li className={`nav-item ${location.pathname === '/escalas' ? 'active' : ''}`}>
                                 <Link className="nav-link text-dark" to="/escalas">Escalas</Link>
                             </li>
+
                             <li className={`nav-item ${location.pathname === '/EditarEscalaSelecionada' ? 'active' : ''}`}>
                                 <Link className="nav-link text-dark" to="/EditarEscalaSelecionada">Alterar Escala</Link>
                             </li>
+
                             <li className={`nav-item ${location.pathname === '/permutas' ? 'active' : ''}`}>
                                 <Link className="nav-link text-dark" to="/permutas">Permutas</Link>
                             </li>
-                            <li className={`nav-item ${location.pathname === '/escalavigente' ? 'active' : ''}`}>
-                                <Link className="nav-link text-dark" to="/escalavigente">Escala Vigente</Link>
-                            </li>
+
                             {/* <li className={`nav-item ${location.pathname === '/alteracao' ? 'active' : ''}`}>
                                 <Link className="nav-link text-dark" to="/alteracao">Exibição</Link>
                             </li> */}

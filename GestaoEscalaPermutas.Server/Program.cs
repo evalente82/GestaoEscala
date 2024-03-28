@@ -9,6 +9,12 @@ using GestaoEscalaPermutas.Dominio.Services.Cargos;
 using GestaoEscalaPermutas.Dominio.Interfaces.Cargos;
 using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
 using GestaoEscalaPermutas.Dominio.Services.Funcionario;
+using GestaoEscalaPermutas.Dominio.Services.Escala;
+using GestaoEscalaPermutas.Dominio.Services.PostoTrabalho;
+using GestaoEscalaPermutas.Dominio.Services.TipoEscala;
+using GestaoEscalaPermutas.Dominio.Interfaces.Escala;
+using GestaoEscalaPermutas.Dominio.Interfaces.PostoTrabalho;
+using GestaoEscalaPermutas.Dominio.Interfaces.TipoEscala;
 
 
 
@@ -73,6 +79,10 @@ builder.Services.AddResponseCompression();
 builder.Services.AddTransient<IDepartamentoService, DepartamentoService>();
 builder.Services.AddTransient<ICargoService, CargoService>();
 builder.Services.AddTransient<IFuncionarioService, FuncionarioService>();
+builder.Services.AddTransient<IEscalaService, EscalaService>();
+builder.Services.AddTransient<IPostoTrabalhoService, PostoTrabalhoService>();
+builder.Services.AddTransient<ITipoEscalaService, TipoEscalaService>();
+//builder.Services.AddScoped<TipoEscalaService>();
 
 var app = builder.Build();
 app.Use(async (context, next) =>

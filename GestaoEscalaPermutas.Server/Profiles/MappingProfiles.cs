@@ -6,6 +6,12 @@ using GestaoEscalaPermutas.Server.Models.Cargos;
 using GestaoEscalaPermutas.Dominio.DTO.Cargo;
 using GestaoEscalaPermutas.Server.Models.Funcionarios;
 using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
+using GestaoEscalaPermutas.Server.Models.Escala;
+using GestaoEscalaPermutas.Dominio.DTO.Escala;
+using GestaoEscalaPermutas.Server.Models.PostoTrabalho;
+using GestaoEscalaPermutas.Dominio.DTO.PostoTrabalho;
+using GestaoEscalaPermutas.Server.Models.TipoEscala;
+using GestaoEscalaPermutas.Dominio.DTO.TipoEscala;
 
 namespace GestaoEscalaPermutas.Server.Profiles
 {
@@ -35,6 +41,30 @@ namespace GestaoEscalaPermutas.Server.Profiles
             CreateMap<Funcionario, FuncionarioDTO>()
              .ReverseMap();
             CreateMap<Funcionario, FuncionarioDTO>()
+            .ForMember(x => x.valido, opt => opt.MapFrom(src => true))
+            .ForMember(x => x.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso"));
+
+            CreateMap<EscalaModel, EscalaDTO>()
+            .ReverseMap();
+            CreateMap<Escala, EscalaDTO>()
+             .ReverseMap();
+            CreateMap<Escala, EscalaDTO>()
+            .ForMember(x => x.valido, opt => opt.MapFrom(src => true))
+            .ForMember(x => x.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso"));
+
+            CreateMap<PostoTrabalhoModel, PostoTrabalhoDTO>()
+            .ReverseMap();
+            CreateMap<PostoTrabalho, PostoTrabalhoDTO>()
+             .ReverseMap();
+            CreateMap<PostoTrabalho, PostoTrabalhoDTO>()
+            .ForMember(x => x.valido, opt => opt.MapFrom(src => true))
+            .ForMember(x => x.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso"));
+
+            CreateMap<TipoEscalaModel, TipoEscalaDTO>()
+            .ReverseMap();
+            CreateMap<TipoEscala, TipoEscalaDTO>()
+             .ReverseMap();
+            CreateMap<TipoEscala, TipoEscalaDTO>()
             .ForMember(x => x.valido, opt => opt.MapFrom(src => true))
             .ForMember(x => x.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso"));
         }

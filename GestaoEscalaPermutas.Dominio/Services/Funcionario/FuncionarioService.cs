@@ -38,7 +38,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
                 return new FuncionarioDTO { valido = false, mensagem = $"Erro ao receber o Objeto: {e.Message}" };
             }
         }
-        public async Task<FuncionarioDTO> Alterar(int id, FuncionarioDTO funcionarioModel)
+        public async Task<FuncionarioDTO> Alterar(int id, FuncionarioDTO funcionarioDTO)
         {
             try
             {
@@ -55,7 +55,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
                     }
 
                     // Mapeia os dados do DTO para o modelo existente (apenas as propriedades que você deseja atualizar)
-                    _mapper.Map(funcionarioModel, funcionarioExistente);
+                    _mapper.Map(funcionarioDTO, funcionarioExistente);
 
                     // O EF Core rastreará que o objeto foi modificado
                     _context.Funcionarios.Update(funcionarioExistente);

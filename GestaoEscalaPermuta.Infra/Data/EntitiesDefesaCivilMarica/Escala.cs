@@ -20,7 +20,7 @@ public partial class Escala
 
     public int IdTipoEscala { get; set; }
 
-    public DateOnly? DtCriacao { get; set; }
+    public DateTime DtCriacao { get; set; }
 
     public int NrMesReferencia { get; set; }
 

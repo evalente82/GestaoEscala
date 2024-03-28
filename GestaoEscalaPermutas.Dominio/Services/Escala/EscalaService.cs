@@ -1,0 +1,126 @@
+﻿using AutoMapper;
+using GestaoEscalaPermutas.Dominio.DTO.Escala;
+using GestaoEscalaPermutas.Dominio.Interfaces.Escala;
+using GestaoEscalaPermutas.Infra.Data.Context;
+using Microsoft.EntityFrameworkCore;
+using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
+
+namespace GestaoEscalaPermutas.Dominio.Services.Escala
+{
+    public class EscalaService : IEscalaService
+    {
+        private readonly DefesaCivilMaricaContext _context;
+        private readonly IMapper _mapper;
+        public EscalaService(DefesaCivilMaricaContext context, IMapper mapper)
+        {
+            _context = context;
+            _mapper = mapper;
+        }
+        public async Task<EscalaDTO> Incluir(EscalaDTO escalaDTO)
+        {
+            try
+            {
+                if (escalaDTO is null)
+                {
+                    return new EscalaDTO { valido = false, mensagem = "Objeto não preenchido." };
+                }
+                else
+                {
+                    var escala = _mapper.Map<DepInfra.Escala>(escalaDTO);
+
+                    _context.Escalas.Add(escala);
+                    await _context.SaveChangesAsync();
+                    return _mapper.Map<EscalaDTO>(escala);
+                }
+            }
+            catch (Exception e)
+            {
+                return new EscalaDTO { valido = false, mensagem = $"Erro ao receber o Objeto: {e.Message}" };
+            }
+        }
+
+        public async Task<EscalaDTO> Alterar(int id, EscalaDTO escalaModel)
+        {
+            try
+            {
+                if (id <= 0)
+                {
+                    return new EscalaDTO { valido = false, mensagem = "Id fora do Range." };
+                }
+                else
+                {
+                    var escalaExistente = await _context.Escalas.FindAsync(id);
+                    if (escalaExistente == null)
+                    {
+                        return new EscalaDTO { valido = false, mensagem = "escala não encontrado." };
+                    }
+
+                    // Mapeia os dados do DTO para o modelo existente (apenas as propriedades que você deseja atualizar)
+                    _mapper.Map(escalaModel, escalaExistente);
+
+                    // O EF Core rastreará que o objeto foi modificado
+                    _context.Escalas.Update(escalaExistente);
+
+                    // Salva as alterações no banco de dados
+                    await _context.SaveChangesAsync();
+
+                    // Retorna o DTO atualizado (opcionalmente, você pode mapear de volta se quiser devolver os dados atualizados)
+                    return _mapper.Map<EscalaDTO>(escalaExistente);
+                }
+            }
+            catch (Exception e)
+            {
+                // Considerar usar um logger para registrar a exceção
+                throw new Exception($"Erro ao alterar o objeto: {e.Message}");
+            }
+        }
+
+        public async Task<List<EscalaDTO>> BuscarTodos()
+        {
+            try
+            {
+                var escalas = await _context.Escalas.ToListAsync();
+                var EscalaDTO = _mapper.Map<List<EscalaDTO>>(escalas);
+                return EscalaDTO;
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Erro ao receber o Objeto: {e.Message}");
+            }
+        }
+
+        public async Task<EscalaDTO> Deletar(int id)
+        {
+            try
+            {
+                if (id <= 0)
+                {
+                    return new EscalaDTO { valido = false, mensagem = "Id fora do Range." };
+                }
+                else
+                {
+                    var escalaExistente = await _context.Escalas.FindAsync(id);
+                    if (escalaExistente == null)
+                    {
+                        return new EscalaDTO { valido = false, mensagem = "Escala não encontrado." };
+                    }
+
+
+                    // O EF Core rastreará que o objeto foi modificado
+                    _context.Escalas.Remove(escalaExistente);
+
+                    // Salva as alterações no banco de dados
+                    await _context.SaveChangesAsync();
+
+                    //retornar avido de deletado
+                    return new EscalaDTO { valido = true, mensagem = "Escala deletado com sucesso." };
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Erro ao receber o Objeto: {e.Message}");
+            }
+        }
+
+    }
+}

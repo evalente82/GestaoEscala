@@ -28,15 +28,9 @@
   <ItemGroup>
     <Folder Include="Controllers\Empresa\" />
     <Folder Include="Controllers\EscalaPronta\" />
-    <Folder Include="Controllers\Escala\" />
     <Folder Include="Controllers\Permuta\" />
-    <Folder Include="Controllers\PostoTrabalho\" />
-    <Folder Include="Controllers\TipoEscala\" />
     <Folder Include="Models\Empresa\" />
-    <Folder Include="Models\Escala\" />
     <Folder Include="Models\EscalaPronta\" />
-    <Folder Include="Models\TipoEscala\" />
-    <Folder Include="Models\PostoTrabalho\" />
     <Folder Include="Models\Permuta\" />
   </ItemGroup>
 
