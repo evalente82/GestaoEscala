@@ -9,5 +9,6 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.PostoTrabalho
         Task<PostoTrabalhoDTO> Alterar(int id, PostoTrabalhoDTO postoTrabalhoModel);
         Task<PostoTrabalhoDTO> Deletar(int id);
         Task<List<PostoTrabalhoDTO>> BuscarTodos();
+        Task<PostoTrabalhoDTO[]> IncluirLista(PostoTrabalhoDTO[] postoDTOs);
     }
 }

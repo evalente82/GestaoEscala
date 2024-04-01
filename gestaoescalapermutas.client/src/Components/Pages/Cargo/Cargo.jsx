@@ -129,8 +129,8 @@ function CargoList(props) {
                             return (
                                 <tr key={index}>
                                     {/*<td>{departamento.idDepartamento}</td>*/}
-                                    <td>{cargo.nmNome}</td>
-                                    <td>{cargo.nmDescricao}</td>
+                                    <td style={{ textAlign: "left" }}>{cargo.nmNome}</td>
+                                    <td style={{ textAlign: "left" }}>{cargo.nmDescricao}</td>
                                     <td>
                                         <input
                                             type="checkbox"

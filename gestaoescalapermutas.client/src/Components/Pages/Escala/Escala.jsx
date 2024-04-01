@@ -176,9 +176,7 @@ function EscalaList(props) {
                                     {/*<td>{cargos.find(cargo => cargo.idCargos === funcionario.idCargos)?.nmNomeEscala}</td>*/}
                                     <td>{departamentos.find(departamento => departamento.idDepartamento === escala.idDepartamento)?.nmNome}</td>
                                     <td>{tipoEscalas.find(tipoEscala => tipoEscala.idTipoEscala === escala.idTipoEscala)?.nmNome}</td>
-                                    <td>{escala.idDepartamento}</td>
-                                    <td>{escala.idTipoEscala}</td>
-                                    <td>{escala.nrMesReferencia}</td>
+                                    <td>{escala.nrMesReferencia}</td>                                    
                                     <td>{escala.nrPessoaPorPosto}</td>
                                     <td>
                                         <input

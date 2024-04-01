@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using GestaoEscalaPermutas.Dominio.Interfaces.PostoTrabalho;
 using GestaoEscalaPermutas.Dominio.DTO.PostoTrabalho;
 using GestaoEscalaPermutas.Server.Models.PostoTrabalho;
+using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
+using GestaoEscalaPermutas.Server.Models.Funcionarios;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 
 namespace GestaoEscalaPermutas.Server.Controllers.PostoTrabalho
 {
@@ -65,5 +69,22 @@ namespace GestaoEscalaPermutas.Server.Controllers.PostoTrabalho
             var postosModel = _mapper.Map<PostoTrabalhoModel>(postosDTO);
             return (postosModel.Valido) ? Ok(postosModel.Mensagem) : BadRequest(new RetornoModel { Valido = false, Mensagem = postosModel.Mensagem });
         }
+
+        [HttpPost]
+        [Route("IncluirLista/")]
+        public async Task<ActionResult> IncluirListaPostoTrabalho([FromBody] PostoTrabalhoDTO[] postos)
+        {
+            var postoDTOs = await _postoTrabalhoService.IncluirLista(_mapper.Map<PostoTrabalhoDTO[]>(postos));
+            var postoModels = _mapper.Map<List<PostoTrabalhoModel>>(postoDTOs);
+
+            var postosInvalidos = postoModels.Where(fm => !fm.Valido).ToList();
+
+            if (postosInvalidos.Any())
+            {
+                return BadRequest(new RetornoModel { Valido = false, Mensagem = string.Join(", ", postosInvalidos.Select(fm => fm.Mensagem)) });
+            }
+
+            return Ok(postoModels);
+        }       
     }
 }

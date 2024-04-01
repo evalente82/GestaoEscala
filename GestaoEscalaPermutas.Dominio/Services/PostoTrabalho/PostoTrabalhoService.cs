@@ -122,5 +122,33 @@ namespace GestaoEscalaPermutas.Dominio.Services.PostoTrabalho
             }
         }
 
+        public async Task<PostoTrabalhoDTO[]> IncluirLista(PostoTrabalhoDTO[] postoDTOs)
+        {
+            try
+            {
+                if (postoDTOs is null)
+                {
+                    return new PostoTrabalhoDTO[] {
+                        new PostoTrabalhoDTO {
+                            valido = false, mensagem = "Lista de Postos vazia."
+                        }
+                    };
+                }
+                else
+                {
+                    var postos = _mapper.Map<DepInfra.PostoTrabalho[]>(postoDTOs);
+
+                    _context.PostoTrabalhos.AddRange(postos);
+                    await _context.SaveChangesAsync();
+
+                    return _mapper.Map<PostoTrabalhoDTO[]>(postos);
+                }
+            }
+            catch (Exception e)
+            {
+                return new PostoTrabalhoDTO[] { new PostoTrabalhoDTO { valido = false, mensagem = $"Erro ao incluir a lista de Postos: {e.Message}" } };
+            }
+        }
+
     }
 }

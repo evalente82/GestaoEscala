@@ -66,5 +66,22 @@ namespace GestaoEscalaPermutas.Server.Controllers.Funcionarios
             var funcionariosModel = _mapper.Map<FuncionarioModel>(funcionariosDTO);
             return (funcionariosModel.Valido) ? Ok(funcionariosModel.Mensagem) : BadRequest(new RetornoModel { Valido = false, Mensagem = funcionariosModel.Mensagem });
         }
+
+        [HttpPost]
+        [Route("IncluirLista/")]
+        public async Task<ActionResult> IncluirListaFuncionario([FromBody] FuncionarioDTO[] funcionarios)
+        {
+            var funcionarioDTOs = await _funcionarioService.IncluirLista(_mapper.Map<FuncionarioDTO[]>(funcionarios));
+            var funcionarioModels = _mapper.Map<List<FuncionarioModel>>(funcionarioDTOs);
+
+            var funcionariosInvalidos = funcionarioModels.Where(fm => !fm.Valido).ToList();
+
+            if (funcionariosInvalidos.Any())
+            {
+                return BadRequest(new RetornoModel { Valido = false, Mensagem = string.Join(", ", funcionariosInvalidos.Select(fm => fm.Mensagem)) });
+            }
+
+            return Ok(funcionarioModels);
+        }
     }
 }

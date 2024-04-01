@@ -159,10 +159,10 @@ function FuncionarioList(props) {
                             return (
                                 <tr key={index}>
                                     {/*<td>{funcionario.idFuncionario}</td>*/}
-                                    <td>{funcionario.nmNome}</td>
-                                    <td>{funcionario.nrMatricula}</td>
-                                    <td>{funcionario.nrTelefone}</td>
-                                    <td>{funcionario.nmEndereco}</td>
+                                    <td style={{ textAlign: "left" }}>{funcionario.nmNome}</td>
+                                    <td style={{ textAlign: "left" }}>{funcionario.nrMatricula}</td>
+                                    <td style={{ textAlign: "left" }}>{funcionario.nrTelefone}</td>
+                                    <td style={{ textAlign: "left" }}>{funcionario.nmEndereco}</td>
                                     <td>{cargos.find(cargo => cargo.idCargos === funcionario.idCargos)?.nmNome}</td>
                                     {/*<td>{funcionario.idCargos}</td>*/}
                                     <td>
@@ -172,7 +172,7 @@ function FuncionarioList(props) {
                                             readOnly
                                         />
                                     </td>
-                                    <td>{funcionario.nmEmail}</td>
+                                    <td style={{ textAlign: "left" }}>{funcionario.nmEmail}</td>
                                     <td style={{ width: "10px", whiteSpace: "nowrap" }}>
                                         <button
                                             onClick={() => props.ShowForm(funcionario)}

@@ -56,6 +56,10 @@ function NavBar() {
                                 <Link className="nav-link text-dark" to="/escalas">Escalas</Link>
                             </li>
 
+                            <li className={`nav-item ${location.pathname === '/escalasTeste' ? 'active' : ''}`}>
+                                <Link className="nav-link text-dark" to="/escalasTeste">EscalasTeste</Link>
+                            </li>
+
                             <li className={`nav-item ${location.pathname === '/EditarEscalaSelecionada' ? 'active' : ''}`}>
                                 <Link className="nav-link text-dark" to="/EditarEscalaSelecionada">Alterar Escala</Link>
                             </li>

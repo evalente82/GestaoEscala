@@ -3,8 +3,19 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import PropTypes from 'prop-types';
 
-function PostoTrabalhoList(props) {
+function EscalaList(props) {
+    // Definindo a função BuscarTodos dentro do componente FuncionarioList
     function BuscarTodos() {
+        const API_URL = "https://localhost:7207/escala";
+        const fetchData = async () => {
+            const response = await axios.get(`${API_URL}/buscarTodos`);
+            console.log(response.data);
+            setEscala(response.data);
+        };
+        fetchData();
+    }
+
+    function BuscarDepartamentos() {
         const fetchData = async () => {
             try {
                 const response = await axios.get("https://localhost:7207/departamento/buscarTodos");
@@ -15,19 +26,20 @@ function PostoTrabalhoList(props) {
         };
         fetchData();
     }
-    function BuscarPostos(){
-            const API_URL = "https://localhost:7207/postoTrabalho";
-            const fetchData = async () => {
-                const response = await axios.get(`${API_URL}/buscarTodos`);
-                console.log(response.data);
-                setPosto(response.data);
-            };
-            fetchData();
-        
+    function BuscarTipoEscalas() {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get("https://localhost:7207/tipoEscala/buscarTodos");
+                setTipoEscalas(response.data);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        fetchData();
     }
-     
 
-    PostoTrabalhoList.propTypes = {
+
+    EscalaList.propTypes = {
         ShowForm: PropTypes.func.isRequired, // Indica que ShowForm é uma função obrigatória
     };
     const [currentPage, setCurrentPage] = useState(1);
@@ -35,42 +47,48 @@ function PostoTrabalhoList(props) {
 
     const [searchText, setSearchText] = useState("");
 
-    const [posto, setPosto] = useState([]);
-    const [departamentos, setDepartamentos] = useState([]);
+    const [escala, setEscala] = useState([]);
 
+    const [departamentos, setDepartamentos] = useState([]);
+    const [tipoEscalas, setTipoEscalas] = useState([]);
+
+    // Chame BuscarTodos() no início do componente para carregar os cargos
     useEffect(() => {
-        BuscarTodos(setDepartamentos);
+        BuscarDepartamentos(setDepartamentos);
+    }, []); // Passando um array vazio, o efeito será executado apenas uma vez no carregamento do componente
+    useEffect(() => {
+        BuscarTipoEscalas(setTipoEscalas);
     }, []); // Passando um array vazio, o efeito será executado apenas uma vez no carregamento do componente
 
 
-    const API_URL = "https://localhost:7207/postoTrabalho";
+    const API_URL = "https://localhost:7207/escala";
+
+
     useEffect(() => {
         const fetchData = async () => {
             const response = await axios.get(`${API_URL}/buscarTodos`);
             console.log(response.data);
-            setPosto(response.data);
+            setEscala(response.data);
         };
         fetchData();
     }, []);
 
-    
-
     function handleDelete(id) {
         // Mostrar a popup de confirmação
         if (window.confirm("Tem certeza que deseja excluir este registro?")) {
-            DeletePostoTrabalho(id);
+            DeleteEscala(id);
         }
     }
 
-    function DeletePostoTrabalho(idPostoTrabalho) {
+    function DeleteEscala(idEscala) {
         axios
-            .delete(`https://localhost:7207/postoTrabalho/Deletar/${idPostoTrabalho}`)
+            .delete(`https://localhost:7207/escala/Deletar/${idEscala}`)
             .then((response) => {
                 console.log(response);
-                setPosto(
-                    posto.filter((usuario) => usuario.id !== idPostoTrabalho)
+                setEscala(
+                    escala.filter((usuario) => usuario.id !== idEscala)
                 );
-                BuscarPostos();
+                BuscarTodos();
             })
             .catch((error) => {
                 console.error(error);
@@ -79,7 +97,7 @@ function PostoTrabalhoList(props) {
 
     //const indexOfLastRecord = currentPage * recordsPerPage;
     //const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-    const currentRecords = posto
+    const currentRecords = escala
     //    .filter(
     //        (departamento) =>
     //            departamento.nome.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -87,12 +105,24 @@ function PostoTrabalhoList(props) {
     //    )
     //    .slice(indexOfFirstRecord, indexOfLastRecord);
     //useEffect(() => BuscarTodos(), []);
-
+    function getNomeMes(numeroMes) {
+        var dataAtual = new Date();
+        var numeroMesAtual = dataAtual.getMonth();
+        var nomesMeses = [
+            "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+            "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+        ];
+        if (numeroMes >= 1 && numeroMes <= 12) {
+            return nomesMeses[numeroMes - 1];
+        } else {
+            return nomesMeses[numeroMesAtual];
+        }
+    }
 
     return (
         <>
             <NavBar />
-            <h3 className="text-center mb-3">Listagem de Postos</h3>
+            <h3 className="text-center mb-3">Listagem de Escalas</h3>
             <button
                 onClick={() => props.ShowForm({})}
                 type="button"
@@ -101,7 +131,7 @@ function PostoTrabalhoList(props) {
                 Cadastrar
             </button>
             <button
-                onClick={() => BuscarPostos()}
+                onClick={() => BuscarTodos()}
                 type="button"
                 className="btn btn-outline-primary me-2"
             >
@@ -139,38 +169,42 @@ function PostoTrabalhoList(props) {
                     <tr>
                         {/*<th>ID</th>*/}
                         <th>NOME</th>
-                        <th>ENDEREÇO</th>
                         <th>DEPARTAMENTO</th>
+                        <th>TIPO ESCALA</th>
+                        <th>MÊS REFEREÊNCIA</th>
+                        <th>PESSOA POR POSTO</th>
                         <th>ATIVO</th>
                     </tr>
                 </thead>
                 <tbody>
                     {currentRecords
-                        .map((posto, index) => {
+                        .map((escala, index) => {
                             return (
                                 <tr key={index}>
                                     {/*<td>{funcionario.idFuncionario}</td>*/}
-                                    <td style={{ textAlign: "left" }}>{posto.nmNome}</td>
-                                    <td style={{ textAlign: "left" }}>{posto.nmEnderco}</td>
-                                    <td>{departamentos.find(departamento => departamento.idDepartamento === posto.idDepartamento)?.nmNome}</td>
-                                    {/*<td>{posto.idDepartamento}</td>*/}
+                                    <td>{escala.nmNomeEscala}</td>
+                                    {/*<td>{cargos.find(cargo => cargo.idCargos === funcionario.idCargos)?.nmNomeEscala}</td>*/}
+                                    <td>{departamentos.find(departamento => departamento.idDepartamento === escala.idDepartamento)?.nmNome}</td>
+                                    <td>{tipoEscalas.find(tipoEscala => tipoEscala.idTipoEscala === escala.idTipoEscala)?.nmNome}</td>
+                                    <td>{getNomeMes(escala.nrMesReferencia)}</td>
+                                    <td>{escala.nrPessoaPorPosto}</td>
                                     <td>
                                         <input
                                             type="checkbox"
-                                            checked={posto.isAtivo == 1}
+                                            checked={escala.isAtivo == 1}
                                             readOnly
                                         />
                                     </td>
                                     <td style={{ width: "10px", whiteSpace: "nowrap" }}>
                                         <button
-                                            onClick={() => props.ShowForm(posto)}
+                                            onClick={() => props.ShowForm(escala)}
                                             type="button"
                                             className="btn btn-primary btn-sm me-2"
                                         >
                                             Editar
                                         </button>
                                         <button
-                                            onClick={() => handleDelete(posto.idPostoTrabalho)}
+                                            onClick={() => handleDelete(escala.idEscala)}
                                             type="button"
                                             className="btn btn-danger btn-sm"
                                         >
@@ -186,30 +220,35 @@ function PostoTrabalhoList(props) {
 
     );
 }
-function PostoTrabalhoForm(props) {
-    PostoTrabalhoForm.propTypes = {
+function EscalaForm(props) {
+    EscalaForm.propTypes = {
         ShowList: PropTypes.func.isRequired,
-        posto: PropTypes.shape({
-            idPostoTrabalho: PropTypes.number,
-            nmNome: PropTypes.string,
-            nmEnderco: PropTypes.number,
+        escala: PropTypes.shape({
+            idEscala: PropTypes.number,
+            nmNomeEscala: PropTypes.string,
             idDepartamento: PropTypes.number,
+            idTipoEscala: PropTypes.number,
+            nrMesReferencia: PropTypes.number,
+            nrPessoaPorPosto: PropTypes.number,
             isAtivo: PropTypes.bool,
         }).isRequired,
     };
 
     // const [errorMessage, setErrorMessage] = useState('');
-    const [nome, setNome] = useState(props.posto.nmNome || '');
-    const [ativo, setAtivo] = useState(props.posto.isAtivo || false);
-    const [endereco, setEndereco] = useState(props.posto.nmEnderco || '');
+    const [nome, setNome] = useState(props.escala.nmNomeEscala || '');
+    const [mesReferencia, setMesReferencia] = useState(props.escala.nrMesReferencia || '');
+    const [pessoaPorPosto, setPessoaPorPosto] = useState(props.escala.nrPessoaPorPosto || '');
     const [departamentos, setDepartamentos] = useState([]);
+    const [tipoEscalas, setTipoEscalas] = useState([]);
     const [departamentoSelecionado, setDepartamentoSelecionado] = useState('');
+    const [tipoEscalaSelecionado, setTipoEscalaSelecionado] = useState('');
+    const [ativo, setAtivo] = useState(props.escala.isAtivo || false);
 
     useEffect(() => {
-        BuscarTodos();
+        BuscarDepartametos();
     }, []);
     const API_URL = "https://localhost:7207/departamento";
-    function BuscarTodos() {
+    function BuscarDepartametos() {
         axios.get(`${API_URL}/buscarTodos`)
             .then((response) => {
                 console.log(response.data);
@@ -219,13 +258,43 @@ function PostoTrabalhoForm(props) {
                 console.log(error);
             });
     }
-
     useEffect(() => {
-        if (props.posto.idPostoTrabalho) {
-            setDepartamentoSelecionado(props.posto.idDepartamento.toString());
-        }
-    }, [props.posto.idPostoTrabalho]);
+        BuscarTipoEscala();
+    }, []);
+    const API_URL_TipoEscala = "https://localhost:7207/tipoEscala";
+    function BuscarTipoEscala() {
+        axios.get(`${API_URL_TipoEscala}/buscarTodos`)
+            .then((response) => {
+                console.log(response.data);
+                setTipoEscalas(response.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
 
+
+    var nomesMeses = [
+        "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+        "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+    ];
+    var selectMesses = document.createElement("select"); // Corrigido para criar um elemento <select>
+    for (var j = 0; j < nomesMeses.length; j++) {
+        var option2 = document.createElement("option");
+        option2.value = j + 1; // Valor do mês é o índice + 1
+        option2.text = nomesMeses[j];
+        selectMesses.appendChild(option2); // Corrigido para adicionar opções ao elemento selectMesses
+    }
+
+
+
+    function obterNumeroMes(nomeMes) {
+        var indice = nomesMeses.indexOf(nomeMes);
+        if (indice !== -1) {
+            return (indice + 1).toString();
+        }
+        return null;
+    }
 
     function handleAtivoChange(e) {
         setAtivo(e.target.checked);
@@ -234,17 +303,19 @@ function PostoTrabalhoForm(props) {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (props.posto.idPostoTrabalho) {
+        if (props.escala.idEscala) {
             const data = {
-                nmNome: nome,
-                nmEnderco: endereco,
+                nmNomeEscala: nome,
                 idDepartamento: departamentoSelecionado,
+                idTipoEscala: tipoEscalaSelecionado,
+                nrMesReferencia: obterNumeroMes(mesReferencia),
+                nrPessoaPorPosto: pessoaPorPosto,
                 isAtivo: ativo,
             };
             axios
                 .patch(
-                    "https://localhost:7207/postoTrabalho/Atualizar/" +
-                    props.posto.idPostoTrabalho,
+                    "https://localhost:7207/escala/Atualizar/" +
+                    props.escala.idEscala,
                     data
                 )
                 .then(() => {
@@ -254,7 +325,6 @@ function PostoTrabalhoForm(props) {
                     if (error.response && error.response.status === 400) {
                         const errors = error.response.data;
                         console.log(errors);
-                        alert(errors.Email);
                         // outros tratamentos de erro
                     } else {
                         console.log(error);
@@ -263,13 +333,15 @@ function PostoTrabalhoForm(props) {
                 });
         } else {
             const data = {
-                nmNome: nome,
-                nmEnderco: endereco,
+                nmNomeEscala: nome,
                 idDepartamento: departamentoSelecionado,
+                idTipoEscala: tipoEscalaSelecionado,
+                nrMesReferencia: obterNumeroMes(mesReferencia),
+                nrPessoaPorPosto: pessoaPorPosto,
                 isAtivo: ativo,
             };
             axios
-                .post("https://localhost:7207/postoTrabalho/Incluir", data)
+                .post("https://localhost:7207/escala/Incluir", data)
                 .then(() => {
                     props.ShowList();
                 })
@@ -277,10 +349,8 @@ function PostoTrabalhoForm(props) {
                     if (error.response && error.response.status === 400) {
                         const errors = error.response.data;
                         console.log(errors);
-                        // outros tratamentos de erro
                     } else {
                         console.log(error);
-                        // outros tratamentos de erro
                     }
                 });
         }
@@ -289,23 +359,23 @@ function PostoTrabalhoForm(props) {
         <>
             <NavBar />
             <h2 className="text-center mb-3">
-                {props.posto.idPostoTrabalho
-                    ? "Editar Postos"
-                    : "Cadastrar Novo Posto Trabalho"}
+                {props.escala.idEscala
+                    ? "Editar Escala"
+                    : "Cadastrar Nova Escala"}
             </h2>
             <div className="row">
                 <div className="col-lg-6 mx-auto">
                     {/* {errorMessage} */}
                     <form onSubmit={(e) => handleSubmit(e)}>
-                        {props.posto.idPostoTrabalho && (
+                        {props.escala.idEscala && (
                             <div className="row mb-3">
                                 <label className="col-sm-4 col-form-label">ID</label>
                                 <div className="col-sm-8">
                                     <input
                                         readOnly
                                         className="form-control-plaintext"
-                                        name="idPostoTrabalho"
-                                        defaultValue={props.posto.idPostoTrabalho}
+                                        name="idEscala"
+                                        defaultValue={props.escala.idEscala}
                                         required
                                         onChange={(e) => setNome(e.target.value)}
                                     ></input>
@@ -314,28 +384,14 @@ function PostoTrabalhoForm(props) {
                         )}
 
                         <div className="row mb-3">
-                            <label className="col-sm-4 col-form-label">Nome do Posto</label>
+                            <label className="col-sm-4 col-form-label">Nome da Escala</label>
                             <div className="col-sm-8">
                                 <input
                                     className="form-control"
                                     name="nome"
-                                    defaultValue={props.posto.nmNome}
+                                    defaultValue={props.escala.nmNomeEscala}
                                     required
                                     onChange={(e) => setNome(e.target.value)}
-                                ></input>
-                            </div>
-                        </div>
-
-                        
-                        <div className="row mb-3">
-                            <label className="col-sm-4 col-form-label">Endereço</label>
-                            <div className="col-sm-8">
-                                <input
-                                    className="form-control"
-                                    name="endereco"
-                                    defaultValue={props.posto.nmEnderco}
-                                    required
-                                    onChange={(e) => setEndereco(e.target.value)}
                                 ></input>
                             </div>
                         </div>
@@ -346,7 +402,7 @@ function PostoTrabalhoForm(props) {
                                 <select
                                     className="form-control"
                                     name="departamento"
-                                    value={departamentoSelecionado}
+                                    value={props.escala.idDepartamento}
                                     onChange={(e) => setDepartamentoSelecionado(e.target.value)}
                                     required
                                 >
@@ -359,13 +415,58 @@ function PostoTrabalhoForm(props) {
                         </div>
 
                         <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Tipo Escala</label>
+                            <div className="col-sm-8">
+                                <select
+                                    className="form-control"
+                                    name="tipoEscala"
+                                    value={props.escala.idTipoEscala} // Troque isso para props.escala.idTipoEscala
+                                    onChange={(e) => setTipoEscalaSelecionado(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Selecione um Tipo de Escala</option>
+                                    {tipoEscalas.map(tipoEscala => (
+                                        <option key={tipoEscala.idTipoEscala} value={tipoEscala.idTipoEscala}>{tipoEscala.nmNome}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Mês de Referência</label>
+                            <div className="col-sm-8">
+                                <select className="form-select" aria-label="Default select example" onChange={(e) => setMesReferencia(e.target.value)}>
+                                    {nomesMeses.map((nome, i) => (
+                                        <option key={i} value={i + 1} selected={i + 1 === parseInt(props.escala.nrMesReferencia)}>{nome}</option>
+                                    ))}
+                                </select>
+
+
+                            </div>
+                        </div>
+
+
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Qtd Pessoa por Posto</label>
+                            <div className="col-sm-8">
+                                <input
+                                    className="form-control"
+                                    name="pessoaPorPosto"
+                                    defaultValue={props.escala.nrPessoaPorPosto}
+                                    required
+                                    onChange={(e) => setPessoaPorPosto(e.target.value)}
+                                ></input>
+                            </div>
+                        </div>
+
+                        <div className="row mb-3">
                             <label className="col-sm-4 col-form-label">Ativo</label>
                             <div className="col-sm-8">
                                 <input
                                     className="form-check-input"
                                     name="ativo"
                                     type="checkbox"
-                                    value={props.posto.isAtivo}
+                                    value={props.escala.isAtivo}
                                     checked={ativo}
                                     onChange={handleAtivoChange}
                                 />
@@ -394,18 +495,18 @@ function PostoTrabalhoForm(props) {
         </>
     );
 }
-export function PostoTrabalho() {
+export function EscalaTeste() {
     const [content, setContent] = useState(
-        <PostoTrabalhoList ShowForm={ShowForm} />
+        <EscalaList ShowForm={ShowForm} />
     );
 
     function ShowList() {
-        setContent(<PostoTrabalhoList ShowForm={ShowForm} />);
+        setContent(<EscalaList ShowForm={ShowForm} />);
     }
 
-    function ShowForm(posto) {
+    function ShowForm(escala) {
         setContent(
-            <PostoTrabalhoForm posto={posto} ShowList={ShowList} ShowForm={ShowForm} />
+            <EscalaForm escala={escala} ShowList={ShowList} ShowForm={ShowForm} />
         );
     }
     return <div className="container">{content}</div>;

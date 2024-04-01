@@ -119,9 +119,9 @@ function TipoEscalaList(props) {
                 <thead>
                     <tr>
                         {/*<th>ID</th>*/}
-                        <th>NOME</th>
-                        <th>DESCRIÇÃO</th>
-                        <th>HORAS TRABALHADA</th>
+                        <th style={{ textAlign: "left" }}>NOME</th>
+                        <th style={{ textAlign: "left" }}>DESCRIÇÃO</th>
+                        <th >HORAS TRABALHADA</th>
                         <th>HORAS DE FOLGA</th>
                         <th>EXPEDIENTE</th>
                         <th>ATIVO</th>
@@ -133,8 +133,8 @@ function TipoEscalaList(props) {
                             return (
                                 <tr key={index}>
                                     {/*<td>{funcionario.idFuncionario}</td>*/}
-                                    <td>{tipoEscala.nmNome}</td>
-                                    <td>{tipoEscala.nmDescricao}</td>
+                                    <td style={{ textAlign: "left" }}>{tipoEscala.nmNome}</td>
+                                    <td style={{ textAlign: "left" }}>{tipoEscala.nmDescricao}</td>
                                     <td>{tipoEscala.nrHorasTrabalhada}</td>
                                     <td>{tipoEscala.nrHorasFolga}</td>
                                     <td>
@@ -150,8 +150,7 @@ function TipoEscalaList(props) {
                                             checked={tipoEscala.isAtivo == 1}
                                             readOnly
                                         />
-                                    </td>
-                                    <td>{tipoEscala.nmEmail}</td>
+                                    </td>                                   
                                     <td style={{ width: "10px", whiteSpace: "nowrap" }}>
                                         <button
                                             onClick={() => props.ShowForm(tipoEscala)}

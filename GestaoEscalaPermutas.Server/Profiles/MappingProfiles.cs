@@ -51,6 +51,7 @@ namespace GestaoEscalaPermutas.Server.Profiles
             CreateMap<Escala, EscalaDTO>()
             .ForMember(x => x.valido, opt => opt.MapFrom(src => true))
             .ForMember(x => x.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso"));
+            CreateMap<EscalaDTO, Escala>().ForMember(x => x.DtCriacao, opt => opt.MapFrom(src => src.DtCriacao));
 
             CreateMap<PostoTrabalhoModel, PostoTrabalhoDTO>()
             .ReverseMap();
@@ -67,6 +68,10 @@ namespace GestaoEscalaPermutas.Server.Profiles
             CreateMap<TipoEscala, TipoEscalaDTO>()
             .ForMember(x => x.valido, opt => opt.MapFrom(src => true))
             .ForMember(x => x.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso"));
+
+
+
+
         }
     }
 }

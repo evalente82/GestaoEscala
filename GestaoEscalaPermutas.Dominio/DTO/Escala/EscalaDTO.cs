@@ -2,11 +2,16 @@
 
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace GestaoEscalaPermutas.Dominio.DTO.Escala
 {
     public class EscalaDTO : RetornoDTO
     {
+        public EscalaDTO()
+        {
+            DtCriacao = DateTime.Now;
+        }
         public int IdEscala { get; set; }
 
         public int IdDepartamento { get; set; }
@@ -14,7 +19,7 @@ namespace GestaoEscalaPermutas.Dominio.DTO.Escala
         public string? NmNomeEscala { get; set; }
 
         public int IdTipoEscala { get; set; }
-
+        [JsonIgnore]
         public DateTime DtCriacao { get; set; }
 
         public int NrMesReferencia { get; set; }

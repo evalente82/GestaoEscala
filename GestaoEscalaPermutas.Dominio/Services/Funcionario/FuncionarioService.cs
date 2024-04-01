@@ -2,6 +2,7 @@
 using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
 using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
 using GestaoEscalaPermutas.Infra.Data.Context;
+using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using Microsoft.EntityFrameworkCore;
 using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 
@@ -119,5 +120,32 @@ namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
             }
         }
 
+        public async Task<FuncionarioDTO[]> IncluirLista(FuncionarioDTO[] funcionarioDTOs)
+        {
+            try
+            {
+                if (funcionarioDTOs is null)
+                {
+                    return new FuncionarioDTO[] { 
+                        new FuncionarioDTO { 
+                            valido = false, mensagem = "Lista de funcionários vazia."
+                        }
+                    };
+                }
+                else
+                {
+                    var funcionarios = _mapper.Map<DepInfra.Funcionario[]>(funcionarioDTOs);
+
+                    _context.Funcionarios.AddRange(funcionarios);
+                    await _context.SaveChangesAsync();
+
+                    return _mapper.Map<FuncionarioDTO[]>(funcionarios);
+                }
+            }
+            catch (Exception e)
+            {
+                return new FuncionarioDTO[] { new FuncionarioDTO { valido = false, mensagem = $"Erro ao incluir a lista de funcionários: {e.Message}" } };
+            }
+        }
     }
 }

@@ -128,8 +128,8 @@ function DepartamentoList(props) {
                             return (
                                 <tr key={index}>
                                     {/*<td>{departamento.idDepartamento}</td>*/}
-                                    <td>{departamento.nmNome}</td>
-                                    <td>{departamento.nmDescricao}</td>
+                                    <td style={{ textAlign: "left" }}>{departamento.nmNome}</td>
+                                    <td style={{ textAlign: "left" }}>{departamento.nmDescricao}</td>
                                     <td>
                                         <input
                                             type="checkbox"
@@ -203,7 +203,6 @@ function DepartamentoForm(props) {
                     if (error.response && error.response.status === 400) {
                         const errors = error.response.data;
                         console.log(errors);
-                        alert(errors.Email);
                         // outros tratamentos de erro
                     } else {
                         console.log(error);

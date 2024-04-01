@@ -10,9 +10,10 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios
 {
     public interface IFuncionarioService
     {
-        Task<FuncionarioDTO> Incluir(FuncionarioDTO funcionarioModel);
-        Task<FuncionarioDTO> Alterar(int id, FuncionarioDTO funcionarioModel);
+        Task<FuncionarioDTO> Incluir(FuncionarioDTO funcionarioDTO);
+        Task<FuncionarioDTO> Alterar(int id, FuncionarioDTO funcionarioDTO);
         Task<FuncionarioDTO> Deletar(int id);
         Task<List<FuncionarioDTO>> BuscarTodos();
+        Task<FuncionarioDTO[]> IncluirLista(FuncionarioDTO[] funcionarioDTOs);
     }
 }
