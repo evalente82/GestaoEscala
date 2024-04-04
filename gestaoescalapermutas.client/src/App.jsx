@@ -6,7 +6,6 @@ import { Departamento } from './Components/Pages/Departamento/Departamento';
 import { Cargo } from './Components/Pages/Cargo/Cargo';
 import { PostoTrabalho } from './Components/Pages/PostoTrabalho/PostoTrabalho';
 import { Escala } from './Components/Pages/Escala/Escala';
-import { EscalaTeste } from './Components/Pages/Escala/EscalaTeste';
 import { Funcionario } from './Components/Pages/Funcionario/Funcionario';
 import { TipoEscala } from './Components/Pages/TipoEscala/TipoEscala';
 function App() {
@@ -20,7 +19,6 @@ function App() {
                     <Route path="/cargo" element={<Cargo/>} />
                     <Route path="/departamento" element={<Departamento/>} />
                     <Route path="/escalas" element={<Escala />} />
-                    <Route path="/escalasTeste" element={<EscalaTeste />} />
                     <Route path="/PostoTrabalho" element={<PostoTrabalho />} />
                     <Route path="/funcionario" element={<Funcionario />} />
                     <Route path="/TipoEscala/" element={<TipoEscala />} />

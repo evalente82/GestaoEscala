@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
+using GestaoEscalaPermutas.Dominio.DTO.PostoTrabalho;
 using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
 using GestaoEscalaPermutas.Infra.Data.Context;
 using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
@@ -119,7 +120,6 @@ namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
                 throw new Exception($"Erro ao receber o Objeto: {e.Message}");
             }
         }
-
         public async Task<FuncionarioDTO[]> IncluirLista(FuncionarioDTO[] funcionarioDTOs)
         {
             try
@@ -145,6 +145,19 @@ namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
             catch (Exception e)
             {
                 return new FuncionarioDTO[] { new FuncionarioDTO { valido = false, mensagem = $"Erro ao incluir a lista de funcionários: {e.Message}" } };
+            }
+        }
+        public async Task<List<FuncionarioDTO>> BuscarTodosAtivos()
+        {
+            try
+            {
+                var funcionarios = await _context.Funcionarios.Where(p => p.IsAtivo).ToListAsync();
+                var funcionariosAtivos = _mapper.Map<List<FuncionarioDTO>>(funcionarios);
+                return funcionariosAtivos;
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Erro ao receber o Objeto: {e.Message}");
             }
         }
     }

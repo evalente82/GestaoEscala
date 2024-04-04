@@ -150,5 +150,19 @@ namespace GestaoEscalaPermutas.Dominio.Services.PostoTrabalho
             }
         }
 
+        public async Task<List<PostoTrabalhoDTO>> BuscarTodosAtivos()
+        {
+            try
+            {
+                var postos = await _context.PostoTrabalhos.Where(p => p.IsAtivo).ToListAsync();
+                var postoAtivos= _mapper.Map<List<PostoTrabalhoDTO>>(postos);
+                return postoAtivos;
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Erro ao receber o Objeto: {e.Message}");
+            }
+        }
+
     }
 }

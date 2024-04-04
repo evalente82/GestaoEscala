@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using GestaoEscalaPermutas.Dominio.DTO.Escala;
 using GestaoEscalaPermutas.Dominio.DTO.TipoEscala;
 using GestaoEscalaPermutas.Dominio.Interfaces.TipoEscala;
 using GestaoEscalaPermutas.Infra.Data.Context;
@@ -73,7 +74,6 @@ namespace GestaoEscalaPermutas.Dominio.Services.TipoEscala
                 throw new Exception($"Erro ao alterar o objeto: {e.Message}");
             }
         }
-
         public async Task<List<TipoEscalaDTO>> BuscarTodos()
         {
             try
@@ -87,7 +87,6 @@ namespace GestaoEscalaPermutas.Dominio.Services.TipoEscala
                 throw new Exception($"Erro ao receber o Objeto: {e.Message}");
             }
         }
-
         public async Task<TipoEscalaDTO> Deletar(int id)
         {
             try
@@ -118,6 +117,31 @@ namespace GestaoEscalaPermutas.Dominio.Services.TipoEscala
             catch (Exception e)
             {
                 throw new Exception($"Erro ao receber o Objeto: {e.Message}");
+            }
+        }
+        public async Task<TipoEscalaDTO> BuscarPorId(int idEscala)
+        {
+            try
+            {
+                if (idEscala <= 0)
+                {
+                    return new TipoEscalaDTO { valido = false, mensagem = "Id fora do Range." };
+                }
+                else
+                {
+                    var tipoEscalaExistente = await _context.TipoEscalas.FindAsync(idEscala);
+                    if (tipoEscalaExistente == null)
+                    {
+                        return new TipoEscalaDTO { valido = false, mensagem = "escala não encontrado." };
+                    }
+                    var tipoEscalaDTO = _mapper.Map<TipoEscalaDTO>(tipoEscalaExistente);
+                    return tipoEscalaDTO;
+                }
+            }
+            catch (Exception e)
+            {
+                // Considerar usar um logger para registrar a exceção
+                throw new Exception($"Erro ao buscar o objeto: {e.Message}");
             }
         }
 

@@ -12,6 +12,8 @@ using GestaoEscalaPermutas.Server.Models.PostoTrabalho;
 using GestaoEscalaPermutas.Dominio.DTO.PostoTrabalho;
 using GestaoEscalaPermutas.Server.Models.TipoEscala;
 using GestaoEscalaPermutas.Dominio.DTO.TipoEscala;
+using GestaoEscalaPermutas.Server.Models.EscalaPronta;
+using GestaoEscalaPermutas.Dominio.DTO.EscalaPronta;
 
 namespace GestaoEscalaPermutas.Server.Profiles
 {
@@ -69,7 +71,14 @@ namespace GestaoEscalaPermutas.Server.Profiles
             .ForMember(x => x.valido, opt => opt.MapFrom(src => true))
             .ForMember(x => x.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso"));
 
-
+            CreateMap<EscalaProntaModel, EscalaProntaDTO>()
+            .ReverseMap();
+            CreateMap<EscalaPronta, EscalaProntaDTO>()
+             .ReverseMap();
+            CreateMap<EscalaPronta, EscalaProntaDTO>()
+            .ForMember(x => x.valido, opt => opt.MapFrom(src => true))
+            .ForMember(x => x.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso"));
+            CreateMap<EscalaProntaDTO, EscalaPronta>().ForMember(x => x.DtCriacao, opt => opt.MapFrom(src => src.DtCriacao));
 
 
         }

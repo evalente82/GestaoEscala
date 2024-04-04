@@ -10,5 +10,6 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.PostoTrabalho
         Task<PostoTrabalhoDTO> Deletar(int id);
         Task<List<PostoTrabalhoDTO>> BuscarTodos();
         Task<PostoTrabalhoDTO[]> IncluirLista(PostoTrabalhoDTO[] postoDTOs);
+        Task<List<PostoTrabalhoDTO>> BuscarTodosAtivos();
     }
 }

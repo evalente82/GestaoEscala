@@ -16,6 +16,8 @@
 
         public bool IsAtivo { get; set; }
 
+        public bool IsGerada{ get; set; }
+
         public int NrPessoaPorPosto { get; set; }
     }
 }

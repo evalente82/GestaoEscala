@@ -15,5 +15,6 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios
         Task<FuncionarioDTO> Deletar(int id);
         Task<List<FuncionarioDTO>> BuscarTodos();
         Task<FuncionarioDTO[]> IncluirLista(FuncionarioDTO[] funcionarioDTOs);
+        Task<List<FuncionarioDTO>> BuscarTodosAtivos();
     }
 }

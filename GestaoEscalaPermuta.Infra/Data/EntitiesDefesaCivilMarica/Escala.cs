@@ -25,6 +25,7 @@ public partial class Escala
     public int NrMesReferencia { get; set; }
 
     public bool IsAtivo { get; set; }
+    public bool IsGerada { get; set; }
 
     public int NrPessoaPorPosto { get; set; }
 

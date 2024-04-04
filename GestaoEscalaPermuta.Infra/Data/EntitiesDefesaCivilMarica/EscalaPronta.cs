@@ -17,17 +17,9 @@ public partial class EscalaPronta
 
     public int IdFuncionario { get; set; }
 
-    public bool IsAtivo { get; set; }
+    public DateTime DtDataServico { get; set; }
 
-    public DateOnly DtDataServico { get; set; }
-
-    [StringLength(100)]
-    [Unicode(false)]
-    public string? NmEmail { get; set; }
-
-    [StringLength(100)]
-    [Unicode(false)]
-    public string? NmSenha { get; set; }
+    public DateTime DtCriacao { get; set; }
 
 
 }

@@ -9,5 +9,7 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.Escala
         Task<EscalaDTO> Alterar(int id, EscalaDTO escalaModel);
         Task<EscalaDTO> Deletar(int id);
         Task<List<EscalaDTO>> BuscarTodos();
+        Task<EscalaDTO> BuscarPorId(int idEscala);
+
     }
 }

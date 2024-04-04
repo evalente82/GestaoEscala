@@ -13,10 +13,8 @@
 
   <ItemGroup>
     <Folder Include="Interfaces\Empresa\" />
-    <Folder Include="Interfaces\EscalaPronta\" />
     <Folder Include="Interfaces\Permuta\" />
     <Folder Include="Services\Empresa\" />
-    <Folder Include="Services\EscalaPronta\" />
     <Folder Include="Services\Permuta\" />
   </ItemGroup>
 

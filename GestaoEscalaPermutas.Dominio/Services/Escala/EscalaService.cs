@@ -2,6 +2,7 @@
 using GestaoEscalaPermutas.Dominio.DTO.Escala;
 using GestaoEscalaPermutas.Dominio.Interfaces.Escala;
 using GestaoEscalaPermutas.Infra.Data.Context;
+using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using Microsoft.EntityFrameworkCore;
 using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 
@@ -38,8 +39,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.Escala
                 return new EscalaDTO { valido = false, mensagem = $"Erro ao receber o Objeto: {e.Message}" };
             }
         }
-
-        public async Task<EscalaDTO> Alterar(int id, EscalaDTO escalaModel)
+        public async Task<EscalaDTO> Alterar(int id, EscalaDTO escalaDTO)
         {
             try
             {
@@ -56,7 +56,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.Escala
                     }
 
                     // Mapeia os dados do DTO para o modelo existente (apenas as propriedades que você deseja atualizar)
-                    _mapper.Map(escalaModel, escalaExistente);
+                    _mapper.Map(escalaDTO, escalaExistente);
 
                     // O EF Core rastreará que o objeto foi modificado
                     _context.Escalas.Update(escalaExistente);
@@ -74,7 +74,6 @@ namespace GestaoEscalaPermutas.Dominio.Services.Escala
                 throw new Exception($"Erro ao alterar o objeto: {e.Message}");
             }
         }
-
         public async Task<List<EscalaDTO>> BuscarTodos()
         {
             try
@@ -88,7 +87,6 @@ namespace GestaoEscalaPermutas.Dominio.Services.Escala
                 throw new Exception($"Erro ao receber o Objeto: {e.Message}");
             }
         }
-
         public async Task<EscalaDTO> Deletar(int id)
         {
             try
@@ -119,6 +117,31 @@ namespace GestaoEscalaPermutas.Dominio.Services.Escala
             catch (Exception e)
             {
                 throw new Exception($"Erro ao receber o Objeto: {e.Message}");
+            }
+        }
+        public async Task<EscalaDTO> BuscarPorId(int idEscala)
+        {
+            try
+            {
+                if (idEscala <= 0)
+                {
+                    return new EscalaDTO { valido = false, mensagem = "Id fora do Range." };
+                }
+                else
+                {
+                    var escalaExistente = await _context.Escalas.FindAsync(idEscala);
+                    if (escalaExistente == null)
+                    {
+                        return new EscalaDTO { valido = false, mensagem = "escala não encontrado." };
+                    }
+                    var EscalaDTO = _mapper.Map<EscalaDTO>(escalaExistente);
+                    return EscalaDTO;
+                }
+            }
+            catch (Exception e)
+            {
+                // Considerar usar um logger para registrar a exceção
+                throw new Exception($"Erro ao buscar o objeto: {e.Message}");
             }
         }
 

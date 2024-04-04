@@ -15,11 +15,8 @@ using GestaoEscalaPermutas.Dominio.Services.TipoEscala;
 using GestaoEscalaPermutas.Dominio.Interfaces.Escala;
 using GestaoEscalaPermutas.Dominio.Interfaces.PostoTrabalho;
 using GestaoEscalaPermutas.Dominio.Interfaces.TipoEscala;
-
-
-
-//var connString = ConfigurationManager.AppSetting["ConnectionStrings:EmUso"];
-
+using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
+using GestaoEscalaPermutas.Dominio.Services.EscalaPronta;
 
 var builder = WebApplication.CreateBuilder(args);
 var connString = builder.Configuration.GetConnectionString("EmUso");
@@ -70,7 +67,6 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-
 builder.Services.AddDbContext<DefesaCivilMaricaContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString(connString ?? string.Empty)));
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -82,7 +78,7 @@ builder.Services.AddTransient<IFuncionarioService, FuncionarioService>();
 builder.Services.AddTransient<IEscalaService, EscalaService>();
 builder.Services.AddTransient<IPostoTrabalhoService, PostoTrabalhoService>();
 builder.Services.AddTransient<ITipoEscalaService, TipoEscalaService>();
-//builder.Services.AddScoped<TipoEscalaService>();
+builder.Services.AddTransient<IEscalaProntaService, EscalaProntaService>();
 
 var app = builder.Build();
 app.Use(async (context, next) =>
