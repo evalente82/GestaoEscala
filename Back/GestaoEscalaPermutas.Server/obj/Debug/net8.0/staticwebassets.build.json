@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "k+ff6KonFgT9C0UvgIiIGLPa6A5/jE4Uq1TbDbH37mg=",
+  "Source": "GestaoEscalaPermutas.Server",
+  "BasePath": "_content/GestaoEscalaPermutas.Server",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

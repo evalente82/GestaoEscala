@@ -1,0 +1,325 @@
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\spa.proxy.json
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\appsettings.Development.json
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\appsettings.json
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Server.exe
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Server.deps.json
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Server.runtimeconfig.json
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Server.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Server.pdb
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\AutoMapper.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Azure.Core.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Azure.Identity.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.AspNetCore.SpaProxy.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Data.SqlClient.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Relational.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Relational.Design.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.SqlServer.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.SqlServer.Design.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Identity.Client.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Identity.Client.Extensions.Msal.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.OpenApi.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.SqlServer.Server.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Win32.SystemEvents.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Newtonsoft.Json.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Configuration.ConfigurationManager.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Drawing.Common.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Memory.Data.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Runtime.Caching.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Security.Cryptography.ProtectedData.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Security.Permissions.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Windows.Extensions.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\unix\lib\net6.0\Microsoft.Data.SqlClient.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win\lib\net6.0\Microsoft.Data.SqlClient.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win-arm\native\Microsoft.Data.SqlClient.SNI.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win-arm64\native\Microsoft.Data.SqlClient.SNI.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermuta.Infra.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Dominio.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Dominio.pdb
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermuta.Infra.pdb
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.csproj.AssemblyReference.cache
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\obj\Debug\net8.0\spa.proxy.json
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.GeneratedMSBuildEditorConfig.editorconfig
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.AssemblyInfoInputs.cache
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.AssemblyInfo.cs
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.csproj.CoreCompileInputs.cache
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.MvcApplicationPartsAssemblyInfo.cs
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.MvcApplicationPartsAssemblyInfo.cache
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets.build.json
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets.development.json
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets\msbuild.GestaoEscalaPermutas.Server.Microsoft.AspNetCore.StaticWebAssets.props
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets\msbuild.build.GestaoEscalaPermutas.Server.props
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.GestaoEscalaPermutas.Server.props
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.GestaoEscalaPermutas.Server.props
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets.pack.json
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\obj\Debug\net8.0\scopedcss\bundle\GestaoEscalaPermutas.Server.styles.css
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.csproj.CopyComplete
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\obj\Debug\net8.0\refint\GestaoEscalaPermutas.Server.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.pdb
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.genruntimeconfig.cache
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermutas.Server\obj\Debug\net8.0\ref\GestaoEscalaPermutas.Server.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\spa.proxy.json
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\appsettings.Development.json
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\appsettings.json
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Server.staticwebassets.endpoints.json
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Server.exe
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Server.deps.json
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Server.runtimeconfig.json
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Server.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Server.pdb
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\AutoMapper.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Azure.Core.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Azure.Identity.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Data.SqlClient.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Relational.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.SqlServer.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Caching.Abstractions.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Caching.Memory.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Configuration.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Binder.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Configuration.CommandLine.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Configuration.EnvironmentVariables.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Configuration.FileExtensions.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Json.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Configuration.UserSecrets.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Diagnostics.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Diagnostics.Abstractions.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.FileProviders.Abstractions.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.FileProviders.Physical.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.FileSystemGlobbing.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Hosting.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Hosting.Abstractions.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Logging.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Logging.Configuration.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Logging.Console.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Logging.Debug.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Logging.EventLog.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Logging.EventSource.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Options.ConfigurationExtensions.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Primitives.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Identity.Client.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Identity.Client.Extensions.Msal.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.OpenApi.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.SqlServer.Server.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Newtonsoft.Json.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.ClientModel.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Configuration.ConfigurationManager.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Diagnostics.DiagnosticSource.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Diagnostics.EventLog.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Drawing.Common.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Formats.Asn1.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.IO.Pipelines.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Memory.Data.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Runtime.Caching.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Security.Cryptography.ProtectedData.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Security.Permissions.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Text.Encodings.Web.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Text.Json.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Windows.Extensions.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\unix\lib\net6.0\Microsoft.Data.SqlClient.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win\lib\net6.0\Microsoft.Data.SqlClient.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win-arm\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win-arm64\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Diagnostics.EventLog.Messages.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Diagnostics.EventLog.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Dominio.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Infra.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Dominio.pdb
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Infra.pdb
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.csproj.AssemblyReference.cache
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\spa.proxy.json
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.AssemblyInfoInputs.cache
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.AssemblyInfo.cs
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.csproj.CoreCompileInputs.cache
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.sourcelink.json
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\scopedcss\bundle\GestaoEscalaPermutas.Server.styles.css
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets.build.json
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets.development.json
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets.build.endpoints.json
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets\msbuild.GestaoEscalaPermutas.Server.Microsoft.AspNetCore.StaticWebAssets.props
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets\msbuild.GestaoEscalaPermutas.Server.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets\msbuild.build.GestaoEscalaPermutas.Server.props
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.GestaoEscalaPermutas.Server.props
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.GestaoEscalaPermutas.Server.props
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets.pack.json
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEs.7CC39243.Up2Date
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\refint\GestaoEscalaPermutas.Server.dll
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.pdb
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.genruntimeconfig.cache
+C:\Users\endri\Desktop\Defesa Civil\GestaoEscalaPermutas.Server\obj\Debug\net8.0\ref\GestaoEscalaPermutas.Server.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\appsettings.Development.json
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\appsettings.json
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Server.staticwebassets.endpoints.json
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\spa.proxy.json
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Server.exe
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Server.deps.json
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Server.runtimeconfig.json
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Server.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Server.pdb
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\AutoMapper.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Azure.Core.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Azure.Identity.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Data.SqlClient.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.Relational.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.SqlServer.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Caching.Abstractions.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Caching.Memory.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Configuration.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Abstractions.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Binder.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Configuration.CommandLine.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Configuration.EnvironmentVariables.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Configuration.FileExtensions.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Json.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Configuration.UserSecrets.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Diagnostics.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Diagnostics.Abstractions.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.FileProviders.Abstractions.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.FileProviders.Physical.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.FileSystemGlobbing.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Hosting.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Hosting.Abstractions.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Logging.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Logging.Configuration.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Logging.Console.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Logging.Debug.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Logging.EventLog.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Logging.EventSource.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Options.ConfigurationExtensions.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Extensions.Primitives.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Identity.Client.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Identity.Client.Extensions.Msal.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.IdentityModel.Abstractions.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.IdentityModel.JsonWebTokens.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.IdentityModel.Logging.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.IdentityModel.Tokens.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.OpenApi.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.SqlServer.Server.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Microsoft.Win32.SystemEvents.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Newtonsoft.Json.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.ClientModel.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Configuration.ConfigurationManager.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Diagnostics.DiagnosticSource.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Diagnostics.EventLog.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Drawing.Common.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Formats.Asn1.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.IO.Pipelines.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Memory.Data.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Runtime.Caching.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Security.Cryptography.ProtectedData.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Security.Permissions.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Text.Encodings.Web.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Text.Json.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\System.Windows.Extensions.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\unix\lib\net6.0\Microsoft.Data.SqlClient.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win\lib\net6.0\Microsoft.Data.SqlClient.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win-arm\native\Microsoft.Data.SqlClient.SNI.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win-arm64\native\Microsoft.Data.SqlClient.SNI.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Diagnostics.EventLog.Messages.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Diagnostics.EventLog.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Dominio.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Infra.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Dominio.pdb
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\bin\Debug\net8.0\GestaoEscalaPermutas.Infra.pdb
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.csproj.AssemblyReference.cache
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\spa.proxy.json
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.GeneratedMSBuildEditorConfig.editorconfig
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.AssemblyInfoInputs.cache
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.AssemblyInfo.cs
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.csproj.CoreCompileInputs.cache
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.MvcApplicationPartsAssemblyInfo.cs
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.MvcApplicationPartsAssemblyInfo.cache
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\scopedcss\bundle\GestaoEscalaPermutas.Server.styles.css
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets.build.json
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets.development.json
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets.build.endpoints.json
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets\msbuild.GestaoEscalaPermutas.Server.Microsoft.AspNetCore.StaticWebAssets.props
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets\msbuild.GestaoEscalaPermutas.Server.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets\msbuild.build.GestaoEscalaPermutas.Server.props
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.GestaoEscalaPermutas.Server.props
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.GestaoEscalaPermutas.Server.props
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\staticwebassets.pack.json
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEs.7CC39243.Up2Date
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\refint\GestaoEscalaPermutas.Server.dll
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.pdb
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\GestaoEscalaPermutas.Server.genruntimeconfig.cache
+c:\Users\endri\Desktop\Defesa Civil\Back\GestaoEscalaPermutas.Server\obj\Debug\net8.0\ref\GestaoEscalaPermutas.Server.dll

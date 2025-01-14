@@ -1,0 +1,2 @@
+D:\Csharp\GestaoEscalaPermutas\gestaoescalapermutas.client\obj\Debug\gestaoescalapermutas.client.esproj.CoreCompileInputs.cache
+C:\Users\endri\Desktop\Defesa Civil\gestaoescalapermutas.client\obj\Debug\gestaoescalapermutas.client.esproj.CoreCompileInputs.cache

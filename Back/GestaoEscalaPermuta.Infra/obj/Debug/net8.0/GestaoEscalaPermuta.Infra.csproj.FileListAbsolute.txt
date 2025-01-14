@@ -1,0 +1,14 @@
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermuta.Infra\bin\Debug\net8.0\GestaoEscalaPermuta.Infra.deps.json
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermuta.Infra\bin\Debug\net8.0\GestaoEscalaPermuta.Infra.runtimeconfig.json
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermuta.Infra\bin\Debug\net8.0\GestaoEscalaPermuta.Infra.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermuta.Infra\bin\Debug\net8.0\GestaoEscalaPermuta.Infra.pdb
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermuta.Infra\obj\Debug\net8.0\GestaoEscalaPermuta.Infra.csproj.AssemblyReference.cache
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermuta.Infra\obj\Debug\net8.0\GestaoEscalaPermuta.Infra.GeneratedMSBuildEditorConfig.editorconfig
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermuta.Infra\obj\Debug\net8.0\GestaoEscalaPermuta.Infra.AssemblyInfoInputs.cache
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermuta.Infra\obj\Debug\net8.0\GestaoEscalaPermuta.Infra.AssemblyInfo.cs
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermuta.Infra\obj\Debug\net8.0\GestaoEscalaPermuta.Infra.csproj.CoreCompileInputs.cache
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermuta.Infra\obj\Debug\net8.0\GestaoEscalaPermuta.Infra.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermuta.Infra\obj\Debug\net8.0\refint\GestaoEscalaPermuta.Infra.dll
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermuta.Infra\obj\Debug\net8.0\GestaoEscalaPermuta.Infra.pdb
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermuta.Infra\obj\Debug\net8.0\GestaoEscalaPermuta.Infra.genruntimeconfig.cache
+D:\Csharp\GestaoEscalaPermutas\GestaoEscalaPermuta.Infra\obj\Debug\net8.0\ref\GestaoEscalaPermuta.Infra.dll
