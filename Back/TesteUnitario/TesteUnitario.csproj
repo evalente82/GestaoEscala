@@ -10,6 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controler\**" />
+    <EmbeddedResource Remove="Controler\**" />
+    <None Remove="Controler\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FakeItEasy" Version="8.1.0" />
     <PackageReference Include="FluentAssertions" Version="6.12.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.2" />
@@ -29,10 +35,6 @@
     <ProjectReference Include="..\GestaoEscalaPermuta.Infra\GestaoEscalaPermutas.Infra.csproj" />
     <ProjectReference Include="..\GestaoEscalaPermutas.Dominio\GestaoEscalaPermutas.Dominio.csproj" />
     <ProjectReference Include="..\GestaoEscalaPermutas.Server\GestaoEscalaPermutas.Server.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controler\" />
   </ItemGroup>
 
 </Project>
