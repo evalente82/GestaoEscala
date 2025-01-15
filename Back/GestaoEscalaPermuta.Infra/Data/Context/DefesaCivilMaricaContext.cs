@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 namespace GestaoEscalaPermutas.Infra.Data.Context;
 
@@ -44,7 +45,6 @@ public partial class DefesaCivilMaricaContext : DbContext
 
     public DbSet<PerfilFuncionalidade> PerfisFuncionalidades { get; set; }
 
-    public DbSet<Log> Logs { get; set; }
 
 
     //    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -65,74 +65,168 @@ public partial class DefesaCivilMaricaContext : DbContext
             .Build();
 
         var connStringEmUso = configuration.GetConnectionString("EmUso");
-           
 
-        optionsBuilder.UseSqlServer(connStringEmUso);
-
+        optionsBuilder.UseNpgsql(connStringEmUso);
     }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        #region CARGO
         modelBuilder.Entity<Cargo>(entity =>
         {
             entity.HasKey(e => e.IdCargos).HasName("PK_IdCargos");
         });
 
+        modelBuilder.Entity<Cargo>()
+        .Property(e => e.IdCargos)
+        .HasColumnType("uuid")
+        .HasDefaultValueSql("uuid_generate_v4()");
+
+        modelBuilder.Entity<Cargo>()
+            .Property(e => e.DtCriacao)
+            .HasConversion(
+                v => v.ToUniversalTime(),
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+        #endregion
+
+        #region DEPARTAMENTO
+        modelBuilder.Entity<Departamento>()
+        .Property(e => e.IdDepartamento)
+        .HasColumnType("uuid")
+        .HasDefaultValueSql("uuid_generate_v4()");
+
+        modelBuilder.Entity<Departamento>()
+            .Property(e => e.DtCriacao)
+            .HasConversion(
+                v => v.ToUniversalTime(),
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
         modelBuilder.Entity<Departamento>(entity =>
         {
             entity.HasKey(e => e.IdDepartamento).HasName("PK_IdDepartamento");
         });
+        #endregion
 
+        #region EMPRESA
         modelBuilder.Entity<Empresa>(entity =>
         {
             entity.HasKey(e => e.IdEmpresa).HasName("PK_IdEmpresa");
         });
 
+        modelBuilder.Entity<Empresa>()
+        .Property(e => e.IdEmpresa)
+        .HasColumnType("uuid")
+        .HasDefaultValueSql("uuid_generate_v4()");
+        #endregion
+
+        #region ESCALA
         modelBuilder.Entity<Escala>(entity =>
         {
             entity.HasKey(e => e.IdEscala).HasName("PK_IdEscala");
-
         });
 
-        modelBuilder.Entity<Funcionario>(entity =>
-        {
-            entity.HasKey(e => e.IdFuncionario).HasName("PK_IdFuncionario");
+        modelBuilder.Entity<Escala>()
+        .Property(e => e.IdEscala)
+        .HasColumnType("uuid")
+        .HasDefaultValueSql("uuid_generate_v4()");
 
-        });
+        modelBuilder.Entity<Escala>()
+            .Property(e => e.DtCriacao)
+            .HasConversion(
+                v => v.ToUniversalTime(),
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+        #endregion
 
+        #region PERMUTA
         modelBuilder.Entity<Permuta>(entity =>
         {
             entity.HasKey(e => e.IdPermuta).HasName("PK_IdPermuta");
-
         });
 
+        modelBuilder.Entity<Permuta>()
+        .Property(e => e.IdPermuta)
+        .HasColumnType("uuid")
+        .HasDefaultValueSql("uuid_generate_v4()");
+        #endregion
+
+        #region POSTO_TRABALHO
         modelBuilder.Entity<PostoTrabalho>(entity =>
         {
             entity.HasKey(e => e.IdPostoTrabalho).HasName("PK_IdPostoTrabalho");
-
         });
 
+        modelBuilder.Entity<PostoTrabalho>()
+        .Property(e => e.IdPostoTrabalho)
+        .HasColumnType("uuid")
+        .HasDefaultValueSql("uuid_generate_v4()");
+
+        modelBuilder.Entity<PostoTrabalho>()
+            .Property(e => e.DtCriacao)
+            .HasConversion(
+                v => v.ToUniversalTime(),
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+        #endregion
+
+        #region FUNCIONARIO
+        modelBuilder.Entity<Funcionario>(entity =>
+        {
+            entity.HasKey(e => e.IdFuncionario).HasName("PK_IdFuncionario");
+        });
+
+        modelBuilder.Entity<Funcionario>()
+        .Property(e => e.IdFuncionario)
+        .HasColumnType("uuid")
+        .HasDefaultValueSql("uuid_generate_v4()");
+
+        modelBuilder.Entity<Departamento>()
+            .Property(e => e.DtCriacao)
+            .HasConversion(
+                v => v.ToUniversalTime(),
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+        #endregion
+
+        #region FUNCIONARIOPERFIL
+        modelBuilder.Entity<FuncionarioPerfil>()
+            .HasKey(fp => new { fp.IdFuncionario, fp.IdPerfil });
+        #endregion
+
+        #region TIPO_ESCALA
         modelBuilder.Entity<TipoEscala>(entity =>
         {
             entity.HasKey(e => e.IdTipoEscala).HasName("PK_IdTipoEscala");
         });
 
-        modelBuilder.Entity<FuncionarioPerfil>()
-            .HasKey(fp => new { fp.IdFuncionario, fp.IdPerfil });
+        modelBuilder.Entity<TipoEscala>()
+        .Property(e => e.IdTipoEscala)
+        .HasColumnType("uuid")
+        .HasDefaultValueSql("uuid_generate_v4()");
 
+        modelBuilder.Entity<TipoEscala>()
+            .Property(e => e.DtCriacao)
+            .HasConversion(
+                v => v.ToUniversalTime(),
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+        #endregion
+
+        #region PERFIL_FUNCIONALIDADE
         modelBuilder.Entity<PerfilFuncionalidade>()
             .HasKey(pf => new { pf.IdPerfil, pf.IdFuncionalidade });
+        #endregion
 
+        #region FUNCIONALIDADE
         modelBuilder.Entity<Funcionalidade>(entity =>
         {
             entity.HasKey(e => e.IdFuncionalidade).HasName("PK_IdFuncionalidade");
         });
+        #endregion
 
+        #region PERFIL
         modelBuilder.Entity<Perfil>(entity =>
         {
             entity.HasKey(e => e.IdPerfil).HasName("PK_IdPerfil");
         });
+        #endregion
 
         OnModelCreatingPartial(modelBuilder);
     }

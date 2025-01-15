@@ -35,8 +35,8 @@ namespace GestaoEscalaPermutas.Server.Controllers.PostoTrabalho
         }
 
         [HttpPatch]
-        [Route("Atualizar/{id:int}")]
-        public async Task<ActionResult> AtualizarPostoTrabalho(int id, [FromBody] PostoTrabalhoDTO postoTrabalho)
+        [Route("Atualizar/{id:Guid}")]
+        public async Task<ActionResult> AtualizarPostoTrabalho(Guid id, [FromBody] PostoTrabalhoDTO postoTrabalho)
         {
             postoTrabalho.IdPostoTrabalho = id;
             var postoTrabalhoDTO = await _postoTrabalhoService.Alterar(id, _mapper.Map<PostoTrabalhoDTO>(postoTrabalho));
@@ -62,8 +62,8 @@ namespace GestaoEscalaPermutas.Server.Controllers.PostoTrabalho
         }
 
         [HttpDelete]
-        [Route("Deletar/{id:int}")]
-        public async Task<ActionResult> DeletarPostoTrabalho(int id)
+        [Route("Deletar/{id:Guid}")]
+        public async Task<ActionResult> DeletarPostoTrabalho(Guid id)
         {
             var postosDTO = await _postoTrabalhoService.Deletar(id);
             var postosModel = _mapper.Map<PostoTrabalhoModel>(postosDTO);

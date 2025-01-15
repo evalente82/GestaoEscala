@@ -39,11 +39,11 @@ namespace GestaoEscalaPermutas.Dominio.Services.PostoTrabalho
             }
         }
 
-        public async Task<PostoTrabalhoDTO> Alterar(int id, PostoTrabalhoDTO postoTrabalhoModel)
+        public async Task<PostoTrabalhoDTO> Alterar(Guid id, PostoTrabalhoDTO postoTrabalhoModel)
         {
             try
             {
-                if (id <= 0)
+                if (id == Guid.Empty)
                 {
                     return new PostoTrabalhoDTO { valido = false, mensagem = "Id fora do Range." };
                 }
@@ -89,11 +89,11 @@ namespace GestaoEscalaPermutas.Dominio.Services.PostoTrabalho
             }
         }
 
-        public async Task<PostoTrabalhoDTO> Deletar(int id)
+        public async Task<PostoTrabalhoDTO> Deletar(Guid id)
         {
             try
             {
-                if (id <= 0)
+                if (id == Guid.Empty)
                 {
                     return new PostoTrabalhoDTO { valido = false, mensagem = "Id fora do Range." };
                 }

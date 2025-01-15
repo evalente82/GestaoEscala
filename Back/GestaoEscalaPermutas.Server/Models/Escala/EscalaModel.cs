@@ -2,13 +2,13 @@
 {
     public class EscalaModel : RetornoModel
     {
-        public int IdEscala { get; set; }
+        public Guid IdEscala { get; set; }
 
-        public int IdDepartamento { get; set; }
+        public Guid IdDepartamento { get; set; }
 
         public string? NmNomeEscala { get; set; }
 
-        public int IdTipoEscala { get; set; }
+        public Guid IdTipoEscala { get; set; }
 
         public DateTime DtCriacao { get; set; }
 

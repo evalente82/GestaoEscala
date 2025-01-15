@@ -9,13 +9,13 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 public partial class EscalaPronta
 {
     [Key]
-    public int IdEscalaPronta { get; set; }
+    public Guid IdEscalaPronta { get; set; }
 
-    public int IdEscala { get; set; }
+    public Guid IdEscala { get; set; }
 
-    public int IdPostoTrabalho { get; set; }
+    public Guid IdPostoTrabalho { get; set; }
 
-    public int IdFuncionario { get; set; }
+    public Guid IdFuncionario { get; set; }
 
     public DateTime DtDataServico { get; set; }
 

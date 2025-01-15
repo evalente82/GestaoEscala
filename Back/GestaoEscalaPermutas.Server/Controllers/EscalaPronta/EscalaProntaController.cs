@@ -30,8 +30,8 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaPronta
         }
 
         [HttpPatch]
-        [Route("Atualizar/{id:int}")]
-        public async Task<ActionResult> AtualizarEscalaPronta(int id, [FromBody] EscalaProntaDTO escalaPronta)
+        [Route("Atualizar/{id:Guid}")]
+        public async Task<ActionResult> AtualizarEscalaPronta(Guid id, [FromBody] EscalaProntaDTO escalaPronta)
         {
             escalaPronta.IdEscalaPronta = id;
             var escalaProntaDTO = await _escalaProntaService.Alterar(id, _mapper.Map<EscalaProntaDTO>(escalaPronta));
@@ -41,8 +41,8 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaPronta
 
         
         [HttpDelete]
-        [Route("Deletar/{id:int}")]
-        public async Task<ActionResult> DeletarEscalaPronta(int id)
+        [Route("Deletar/{id:Guid}")]
+        public async Task<ActionResult> DeletarEscalaPronta(Guid id)
         {
             var escalaProntaDTO = await _escalaProntaService.Deletar(id);
             var escalaProntaModel = _mapper.Map<EscalaProntaModel>(escalaProntaDTO);

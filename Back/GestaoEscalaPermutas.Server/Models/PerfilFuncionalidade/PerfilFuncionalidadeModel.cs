@@ -5,9 +5,9 @@ namespace GestaoEscalaPermutas.Server.Models.PerfilFuncionalidade
 {
     public class PerfilFuncionalidadeModel: RetornoModel
     {       
-        public int IdPerfil { get; set; }
+        public Guid IdPerfil { get; set; }
         
-        public int IdFuncionalidade { get; set; }
+        public Guid IdFuncionalidade { get; set; }
 
         // Relacionamentos
         public Perfil Perfil { get; set; } = null!;

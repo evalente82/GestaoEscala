@@ -8,8 +8,8 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
 {
     public class FuncionarioPerfil
     {
-        public int IdFuncionario { get; set; }
-        public int IdPerfil { get; set; }
+        public Guid IdFuncionario { get; set; }
+        public Guid IdPerfil { get; set; }
 
         // Relacionamentos
         public Funcionario Funcionario { get; set; } = null!;

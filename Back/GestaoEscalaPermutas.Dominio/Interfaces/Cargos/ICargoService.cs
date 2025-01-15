@@ -11,8 +11,8 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.Cargos
     public interface ICargoService
     {
         Task<CargoDTO> Incluir(CargoDTO departamentoModel);
-        Task<CargoDTO> Alterar(int id, CargoDTO departamentoModel);
-        Task<CargoDTO> Deletar(int id);
+        Task<CargoDTO> Alterar(Guid id, CargoDTO departamentoModel);
+        Task<CargoDTO> Deletar(Guid id);
         Task<List<CargoDTO>> BuscarTodos();
     }
 }

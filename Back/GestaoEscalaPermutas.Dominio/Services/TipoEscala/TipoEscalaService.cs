@@ -39,11 +39,11 @@ namespace GestaoEscalaPermutas.Dominio.Services.TipoEscala
                 return new TipoEscalaDTO { valido = false, mensagem = $"Erro ao receber o Objeto: {e.Message}" };
             }
         }
-        public async Task<TipoEscalaDTO> Alterar(int id, TipoEscalaDTO tipoEscalaDTO)
+        public async Task<TipoEscalaDTO> Alterar(Guid id, TipoEscalaDTO tipoEscalaDTO)
         {
             try
             {
-                if (id <= 0)
+                if (id == Guid.Empty)
                 {
                     return new TipoEscalaDTO { valido = false, mensagem = "Id fora do Range." };
                 }
@@ -87,11 +87,11 @@ namespace GestaoEscalaPermutas.Dominio.Services.TipoEscala
                 throw new Exception($"Erro ao receber o Objeto: {e.Message}");
             }
         }
-        public async Task<TipoEscalaDTO> Deletar(int id)
+        public async Task<TipoEscalaDTO> Deletar(Guid id)
         {
             try
             {
-                if (id <= 0)
+                if (id == Guid.Empty)
                 {
                     return new TipoEscalaDTO { valido = false, mensagem = "Id fora do Range." };
                 }
@@ -119,11 +119,11 @@ namespace GestaoEscalaPermutas.Dominio.Services.TipoEscala
                 throw new Exception($"Erro ao receber o Objeto: {e.Message}");
             }
         }
-        public async Task<TipoEscalaDTO> BuscarPorId(int idEscala)
+        public async Task<TipoEscalaDTO> BuscarPorId(Guid idEscala)
         {
             try
             {
-                if (idEscala <= 0)
+                if (idEscala == Guid.Empty)
                 {
                     return new TipoEscalaDTO { valido = false, mensagem = "Id fora do Range." };
                 }

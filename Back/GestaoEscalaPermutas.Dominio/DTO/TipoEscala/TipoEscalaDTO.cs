@@ -5,7 +5,7 @@ namespace GestaoEscalaPermutas.Dominio.DTO.TipoEscala
 {
     public class TipoEscalaDTO:RetornoDTO
     {
-        public int IdTipoEscala { get; set; }
+        public Guid IdTipoEscala { get; set; }
 
         public string NmNome { get; set; } = null!;
 

@@ -32,8 +32,8 @@ namespace GestaoEscalaPermutas.Server.Controllers.Funcionarios
         }
 
         [HttpPatch]
-        [Route("Atualizar/{id:int}")]
-        public async Task<ActionResult> AtualizarFuncionario(int id, [FromBody] FuncionarioDTO funcionario)
+        [Route("Atualizar/{id:Guid}")]
+        public async Task<ActionResult> AtualizarFuncionario(Guid id, [FromBody] FuncionarioDTO funcionario)
         {
             funcionario.IdFuncionario = id;
             var funcionarioDTO = await _funcionarioService.Alterar(id, _mapper.Map<FuncionarioDTO>(funcionario));
@@ -59,8 +59,8 @@ namespace GestaoEscalaPermutas.Server.Controllers.Funcionarios
         }
 
         [HttpDelete]
-        [Route("Deletar/{id:int}")]
-        public async Task<ActionResult> DeletarFuncionario(int id)
+        [Route("Deletar/{id:Guid}")]
+        public async Task<ActionResult> DeletarFuncionario(Guid id)
         {
             var funcionariosDTO = await _funcionarioService.Deletar(id);
             var funcionariosModel = _mapper.Map<FuncionarioModel>(funcionariosDTO);

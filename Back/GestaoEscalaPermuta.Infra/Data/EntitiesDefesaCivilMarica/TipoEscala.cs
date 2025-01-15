@@ -10,7 +10,7 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 public partial class TipoEscala
 {
     [Key]
-    public int IdTipoEscala { get; set; }
+    public Guid IdTipoEscala { get; set; }
 
     [StringLength(200)]
     [Unicode(false)]

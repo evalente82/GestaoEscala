@@ -2,7 +2,7 @@
 {
     public class PostoTrabalhoModel : RetornoModel
     {
-        public int IdPostoTrabalho { get; set; }
+        public Guid IdPostoTrabalho { get; set; }
 
         public string NmNome { get; set; } = null!;
 
@@ -12,6 +12,6 @@
 
         public DateTime DtCriacao { get; set; }
 
-        public int IdDepartamento { get; set; }
+        public Guid IdDepartamento { get; set; }
     }
 }

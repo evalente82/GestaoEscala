@@ -7,9 +7,9 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.TipoEscala
     public interface ITipoEscalaService
     {
         Task<TipoEscalaDTO> Incluir(TipoEscalaDTO tipoEscalaDTOModel);
-        Task<TipoEscalaDTO> Alterar(int id, TipoEscalaDTO tipoEscalaDTOModel);
-        Task<TipoEscalaDTO> Deletar(int id);
+        Task<TipoEscalaDTO> Alterar(Guid id, TipoEscalaDTO tipoEscalaDTOModel);
+        Task<TipoEscalaDTO> Deletar(Guid id);
         Task<List<TipoEscalaDTO>> BuscarTodos();
-        Task<TipoEscalaDTO> BuscarPorId(int idEscala);
+        Task<TipoEscalaDTO> BuscarPorId(Guid idEscala);
     }
 }

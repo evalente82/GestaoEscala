@@ -36,8 +36,8 @@ namespace GestaoEscalaPermutas.Server.Controllers.TipoEscala
         }
 
         [HttpPatch]
-        [Route("Atualizar/{id:int}")]
-        public async Task<ActionResult> AtualizarTipoEscala(int id, [FromBody] TipoEscalaDTO tipoEscala)
+        [Route("Atualizar/{id:Guid}")]
+        public async Task<ActionResult> AtualizarTipoEscala(Guid id, [FromBody] TipoEscalaDTO tipoEscala)
         {
             tipoEscala.IdTipoEscala = id;
             var tipoEscalaDTO = await _tipoEscalaService.Alterar(id, _mapper.Map<TipoEscalaDTO>(tipoEscala));
@@ -62,8 +62,8 @@ namespace GestaoEscalaPermutas.Server.Controllers.TipoEscala
         }
 
         [HttpDelete]
-        [Route("Deletar/{id:int}")]
-        public async Task<ActionResult> DeletarTipoEscala(int id)
+        [Route("Deletar/{id:Guid}")]
+        public async Task<ActionResult> DeletarTipoEscala(Guid id)
         {
             var tipoEscalaDTO = await _tipoEscalaService.Deletar(id);
             var tipoEscalasModel = _mapper.Map<TipoEscalaModel>(tipoEscalaDTO);

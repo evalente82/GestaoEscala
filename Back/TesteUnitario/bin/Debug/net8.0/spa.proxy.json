@@ -3,7 +3,7 @@
 "ServerUrl": "https://localhost:5173",
 "RedirectUrl": "",
 "LaunchCommand": "npm run dev",
-"WorkingDirectory": "c:\\Users\\endri\\Desktop\\Defesa Civil\\Back\\GestaoEscalaPermutas.Server\\..\\gestaoescalapermutas.client",
+"WorkingDirectory": "C:\\Users\\endri\\Desktop\\Defesa Civil\\Back\\GestaoEscalaPermutas.Server\\..\\gestaoescalapermutas.client",
 "MaxTimeoutInSeconds": "120",
 "KeepRunning": "false"
 }

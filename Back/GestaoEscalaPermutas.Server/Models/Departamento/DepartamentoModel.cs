@@ -2,7 +2,7 @@
 {
     public class DepartamentoModel : RetornoModel
     {    
-        public int IdDepartamento { get; set; }
+        public Guid IdDepartamento { get; set; }
         
         public string NmNome { get; set; } = null!;
         

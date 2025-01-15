@@ -38,11 +38,11 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaPronta
                 return new EscalaProntaDTO { valido = false, mensagem = $"Erro ao receber o Objeto: {e.Message}" };
             }
         }
-        public async Task<EscalaProntaDTO> Alterar(int id, EscalaProntaDTO escalaProntaDTO)
+        public async Task<EscalaProntaDTO> Alterar(Guid id, EscalaProntaDTO escalaProntaDTO)
         {
             try
             {
-                if (id <= 0)
+                if (id == Guid.Empty)
                 {
                     return new EscalaProntaDTO { valido = false, mensagem = "Id fora do Range." };
                 }
@@ -77,11 +77,11 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaPronta
         {
             throw new NotImplementedException();
         }
-        public async Task<EscalaProntaDTO> BuscarPorId(int idEscalaPronta)
+        public async Task<EscalaProntaDTO> BuscarPorId(Guid idEscalaPronta)
         {
             try
             {
-                if (idEscalaPronta <= 0)
+                if (idEscalaPronta == Guid.Empty)
                 {
                     return new EscalaProntaDTO { valido = false, mensagem = "Id fora do Range." };
                 }
@@ -109,11 +109,11 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaPronta
                 throw new Exception($"Erro ao receber o Objeto: {e.Message}");
             }
         }
-        public async Task<EscalaProntaDTO> Deletar(int id)
+        public async Task<EscalaProntaDTO> Deletar(Guid id)
         {
             try
             {
-                if (id <= 0)
+                if (id == Guid.Empty)
                 {
                     return new EscalaProntaDTO { valido = false, mensagem = "Id fora do Range." };
                 }

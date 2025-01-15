@@ -40,11 +40,11 @@ namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
                 return new FuncionarioDTO { valido = false, mensagem = $"Erro ao receber o Objeto: {e.Message}" };
             }
         }
-        public async Task<FuncionarioDTO> Alterar(int id, FuncionarioDTO funcionarioDTO)
+        public async Task<FuncionarioDTO> Alterar(Guid id, FuncionarioDTO funcionarioDTO)
         {
             try
             {
-                if (id <= 0)
+                if (id == Guid.Empty)
                 {
                     return new FuncionarioDTO { valido = false, mensagem = "Id fora do Range." };
                 }
@@ -88,11 +88,11 @@ namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
                 throw new Exception($"Erro ao receber o Objeto: {e.Message}");
             }
         }
-        public async Task<FuncionarioDTO> Deletar(int id)
+        public async Task<FuncionarioDTO> Deletar(Guid id)
         {
             try
             {
-                if (id <= 0)
+                if (id == Guid.Empty)
                 {
                     return new FuncionarioDTO { valido = false, mensagem = "Id fora do Range." };
                 }

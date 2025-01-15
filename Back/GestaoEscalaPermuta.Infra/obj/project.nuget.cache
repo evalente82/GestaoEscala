@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "w+0KrAQbnuA=",
+  "dgSpecHash": "1kKmQnJnl8Q=",
   "success": true,
-  "projectFilePath": "C:\\Users\\endri\\Desktop\\Defesa Civil\\GestaoEscalaPermuta.Infra\\GestaoEscalaPermutas.Infra.csproj",
+  "projectFilePath": "C:\\Users\\endri\\Desktop\\Defesa Civil\\Back\\GestaoEscalaPermuta.Infra\\GestaoEscalaPermutas.Infra.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\endri\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\endri\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
@@ -69,6 +69,8 @@
     "C:\\Users\\endri\\.nuget\\packages\\microsoft.sqlserver.server\\1.0.0\\microsoft.sqlserver.server.1.0.0.nupkg.sha512",
     "C:\\Users\\endri\\.nuget\\packages\\microsoft.win32.systemevents\\6.0.0\\microsoft.win32.systemevents.6.0.0.nupkg.sha512",
     "C:\\Users\\endri\\.nuget\\packages\\mono.texttemplating\\3.0.0\\mono.texttemplating.3.0.0.nupkg.sha512",
+    "C:\\Users\\endri\\.nuget\\packages\\npgsql\\9.0.2\\npgsql.9.0.2.nupkg.sha512",
+    "C:\\Users\\endri\\.nuget\\packages\\npgsql.entityframeworkcore.postgresql\\9.0.2\\npgsql.entityframeworkcore.postgresql.9.0.2.nupkg.sha512",
     "C:\\Users\\endri\\.nuget\\packages\\system.clientmodel\\1.0.0\\system.clientmodel.1.0.0.nupkg.sha512",
     "C:\\Users\\endri\\.nuget\\packages\\system.codedom\\6.0.0\\system.codedom.6.0.0.nupkg.sha512",
     "C:\\Users\\endri\\.nuget\\packages\\system.collections.immutable\\7.0.0\\system.collections.immutable.7.0.0.nupkg.sha512",
@@ -105,12 +107,5 @@
     "C:\\Users\\endri\\.nuget\\packages\\system.threading.tasks.extensions\\4.5.4\\system.threading.tasks.extensions.4.5.4.nupkg.sha512",
     "C:\\Users\\endri\\.nuget\\packages\\system.windows.extensions\\6.0.0\\system.windows.extensions.6.0.0.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1900",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Ocorreu um erro ao obter os dados de vulnerabilidade do pacote: Não é possível carregar o índice de serviço para a origem https://nuget.medgrupo.com.br/v3/index.json."
-    }
-  ]
+  "logs": []
 }

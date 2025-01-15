@@ -10,7 +10,7 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 public partial class PostoTrabalho
 {
     [Key]
-    public int IdPostoTrabalho { get; set; }
+    public Guid IdPostoTrabalho { get; set; }
 
     [StringLength(200)]
     [Unicode(false)]
@@ -24,6 +24,6 @@ public partial class PostoTrabalho
 
     public DateTime DtCriacao { get; set; }
 
-    public int IdDepartamento { get; set; }
+    public Guid IdDepartamento { get; set; }
 
 }

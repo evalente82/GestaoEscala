@@ -11,10 +11,10 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta
     public interface IEscalaProntaService
     {
         Task<EscalaProntaDTO> Incluir(EscalaProntaDTO escalaProntaModel);
-        Task<EscalaProntaDTO> Alterar(int id, EscalaProntaDTO escalaProntaModel);
-        Task<EscalaProntaDTO> Deletar(int id);
+        Task<EscalaProntaDTO> Alterar(Guid id, EscalaProntaDTO escalaProntaModel);
+        Task<EscalaProntaDTO> Deletar(Guid id);
         Task<List<EscalaProntaDTO>> BuscarTodos();
-        Task<EscalaProntaDTO> BuscarPorId(int idEscalaPronta);
+        Task<EscalaProntaDTO> BuscarPorId(Guid idEscalaPronta);
         Task<EscalaProntaDTO[]> IncluirLista(EscalaProntaDTO[] escalaProntaDTOs);
     }
 }

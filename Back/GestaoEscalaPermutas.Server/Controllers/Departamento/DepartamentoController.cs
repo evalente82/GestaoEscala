@@ -34,8 +34,8 @@ namespace GestaoEscalaPermutas.Server.Controllers.Departamento
         }
 
         [HttpPatch]
-        [Route("Atualizar/{id:int}")]
-        public async Task<ActionResult> AtualizarDepartamento(int id, [FromBody] DepartamentoDTO departamento)
+        [Route("Atualizar/{id:Guid}")]
+        public async Task<ActionResult> AtualizarDepartamento(Guid id, [FromBody] DepartamentoDTO departamento)
         {
             departamento.IdDepartamento = id;
             var departamentoDTO = await _departamentoService.Alterar(id, _mapper.Map<DepartamentoDTO>(departamento));
@@ -61,8 +61,8 @@ namespace GestaoEscalaPermutas.Server.Controllers.Departamento
         }
 
         [HttpDelete]
-        [Route("Deletar/{id:int}")]
-        public async Task<ActionResult> DeletarDepartamento(int id)
+        [Route("Deletar/{id:Guid}")]
+        public async Task<ActionResult> DeletarDepartamento(Guid id)
         {
             var departamentoDTO = await _departamentoService.Deletar(id);
             var departamentoModel = _mapper.Map<DepartamentoModel>(departamentoDTO);

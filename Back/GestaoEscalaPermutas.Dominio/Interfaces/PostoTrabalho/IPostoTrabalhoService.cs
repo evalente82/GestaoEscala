@@ -6,8 +6,8 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.PostoTrabalho
     public interface IPostoTrabalhoService
     {
         Task<PostoTrabalhoDTO> Incluir(PostoTrabalhoDTO postoTrabalhoModel);
-        Task<PostoTrabalhoDTO> Alterar(int id, PostoTrabalhoDTO postoTrabalhoModel);
-        Task<PostoTrabalhoDTO> Deletar(int id);
+        Task<PostoTrabalhoDTO> Alterar(Guid id, PostoTrabalhoDTO postoTrabalhoModel);
+        Task<PostoTrabalhoDTO> Deletar(Guid id);
         Task<List<PostoTrabalhoDTO>> BuscarTodos();
         Task<PostoTrabalhoDTO[]> IncluirLista(PostoTrabalhoDTO[] postoDTOs);
         Task<List<PostoTrabalhoDTO>> BuscarTodosAtivos();

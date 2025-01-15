@@ -10,15 +10,15 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 public partial class Escala
 {
     [Key]
-    public int IdEscala { get; set; }
+    public Guid IdEscala { get; set; }
 
-    public int IdDepartamento { get; set; }
+    public Guid IdDepartamento { get; set; }
 
     [StringLength(200)]
     [Unicode(false)]
     public string? NmNomeEscala { get; set; }
 
-    public int IdTipoEscala { get; set; }
+    public Guid IdTipoEscala { get; set; }
 
     public DateTime DtCriacao { get; set; }
 

@@ -1,5 +1,6 @@
 ﻿
 
+using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
@@ -10,15 +11,16 @@ namespace GestaoEscalaPermutas.Dominio.DTO.Escala
     {
         public EscalaDTO()
         {
-            DtCriacao = DateTime.Now;
+            IdEscala = Guid.NewGuid();
+            DtCriacao = DateTime.UtcNow;
         }
-        public int IdEscala { get; set; }
+        public Guid IdEscala { get; set; }
 
-        public int IdDepartamento { get; set; }
+        public Guid IdDepartamento { get; set; }
 
         public string? NmNomeEscala { get; set; }
 
-        public int IdTipoEscala { get; set; }
+        public Guid IdTipoEscala { get; set; }
         [JsonIgnore]
         public DateTime DtCriacao { get; set; }
 

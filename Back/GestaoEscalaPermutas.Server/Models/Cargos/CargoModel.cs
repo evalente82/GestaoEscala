@@ -2,7 +2,7 @@
 {
     public class CargoModel : RetornoModel
     {
-        public int IdCargos { get; set; }
+        public Guid IdCargos { get; set; }
 
         public string NmNome { get; set; } = null!;
 

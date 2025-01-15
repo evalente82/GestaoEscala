@@ -67,7 +67,9 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-builder.Services.AddDbContext<DefesaCivilMaricaContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString(connString ?? string.Empty)));
+//builder.Services.AddDbContext<DefesaCivilMaricaContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString(connString ?? string.Empty)));
+builder.Services.AddDbContext<DefesaCivilMaricaContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("EmUso")));
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddResponseCompression();

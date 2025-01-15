@@ -6,10 +6,11 @@ namespace GestaoEscalaPermutas.Dominio.DTO.Departamento
     {
         public DepartamentoDTO()
         {
-            DtCriacao = DateTime.Now;
+            IdDepartamento = Guid.NewGuid();
+            DtCriacao = DateTime.UtcNow;
         }
         
-        public int IdDepartamento { get; set; }
+        public Guid IdDepartamento { get; set; }
         public string NmNome { get; set; } = null!;
         public string NmDescricao { get; set; } = null!;
         public bool IsAtivo { get; set; }

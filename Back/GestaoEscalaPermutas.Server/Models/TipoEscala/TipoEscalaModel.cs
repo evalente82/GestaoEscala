@@ -2,7 +2,7 @@
 {
     public class TipoEscalaModel : RetornoModel
     {
-        public int IdTipoEscala { get; set; }
+        public Guid IdTipoEscala { get; set; }
 
         public string NmNome { get; set; } = null!;
 

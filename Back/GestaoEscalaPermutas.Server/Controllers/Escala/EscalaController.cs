@@ -9,9 +9,6 @@ using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
 using GestaoEscalaPermutas.Dominio.Interfaces.TipoEscala;
 using GestaoEscalaPermutas.Dominio.DTO.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
-using GestaoEscalaPermutas.Server.Models.Funcionarios;
-using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
-using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using GestaoEscalaPermutas.Server.Models.EscalaPronta;
 
 namespace GestaoEscalaPermutas.Server.Controllers.Escala
@@ -47,8 +44,8 @@ namespace GestaoEscalaPermutas.Server.Controllers.Escala
         }
 
         [HttpPatch]
-        [Route("Atualizar/{id:int}")]
-        public async Task<ActionResult> AtualizarTipoEscala(int id, [FromBody] EscalaDTO escala)
+        [Route("Atualizar/{id:Guid}")]
+        public async Task<ActionResult> AtualizarTipoEscala(Guid id, [FromBody] EscalaDTO escala)
         {
             escala.IdEscala = id;
             var EscalaDTO = await _escalaService.Alterar(id, _mapper.Map<EscalaDTO>(escala));
@@ -73,8 +70,8 @@ namespace GestaoEscalaPermutas.Server.Controllers.Escala
         }
 
         [HttpDelete]
-        [Route("Deletar/{id:int}")]
-        public async Task<ActionResult> DeletarEscala(int id)
+        [Route("Deletar/{id:Guid}")]
+        public async Task<ActionResult> DeletarEscala(Guid id)
         {
             var escalasDTO = await _escalaService.Deletar(id);
             var escalasModel = _mapper.Map<EscalaModel>(escalasDTO);
@@ -83,7 +80,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.Escala
 
         [HttpPost]
         [Route("montarEscala/")]
-        public async Task<ActionResult> MontarEscala([FromBody] int idEscala)
+        public async Task<ActionResult> MontarEscala([FromBody] Guid idEscala)
         {
             //busca a escala selecionada
             var escala = await _escalaService.BuscarPorId(idEscala);
@@ -215,7 +212,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.Escala
                                 else
                                 {
                                     Console.WriteLine($"Sem Funcionario");
-                                    escalaPronta.IdFuncionario = 78;
+                                    //escalaPronta.IdFuncionario = 78;
                                     countTpEscala++;
                                 }
 
@@ -223,7 +220,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.Escala
                             else
                             {
                                 Console.WriteLine($"Sem Funcionario");
-                                escalaPronta.IdFuncionario = 78;
+                                //escalaPronta.IdFuncionario = 78;
                                 countTpEscala++;
                             }
 
@@ -233,10 +230,10 @@ namespace GestaoEscalaPermutas.Server.Controllers.Escala
                         escalaPronta.IdPostoTrabalho = item.IdPostoTrabalho;
 
                         //add a lista 
-                        if (escalaPronta.IdFuncionario == 0)
+                        if (escalaPronta.IdFuncionario == Guid.Empty)
                         {
                             Console.WriteLine($"Funcionario: {escalaPronta.IdFuncionario}");
-                            escalaPronta.IdFuncionario = 78;
+                            //escalaPronta.IdFuncionario = 78;
                             Console.WriteLine($"Funcionario: {escalaPronta.IdFuncionario}");
                         }
                         listEscalaPronta.Add(escalaPronta);

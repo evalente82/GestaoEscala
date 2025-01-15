@@ -10,7 +10,7 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 public partial class Empresa
 {
     [Key]
-    public int IdEmpresa { get; set; }
+    public Guid IdEmpresa { get; set; }
 
     [StringLength(200)]
     public string NmNome { get; set; } = null!;

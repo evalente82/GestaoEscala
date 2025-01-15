@@ -5,7 +5,7 @@ namespace GestaoEscalaPermutas.Server.Models.PerfilFuncionalidade
 {
     public class PerfilModel
     {
-        public int IdPerfil { get; set; }
+        public Guid IdPerfil { get; set; }
 
         [StringLength(100)]
         public string NmNome { get; set; } = null!;

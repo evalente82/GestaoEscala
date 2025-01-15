@@ -9,7 +9,7 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
 {
     public class Perfil
     {
-        public int IdPerfil { get; set; }
+        public Guid IdPerfil { get; set; }
 
         [StringLength(100)]
         public string NmNome { get; set; } = null!;

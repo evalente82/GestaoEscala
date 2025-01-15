@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -10,8 +11,13 @@ namespace GestaoEscalaPermutas.Dominio.DTO.Funcionario
 {
     public class FuncionarioDTO : RetornoDTO
     {
-        
-        public int IdFuncionario { get; set; }
+        public FuncionarioDTO()
+        {
+            IdFuncionario = Guid.NewGuid();
+            DtCriacao = DateTime.UtcNow;
+        }
+
+        public Guid IdFuncionario { get; set; }
         public string NmNome { get; set; } = null!;
 
         public int NrMatricula { get; set; }
@@ -27,6 +33,7 @@ namespace GestaoEscalaPermutas.Dominio.DTO.Funcionario
         public string? NmEmail { get; set; }
 
         public string? NmSenha { get; set; }
+        public DateTime DtCriacao { get; set; }
 
     }
 }

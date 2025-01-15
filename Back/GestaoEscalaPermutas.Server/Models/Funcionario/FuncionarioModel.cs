@@ -5,7 +5,7 @@ namespace GestaoEscalaPermutas.Server.Models.Funcionarios
 {
     public class FuncionarioModel: RetornoModel
     {
-        public int IdFuncionario { get; set; }
+        public Guid IdFuncionario { get; set; }
 
         public string NmNome { get; set; } = null!;
 

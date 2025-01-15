@@ -9,7 +9,7 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
 {
     public class Funcionalidade
     {
-        public int IdFuncionalidade { get; set; }
+        public Guid IdFuncionalidade { get; set; }
 
         [StringLength(100)]
         public string NmNome { get; set; } = null!;

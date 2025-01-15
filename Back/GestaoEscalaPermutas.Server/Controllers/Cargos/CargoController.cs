@@ -32,8 +32,8 @@ namespace GestaoEscalaPermutas.Server.Controllers.Cargos
         }
 
         [HttpPatch]
-        [Route("Atualizar/{id:int}")]
-        public async Task<ActionResult> AtualizarCargo(int id, [FromBody] CargoDTO cargo)
+        [Route("Atualizar/{id:Guid}")]
+        public async Task<ActionResult> AtualizarCargo(Guid id, [FromBody] CargoDTO cargo)
         {
             cargo.IdCargos= id;
             var cargoDTO = await _cargoService.Alterar(id, _mapper.Map<CargoDTO>(cargo));
@@ -59,8 +59,8 @@ namespace GestaoEscalaPermutas.Server.Controllers.Cargos
         }
 
         [HttpDelete]
-        [Route("Deletar/{id:int}")]
-        public async Task<ActionResult> DeletarCargo(int id)
+        [Route("Deletar/{id:Guid}")]
+        public async Task<ActionResult> DeletarCargo(Guid id)
         {
             var cargoDTO = await _cargoService.Deletar(id);
             var cargoModel = _mapper.Map<CargoModel>(cargoDTO);

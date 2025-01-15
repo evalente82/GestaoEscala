@@ -40,11 +40,11 @@ namespace GestaoEscalaPermutas.Dominio.Services.Cargos
                 return new CargoDTO { valido = false, mensagem = $"Erro ao receber o Objeto: {e.Message}" };
             }
         }
-        public async Task<CargoDTO> Alterar(int id, CargoDTO cargoModel)
+        public async Task<CargoDTO> Alterar(Guid id, CargoDTO cargoModel)
         {
             try
             {
-                if (id <= 0)
+                if (id == Guid.Empty)
                 {
                     return new CargoDTO { valido = false, mensagem = "Id fora do Range." };
                 }
@@ -88,11 +88,11 @@ namespace GestaoEscalaPermutas.Dominio.Services.Cargos
                 throw new Exception($"Erro ao receber o Objeto: {e.Message}");
             }
         }
-        public async Task<CargoDTO> Deletar(int id)
+        public async Task<CargoDTO> Deletar(Guid id)
         {
             try
             {
-                if (id <= 0)
+                if (id == Guid.Empty)
                 {
                     return new CargoDTO { valido = false, mensagem = "Id fora do Range." };
                 }

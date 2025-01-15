@@ -10,7 +10,7 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 public partial class Funcionario
 {
     [Key]
-    public int IdFuncionario { get; set; }
+    public Guid IdFuncionario { get; set; }
 
     [StringLength(200)]
     [Unicode(false)]
@@ -24,7 +24,7 @@ public partial class Funcionario
     [Unicode(false)]
     public string NmEndereco { get; set; } = null!;
 
-    public int IdCargos { get; set; }
+    public Guid IdCargos { get; set; }
 
     public bool IsAtivo { get; set; }
 

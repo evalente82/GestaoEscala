@@ -10,7 +10,7 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 public class Departamento   
 {
     [Key]
-    public int IdDepartamento { get; set; }
+    public Guid IdDepartamento { get; set; }
 
     [StringLength(200)]
     [Unicode(false)]

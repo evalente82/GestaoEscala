@@ -39,11 +39,11 @@ namespace GestaoEscalaPermutas.Dominio.Services.Departamento
                 return new DepartamentoDTO { valido = false, mensagem = $"Erro ao receber o Objeto: {e.Message}" };
             }
         }               
-        public async Task<DepartamentoDTO> Alterar(int id, DepartamentoDTO departamentoModel)
+        public async Task<DepartamentoDTO> Alterar(Guid id, DepartamentoDTO departamentoModel)
         {
             try
             {
-                if (id <= 0)
+                if (id == Guid.Empty)
                 {
                     return new DepartamentoDTO { valido = false, mensagem = "Id fora do Range." };
                 }
@@ -87,11 +87,11 @@ namespace GestaoEscalaPermutas.Dominio.Services.Departamento
                 throw new Exception($"Erro ao receber o Objeto: {e.Message}");
             }
         }
-        public async Task<DepartamentoDTO> Deletar(int id)
+        public async Task<DepartamentoDTO> Deletar(Guid id)
         {
             try
             {
-                if (id <= 0)
+                if (id == Guid.Empty)
                 {
                     return new DepartamentoDTO { valido = false, mensagem = "Id fora do Range." };
                 }
