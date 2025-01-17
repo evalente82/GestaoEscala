@@ -1,0 +1,16 @@
+C:\Users\endri\Desktop\Projetos\GestaoEscala\Back\GestaoEscalaPermutas.Dominio\bin\Debug\net8.0\GestaoEscalaPermutas.Dominio.deps.json
+C:\Users\endri\Desktop\Projetos\GestaoEscala\Back\GestaoEscalaPermutas.Dominio\bin\Debug\net8.0\GestaoEscalaPermutas.Dominio.dll
+C:\Users\endri\Desktop\Projetos\GestaoEscala\Back\GestaoEscalaPermutas.Dominio\bin\Debug\net8.0\GestaoEscalaPermutas.Dominio.pdb
+C:\Users\endri\Desktop\Projetos\GestaoEscala\Back\GestaoEscalaPermutas.Dominio\bin\Debug\net8.0\GestaoEscalaPermutas.Infra.dll
+C:\Users\endri\Desktop\Projetos\GestaoEscala\Back\GestaoEscalaPermutas.Dominio\bin\Debug\net8.0\GestaoEscalaPermutas.Infra.pdb
+C:\Users\endri\Desktop\Projetos\GestaoEscala\Back\GestaoEscalaPermutas.Dominio\obj\Debug\net8.0\GestaoEscalaPermutas.Dominio.csproj.AssemblyReference.cache
+C:\Users\endri\Desktop\Projetos\GestaoEscala\Back\GestaoEscalaPermutas.Dominio\obj\Debug\net8.0\GestaoEscalaPermutas.Dominio.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\endri\Desktop\Projetos\GestaoEscala\Back\GestaoEscalaPermutas.Dominio\obj\Debug\net8.0\GestaoEscalaPermutas.Dominio.AssemblyInfoInputs.cache
+C:\Users\endri\Desktop\Projetos\GestaoEscala\Back\GestaoEscalaPermutas.Dominio\obj\Debug\net8.0\GestaoEscalaPermutas.Dominio.AssemblyInfo.cs
+C:\Users\endri\Desktop\Projetos\GestaoEscala\Back\GestaoEscalaPermutas.Dominio\obj\Debug\net8.0\GestaoEscalaPermutas.Dominio.csproj.CoreCompileInputs.cache
+C:\Users\endri\Desktop\Projetos\GestaoEscala\Back\GestaoEscalaPermutas.Dominio\obj\Debug\net8.0\GestaoEscalaPermutas.Dominio.sourcelink.json
+C:\Users\endri\Desktop\Projetos\GestaoEscala\Back\GestaoEscalaPermutas.Dominio\obj\Debug\net8.0\GestaoEs.8DE6268C.Up2Date
+C:\Users\endri\Desktop\Projetos\GestaoEscala\Back\GestaoEscalaPermutas.Dominio\obj\Debug\net8.0\GestaoEscalaPermutas.Dominio.dll
+C:\Users\endri\Desktop\Projetos\GestaoEscala\Back\GestaoEscalaPermutas.Dominio\obj\Debug\net8.0\refint\GestaoEscalaPermutas.Dominio.dll
+C:\Users\endri\Desktop\Projetos\GestaoEscala\Back\GestaoEscalaPermutas.Dominio\obj\Debug\net8.0\GestaoEscalaPermutas.Dominio.pdb
+C:\Users\endri\Desktop\Projetos\GestaoEscala\Back\GestaoEscalaPermutas.Dominio\obj\Debug\net8.0\ref\GestaoEscalaPermutas.Dominio.dll
