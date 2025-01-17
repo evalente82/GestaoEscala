@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GestaoEscalaPermutas.Server")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6f5242fcabc17a7468a7f6a1a12d76b82f2c4bc7")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+51dac09e8428fc52876faa878e08152d83566b8f")]
 [assembly: System.Reflection.AssemblyProductAttribute("GestaoEscalaPermutas.Server")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GestaoEscalaPermutas.Server")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
