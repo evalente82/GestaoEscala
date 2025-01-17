@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("GestaoEscalaPermutas.Dominio")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e59c19c848d8147d0f83cfc6de9561b75ce5d463")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6f5242fcabc17a7468a7f6a1a12d76b82f2c4bc7")]
 [assembly: System.Reflection.AssemblyProductAttribute("GestaoEscalaPermutas.Dominio")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GestaoEscalaPermutas.Dominio")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
