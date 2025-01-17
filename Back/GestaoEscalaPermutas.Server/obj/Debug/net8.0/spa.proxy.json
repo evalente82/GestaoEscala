@@ -1,0 +1,10 @@
+{
+"SpaProxyServer": {
+"ServerUrl": "https://localhost:5173",
+"RedirectUrl": "",
+"LaunchCommand": "npm run dev",
+"WorkingDirectory": "C:\\Users\\endri\\Desktop\\Projetos\\GestaoEscala\\Back\\GestaoEscalaPermutas.Server\\..\\gestaoescalapermutas.client",
+"MaxTimeoutInSeconds": "120",
+"KeepRunning": "false"
+}
+}
