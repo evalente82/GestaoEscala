@@ -20,6 +20,4 @@ public partial class EscalaPronta
     public DateTime DtDataServico { get; set; }
 
     public DateTime DtCriacao { get; set; }
-
-
 }

@@ -1,10 +1,18 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
 namespace GestaoEscalaPermutas.Dominio.DTO.TipoEscala
 {
+    
+
     public class TipoEscalaDTO:RetornoDTO
     {
+        public TipoEscalaDTO()
+        {
+            IdTipoEscala= Guid.NewGuid();
+            DtCriacao = DateTime.UtcNow;
+        }
         public Guid IdTipoEscala { get; set; }
 
         public string NmNome { get; set; } = null!;

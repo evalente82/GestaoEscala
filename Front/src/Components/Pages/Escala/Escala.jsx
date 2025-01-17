@@ -28,6 +28,17 @@ function EscalaList(props) {
         };
         fetchData();
     }
+    function Buscarcargos() {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get("https://localhost:7207/cargo/buscarTodos");
+                setCargos(response.data);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        fetchData();
+    }
     function BuscarTipoEscalas() {
         const fetchData = async () => {
             try {
@@ -53,6 +64,9 @@ function EscalaList(props) {
     const [escala, setEscala] = useState([]);
 
     const [departamentos, setDepartamentos] = useState([]);
+
+    const [cargos, setCargos] = useState([]);
+
     const [tipoEscalas, setTipoEscalas] = useState([]);
 
     // Chame BuscarTodos() no início do componente para carregar os cargos
@@ -61,13 +75,15 @@ function EscalaList(props) {
     }, []); // Passando um array vazio, o efeito será executado apenas uma vez no carregamento do componente
 
     useEffect(() => {
+        Buscarcargos(setCargos);
+    }, []);
+
+    useEffect(() => {
         BuscarTipoEscalas(setTipoEscalas);
     }, []); // Passando um array vazio, o efeito será executado apenas uma vez no carregamento do componente
 
 
     const API_URL = "https://localhost:7207/escala";
-
-
     useEffect(() => {
         const fetchData = async () => {
             const response = await axios.get(`${API_URL}/buscarTodos`);
@@ -174,6 +190,7 @@ function EscalaList(props) {
                         {/*<th>ID</th>*/}
                         <th>NOME</th>
                         <th>DEPARTAMENTO</th>
+                        <th>CARGO</th>
                         <th>TIPO ESCALA</th>
                         <th>MÊS REFEREÊNCIA</th>
                         <th>PESSOA POR POSTO</th>
@@ -190,6 +207,7 @@ function EscalaList(props) {
                                     <td>{escala.nmNomeEscala}</td>
                                     {/*<td>{cargos.find(cargo => cargo.idCargos === funcionario.idCargos)?.nmNomeEscala}</td>*/}
                                     <td>{departamentos.find(departamento => departamento.idDepartamento === escala.idDepartamento)?.nmNome}</td>
+                                    <td>{cargos.find(cargo => cargo.idCargos === escala.idCargos)?.nmNome}</td>
                                     <td>{tipoEscalas.find(tipoEscala => tipoEscala.idTipoEscala === escala.idTipoEscala)?.nmNome}</td>
                                     <td>{getNomeMes(escala.nrMesReferencia)}</td>
                                     <td>{escala.nrPessoaPorPosto}</td>
@@ -246,6 +264,7 @@ function EscalaForm(props) {
             idEscala: PropTypes.number,
             nmNomeEscala: PropTypes.string,
             idDepartamento: PropTypes.number,
+            idCargos: PropTypes.number,
             idTipoEscala: PropTypes.number,
             nrMesReferencia: PropTypes.number,
             nrPessoaPorPosto: PropTypes.number,
@@ -261,6 +280,7 @@ function EscalaForm(props) {
         setAtivo(props.escala.isAtivo || false);
         setGerada(props.escala.isGerada || false);
         setDepartamentoSelecionado(props.escala.idDepartamento || '');
+        setCargoSelecionado(props.escala.idCargos || '');
         setTipoEscalaSelecionado(props.escala.idTipoEscala || '');
     }, [props.escala]);
 
@@ -269,8 +289,10 @@ function EscalaForm(props) {
     const [mesReferencia, setMesReferencia] = useState(props.escala.nrMesReferencia || '');
     const [pessoaPorPosto, setPessoaPorPosto] = useState(props.escala.nrPessoaPorPosto || '');
     const [departamentos, setDepartamentos] = useState([]);
+    const [cargos, setCargos] = useState([]);
     const [tipoEscalas, setTipoEscalas] = useState([]);
     const [departamentoSelecionado, setDepartamentoSelecionado] = useState('');
+    const [cargoSelecionado, setCargoSelecionado] = useState('');
     const [tipoEscalaSelecionado, setTipoEscalaSelecionado] = useState('');
     const [ativo, setAtivo] = useState(props.escala.isAtivo || false);
     const [gerada, setGerada] = useState(props.escala.isGerada || false);
@@ -285,6 +307,20 @@ function EscalaForm(props) {
             .then((response) => {
                 console.log(response.data);
                 setDepartamentos(response.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+    useEffect(() => {
+        BuscarCargos();
+    }, []);
+    const API_URL_Carcos = "https://localhost:7207/cargo";
+    function BuscarCargos() {
+        axios.get(`${API_URL_Carcos}/buscarTodos`)
+            .then((response) => {
+                console.log(response.data);
+                setCargos(response.data);
             })
             .catch((error) => {
                 console.log(error);
@@ -329,6 +365,7 @@ function EscalaForm(props) {
             const data = {
                 nmNomeEscala: nome,
                 idDepartamento: departamentoSelecionado,
+                idCargos: cargoSelecionado,
                 idTipoEscala: tipoEscalaSelecionado,
                 nrMesReferencia: mesReferencia,
                 nrPessoaPorPosto: pessoaPorPosto,
@@ -359,6 +396,7 @@ function EscalaForm(props) {
             const data = {
                 nmNomeEscala: nome,
                 idDepartamento: departamentoSelecionado,
+                idCargos: cargoSelecionado,
                 idTipoEscala: tipoEscalaSelecionado,
                 nrMesReferencia: mesReferencia,
                 nrPessoaPorPosto: pessoaPorPosto,
@@ -439,6 +477,27 @@ function EscalaForm(props) {
                                         <option key={departamento.idDepartamento} value={departamento.idDepartamento}>{departamento.nmNome}</option>
                                     ))}
                                 </select>
+                            </div>
+                        </div>
+
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Cargo</label>
+                            <div className="col-sm-8">
+                            <select
+                            className="form-control"
+                            name="cargo"
+                            value={props.escala.idCargos}
+                            onChange={(e) => setCargoSelecionado(e.target.value)}
+                            required
+                        >
+                            <option value="">Selecione um Cargo</option>
+                            {/* {cargos.map((cargo, index) => (
+                                <option key={cargo.idCargo || index} value={cargo.idCargo}>{cargo.nmNome}</option>
+                            ))} */}
+                            {cargos.map(cargo => (
+                                        <option key={cargo.idCargos} value={cargo.idCargos}>{cargo.nmNome}</option>
+                                    ))}
+                        </select>
                             </div>
                         </div>
 
@@ -536,6 +595,7 @@ function MontaEscala(props) {
             idEscala: PropTypes.number,
             nmNomeEscala: PropTypes.string,
             idDepartamento: PropTypes.number,
+            idCargos: PropTypes.number,
             idTipoEscala: PropTypes.number,
             nrMesReferencia: PropTypes.number,
             nrPessoaPorPosto: PropTypes.number,
@@ -549,6 +609,7 @@ function MontaEscala(props) {
         setPessoaPorPosto(props.escala.nrPessoaPorPosto || '');
         setAtivo(props.escala.isAtivo || false);
         setDepartamentoSelecionado(props.escala.idDepartamento || '');
+        setCargoSelecionado(props.escala.idCargos || '');
         setTipoEscalaSelecionado(props.escala.idTipoEscala || '');
     }, [props.escala]);
 
@@ -557,6 +618,7 @@ function MontaEscala(props) {
     const [mesReferencia, setMesReferencia] = useState(props.escala.nrMesReferencia || '');
     const [pessoaPorPosto, setPessoaPorPosto] = useState(props.escala.nrPessoaPorPosto || '');
     const [departamentos, setDepartamentos] = useState([]);
+    const [cargos, setCargos] = useState([]);
     const [tipoEscalas, setTipoEscalas] = useState([]);
     const [departamentoSelecionado, setDepartamentoSelecionado] = useState('');
     const [tipoEscalaSelecionado, setTipoEscalaSelecionado] = useState('');
@@ -575,6 +637,20 @@ function MontaEscala(props) {
             .then((response) => {
                 console.log(response.data);
                 setDepartamentos(response.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+    useEffect(() => {
+        BuscarCargos();
+    }, []);
+    const API_URL_Cargo = "https://localhost:7207/cargo";
+    function BuscarCargos() {
+        axios.get(`${API_URL_Cargo}/buscarTodos`)
+            .then((response) => {
+                console.log(response.data);
+                setCatgos(response.data);
             })
             .catch((error) => {
                 console.log(error);
@@ -699,6 +775,26 @@ function MontaEscala(props) {
                                     <option value="">Selecione um departamento</option>
                                     {departamentos.map(departamento => (
                                         <option key={departamento.idDepartamento} value={departamento.idDepartamento}>{departamento.nmNome}</option>
+                                    ))}
+                                    
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Cargo</label>
+                            <div className="col-sm-8">
+                                <select
+                                    disabled
+                                    className="form-control"
+                                    name="cargo"
+                                    value={props.escala.idCargos}
+                                    onChange={(e) => setCargoSelecionado(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Selecione um Cargo</option>
+                                    {cargos.map(cargo => (
+                                        <option key={cargo.idCargos} value={cargo.idCargos}>{cargo.nmNome}</option>
                                     ))}
                                 </select>
                             </div>

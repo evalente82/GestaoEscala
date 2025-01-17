@@ -29,7 +29,6 @@ builder.Services.AddSingleton(configuration);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -37,37 +36,15 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
         Title = "Gestão Escala Permutas",
         Description = "WebAPI com JWT. \n\n# Introdução\nEsta API está documentada no formato **OpenAPI format** e é baseada na " +
-        "\n[Integração Swagger](/swagger/index.html) também fornecida pela equipe da [VCorp Sistem]. " +
+        "\nIntegração Swagger também fornecida pela equipe da [VCorp Sistem]. " +
         "\n\n# Especificação da Integração\nA seguinte imagem ilustra o funcionamento da Aplicação." +
-        "\n\n# Cross-Origin Resource Sharing\nEsta API utiliza Cross-Origin Resource Sharing (CORS) implementado em conformidade com as especificações [W3C](https://www.w3.org/TR/cors/)." +
+        "\n\n# Cross-Origin Resource Sharing\nEsta API utiliza Cross-Origin Resource Sharing (CORS) implementado em conformidade com as especificações W3C." +
         "\nE isso permite que recursos restritos em uma página da web sejam recuperados por outro domínio fora do domínio ao qual pertence o recurso que será recuperado."
     });
-
-    //options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    //{
-    //    Scheme = "Bearer",
-    //    BearerFormat = "JWT",
-    //    In = ParameterLocation.Header,
-    //    Name = "Authorization",
-    //    Description = "Bearer com autenticação JWT Token",
-    //    Type = SecuritySchemeType.Http
-    //});
-    //options.AddSecurityRequirement(new OpenApiSecurityRequirement {
-    //    {
-    //        new OpenApiSecurityScheme {
-    //            Reference = new OpenApiReference {
-    //                Id = "Bearer",
-    //                    Type = ReferenceType.SecurityScheme
-    //            }
-    //        },
-    //        new List < string > ()
-    //    }
-    //});
 });
 
 builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-//builder.Services.AddDbContext<DefesaCivilMaricaContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString(connString ?? string.Empty)));
 builder.Services.AddDbContext<DefesaCivilMaricaContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("EmUso")));
 
@@ -82,7 +59,18 @@ builder.Services.AddTransient<IPostoTrabalhoService, PostoTrabalhoService>();
 builder.Services.AddTransient<ITipoEscalaService, TipoEscalaService>();
 builder.Services.AddTransient<IEscalaProntaService, EscalaProntaService>();
 
+            
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        policy => policy.WithOrigins("http://localhost:5173")
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+});
+
 var app = builder.Build();
+
 app.Use(async (context, next) =>
 {
     try
@@ -100,17 +88,10 @@ app.Use(async (context, next) =>
     }
 });
 
-app.UseCors(builder =>
-{
-    builder.WithOrigins("https://localhost:5173") 
-           .WithMethods("GET", "POST", "PUT","PATCH", "DELETE") // Especifique os métodos HTTP permitidos
-           .WithHeaders("Content-Type", "Authorization"); // Especifique os cabeçalhos permitidos
-});
-
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseDeveloperExceptionPage();
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -121,7 +102,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-//app.UseAuthorization();
+app.UseRouting();
+
+app.UseCors("AllowSpecificOrigin");
+
+app.UseAuthorization();
+
 app.MapControllers();
-//app.MapFallbackToFile("/index.html");
+
 app.Run();

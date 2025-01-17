@@ -5,6 +5,7 @@
         public Guid IdEscala { get; set; }
 
         public Guid IdDepartamento { get; set; }
+        public Guid IdCargo{ get; set; }
 
         public string? NmNomeEscala { get; set; }
 

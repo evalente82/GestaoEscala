@@ -81,6 +81,9 @@ namespace GestaoEscalaPermutas.Server.Profiles
             CreateMap<EscalaProntaDTO, EscalaPronta>().ForMember(x => x.DtCriacao, opt => opt.MapFrom(src => src.DtCriacao));
 
 
+            CreateMap<EscalaProntaDTO, EscalaPronta>()
+            .ForMember(dest => dest.DtCriacao, opt => opt.MapFrom(src => DateTime.SpecifyKind(src.DtCriacao, DateTimeKind.Utc)))
+            .ForMember(dest => dest.DtDataServico, opt => opt.MapFrom(src => DateTime.SpecifyKind(src.DtDataServico, DateTimeKind.Utc)));
         }
     }
 }

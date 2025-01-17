@@ -4,6 +4,7 @@ using GestaoEscalaPermutas.Dominio.DTO.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
 using GestaoEscalaPermutas.Infra.Data.Context;
+using Microsoft.EntityFrameworkCore;
 using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 namespace GestaoEscalaPermutas.Dominio.Services.EscalaPronta
 {
@@ -77,31 +78,40 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaPronta
         {
             throw new NotImplementedException();
         }
-        public async Task<EscalaProntaDTO> BuscarPorId(Guid idEscalaPronta)
+        public async Task<List<EscalaProntaDTO>> BuscarPorId(Guid idEscalaPronta)
         {
             try
             {
                 if (idEscalaPronta == Guid.Empty)
                 {
-                    return new EscalaProntaDTO { valido = false, mensagem = "Id fora do Range." };
+                    return new List<EscalaProntaDTO>
+                    {
+                        new EscalaProntaDTO
+                        {
+                            valido = false,
+                            mensagem = "Id fora do Range."
+                        }
+                    };
                 }
                 else
                 {
-                    var escalaProntaExistente = await _context.EscalaPronta.FindAsync(idEscalaPronta);
+                    var escalaProntaExistente = await _context.EscalaPronta
+                        .Where(x => x.IdEscala == idEscalaPronta)
+                        .OrderBy(x => x.DtDataServico.Date)
+                        .ToListAsync();
                     if (escalaProntaExistente == null)
                     {
-                        return new EscalaProntaDTO { valido = false, mensagem = "Escala não encontrado." };
+                        return new List<EscalaProntaDTO>
+                    {
+                        new EscalaProntaDTO
+                        {
+                            valido = false,
+                            mensagem = "Escala Não encontrada."
+                        }
+                    }; 
                     }
+                    return _mapper.Map<List<EscalaProntaDTO>>(escalaProntaExistente);
 
-
-                    // O EF Core rastreará que o objeto foi modificado
-                    _context.EscalaPronta.Remove(escalaProntaExistente);
-
-                    // Salva as alterações no banco de dados
-                    await _context.SaveChangesAsync();
-
-                    //retornar avido de deletado
-                    return new EscalaProntaDTO { valido = true, mensagem = "Escala deletado com sucesso." };
                 }
             }
             catch (Exception e)

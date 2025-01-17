@@ -19,6 +19,7 @@ public partial class Escala
     public string? NmNomeEscala { get; set; }
 
     public Guid IdTipoEscala { get; set; }
+    public Guid IdCargo { get; set; }
 
     public DateTime DtCriacao { get; set; }
 

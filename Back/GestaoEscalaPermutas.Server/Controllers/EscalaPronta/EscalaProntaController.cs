@@ -48,5 +48,19 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaPronta
             var escalaProntaModel = _mapper.Map<EscalaProntaModel>(escalaProntaDTO);
             return (escalaProntaModel.Valido) ? Ok(escalaProntaModel.Mensagem) : BadRequest(new RetornoModel { Valido = false, Mensagem = escalaProntaModel.Mensagem });
         }
+
+
+        [HttpGet("buscarPorId/{id}")]
+        public async Task<ActionResult<List<EscalaProntaDTO>>> BuscarEscalaProntaPorId(Guid id)
+        {
+            var escala = await _escalaProntaService.BuscarPorId(id);
+
+            if (escala == null)
+            {
+                return NotFound();
+            }
+
+            return escala;
+        }
     }
 }

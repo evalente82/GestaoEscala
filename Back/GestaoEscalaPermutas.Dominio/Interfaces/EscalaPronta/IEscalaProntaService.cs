@@ -14,7 +14,7 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta
         Task<EscalaProntaDTO> Alterar(Guid id, EscalaProntaDTO escalaProntaModel);
         Task<EscalaProntaDTO> Deletar(Guid id);
         Task<List<EscalaProntaDTO>> BuscarTodos();
-        Task<EscalaProntaDTO> BuscarPorId(Guid idEscalaPronta);
+        Task<List<EscalaProntaDTO>> BuscarPorId(Guid idEscalaPronta);
         Task<EscalaProntaDTO[]> IncluirLista(EscalaProntaDTO[] escalaProntaDTOs);
     }
 }

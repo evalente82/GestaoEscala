@@ -15,7 +15,7 @@ namespace GestaoEscalaPermutas.Server.Models.Funcionarios
 
         public string NmEndereco { get; set; } = null!;
 
-        public int IdCargos { get; set; }
+        public Guid IdCargos { get; set; }
 
         public bool IsAtivo { get; set; }
 

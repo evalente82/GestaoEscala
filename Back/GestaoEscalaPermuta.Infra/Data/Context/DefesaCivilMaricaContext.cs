@@ -138,6 +138,19 @@ public partial class DefesaCivilMaricaContext : DbContext
                 v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
         #endregion
 
+        #region EscalaPronta
+        modelBuilder.Entity<EscalaPronta>(entity =>
+        {
+            entity.HasKey(e => e.IdEscalaPronta);
+
+            entity.Property(e => e.DtDataServico)
+                  .HasColumnType("date");
+
+            entity.Property(e => e.DtCriacao)
+                  .HasColumnType("timestamptz");
+        });
+        #endregion
+
         #region PERMUTA
         modelBuilder.Entity<Permuta>(entity =>
         {

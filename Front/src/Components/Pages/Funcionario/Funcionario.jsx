@@ -255,7 +255,7 @@ function FuncionarioForm(props) {
         if (props.funcionario.idFuncionario) {
             const data = {
                 nmNome: nome,
-                nmMatricula: matricula,
+                nrMatricula: matricula,
                 nrTelefone: telefone,
                 nmEmail: email,
                 nmEndereco: endereco,

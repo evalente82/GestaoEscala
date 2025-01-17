@@ -289,6 +289,5 @@ namespace GestaoEscalaPermutas.Server.Controllers.Escala
 
             return Ok(escalaProntaModels);
         }
-
     }
 }

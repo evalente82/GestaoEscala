@@ -26,7 +26,7 @@ namespace GestaoEscalaPermutas.Dominio.DTO.Funcionario
 
         public string NmEndereco { get; set; } = null!;
 
-        public int IdCargos { get; set; }
+        public Guid IdCargos { get; set; }
 
         public bool IsAtivo { get; set; }
 
