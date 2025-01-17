@@ -3,8 +3,8 @@
   "WorkspaceRootPath": "C:\\Users\\endri\\Desktop\\Projetos\\GestaoEscala\\Back\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{C0020EFD-9ED7-4329-9252-FB5AA0947F0D}|GestaoEscalaPermutas.Server\\GestaoEscalaPermutas.Server.csproj|c:\\users\\endri\\desktop\\projetos\\gestaoescala\\back\\gestaoescalapermutas.server\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}",
-      "RelativeMoniker": "D:0:0:{C0020EFD-9ED7-4329-9252-FB5AA0947F0D}|GestaoEscalaPermutas.Server\\GestaoEscalaPermutas.Server.csproj|solutionrelative:gestaoescalapermutas.server\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}"
+      "AbsoluteMoniker": "D:0:0:{C0020EFD-9ED7-4329-9252-FB5AA0947F0D}|GestaoEscalaPermutas.Server\\GestaoEscalaPermutas.Server.csproj|c:\\users\\endri\\desktop\\projetos\\gestaoescala\\back\\gestaoescalapermutas.server\\globalsuppressions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C0020EFD-9ED7-4329-9252-FB5AA0947F0D}|GestaoEscalaPermutas.Server\\GestaoEscalaPermutas.Server.csproj|solutionrelative:gestaoescalapermutas.server\\globalsuppressions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -19,14 +19,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": ".gitignore",
-              "DocumentMoniker": "C:\\Users\\endri\\Desktop\\Projetos\\GestaoEscala\\Back\\GestaoEscalaPermutas.Server\\.gitignore",
-              "RelativeDocumentMoniker": "GestaoEscalaPermutas.Server\\.gitignore",
-              "ToolTip": "C:\\Users\\endri\\Desktop\\Projetos\\GestaoEscala\\Back\\GestaoEscalaPermutas.Server\\.gitignore",
-              "RelativeToolTip": "GestaoEscalaPermutas.Server\\.gitignore",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAEAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2025-01-17T20:50:23.008Z",
+              "Title": "GlobalSuppressions.cs",
+              "DocumentMoniker": "C:\\Users\\endri\\Desktop\\Projetos\\GestaoEscala\\Back\\GestaoEscalaPermutas.Server\\GlobalSuppressions.cs",
+              "RelativeDocumentMoniker": "GestaoEscalaPermutas.Server\\GlobalSuppressions.cs",
+              "ToolTip": "C:\\Users\\endri\\Desktop\\Projetos\\GestaoEscala\\Back\\GestaoEscalaPermutas.Server\\GlobalSuppressions.cs",
+              "RelativeToolTip": "GestaoEscalaPermutas.Server\\GlobalSuppressions.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-17T20:58:28.406Z",
               "EditorCaption": ""
             }
           ]
