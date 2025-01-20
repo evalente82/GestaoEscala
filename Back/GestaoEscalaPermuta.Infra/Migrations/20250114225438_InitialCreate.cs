@@ -16,7 +16,7 @@ namespace GestaoEscalaPermutas.Infra.Migrations
                 name: "Cargos",
                 columns: table => new
                 {
-                    IdCargos = table.Column<int>(type: "integer", nullable: false)
+                    IdCargo = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     NmNome = table.Column<string>(type: "character varying(200)", unicode: false, maxLength: 200, nullable: false),
                     NmDescricao = table.Column<string>(type: "character varying(200)", unicode: false, maxLength: 200, nullable: true),
@@ -25,7 +25,7 @@ namespace GestaoEscalaPermutas.Infra.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IdCargos", x => x.IdCargos);
+                    table.PrimaryKey("PK_IdCargos", x => x.IdCargo);
                 });
 
             migrationBuilder.CreateTable(
@@ -122,7 +122,7 @@ namespace GestaoEscalaPermutas.Infra.Migrations
                     NrMatricula = table.Column<int>(type: "integer", nullable: false),
                     NrTelefone = table.Column<long>(type: "bigint", nullable: true),
                     NmEndereco = table.Column<string>(type: "character varying(200)", unicode: false, maxLength: 200, nullable: false),
-                    IdCargos = table.Column<int>(type: "integer", nullable: false),
+                    IdCargo = table.Column<int>(type: "integer", nullable: false),
                     IsAtivo = table.Column<bool>(type: "boolean", nullable: false),
                     NmEmail = table.Column<string>(type: "character varying(100)", unicode: false, maxLength: 100, nullable: true),
                     NmSenha = table.Column<string>(type: "character varying(100)", unicode: false, maxLength: 100, nullable: true)

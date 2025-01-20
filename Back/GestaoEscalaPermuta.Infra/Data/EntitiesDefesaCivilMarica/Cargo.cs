@@ -9,7 +9,7 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 public partial class Cargo
 {
     [Key]
-    public Guid IdCargos { get; set; }
+    public Guid IdCargo { get; set; }
 
     [StringLength(200)]
     [Unicode(false)]
