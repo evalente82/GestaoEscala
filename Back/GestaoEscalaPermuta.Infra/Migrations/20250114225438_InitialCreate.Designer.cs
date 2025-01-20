@@ -27,7 +27,7 @@ namespace GestaoEscalaPermutas.Infra.Migrations
 
             modelBuilder.Entity("GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica.Cargo", b =>
                 {
-                    b.Property<int>("IdCargos")
+                    b.Property<int>("IdCargo")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
@@ -50,8 +50,8 @@ namespace GestaoEscalaPermutas.Infra.Migrations
                         .IsUnicode(false)
                         .HasColumnType("character varying(200)");
 
-                    b.HasKey("IdCargos")
-                        .HasName("PK_IdCargos");
+                    b.HasKey("IdCargo")
+                        .HasName("PK_IdCargo");
 
                     b.ToTable("Cargos");
                 });
@@ -223,7 +223,7 @@ namespace GestaoEscalaPermutas.Infra.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdFuncionario"));
 
-                    b.Property<int>("IdCargos")
+                    b.Property<int>("IdCargo")
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsAtivo")

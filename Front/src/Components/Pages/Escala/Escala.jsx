@@ -4,6 +4,7 @@ import axios from "axios";
 import PropTypes from 'prop-types';
 import LoadingPopup from '../LoadingPopUp/LoadingPopUp'
 import AlertPopup from '../AlertPopup/AlertPopup'
+import { useNavigate } from 'react-router-dom';
 
 
 function EscalaList(props) {
@@ -12,6 +13,7 @@ function EscalaList(props) {
         const API_URL = "https://localhost:7207/escala";
         const fetchData = async () => {
             const response = await axios.get(`${API_URL}/buscarTodos`);
+            console.log('Escalas');
             console.log(response.data);
             setEscala(response.data);
         };
@@ -22,6 +24,8 @@ function EscalaList(props) {
             try {
                 const response = await axios.get("https://localhost:7207/departamento/buscarTodos");
                 setDepartamentos(response.data);
+                console.log('Departamentos');
+                console.log(response.data);
             } catch (error) {
                 console.log(error);
             }
@@ -33,6 +37,8 @@ function EscalaList(props) {
             try {
                 const response = await axios.get("https://localhost:7207/cargo/buscarTodos");
                 setCargos(response.data);
+                console.log('Cargos');
+                console.log(response.data);
             } catch (error) {
                 console.log(error);
             }
@@ -50,23 +56,18 @@ function EscalaList(props) {
         };
         fetchData();
     }
-
-
     EscalaList.propTypes = {
         ShowForm: PropTypes.func.isRequired,
         ShowMontaEscala: PropTypes.func.isRequired,// Indica que ShowForm é uma função obrigatória
     };
+
+    const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
     const [recordsPerPage] = useState(10); //, setRecordsPerPage
-
     const [searchText, setSearchText] = useState("");
-
     const [escala, setEscala] = useState([]);
-
     const [departamentos, setDepartamentos] = useState([]);
-
     const [cargos, setCargos] = useState([]);
-
     const [tipoEscalas, setTipoEscalas] = useState([]);
 
     // Chame BuscarTodos() no início do componente para carregar os cargos
@@ -81,7 +82,6 @@ function EscalaList(props) {
     useEffect(() => {
         BuscarTipoEscalas(setTipoEscalas);
     }, []); // Passando um array vazio, o efeito será executado apenas uma vez no carregamento do componente
-
 
     const API_URL = "https://localhost:7207/escala";
     useEffect(() => {
@@ -207,7 +207,7 @@ function EscalaList(props) {
                                     <td>{escala.nmNomeEscala}</td>
                                     {/*<td>{cargos.find(cargo => cargo.idCargos === funcionario.idCargos)?.nmNomeEscala}</td>*/}
                                     <td>{departamentos.find(departamento => departamento.idDepartamento === escala.idDepartamento)?.nmNome}</td>
-                                    <td>{cargos.find(cargo => cargo.idCargos === escala.idCargos)?.nmNome}</td>
+                                    <td>{cargos.find(cargo => cargo.idCargo === escala.idCargo)?.nmNome}</td>
                                     <td>{tipoEscalas.find(tipoEscala => tipoEscala.idTipoEscala === escala.idTipoEscala)?.nmNome}</td>
                                     <td>{getNomeMes(escala.nrMesReferencia)}</td>
                                     <td>{escala.nrPessoaPorPosto}</td>
@@ -226,6 +226,13 @@ function EscalaList(props) {
                                         />
                                     </td>
                                     <td style={{ width: "10px", whiteSpace: "nowrap" }}>
+                                    <button
+                                            onClick={() => navigate(`/Exibicao/${escala.idEscala}`)}
+                                            type="button"
+                                            className="btn btn-success btn-sm me-2"
+                                        >
+                                            Visualizar Escala
+                                        </button>
                                         <button
                                             onClick={() => props.ShowMontaEscala(escala)}
                                             type="button"
@@ -264,7 +271,7 @@ function EscalaForm(props) {
             idEscala: PropTypes.number,
             nmNomeEscala: PropTypes.string,
             idDepartamento: PropTypes.number,
-            idCargos: PropTypes.number,
+            idCargo: PropTypes.string,
             idTipoEscala: PropTypes.number,
             nrMesReferencia: PropTypes.number,
             nrPessoaPorPosto: PropTypes.number,
@@ -280,7 +287,7 @@ function EscalaForm(props) {
         setAtivo(props.escala.isAtivo || false);
         setGerada(props.escala.isGerada || false);
         setDepartamentoSelecionado(props.escala.idDepartamento || '');
-        setCargoSelecionado(props.escala.idCargos || '');
+        setCargoSelecionado(props.escala.idCargo || '');
         setTipoEscalaSelecionado(props.escala.idTipoEscala || '');
     }, [props.escala]);
 
@@ -305,7 +312,8 @@ function EscalaForm(props) {
     function BuscarDepartametos() {
         axios.get(`${API_URL}/buscarTodos`)
             .then((response) => {
-                console.log(response.data);
+                console.log(`DEPARTAMENTO `);
+                console.log(response.data)
                 setDepartamentos(response.data);
             })
             .catch((error) => {
@@ -319,7 +327,8 @@ function EscalaForm(props) {
     function BuscarCargos() {
         axios.get(`${API_URL_Carcos}/buscarTodos`)
             .then((response) => {
-                console.log(response.data);
+                console.log(`CARGOS`);
+                console.log(response.data)
                 setCargos(response.data);
             })
             .catch((error) => {
@@ -333,6 +342,7 @@ function EscalaForm(props) {
     function BuscarTipoEscala() {
         axios.get(`${API_URL_TipoEscala}/buscarTodos`)
             .then((response) => {
+                console.log(`TIPOESCALA`);
                 console.log(response.data);
                 setTipoEscalas(response.data);
             })
@@ -358,6 +368,12 @@ function EscalaForm(props) {
         setAtivo(e.target.checked);
     }
 
+    const handleSelectChange = (e) => {
+        const selectedValue = e.target.value;
+        setCargoSelecionado(selectedValue);
+        console.log(selectedValue);
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
 
@@ -365,13 +381,14 @@ function EscalaForm(props) {
             const data = {
                 nmNomeEscala: nome,
                 idDepartamento: departamentoSelecionado,
-                idCargos: cargoSelecionado,
+                idCargo: cargoSelecionado,
                 idTipoEscala: tipoEscalaSelecionado,
                 nrMesReferencia: mesReferencia,
                 nrPessoaPorPosto: pessoaPorPosto,
                 isAtivo: ativo,
                 isGerada: gerada,
             };
+            console.log("Dados enviados alterar:", data);
             axios
                 .patch(
                     "https://localhost:7207/escala/Atualizar/" +
@@ -396,18 +413,20 @@ function EscalaForm(props) {
             const data = {
                 nmNomeEscala: nome,
                 idDepartamento: departamentoSelecionado,
-                idCargos: cargoSelecionado,
+                idCargo: cargoSelecionado,
                 idTipoEscala: tipoEscalaSelecionado,
                 nrMesReferencia: mesReferencia,
                 nrPessoaPorPosto: pessoaPorPosto,
                 isAtivo: ativo,
                 isGerada: gerada,
             };
+            console.log("Dados enviados:", data);
             axios
                 .post("https://localhost:7207/escala/Incluir", data)
                 .then(() => {
                     props.ShowList();
-                    console.log('erro ' + data)
+                    console.log('Ação Incluir')
+                    console.log(data)
                 })
                 .catch((error) => {
                     if (error.response && error.response.status === 400) {
@@ -485,17 +504,14 @@ function EscalaForm(props) {
                             <div className="col-sm-8">
                             <select
                             className="form-control"
-                            name="cargo"
-                            value={props.escala.idCargos}
-                            onChange={(e) => setCargoSelecionado(e.target.value)}
+                            name="cargos"
+                            value={cargoSelecionado}
+                            onChange={handleSelectChange}
                             required
                         >
-                            <option value="">Selecione um Cargo</option>
-                            {/* {cargos.map((cargo, index) => (
-                                <option key={cargo.idCargo || index} value={cargo.idCargo}>{cargo.nmNome}</option>
-                            ))} */}
+                            <option value="">Selecione um Cargo</option>                           
                             {cargos.map(cargo => (
-                                        <option key={cargo.idCargos} value={cargo.idCargos}>{cargo.nmNome}</option>
+                                        <option key={cargo.idCargo} value={cargo.idCargo}>{cargo.nmNome}</option>
                                     ))}
                         </select>
                             </div>
@@ -595,7 +611,7 @@ function MontaEscala(props) {
             idEscala: PropTypes.number,
             nmNomeEscala: PropTypes.string,
             idDepartamento: PropTypes.number,
-            idCargos: PropTypes.number,
+            idCargo: PropTypes.number,
             idTipoEscala: PropTypes.number,
             nrMesReferencia: PropTypes.number,
             nrPessoaPorPosto: PropTypes.number,
@@ -609,7 +625,7 @@ function MontaEscala(props) {
         setPessoaPorPosto(props.escala.nrPessoaPorPosto || '');
         setAtivo(props.escala.isAtivo || false);
         setDepartamentoSelecionado(props.escala.idDepartamento || '');
-        setCargoSelecionado(props.escala.idCargos || '');
+        setCargoSelecionado(props.escala.idCargo || '');
         setTipoEscalaSelecionado(props.escala.idTipoEscala || '');
     }, [props.escala]);
 
@@ -621,6 +637,7 @@ function MontaEscala(props) {
     const [cargos, setCargos] = useState([]);
     const [tipoEscalas, setTipoEscalas] = useState([]);
     const [departamentoSelecionado, setDepartamentoSelecionado] = useState('');
+    const [cargoSelecionado, setCargoSelecionado] = useState('');
     const [tipoEscalaSelecionado, setTipoEscalaSelecionado] = useState('');
     const [ativo, setAtivo] = useState(props.escala.isAtivo || false);
     const [isLoading, setIsLoading] = useState(false);
@@ -650,7 +667,7 @@ function MontaEscala(props) {
         axios.get(`${API_URL_Cargo}/buscarTodos`)
             .then((response) => {
                 console.log(response.data);
-                setCatgos(response.data);
+                setCargos(response.data);
             })
             .catch((error) => {
                 console.log(error);
@@ -788,13 +805,13 @@ function MontaEscala(props) {
                                     disabled
                                     className="form-control"
                                     name="cargo"
-                                    value={props.escala.idCargos}
+                                    value={props.escala.idCargo}
                                     onChange={(e) => setCargoSelecionado(e.target.value)}
                                     required
                                 >
                                     <option value="">Selecione um Cargo</option>
                                     {cargos.map(cargo => (
-                                        <option key={cargo.idCargos} value={cargo.idCargos}>{cargo.nmNome}</option>
+                                        <option key={cargo.idCargo} value={cargo.idCargo}>{cargo.nmNome}</option>
                                     ))}
                                 </select>
                             </div>

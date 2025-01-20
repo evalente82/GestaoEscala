@@ -35,7 +35,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.Cargos
         [Route("Atualizar/{id:Guid}")]
         public async Task<ActionResult> AtualizarCargo(Guid id, [FromBody] CargoDTO cargo)
         {
-            cargo.IdCargos= id;
+            cargo.IdCargo = id;
             var cargoDTO = await _cargoService.Alterar(id, _mapper.Map<CargoDTO>(cargo));
             var cargoModel = _mapper.Map<CargoModel>(cargoDTO);
             return (cargoModel.Valido) ? Ok(cargoModel) : BadRequest(new RetornoModel { Valido = false, Mensagem = cargoModel.Mensagem });

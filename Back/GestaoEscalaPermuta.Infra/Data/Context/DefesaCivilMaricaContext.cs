@@ -75,11 +75,11 @@ public partial class DefesaCivilMaricaContext : DbContext
         #region CARGO
         modelBuilder.Entity<Cargo>(entity =>
         {
-            entity.HasKey(e => e.IdCargos).HasName("PK_IdCargos");
+            entity.HasKey(e => e.IdCargo).HasName("PK_IdCargos");
         });
 
         modelBuilder.Entity<Cargo>()
-        .Property(e => e.IdCargos)
+        .Property(e => e.IdCargo)
         .HasColumnType("uuid")
         .HasDefaultValueSql("uuid_generate_v4()");
 

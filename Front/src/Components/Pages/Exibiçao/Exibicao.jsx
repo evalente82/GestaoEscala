@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import NavBar from "../../Menu/NavBar";
+import { useParams } from 'react-router-dom';
 
 export function Exibicao() {
     const [escala, setEscala] = useState(null);
@@ -8,12 +9,13 @@ export function Exibicao() {
     const [funcionarios, setFuncionarios] = useState(null);
     const [indiceInicial, setIndiceInicial] = useState(0);
     const [buscaEscalaPronta, setBuscaEscalaPronta] = useState(null);
+    const { idEscala } = useParams();
 
     useEffect(() => {
-        BuscaEscala(2);
+        BuscaEscala(idEscala);
         BuscaPostos();
         BuscaFuncionarios();
-        BuscaEscalaPronta(2);
+        BuscaEscalaPronta(idEscala);
     }, []);
 
     function obterQuantidadeDiasNoMes(ano, mes) {
@@ -23,9 +25,10 @@ export function Exibicao() {
 
     function BuscaEscala(id) {
         axios
-            .get(`https://localhost:7187/api/Escala/${id}`)
+            .get(`https://localhost:7207/escala/buscarPorId/${id}`)
             .then((response) => {
                 setEscala(response.data);
+                console.log('buscando escala !');
                 console.log(response.data);
             })
             .catch((error) => {
@@ -35,9 +38,10 @@ export function Exibicao() {
 
     function BuscaPostos() {
         axios
-            .get(`https://localhost:7187/api/PostoTrabalho`)
+            .get(`https://localhost:7207/PostoTrabalho/buscarTodos`)
             .then((response) => {
                 setPostos(response.data);
+                console.log(postos);
                 console.log(response.data);
             })
             .catch((error) => {
@@ -47,7 +51,7 @@ export function Exibicao() {
 
     function BuscaFuncionarios() {
         axios
-            .get(`https://localhost:7187/api/funcionario`)
+            .get(`https://localhost:7207/funcionario/buscarTodos`)
             .then((response) => {
                 setFuncionarios(response.data);
                 console.log(response.data);
@@ -59,7 +63,7 @@ export function Exibicao() {
 
     function BuscaEscalaPronta(id) {
         axios
-            .get(`https://localhost:7187/api/EscalaPronta/${id}`)
+            .get(`https://localhost:7207/escalaPronta/buscarPorId/${id}`)
             .then((response) => {
                 setBuscaEscalaPronta(response.data);
                 console.log(response.data);
@@ -69,155 +73,48 @@ export function Exibicao() {
             });
     }
 
-    function handleProximo() {
-        const proximoIndiceInicial = indiceInicial + 5;
-        if (proximoIndiceInicial < postos.length) {
-            setIndiceInicial(proximoIndiceInicial);
-        }
-    }
+    const obterNomeFuncionario = (idFuncionario) => {
+        const funcionario = funcionarios?.find(func => func.idFuncionario === idFuncionario);
+        return funcionario ? funcionario.nmNome : 'Desconhecido';
+    };
 
-    function handleAnterior() {
-        const anteriorIndiceInicial = indiceInicial - 5;
-        if (anteriorIndiceInicial >= 0) {
-            setIndiceInicial(anteriorIndiceInicial);
-        }
-    }
-
-    function handleDragEnd(result) {
-        if (!result.destination) {
-            return;
-        }
-
-        const funcionarioId = result.draggableId.split('-')[0];
-        const origemPostoTrabalhoId = result.source.droppableId;
-        const destinoPostoTrabalhoId = result.destination.droppableId;
-
-        const novaEscalaAtualizada = buscaEscalaPronta.map((escala) => ({ ...escala }));
-
-        const escalaAtualizada = novaEscalaAtualizada.find(
-            (escala) =>
-                escala.funcionarioId === funcionarioId &&
-                escala.postoTrabalhoId === origemPostoTrabalhoId
-        );
-
-        if (escalaAtualizada) {
-            escalaAtualizada.postoTrabalhoId = destinoPostoTrabalhoId;
-            setEscala({ ...escala });
-        }
-
-        setBuscaEscalaPronta(novaEscalaAtualizada);
-    }
-
-    if (
-        escala === null ||
-        postos === null ||
-        buscaEscalaPronta === null ||
-        funcionarios === null
-    ) {
-        return (
-            <>
-                <NavBar />
-                <h1>Exibição da escala</h1>
-                <p>Carregando...</p>
-            </>
-        );
-    }
-
-    const numDias = obterQuantidadeDiasNoMes(2025, escala.mesReferencia);
-    const postosExibicao = postos;
-
-    const escalaExibicao = buscaEscalaPronta !== null ? buscaEscalaPronta : buscaEscalaPronta;
+    const numDias = escala ? obterQuantidadeDiasNoMes(2025, escala.nrMesReferencia) : 0;
 
     return (
         <>
             <NavBar />
             <div className="container">
                 <h1>Exibição da escala</h1>
-                <div className="table-container">
-                    <div className="navigation-buttons">
-                        <button onClick={handleAnterior} disabled={indiceInicial === 0}>
-                            Anterior
-                        </button>
-                        <button onClick={handleProximo} disabled={indiceInicial + 5 >= postos.length}>
-                            Próximo
-                        </button>
-                    </div>
-                    <DragDropContext onDragEnd={handleDragEnd}>
+                <div className="table-container">                
                         <table className="table">
-                            <thead>
-                                <tr>
-                                    <th>Dia</th>
-                                    {postos.map((posto) => (
-                                        <th key={posto.idPostoTrabalho}>{posto.nomePosto}</th>
+                        <thead>
+                            <tr>
+                                <th>Dia</th>
+                                {postos && postos.map((posto) => (
+                                    <th key={posto.idPostoTrabalho}>{posto.nmNome}</th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {Array.from({ length: numDias }, (_, index) => (
+                                <tr key={index + 1}>
+                                    <td className="border">{index + 1}</td>
+                                    {postos && postos.map((posto) => (
+                                        <td key={posto.idPostoTrabalho}>
+                                            {buscaEscalaPronta && buscaEscalaPronta
+                                                .filter(item => new Date(item.dtDataServico).getDate() === index + 1 && item.idPostoTrabalho === posto.idPostoTrabalho)
+                                                .map(item => (
+                                                    <div key={item.idEscalaPronta}>
+                                                        {obterNomeFuncionario(item.idFuncionario)}
+                                                    </div>
+                                                ))
+                                            }
+                                        </td>
                                     ))}
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {Array.from({ length: numDias }, (_, index) => (
-                                    <tr key={index + 1}>
-                                        <td className="border">{index + 1}</td>
-                                        {postosExibicao.map((posto, postoIndex) => {
-                                            const diaServico = index + 1;
-                                            const funcionariosSet = new Set();
-                                            escalaExibicao.forEach((escala) => {
-                                                const dataServicoDia = new Date(escala.dataServico).getDate();
-                                                if (
-                                                    dataServicoDia === diaServico &&
-                                                    escala.postoTrabalhoId === posto.idPostoTrabalho
-                                                ) {
-                                                    funcionariosSet.add(escala.funcionarioId);
-                                                }
-                                            });
-
-                                            const funcionariosDia = Array.from(funcionariosSet).map((funcionarioId) => {
-                                                const funcionario = funcionarios.find(
-                                                    (funcionario) => funcionario.idFuncionario === funcionarioId
-                                                );
-                                                return funcionario ? funcionario.nome : '';
-                                            });
-
-                                            return (
-                                                <td key={posto.idPostoTrabalho}>
-                                                    <Droppable droppableId={posto.idPostoTrabalho.toString()}>
-                                                        {(provided) => (
-                                                            <div
-                                                                ref={provided.innerRef}
-                                                                {...provided.droppableProps}
-                                                                className="border"
-                                                            >
-                                                                {funcionariosDia.map((funcionario, funcionarioIndex) => {
-                                                                    const draggableId = `${funcionario.idFuncionario}-${posto.idPostoTrabalho.toString()}-${funcionarioIndex}`;
-                                                                    return (
-                                                                        <Draggable
-                                                                            key={draggableId}
-                                                                            draggableId={draggableId}
-                                                                            index={funcionarioIndex}
-                                                                        >
-                                                                            {(provided) => (
-                                                                                <div
-                                                                                    ref={provided.innerRef}
-                                                                                    {...provided.draggableProps}
-                                                                                    {...provided.dragHandleProps}
-                                                                                    className="border p-2"
-                                                                                >
-                                                                                    {funcionario}
-                                                                                </div>
-                                                                            )}
-                                                                        </Draggable>
-                                                                    );
-                                                                })}
-                                                                {provided.placeholder}
-                                                            </div>
-                                                        )}
-                                                    </Droppable>
-                                                </td>
-                                            );
-                                        })}
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </DragDropContext>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </>

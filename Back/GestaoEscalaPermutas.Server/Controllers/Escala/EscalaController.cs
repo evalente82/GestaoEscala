@@ -10,6 +10,8 @@ using GestaoEscalaPermutas.Dominio.Interfaces.TipoEscala;
 using GestaoEscalaPermutas.Dominio.DTO.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
 using GestaoEscalaPermutas.Server.Models.EscalaPronta;
+using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
+using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 
 namespace GestaoEscalaPermutas.Server.Controllers.Escala
 {
@@ -54,6 +56,18 @@ namespace GestaoEscalaPermutas.Server.Controllers.Escala
         }
 
         [HttpGet]
+        [Route("buscarPorId/{id:Guid}")]
+        public async Task<ActionResult<EscalaDTO>> BuscarPorIdEscalas(Guid id)
+        {
+            var escala = await _escalaService.BuscarPorId(id);
+            if (!escala.valido)
+            {
+                return BadRequest(new RetornoModel { Valido = false, Mensagem = escala.mensagem });
+            }
+            return Ok(escala);
+        }
+
+        [HttpGet]
         [Route("buscarTodos")]
         public async Task<ActionResult> BuscarEscalas()
         {
@@ -68,6 +82,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.Escala
             }
             return Ok(escalas);
         }
+
 
         [HttpDelete]
         [Route("Deletar/{id:Guid}")]
@@ -91,7 +106,8 @@ namespace GestaoEscalaPermutas.Server.Controllers.Escala
             }
 
             //buscar lista de funcionarios ativos
-            var listFuncionarios = await _funcionarioService.BuscarTodosAtivos();
+            var funcionarios = await _funcionarioService.BuscarTodosAtivos();
+            var listFuncionarios = funcionarios.Where(x => x.IdCargo == escala.IdCargo).ToList();
 
             //buscar lista de postos
             var listPostos = await _postoTrabalhoService.BuscarTodosAtivos();
@@ -234,7 +250,6 @@ namespace GestaoEscalaPermutas.Server.Controllers.Escala
                         {
                             Console.WriteLine($"Funcionario: {escalaPronta.IdFuncionario}");
                             //escalaPronta.IdFuncionario = 78;
-                            Console.WriteLine($"Funcionario: {escalaPronta.IdFuncionario}");
                         }
                         listEscalaPronta.Add(escalaPronta);
                         
