@@ -122,7 +122,7 @@ function FuncionarioList(props) {
                 placeholder="Pesquisar..."
                 className="form-control mb-3"
             />
-            <div className="d-flex justify-content-center">
+            {/* <div className="d-flex justify-content-center">
                 <button
                     type="button"
                     className="btn btn-outline-primary me-2"
@@ -139,7 +139,7 @@ function FuncionarioList(props) {
                 >
                     Próximo
                 </button>
-            </div>
+            </div> */}
             <table className="table">
                 <thead>
                     <tr>
@@ -163,8 +163,7 @@ function FuncionarioList(props) {
                                     <td style={{ textAlign: "left" }}>{funcionario.nrMatricula}</td>
                                     <td style={{ textAlign: "left" }}>{funcionario.nrTelefone}</td>
                                     <td style={{ textAlign: "left" }}>{funcionario.nmEndereco}</td>
-                                    <td>{cargos.find(cargo => cargo.idCargos === funcionario.idCargos)?.nmNome}</td>
-                                    {/*<td>{funcionario.idCargos}</td>*/}
+                                    <td>{cargos.find(cargo => cargo.idCargo === funcionario.idCargo)?.nmNome}</td>
                                     <td>
                                         <input
                                             type="checkbox"
@@ -208,7 +207,7 @@ function FuncionarioForm(props) {
             nrTelefone: PropTypes.number,
             nmEmail: PropTypes.string,
             nmEndereco: PropTypes.string,
-            idCargos: PropTypes.number,
+            idCargo: PropTypes.String,
             isAtivo: PropTypes.bool,
         }).isRequired,
     };
@@ -240,7 +239,7 @@ function FuncionarioForm(props) {
 
     useEffect(() => {
         if (props.funcionario.idFuncionario) {
-            setCargoSelecionado(props.funcionario.idCargos.toString());
+            setCargoSelecionado(props.funcionario.idCargo.toString());
         }
     }, [props.funcionario.idFuncionario]);
 
@@ -259,7 +258,7 @@ function FuncionarioForm(props) {
                 nrTelefone: telefone,
                 nmEmail: email,
                 nmEndereco: endereco,
-                idCargos: cargoSelecionado,
+                idCargo: cargoSelecionado,
                 isAtivo: ativo,
             };
             axios
@@ -289,7 +288,7 @@ function FuncionarioForm(props) {
                 nrTelefone: telefone,
                 nmEmail: email,
                 nmEndereco: endereco,
-                idCargos: cargoSelecionado,
+                idCargo: cargoSelecionado,
                 isAtivo: ativo,
             };
             axios
@@ -403,7 +402,7 @@ function FuncionarioForm(props) {
                                 >
                                     <option value="">Selecione um cargo</option>
                                     {cargos.map(cargo => (
-                                        <option key={cargo.idCargos} value={cargo.idCargos}>{cargo.nmNome}</option>
+                                        <option key={cargo.idCargo} value={cargo.idCargo}>{cargo.nmNome}</option>
                                     ))}
                                 </select>
                             </div>

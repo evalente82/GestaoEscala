@@ -9,6 +9,7 @@ import { Escala } from './Components/Pages/Escala/Escala';
 import { Funcionario } from './Components/Pages/Funcionario/Funcionario';
 import { TipoEscala } from './Components/Pages/TipoEscala/TipoEscala';
 import { Exibicao } from './Components/Pages/Exibiçao/Exibicao';
+import { EditarEscala } from './Components/Pages/EditarEscala/EditarEscala'; 
 function App() {
     return (
         <>
@@ -27,7 +28,7 @@ function App() {
                     {/* <Route path='/exibicao' element={<Exibicao />} /> */}
                     {/*<Route path="/permutas" element={<Board />} />*/}
                     <Route path="/Exibicao/:idEscala" element={<Exibicao />} />
-                    {/*<Route path="/EditarEscalaSelecionada" element={<EditarEscalaSelecionada />} />*/}
+                    <Route path="/EditarEscala" element={<EditarEscala />} />
                     {/*<Route path="/escalavigente" element={<EscalaVigente />} />*/}
                     
                 </Routes>

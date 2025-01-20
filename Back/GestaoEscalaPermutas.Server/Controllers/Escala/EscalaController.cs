@@ -110,7 +110,9 @@ namespace GestaoEscalaPermutas.Server.Controllers.Escala
             var listFuncionarios = funcionarios.Where(x => x.IdCargo == escala.IdCargo).ToList();
 
             //buscar lista de postos
-            var listPostos = await _postoTrabalhoService.BuscarTodosAtivos();
+            var list = await _postoTrabalhoService.BuscarTodosAtivos();
+            var listPostos = list.Where(x => x.IdDepartamento == escala.IdDepartamento).ToList();
+
 
             //buscar o tipo de escala
             var tipoEscala = await _tipoEscalaService.BuscarPorId(escala.IdTipoEscala);

@@ -56,8 +56,8 @@ function NavBar() {
                                 <Link className="nav-link text-dark" to="/escalas">Escalas</Link>
                             </li>
 
-                            <li className={`nav-item ${location.pathname === '/Exibicao' ? 'active' : ''}`}>
-                                <Link className="nav-link text-dark" to="/Exibicao">Exibição</Link>
+                            <li className={`nav-item ${location.pathname === '/permutas' ? 'active' : ''}`}>
+                                <Link className="nav-link text-dark" to="/permutas">Exibição</Link>
                             </li>
 
                             <li className={`nav-item ${location.pathname === '/permutas' ? 'active' : ''}`}>

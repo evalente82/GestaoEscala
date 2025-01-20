@@ -95,7 +95,7 @@ function DepartamentoList(props) {
                 placeholder="Pesquisar..."
                 className="form-control mb-3"
             />
-            <div className="d-flex justify-content-center">
+            {/* <div className="d-flex justify-content-center">
                 <button
                     type="button"
                     className="btn btn-outline-primary me-2"
@@ -112,7 +112,7 @@ function DepartamentoList(props) {
                 >
                     Próximo
                 </button>
-            </div>
+            </div> */}
             <table className="table">
                 <thead>
                     <tr>

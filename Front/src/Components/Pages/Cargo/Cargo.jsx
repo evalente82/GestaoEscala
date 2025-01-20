@@ -42,13 +42,13 @@ function CargoList(props) {
         }
     }
 
-    function DeleteCargo(idCargos) {
+    function DeleteCargo(idCargo) {
         axios
-            .delete(`https://localhost:7207/cargo/Deletar/${idCargos}`)
+            .delete(`https://localhost:7207/cargo/Deletar/${idCargo}`)
             .then((response) => {
                 console.log(response);
                 setCargo(
-                    cargo.filter((usuario) => usuario.id !== idCargos)
+                    cargo.filter((usuario) => usuario.id !== idCargo)
                 );
                 BuscarTodos();
             })
@@ -96,7 +96,7 @@ function CargoList(props) {
                 placeholder="Pesquisar..."
                 className="form-control mb-3"
             />
-            <div className="d-flex justify-content-center">
+            {/* <div className="d-flex justify-content-center">
                 <button
                     type="button"
                     className="btn btn-outline-primary me-2"
@@ -113,7 +113,7 @@ function CargoList(props) {
                 >
                     Próximo
                 </button>
-            </div>
+            </div> */}
             <table className="table">
                 <thead>
                     <tr>
@@ -147,7 +147,7 @@ function CargoList(props) {
                                             Editar
                                         </button>
                                         <button
-                                            onClick={() => handleDelete(cargo.idCargos)}
+                                            onClick={() => handleDelete(cargo.idCargo)}
                                             type="button"
                                             className="btn btn-danger btn-sm"
                                         >
@@ -167,7 +167,7 @@ function CargoForm(props) {
     CargoForm.propTypes = {
         ShowList: PropTypes.func.isRequired,
         cargo: PropTypes.shape({
-            idCargos: PropTypes.number,
+            idCargo: PropTypes.number,
             nmNome: PropTypes.string,
             nmDescricao: PropTypes.string,
             isAtivo: PropTypes.bool,
@@ -185,7 +185,7 @@ function CargoForm(props) {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (props.cargo.idCargos) {
+        if (props.cargo.idCargo) {
             const data = {
                 nmNome: nome,
                 nmDescricao: descricao,
@@ -194,7 +194,7 @@ function CargoForm(props) {
             axios
                 .patch(
                     "https://localhost:7207/cargo/Atualizar/" +
-                    props.cargo.idCargos,
+                    props.cargo.idCargo,
                     data
                 )
                 .then(() => {
@@ -236,22 +236,22 @@ function CargoForm(props) {
         <>
             <NavBar />
             <h2 className="text-center mb-3">
-                {props.cargo.idCargos
+                {props.cargo.idCargo
                     ? "Editar Cargo"
                     : "Cadastrar Novo Cargo"}
             </h2>
             <div className="row">
                 <div className="col-lg-6 mx-auto">
                     <form onSubmit={(e) => handleSubmit(e)}>
-                        {props.cargo.idCargos && (
+                        {props.cargo.idCargo && (
                             <div className="row mb-3">
                                 <label className="col-sm-4 col-form-label">ID</label>
                                 <div className="col-sm-8">
                                     <input
                                         readOnly
                                         className="form-control-plaintext"
-                                        name="idCargos"
-                                        defaultValue={props.cargo.idCargos}
+                                        name="idCargo"
+                                        defaultValue={props.cargo.idCargo}
                                         required
                                         onChange={(e) => setNome(e.target.value)}
                                     ></input>

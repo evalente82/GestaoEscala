@@ -95,7 +95,7 @@ function EscalaList(props) {
 
     function handleDelete(id) {
         // Mostrar a popup de confirmação
-        if (window.confirm("Tem certeza que deseja excluir este registro?")) {
+        if (window.confirm("Tem certeza que deseja excluir Uma escala que já foi Gerada ?")) {
             DeleteEscala(id);
         }
     }
@@ -203,9 +203,7 @@ function EscalaList(props) {
                         .map((escala, index) => {
                             return (
                                 <tr key={index}>
-                                    {/*<td>{funcionario.idFuncionario}</td>*/}
                                     <td>{escala.nmNomeEscala}</td>
-                                    {/*<td>{cargos.find(cargo => cargo.idCargos === funcionario.idCargos)?.nmNomeEscala}</td>*/}
                                     <td>{departamentos.find(departamento => departamento.idDepartamento === escala.idDepartamento)?.nmNome}</td>
                                     <td>{cargos.find(cargo => cargo.idCargo === escala.idCargo)?.nmNome}</td>
                                     <td>{tipoEscalas.find(tipoEscala => tipoEscala.idTipoEscala === escala.idTipoEscala)?.nmNome}</td>
@@ -230,6 +228,7 @@ function EscalaList(props) {
                                             onClick={() => navigate(`/Exibicao/${escala.idEscala}`)}
                                             type="button"
                                             className="btn btn-success btn-sm me-2"
+                                            disabled={escala.isGerada == false}
                                         >
                                             Visualizar Escala
                                         </button>

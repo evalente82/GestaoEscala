@@ -7,16 +7,21 @@ export function Exibicao() {
     const [escala, setEscala] = useState(null);
     const [postos, setPostos] = useState(null);
     const [funcionarios, setFuncionarios] = useState(null);
-    const [indiceInicial, setIndiceInicial] = useState(0);
     const [buscaEscalaPronta, setBuscaEscalaPronta] = useState(null);
     const { idEscala } = useParams();
+    const [showEditContent, setShowEditContent] = useState(false);
 
     useEffect(() => {
         BuscaEscala(idEscala);
-        BuscaPostos();
         BuscaFuncionarios();
         BuscaEscalaPronta(idEscala);
     }, []);
+
+    useEffect(() => {
+        if (escala) {
+            BuscaPostos(escala.idDepartamento);
+        }
+    }, [escala]);
 
     function obterQuantidadeDiasNoMes(ano, mes) {
         const ultimoDiaDoMes = new Date(ano, mes, 0).getDate();
@@ -36,11 +41,12 @@ export function Exibicao() {
             });
     }
 
-    function BuscaPostos() {
+    function BuscaPostos(idDepartamento) {
         axios
             .get(`https://localhost:7207/PostoTrabalho/buscarTodos`)
             .then((response) => {
-                setPostos(response.data);
+                const postosFiltrados = response.data.filter(posto => posto.idDepartamento === idDepartamento)
+                setPostos(postosFiltrados);
                 console.log(postos);
                 console.log(response.data);
             })
@@ -84,9 +90,46 @@ export function Exibicao() {
         <>
             <NavBar />
             <div className="container">
-                <h1>Exibição da escala</h1>
+                <h1>Exibição da Escala {escala ? escala.nmNomeEscala : 'Carregando...'}</h1>
+                <button
+                    type="button"
+                    className="btn btn-outline-primary me-2"
+                    onClick={() => setShowEditContent(!showEditContent)}
+                >
+                    EDITAR
+                </button>
+                {showEditContent && (
+                    <>
+                        <div className="container">
+                            <div className="row">
+                                <div className="col-4">
+                                <input className="form-control mb-2" style={{ width: '100%' }}></input>
+                                    <div>
+                                    <input className="form-control mb-2" style={{ width: '100%' }}></input>
+                                    </div>
+                                </div>
+                                <div className="col-2">                        
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="container">
+                            <div className="row">
+                                <div className="col-1">
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline-primary me-2"
+                                    >
+                                        Trocar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                )}
+                
                 <div className="table-container">                
-                        <table className="table">
+                    <table className="table">
                         <thead>
                             <tr>
                                 <th>Dia</th>
