@@ -19,15 +19,15 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaPronta
             _escalaProntaService = escalaProntaService;
             _mapper = mapper;
         }
-        [HttpPost]
-        [Route("Incluir/")]
-        public async Task<ActionResult> IncluirEscalaPronta([FromBody] EscalaProntaDTO escalaPronta)
-        {
-            var EscalaProntaDTO = await _escalaProntaService.Incluir(_mapper.Map<EscalaProntaDTO>(escalaPronta));
-            var escalaProntaModel = _mapper.Map<EscalaProntaModel>(EscalaProntaDTO);
+        //[HttpPost]
+        //[Route("Incluir/")]
+        //public async Task<ActionResult> IncluirEscalaPronta([FromBody] EscalaProntaDTO escalaPronta)
+        //{
+        //    var EscalaProntaDTO = await _escalaProntaService.Incluir(_mapper.Map<EscalaProntaDTO>(escalaPronta));
+        //    var escalaProntaModel = _mapper.Map<EscalaProntaModel>(EscalaProntaDTO);
 
-            return (escalaProntaModel.Valido) ? Ok(escalaProntaModel) : BadRequest(new RetornoModel { Valido = false, Mensagem = escalaProntaModel.Mensagem });
-        }
+        //    return (escalaProntaModel.Valido) ? Ok(escalaProntaModel) : BadRequest(new RetornoModel { Valido = false, Mensagem = escalaProntaModel.Mensagem });
+        //}
 
         [HttpPatch]
         [Route("Atualizar/{id:Guid}")]
@@ -40,14 +40,14 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaPronta
         }
 
         
-        [HttpDelete]
-        [Route("Deletar/{id:Guid}")]
-        public async Task<ActionResult> DeletarEscalaPronta(Guid id)
-        {
-            var escalaProntaDTO = await _escalaProntaService.Deletar(id);
-            var escalaProntaModel = _mapper.Map<EscalaProntaModel>(escalaProntaDTO);
-            return (escalaProntaModel.Valido) ? Ok(escalaProntaModel.Mensagem) : BadRequest(new RetornoModel { Valido = false, Mensagem = escalaProntaModel.Mensagem });
-        }
+        //[HttpDelete]
+        //[Route("Deletar/{id:Guid}")]
+        //public async Task<ActionResult> DeletarEscalaPronta(Guid id)
+        //{
+        //    var escalaProntaDTO = await _escalaProntaService.Deletar(id);
+        //    var escalaProntaModel = _mapper.Map<EscalaProntaModel>(escalaProntaDTO);
+        //    return (escalaProntaModel.Valido) ? Ok(escalaProntaModel.Mensagem) : BadRequest(new RetornoModel { Valido = false, Mensagem = escalaProntaModel.Mensagem });
+        //}
 
 
         [HttpGet("buscarPorId/{id}")]

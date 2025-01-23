@@ -82,18 +82,21 @@ function FuncionarioList(props) {
                 console.error(error);
             });
     }
+    
+    const currentRecords = filterRecords(funcionario);
 
-    //const indexOfLastRecord = currentPage * recordsPerPage;
-    //const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-    const currentRecords = funcionario
-    //    .filter(
-    //        (departamento) =>
-    //            departamento.nome.toLowerCase().includes(searchText.toLowerCase()) ||
-    //            departamento.descricao.toLowerCase().includes(searchText.toLowerCase())
-    //    )
-    //    .slice(indexOfFirstRecord, indexOfLastRecord);
-    //useEffect(() => BuscarTodos(), []);
-
+    // Função para filtrar os registros com base no texto de busca
+    function filterRecords(records) {
+        return records.filter(record => {
+            const cargoNome = cargos.find(cargo => cargo.idCargo === record.idCargo)?.nmNome || "";
+            return (
+                record.nmNome.toLowerCase().includes(searchText.toLowerCase()) ||
+                record.nrMatricula.toString().includes(searchText) ||
+                record.nmEndereco.toLowerCase().includes(searchText.toLowerCase()) ||
+                cargoNome.toLowerCase().includes(searchText.toLowerCase())
+            );
+        });
+    }
 
     return (
         <>
@@ -122,24 +125,6 @@ function FuncionarioList(props) {
                 placeholder="Pesquisar..."
                 className="form-control mb-3"
             />
-            {/* <div className="d-flex justify-content-center">
-                <button
-                    type="button"
-                    className="btn btn-outline-primary me-2"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                >
-                    Anterior
-                </button>
-                <button
-                    type="button"
-                    className="btn btn-outline-primary"
-                    disabled={currentRecords.length < recordsPerPage}
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                >
-                    Próximo
-                </button>
-            </div> */}
             <table className="table">
                 <thead>
                     <tr>

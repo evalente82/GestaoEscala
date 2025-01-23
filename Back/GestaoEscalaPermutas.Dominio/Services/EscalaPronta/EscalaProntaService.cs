@@ -180,5 +180,56 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaPronta
                 return new EscalaProntaDTO[] { new EscalaProntaDTO { valido = false, mensagem = $"Erro ao incluir a lista de Escala: {e.Message}" } };
             }
         }
+
+        public async Task<EscalaProntaDTO[]> AlterarEscalaPronta(Guid idEscala, EscalaProntaDTO[] escalaProntaDTOs)
+        {
+            try
+            {
+                // Validação básica
+                if (escalaProntaDTOs == null || escalaProntaDTOs.Length == 0)
+                {
+                    return new EscalaProntaDTO[]
+                    {
+                        new EscalaProntaDTO
+                        {
+                            valido = false,
+                            mensagem = "Lista de Escala vazia."
+                        }
+                    };
+                }
+
+                // Inicia a transação no banco de dados
+                using var transaction = await _context.Database.BeginTransactionAsync();
+
+                // Remove os registros antigos de EscalaPronta com o idEscala fornecido
+                var registrosExistentes = _context.EscalaPronta.Where(e => e.IdEscala == idEscala);
+                _context.EscalaPronta.RemoveRange(registrosExistentes);
+
+                // Mapeia os novos dados de EscalaProntaDTO para as entidades do banco
+                var novasEscalas = _mapper.Map<DepInfra.EscalaPronta[]>(escalaProntaDTOs);
+
+                // Insere os novos registros
+                await _context.EscalaPronta.AddRangeAsync(novasEscalas);
+
+                // Salva as alterações no banco
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                // Retorna os registros salvos como DTO
+                return _mapper.Map<EscalaProntaDTO[]>(novasEscalas);
+            }
+            catch (Exception e)
+            {
+                return new EscalaProntaDTO[]
+                {
+                    new EscalaProntaDTO
+                    {
+                        valido = false,
+                        mensagem = $"Erro ao salvar a escala alterada: {e.Message}"
+                    }
+                };
+            }
+        }
+
     }
 }
