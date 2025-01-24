@@ -3,19 +3,24 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import PropTypes from 'prop-types';
 import './TipoEscala.css'
+import AlertPopup from '../AlertPopup/AlertPopup';
 
 function TipoEscalaList(props) {
     TipoEscalaList.propTypes = {
         ShowForm: PropTypes.func.isRequired, // Indica que ShowForm é uma função obrigatória
     };
-    const [currentPage, setCurrentPage] = useState(1);
-    const [recordsPerPage] = useState(10); //, setRecordsPerPage
-
     const [searchText, setSearchText] = useState("");
-
     const [tipoEscala, setTipoEscala] = useState([]);
-
+    const [alertProps, setAlertProps] = useState({
+        show: false, // Exibe ou esconde o AlertPopup
+        type: "info", // Tipo de mensagem (success, error, confirm, info)
+        title: "", // Título da modal
+        message: "", // Mensagem da modal
+        onConfirm: null, // Callback para ações de confirmação (opcional)
+        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
+    });
     const API_URL = "https://localhost:7207/tipoEscala";
+
     function BuscarTodos() {
         axios.get(`${API_URL}/buscarTodos`)
             .then((response) => {
@@ -23,8 +28,14 @@ function TipoEscalaList(props) {
                 setTipoEscala(response.data);
             })
             .catch((error) => {
-                console.log(error);
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Não foi possível carregar os Cargos.",
+                onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
             });
+        });
     }
 
     useEffect(() => {
@@ -37,23 +48,44 @@ function TipoEscalaList(props) {
     }, []);
 
     function handleDelete(id) {
-        // Mostrar a popup de confirmação
-        if (window.confirm("Tem certeza que deseja excluir este registro?")) {
-            DeleteFuncionario(id);
-        }
+        setAlertProps({
+            show: true,
+            type: "confirm",
+            title: "Confirmar exclusão",
+            message: "Tem certeza que deseja excluir este registro?",
+            onConfirm: () => {
+                DeleteTipoEscala(id); // Executa a exclusão
+                setAlertProps((prev) => ({ ...prev, show: false })); // Fecha o AlertPopup após confirmar
+            },
+            onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
+        });
     }
-
-    function DeleteFuncionario(idTipoEscala) {
+    
+    function DeleteTipoEscala(idTipoEscala) {
         axios
-            .delete(`https://localhost:7207/tipoEscala/Deletar/${idTipoEscala}`)
+            .delete(`${API_URL}/Deletar/${idTipoEscala}`)
             .then((response) => {
                 console.log(response);
                 setTipoEscala(
-                    tipoEscala.filter((tEscala) => tEscala.id !== idTipoEscala)
+                    tipoEscala.filter((usuario) => usuario.id !== idTipoEscala)
                 );
                 BuscarTodos();
+                setAlertProps({
+                    show: true,
+                    type: "success",
+                    title: "Sucesso",
+                    message: "Registro excluído com sucesso!",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
             })
             .catch((error) => {
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Falha ao excluir o registro.",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
                 console.error(error);
             });
     }
@@ -97,28 +129,9 @@ function TipoEscalaList(props) {
                 placeholder="Pesquisar..."
                 className="form-control mb-3"
             />
-            {/* <div className="d-flex justify-content-center">
-                <button
-                    type="button"
-                    className="btn btn-outline-primary me-2"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                >
-                    Anterior
-                </button>
-                <button
-                    type="button"
-                    className="btn btn-outline-primary"
-                    disabled={currentRecords.length < recordsPerPage}
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                >
-                    Próximo
-                </button>
-            </div> */}
             <table className="table">
                 <thead>
                     <tr>
-                        {/*<th>ID</th>*/}
                         <th style={{ textAlign: "left" }}>NOME</th>
                         <th style={{ textAlign: "left" }}>DESCRIÇÃO</th>
                         <th >HORAS TRABALHADA</th>
@@ -132,7 +145,6 @@ function TipoEscalaList(props) {
                         .map((tipoEscala, index) => {
                             return (
                                 <tr key={index}>
-                                    {/*<td>{funcionario.idFuncionario}</td>*/}
                                     <td style={{ textAlign: "left" }}>{tipoEscala.nmNome}</td>
                                     <td style={{ textAlign: "left" }}>{tipoEscala.nmDescricao}</td>
                                     <td>{tipoEscala.nrHorasTrabalhada}</td>
@@ -172,6 +184,14 @@ function TipoEscalaList(props) {
                         })}
                 </tbody>
             </table>
+            <AlertPopup
+                type={alertProps.type}
+                title={alertProps.title}
+                message={alertProps.message}
+                show={alertProps.show}
+                onConfirm={alertProps.onConfirm}
+                onClose={alertProps.onClose}
+            />                
         </>
 
     );
@@ -190,13 +210,20 @@ function TipoEscalaForm(props) {
         }).isRequired,
     };
 
-    // const [errorMessage, setErrorMessage] = useState('');
     const [nome, setNome] = useState(props.tipoEscala.nmNome || '');
     const [ativo, setAtivo] = useState(props.tipoEscala.isAtivo || false);
     const [expediente, setExpediente] = useState(props.tipoEscala.isExpediente || false);
     const [descricao, setDescricao] = useState(props.tipoEscala.nmDescricao || '');
     const [horasTrabalhada, setHorasTrabalhada] = useState(props.tipoEscala.nrHorasTrabalhada || '');
     const [horasFolga, setHorasFolga] = useState(props.tipoEscala.nrHorasFolga || '');
+    
+    const [alertProps, setAlertProps] = useState({
+        show: false, // Define se o AlertPopup deve ser exibido
+        type: "info", // Tipo da mensagem (success, error, info, confirm)
+        title: "", // Título da modal
+        message: "", // Mensagem da modal
+        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
+    });
         
     function handleAtivoChange(e) {
         setAtivo(e.target.checked);
@@ -224,18 +251,26 @@ function TipoEscalaForm(props) {
                     data
                 )
                 .then(() => {
-                    props.ShowList();
+                    setAlertProps({
+                        show: true,
+                        type: "success",
+                        title: "Sucesso",
+                        message: "Tipo de Escala atualizado com sucesso!",
+                        onClose: () => {
+                            setAlertProps((prev) => ({ ...prev, show: false }));
+                            props.ShowList(); // Voltar para a lista após fechar a modal
+                        },
+                    });
                 })
                 .catch((error) => {
-                    if (error.response && error.response.status === 400) {
-                        const errors = error.response.data;
-                        console.log(errors);
-                        alert(errors.Email);
-                        // outros tratamentos de erro
-                    } else {
-                        console.log(error);
-                        // outros tratamentos de erro
-                    }
+                    setAlertProps({
+                        show: true,
+                        type: "error",
+                        title: "Erro",
+                        message: "Falha ao atualizar o Tipo de Escala.",
+                        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                    });
+                    console.error(error);
                 });
         } else {
             const data = {
@@ -249,18 +284,26 @@ function TipoEscalaForm(props) {
             axios
                 .post("https://localhost:7207/tipoEscala/Incluir", data)
                 .then(() => {
-                    props.ShowList();
+                    setAlertProps({
+                        show: true,
+                        type: "success",
+                        title: "Sucesso",
+                        message: "Tipo de Escala cadastrado com sucesso!",
+                        onClose: () => {
+                            setAlertProps((prev) => ({ ...prev, show: false }));
+                            props.ShowList(); // Voltar para a lista após fechar a modal
+                        },
+                    });
                 })
                 .catch((error) => {
-                    if (error.response && error.response.status === 400) {
-                        const errors = error.response.data;
-                        console.log(errors);
-                        alert(errors.Email);
-                        // outros tratamentos de erro
-                    } else {
-                        console.log(error);
-                        // outros tratamentos de erro
-                    }
+                    setAlertProps({
+                        show: true,
+                        type: "error",
+                        title: "Erro",
+                        message: "Falha ao cadastrar o Tipo de Escala.",
+                        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                    });
+                    console.error(error);
                 });
         }
     };
@@ -274,7 +317,6 @@ function TipoEscalaForm(props) {
             </h2>
             <div className="row">
                 <div className="col-lg-6 mx-auto">
-                    {/* {errorMessage} */}
                     <form onSubmit={(e) => handleSubmit(e)}>
                         {props.tipoEscala.idTipoEscala && (
                             <div className="row mb-3">
@@ -322,6 +364,7 @@ function TipoEscalaForm(props) {
                             <label className="col-sm-4 col-form-label">Horas Trabalhada</label>
                             <div className="col-sm-8">
                                 <input
+                                    type="number"
                                     className="form-control"
                                     name="horasTrabalhada"
                                     defaultValue={props.tipoEscala.nrHorasTrabalhada}
@@ -335,6 +378,7 @@ function TipoEscalaForm(props) {
                             <label className="col-sm-4 col-form-label">Horas de Folga</label>
                             <div className="col-sm-8">
                                 <input
+                                    type="number"
                                     className="form-control"
                                     name="horasFolga"
                                     defaultValue={props.tipoEscala.nrHorasFolga}
@@ -391,6 +435,13 @@ function TipoEscalaForm(props) {
                     </form>
                 </div>
             </div>
+            <AlertPopup
+                type={alertProps.type}
+                title={alertProps.title}
+                message={alertProps.message}
+                show={alertProps.show}
+                onClose={alertProps.onClose}            
+            />               
         </>
     );
 }

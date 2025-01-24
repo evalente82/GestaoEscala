@@ -2,19 +2,25 @@ import NavBar from "../../Menu/NavBar";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import PropTypes from 'prop-types';
+import AlertPopup from '../AlertPopup/AlertPopup';
 
 function CargoList(props) {
     CargoList.propTypes = {
         ShowForm: PropTypes.func.isRequired, // Indica que ShowForm é uma função obrigatória
     };
-    const [currentPage, setCurrentPage] = useState(1);
-    const [recordsPerPage] = useState(10); //, setRecordsPerPage
-
+   
     const [searchText, setSearchText] = useState("");
-
     const [cargo, setCargo] = useState([]);
-
     const API_URL = "https://localhost:7207/cargo";
+    const [alertProps, setAlertProps] = useState({
+        show: false, // Exibe ou esconde o AlertPopup
+        type: "info", // Tipo de mensagem (success, error, confirm, info)
+        title: "", // Título da modal
+        message: "", // Mensagem da modal
+        onConfirm: null, // Callback para ações de confirmação (opcional)
+        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
+    });
+
     function BuscarTodos() {
         axios.get(`${API_URL}/buscarTodos`)
             .then((response) => {
@@ -22,7 +28,13 @@ function CargoList(props) {
                 setCargo(response.data);
             })
             .catch((error) => {
-                console.log(error);
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Não foi possível carregar os Cargos.",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
+                });
             });
     }
 
@@ -36,10 +48,17 @@ function CargoList(props) {
     }, []);
 
     function handleDelete(id) {
-        // Mostrar a popup de confirmação
-        if (window.confirm("Tem certeza que deseja excluir este registro?")) {
-            DeleteCargo(id);
-        }
+        setAlertProps({
+            show: true,
+            type: "confirm",
+            title: "Confirmar exclusão",
+            message: "Tem certeza que deseja excluir este registro?",
+            onConfirm: () => {
+                DeleteCargo(id); // Executa a exclusão
+                setAlertProps((prev) => ({ ...prev, show: false })); // Fecha o AlertPopup após confirmar
+            },
+            onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
+        });
     }
 
     function DeleteCargo(idCargo) {
@@ -51,8 +70,22 @@ function CargoList(props) {
                     cargo.filter((usuario) => usuario.id !== idCargo)
                 );
                 BuscarTodos();
+                setAlertProps({
+                    show: true,
+                    type: "success",
+                    title: "Sucesso",
+                    message: "Registro excluído com sucesso!",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
             })
             .catch((error) => {
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Falha ao excluir o registro.",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
                 console.error(error);
             });
     }
@@ -158,6 +191,14 @@ function CargoList(props) {
                         })}
                 </tbody>
             </table>
+            <AlertPopup
+                type={alertProps.type}
+                title={alertProps.title}
+                message={alertProps.message}
+                show={alertProps.show}
+                onConfirm={alertProps.onConfirm}
+                onClose={alertProps.onClose}
+        />
         </>
 
     );
@@ -176,6 +217,13 @@ function CargoForm(props) {
     const [nome, setNome] = useState(props.cargo.nmNome || '');
     const [descricao, setDescricao] = useState(props.cargo.nmDescricao || '');
     const [ativo, setAtivo] = useState(props.cargo.isAtivo || false);
+    const [alertProps, setAlertProps] = useState({
+        show: false, // Define se o AlertPopup deve ser exibido
+        type: "info", // Tipo da mensagem (success, error, info, confirm)
+        title: "", // Título da modal
+        message: "", // Mensagem da modal
+        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
+    });
 
     function handleAtivoChange(e) {
         setAtivo(e.target.checked);
@@ -197,16 +245,26 @@ function CargoForm(props) {
                     data
                 )
                 .then(() => {
-                    props.ShowList();
+                    setAlertProps({
+                        show: true,
+                        type: "success",
+                        title: "Sucesso",
+                        message: "Cargo atualizado com sucesso!",
+                        onClose: () => {
+                            setAlertProps((prev) => ({ ...prev, show: false }));
+                            props.ShowList(); // Voltar para a lista após fechar a modal
+                        },
+                    });
                 })
                 .catch((error) => {
-                    if (error.response && error.response.status === 400) {
-                        const errors = error.response.data;
-                        console.log(errors);
-                        alert(errors.Email);
-                    } else {
-                        console.log(error);
-                    }
+                    setAlertProps({
+                        show: true,
+                        type: "error",
+                        title: "Erro",
+                        message: "Falha ao atualizar o cargo.",
+                        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                    });
+                    console.error(error);
                 });
         } else {
             const data = {
@@ -217,20 +275,29 @@ function CargoForm(props) {
             axios
                 .post("https://localhost:7207/cargo/Incluir", data)
                 .then(() => {
-                    props.ShowList();
+                    setAlertProps({
+                        show: true,
+                        type: "success",
+                        title: "Sucesso",
+                        message: "Cargo cadastrado com sucesso!",
+                        onClose: () => {
+                            setAlertProps((prev) => ({ ...prev, show: false }));
+                            props.ShowList(); // Voltar para a lista após fechar a modal
+                        },
+                    });
                 })
                 .catch((error) => {
-                    if (error.response && error.response.status === 400) {
-                        const errors = error.response.data;
-                        console.log(errors);
-                        alert(errors.Email);
-                    } else {
-                        console.log(error);
-                    }
+                    setAlertProps({
+                        show: true,
+                        type: "error",
+                        title: "Erro",
+                        message: "Falha ao cadastrar o cargo.",
+                        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                    });
+                    console.error(error);
                 });
         }
     };
-
     return (
         <>
             <NavBar />
@@ -317,6 +384,13 @@ function CargoForm(props) {
                     </form>
                 </div>
             </div>
+            <AlertPopup
+                type={alertProps.type}
+                title={alertProps.title}
+                message={alertProps.message}
+                show={alertProps.show}
+                onClose={alertProps.onClose}
+            />
         </>
     );
 }

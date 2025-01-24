@@ -1,89 +1,69 @@
+import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
-import 'bootstrap/dist/css/bootstrap.min.css';
-
-const SuccessModal = ({ message, onClose }) => {
-    return (
-        <Modal show={true} onHide={onClose}>
-            <Modal.Header closeButton>
-                <Modal.Title>Sucesso</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>{message}</Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={onClose}>
-                    Fechar
-                </Button>
-            </Modal.Footer>
-        </Modal>
-    );
-};
-SuccessModal.propTypes = {
-    message: PropTypes.string.isRequired,
-    onClose: PropTypes.func.isRequired
-};
-
-
-const ErrorModal = ({ title, message, show, onClose }) => {
-    return (
-        <Modal show={show} onHide={onClose}>
-            <Modal.Header closeButton>
-                <Modal.Title>{title}</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>{message}</Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={onClose}>
-                    Fechar
-                </Button>
-            </Modal.Footer>
-        </Modal>
-    );
-};
-
-ErrorModal.propTypes = {
-    title: PropTypes.string.isRequired,
-    message: PropTypes.string.isRequired,
-    show: PropTypes.bool.isRequired,
-    onClose: PropTypes.func.isRequired
-};
-
-const AlertPopup = ({ error, showSuccess }) => {
-    const [showModal, setShowModal] = useState(false);
-
-    useEffect(() => {
-        if (error) {
-            setShowModal(true); // Exibe a modal de erro
+const AlertPopup = ({ type, title, message, show, onClose, onConfirm }) => {
+    // Define a cor do botão e outras propriedades com base no tipo
+    const getVariant = () => {
+        switch (type) {
+            case "success":
+                return "success";
+            case "error":
+                return "danger";
+            case "info":
+                return "info";
+            case "confirm":
+                return "warning";
+            default:
+                return "primary";
         }
-    }, [error]);
+    };
 
-    const handleClose = () => {
-        setShowModal(false); // Fecha a modal de erro
+    const getTitle = () => {
+        if (title) return title;
+        switch (type) {
+            case "success":
+                return "Sucesso!";
+            case "error":
+                return "Erro!";
+            case "info":
+                return "Informação";
+            case "confirm":
+                return "Confirmação";
+            default:
+                return "Alerta";
+        }
     };
 
     return (
-        <>
-            <ErrorModal
-                title="Erro na solicitação"
-                message={
-                    error?.response?.data?.mensagem || "Ocorreu um erro ao processar a solicitação."
-                }
-                show={showModal}
-                onClose={handleClose}
-            />
-            {showSuccess && (
-                <SuccessModal
-                    message="Ação realizada com sucesso!"
-                    onClose={() => console.log("Modal de sucesso fechada.")}
-                />
-            )}
-        </>
+        <Modal show={show} onHide={onClose} backdrop="static" keyboard={false}>
+            <Modal.Header closeButton>
+                <Modal.Title>{getTitle()}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>{message}</Modal.Body>
+            <Modal.Footer>
+                {type === "confirm" && (
+                    <Button variant="danger" onClick={onConfirm}>
+                        Confirmar
+                    </Button>
+                )}
+                <Button variant="secondary" onClick={onClose}>
+                    Fechar
+                </Button>
+            </Modal.Footer>
+        </Modal>
     );
 };
 
 AlertPopup.propTypes = {
-    error: PropTypes.object
+    type: PropTypes.oneOf(["success", "error", "info", "confirm"]), // Define os tipos aceitos
+    title: PropTypes.string,
+    message: PropTypes.string.isRequired,
+    show: PropTypes.bool.isRequired,
+    onClose: PropTypes.func.isRequired,
+    onConfirm: PropTypes.func, // Callback usado apenas para "confirm"
 };
 
 export default AlertPopup;

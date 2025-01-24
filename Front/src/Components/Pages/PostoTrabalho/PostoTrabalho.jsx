@@ -2,8 +2,22 @@ import NavBar from "../../Menu/NavBar";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import PropTypes from 'prop-types';
+import AlertPopup from '../AlertPopup/AlertPopup';
 
 function PostoTrabalhoList(props) {
+    const [searchText, setSearchText] = useState("");
+    const [posto, setPosto] = useState([]);
+    const [departamentos, setDepartamentos] = useState([]);
+    const [alertProps, setAlertProps] = useState({
+        show: false, // Exibe ou esconde o AlertPopup
+        type: "info", // Tipo de mensagem (success, error, confirm, info)
+        title: "", // Título da modal
+        message: "", // Mensagem da modal
+        onConfirm: null, // Callback para ações de confirmação (opcional)
+        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
+    });
+    const API_URL = "https://localhost:7207/postoTrabalho";
+
     function BuscarTodos() {
         const fetchData = async () => {
             try {
@@ -15,35 +29,31 @@ function PostoTrabalhoList(props) {
         };
         fetchData();
     }
-    function BuscarPostos(){
-            const API_URL = "https://localhost:7207/postoTrabalho";
-            const fetchData = async () => {
-                const response = await axios.get(`${API_URL}/buscarTodos`);
+    function BuscarPostos() {
+        axios.get(`${API_URL}/buscarTodos`)
+            .then((response) => {
                 console.log(response.data);
                 setPosto(response.data);
-            };
-            fetchData();
-        
+            })
+            .catch((error) => {
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Não foi possível carregar os Cargos.",
+                onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
+            });
+        });
     }
-     
 
     PostoTrabalhoList.propTypes = {
         ShowForm: PropTypes.func.isRequired, // Indica que ShowForm é uma função obrigatória
-    };
-    const [currentPage, setCurrentPage] = useState(1);
-    const [recordsPerPage] = useState(10); //, setRecordsPerPage
-
-    const [searchText, setSearchText] = useState("");
-
-    const [posto, setPosto] = useState([]);
-    const [departamentos, setDepartamentos] = useState([]);
+    };    
 
     useEffect(() => {
         BuscarTodos(setDepartamentos);
     }, []); // Passando um array vazio, o efeito será executado apenas uma vez no carregamento do componente
-
-
-    const API_URL = "https://localhost:7207/postoTrabalho";
+    
     useEffect(() => {
         const fetchData = async () => {
             const response = await axios.get(`${API_URL}/buscarTodos`);
@@ -51,28 +61,47 @@ function PostoTrabalhoList(props) {
             setPosto(response.data);
         };
         fetchData();
-    }, []);
-
-    
+    }, []);    
 
     function handleDelete(id) {
-        // Mostrar a popup de confirmação
-        if (window.confirm("Tem certeza que deseja excluir este registro?")) {
-            DeletePostoTrabalho(id);
-        }
+        setAlertProps({
+            show: true,
+            type: "confirm",
+            title: "Confirmar exclusão",
+            message: "Tem certeza que deseja excluir este registro?",
+            onConfirm: () => {
+                DeletePostoTrabalho(id); // Executa a exclusão
+                setAlertProps((prev) => ({ ...prev, show: false })); // Fecha o AlertPopup após confirmar
+            },
+            onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
+        });
     }
 
     function DeletePostoTrabalho(idPostoTrabalho) {
         axios
-            .delete(`https://localhost:7207/postoTrabalho/Deletar/${idPostoTrabalho}`)
+            .delete(`${API_URL}/Deletar/${idPostoTrabalho}`)
             .then((response) => {
                 console.log(response);
                 setPosto(
                     posto.filter((usuario) => usuario.id !== idPostoTrabalho)
                 );
                 BuscarPostos();
+                setAlertProps({
+                    show: true,
+                    type: "success",
+                    title: "Sucesso",
+                    message: "Registro excluído com sucesso!",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
             })
             .catch((error) => {
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Falha ao excluir o registro.",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
                 console.error(error);
             });
     }
@@ -116,28 +145,9 @@ function PostoTrabalhoList(props) {
                 placeholder="Pesquisar..."
                 className="form-control mb-3"
             />
-            {/* <div className="d-flex justify-content-center">
-                <button
-                    type="button"
-                    className="btn btn-outline-primary me-2"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                >
-                    Anterior
-                </button>
-                <button
-                    type="button"
-                    className="btn btn-outline-primary"
-                    disabled={currentRecords.length < recordsPerPage}
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                >
-                    Próximo
-                </button>
-            </div> */}
             <table className="table">
                 <thead>
                     <tr>
-                        {/*<th>ID</th>*/}
                         <th>NOME</th>
                         <th>ENDEREÇO</th>
                         <th>DEPARTAMENTO</th>
@@ -149,11 +159,9 @@ function PostoTrabalhoList(props) {
                         .map((posto, index) => {
                             return (
                                 <tr key={index}>
-                                    {/*<td>{funcionario.idFuncionario}</td>*/}
                                     <td style={{ textAlign: "left" }}>{posto.nmNome}</td>
                                     <td style={{ textAlign: "left" }}>{posto.nmEnderco}</td>
                                     <td>{departamentos.find(departamento => departamento.idDepartamento === posto.idDepartamento)?.nmNome}</td>
-                                    {/*<td>{posto.idDepartamento}</td>*/}
                                     <td>
                                         <input
                                             type="checkbox"
@@ -182,6 +190,14 @@ function PostoTrabalhoList(props) {
                         })}
                 </tbody>
             </table>
+             <AlertPopup
+                type={alertProps.type}
+                title={alertProps.title}
+                message={alertProps.message}
+                show={alertProps.show}
+                onConfirm={alertProps.onConfirm}
+                onClose={alertProps.onClose}
+            />           
         </>
 
     );
@@ -197,13 +213,18 @@ function PostoTrabalhoForm(props) {
             isAtivo: PropTypes.bool,
         }).isRequired,
     };
-
-    // const [errorMessage, setErrorMessage] = useState('');
     const [nome, setNome] = useState(props.posto.nmNome || '');
     const [ativo, setAtivo] = useState(props.posto.isAtivo || false);
     const [endereco, setEndereco] = useState(props.posto.nmEnderco || '');
     const [departamentos, setDepartamentos] = useState([]);
     const [departamentoSelecionado, setDepartamentoSelecionado] = useState('');
+    const [alertProps, setAlertProps] = useState({
+        show: false, // Define se o AlertPopup deve ser exibido
+        type: "info", // Tipo da mensagem (success, error, info, confirm)
+        title: "", // Título da modal
+        message: "", // Mensagem da modal
+        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
+    });
 
     useEffect(() => {
         BuscarTodos();
@@ -248,18 +269,26 @@ function PostoTrabalhoForm(props) {
                     data
                 )
                 .then(() => {
-                    props.ShowList();
+                    setAlertProps({
+                        show: true,
+                        type: "success",
+                        title: "Sucesso",
+                        message: "Posto de Trabalho atualizado com sucesso!",
+                        onClose: () => {
+                            setAlertProps((prev) => ({ ...prev, show: false }));
+                            props.ShowList(); // Voltar para a lista após fechar a modal
+                        },
+                    });
                 })
                 .catch((error) => {
-                    if (error.response && error.response.status === 400) {
-                        const errors = error.response.data;
-                        console.log(errors);
-                        alert(errors.Email);
-                        // outros tratamentos de erro
-                    } else {
-                        console.log(error);
-                        // outros tratamentos de erro
-                    }
+                    setAlertProps({
+                        show: true,
+                        type: "error",
+                        title: "Erro",
+                        message: "Falha ao atualizar o Posto de Trabalho.",
+                        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                    });
+                    console.error(error);
                 });
         } else {
             const data = {
@@ -271,17 +300,26 @@ function PostoTrabalhoForm(props) {
             axios
                 .post("https://localhost:7207/postoTrabalho/Incluir", data)
                 .then(() => {
-                    props.ShowList();
+                    setAlertProps({
+                        show: true,
+                        type: "success",
+                        title: "Sucesso",
+                        message: "Posto de Trabalho cadastrado com sucesso!",
+                        onClose: () => {
+                            setAlertProps((prev) => ({ ...prev, show: false }));
+                            props.ShowList(); // Voltar para a lista após fechar a modal
+                        },
+                    });
                 })
                 .catch((error) => {
-                    if (error.response && error.response.status === 400) {
-                        const errors = error.response.data;
-                        console.log(errors);
-                        // outros tratamentos de erro
-                    } else {
-                        console.log(error);
-                        // outros tratamentos de erro
-                    }
+                    setAlertProps({
+                        show: true,
+                        type: "error",
+                        title: "Erro",
+                        message: "Falha ao cadastrar o Posto de trabalho.",
+                        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                    });
+                    console.error(error);
                 });
         }
     };
@@ -295,7 +333,6 @@ function PostoTrabalhoForm(props) {
             </h2>
             <div className="row">
                 <div className="col-lg-6 mx-auto">
-                    {/* {errorMessage} */}
                     <form onSubmit={(e) => handleSubmit(e)}>
                         {props.posto.idPostoTrabalho && (
                             <div className="row mb-3">
@@ -325,8 +362,7 @@ function PostoTrabalhoForm(props) {
                                 ></input>
                             </div>
                         </div>
-
-                        
+                                                
                         <div className="row mb-3">
                             <label className="col-sm-4 col-form-label">Endereço</label>
                             <div className="col-sm-8">
@@ -391,6 +427,13 @@ function PostoTrabalhoForm(props) {
                     </form>
                 </div>
             </div>
+            <AlertPopup
+                type={alertProps.type}
+                title={alertProps.title}
+                message={alertProps.message}
+                show={alertProps.show}
+                onClose={alertProps.onClose}            
+            />
         </>
     );
 }

@@ -2,16 +2,21 @@ import NavBar from "../../Menu/NavBar";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import PropTypes from 'prop-types';
+import AlertPopup from '../AlertPopup/AlertPopup';
 function DepartamentoList(props) {
     DepartamentoList.propTypes = {
         ShowForm: PropTypes.func.isRequired, // Indica que ShowForm é uma função obrigatória
     };
-    const [currentPage, setCurrentPage] = useState(1);
-    const [recordsPerPage] = useState(10); //, setRecordsPerPage
-
     const [searchText, setSearchText] = useState("");
-
     const [departamento, setDepartamento] = useState([]);
+    const [alertProps, setAlertProps] = useState({
+        show: false, // Exibe ou esconde o AlertPopup
+        type: "info", // Tipo de mensagem (success, error, confirm, info)
+        title: "", // Título da modal
+        message: "", // Mensagem da modal
+        onConfirm: null, // Callback para ações de confirmação (opcional)
+        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
+    });
 
     const API_URL = "https://localhost:7207/departamento";
     function BuscarTodos() {
@@ -21,7 +26,12 @@ function DepartamentoList(props) {
                 setDepartamento(response.data);
             })
             .catch((error) => {
-                console.log(error);
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Não foi possível carregar os departamentos.",
+                });
             });
     }
 
@@ -35,27 +45,44 @@ function DepartamentoList(props) {
     }, []);
 
     function handleDelete(id) {
-        // Mostrar a popup de confirmação
-        if (window.confirm("Tem certeza que deseja excluir este registro?")) {
-            DeleteDepartamento(id);
-        }
+        setAlertProps({
+            show: true,
+            type: "confirm",
+            title: "Confirmar exclusão",
+            message: "Tem certeza que deseja excluir este registro?",
+            onConfirm: () => {
+                DeleteDepartamento(id);
+                setAlertProps((prev) => ({ ...prev, show: false }));
+            },
+            onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
+        });
     }
 
     function DeleteDepartamento(idDepartamento) {
         axios
-            .delete(`https://localhost:7207/departamento/Deletar/${idDepartamento}`)
-            .then((response) => {
-                console.log(response);
+            .delete(`${API_URL}/Deletar/${idDepartamento}`)
+            .then(() => {
                 setDepartamento(
-                    departamento.filter((usuario) => usuario.id !== idDepartamento)
+                    departamento.filter((dep) => dep.idDepartamento !== idDepartamento)
                 );
-                BuscarTodos();
+                setAlertProps({
+                    show: true,
+                    type: "success",
+                    title: "Sucesso",
+                    message: "Departamento excluído com sucesso!",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
             })
-            .catch((error) => {
-                console.error(error);
+            .catch(() => {
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Não foi possível excluir o departamento.",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
             });
     }
-
     const currentRecords = filterRecords(departamento)
 
     // Função para filtrar os registros com base no texto de busca
@@ -95,25 +122,7 @@ function DepartamentoList(props) {
                 onChange={(e) => setSearchText(e.target.value)}
                 placeholder="Pesquisar..."
                 className="form-control mb-3"
-            />
-            {/* <div className="d-flex justify-content-center">
-                <button
-                    type="button"
-                    className="btn btn-outline-primary me-2"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                >
-                    Anterior
-                </button>
-                <button
-                    type="button"
-                    className="btn btn-outline-primary"
-                    disabled={currentRecords.length < recordsPerPage}
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                >
-                    Próximo
-                </button>
-            </div> */}
+            />           
             <table className="table">
                 <thead>
                     <tr>
@@ -128,7 +137,6 @@ function DepartamentoList(props) {
                         .map((departamento, index) => {
                             return (
                                 <tr key={index}>
-                                    {/*<td>{departamento.idDepartamento}</td>*/}
                                     <td style={{ textAlign: "left" }}>{departamento.nmNome}</td>
                                     <td style={{ textAlign: "left" }}>{departamento.nmDescricao}</td>
                                     <td>
@@ -159,6 +167,14 @@ function DepartamentoList(props) {
                         })}
                 </tbody>
             </table>
+            <AlertPopup
+                type={alertProps.type}
+                title={alertProps.title}
+                message={alertProps.message}
+                show={alertProps.show}
+                onClose={alertProps.onClose}
+                onConfirm={alertProps.onConfirm}
+            />
         </>
 
     );
@@ -177,6 +193,13 @@ function DepartamentoForm(props) {
     const [nome, setNome] = useState(props.departamento.nmNome || '');
     const [descricao, setDescricao] = useState(props.departamento.nmDescricao || '');    
     const [ativo, setAtivo] = useState(props.departamento.isAtivo || false);
+    const [alertProps, setAlertProps] = useState({
+        show: false,
+        type: "info",
+        title: "",
+        message: "",
+        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+    });
 
     function handleAtivoChange(e) {
         setAtivo(e.target.checked);
@@ -198,17 +221,24 @@ function DepartamentoForm(props) {
                     data
                 )
                 .then(() => {
-                    props.ShowList();
+                    setAlertProps({
+                        show: true,
+                        type: "success",
+                        title: "Sucesso",
+                        message: "Departamento atualizado com sucesso!",
+                        onClose: () => {
+                            setAlertProps((prev) => ({ ...prev, show: false }));
+                            props.ShowList();
+                        },
+                    });
                 })
-                .catch((error) => {
-                    if (error.response && error.response.status === 400) {
-                        const errors = error.response.data;
-                        console.log(errors);
-                        // outros tratamentos de erro
-                    } else {
-                        console.log(error);
-                        // outros tratamentos de erro
-                    }
+                .catch(() => {
+                    setAlertProps({
+                        show: true,
+                        type: "error",
+                        title: "Erro",
+                        message: "Falha ao atualizar o departamento.",
+                    });
                 });
         } else {
             const data = {
@@ -219,18 +249,24 @@ function DepartamentoForm(props) {
             axios
                 .post("https://localhost:7207/departamento/Incluir", data)
                 .then(() => {
-                    props.ShowList();
+                    setAlertProps({
+                        show: true,
+                        type: "success",
+                        title: "Sucesso",
+                        message: "Departamento cadastrado com sucesso!",
+                        onClose: () => {
+                            setAlertProps((prev) => ({ ...prev, show: false }));
+                            props.ShowList();
+                        },
+                    });
                 })
-                .catch((error) => {
-                    if (error.response && error.response.status === 400) {
-                        const errors = error.response.data;
-                        console.log(errors);
-                        alert(errors.Email);
-                        // outros tratamentos de erro
-                    } else {
-                        console.log(error);
-                        // outros tratamentos de erro
-                    }
+                .catch(() => {
+                    setAlertProps({
+                        show: true,
+                        type: "error",
+                        title: "Erro",
+                        message: "Falha ao cadastrar o departamento.",
+                    });
                 });
         }
     };
@@ -321,6 +357,14 @@ function DepartamentoForm(props) {
                     </form>
                 </div>
             </div>
+            <AlertPopup
+                type={alertProps.type}
+                title={alertProps.title}
+                message={alertProps.message}
+                show={alertProps.show}
+                onClose={alertProps.onClose}
+                onConfirm={alertProps.onConfirm}
+            />
         </>
     );
 }
