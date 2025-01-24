@@ -3,6 +3,7 @@ import axios from 'axios';
 import NavBar from "../../Menu/NavBar";
 import { useParams } from 'react-router-dom';
 import './Exibicao.css';
+import jsPDF from 'jspdf';
 
 
 export function Exibicao() {
@@ -51,8 +52,8 @@ export function Exibicao() {
             .get(`https://localhost:7207/escala/buscarPorId/${id}`)
             .then((response) => {
                 setEscala(response.data);
-                // console.log('buscando escala !');
-                // console.log(response.data);
+                console.log('buscando escala !');
+                console.log(response.data);
             })
             .catch((error) => {
                 console.log(error);
@@ -126,7 +127,6 @@ export function Exibicao() {
         return funcionario ? funcionario.idFuncionario : null;
     };
 
-
     const handleTrocarFuncionario = () => {
         const idOrigem = obterIdFuncionarioPorNome(funcionarioOrigem);
         const idDestino = obterIdFuncionarioPorNome(funcionarioDestino);
@@ -177,9 +177,106 @@ export function Exibicao() {
             alert("Erro ao salvar a escala.");
         }
     };
-    
-
     const numDias = escala ? obterQuantidadeDiasNoMes(2025, escala.nrMesReferencia) : 0;
+
+    const handleGerarPDF = () => {
+        if (!escalaAlterada || escalaAlterada.length === 0) {
+            alert("Nenhum dado disponível para gerar o PDF!");
+            return;
+        }
+    
+        const pdf = new jsPDF('portrait', 'mm', 'a4'); // Formato A4 em modo retrato
+        const margemEsquerda = 10;
+        let yAtual = 20; // Posição inicial vertical
+    
+        // Cabeçalho
+        pdf.setFont("Helvetica", "bold");
+        pdf.setFontSize(14);
+        pdf.text("GRUPAMENTO DE PREVENÇÃO E SALVAMENTO AQUÁTICO", margemEsquerda, yAtual);
+        yAtual += 8;
+    
+        pdf.setFontSize(12);
+        pdf.text(`${escala?.nmNomeEscala || "NOME DA ESCALA"} - ${escala?.nrMesReferencia || "MÊS"} - ${escala?.nrAnoReferencia || "ANO"}`, margemEsquerda, yAtual);
+        yAtual += 10;
+    
+        pdf.setFontSize(10);
+        pdf.text(`(${escala?.horario || "HORÁRIO NÃO DEFINIDO"})`, margemEsquerda, yAtual);
+        yAtual += 10;
+    
+        pdf.setFont("Helvetica", "bold");
+        pdf.text(`SETOR ${escala?.setor || "SETOR NÃO DEFINIDO"}`, margemEsquerda, yAtual);
+        yAtual += 10;
+    
+        // Postos
+        postos.forEach((posto) => {
+            // Informações do Posto
+            pdf.setFont("Helvetica", "normal");
+            pdf.text(
+                `${posto.nmNome || "NOME DO POSTO"} - ${posto.escala || "ESCALA NÃO DEFINIDA"} - ${posto.horario || "HORÁRIO NÃO DEFINIDO"}`,
+                margemEsquerda,
+                yAtual
+            );
+            yAtual += 8;
+    
+            // Cabeçalho da tabela
+            pdf.setFont("Helvetica", "bold");
+            pdf.text("Dia", margemEsquerda, yAtual);
+    
+            // Adiciona os grupos dinamicamente (A, B, C, etc.)
+            const grupos = ["A", "B", "C", "D"];
+            grupos.forEach((grupo, index) => {
+                pdf.text(`Grupo ${grupo}`, margemEsquerda + 30 + index * 40, yAtual);
+            });
+    
+            yAtual += 6;
+    
+            // Dados da tabela (Dias e Funcionários)
+            for (let dia = 1; dia <= 31; dia++) {
+                const funcionariosDoDia = escalaAlterada.filter(
+                    (item) =>
+                        new Date(item.dtDataServico).getDate() === dia &&
+                        item.idPostoTrabalho === posto.idPostoTrabalho
+                );
+    
+                if (funcionariosDoDia.length > 0) {
+                    pdf.setFont("Helvetica", "normal");
+                    pdf.text(`${dia < 10 ? `0${dia}` : dia}`, margemEsquerda, yAtual); // Exibe o número do dia
+    
+                    grupos.forEach((grupo, index) => {
+                        const funcionariosGrupo = funcionariosDoDia.filter((item) => item.grupo === grupo);
+    
+                        if (funcionariosGrupo.length > 0) {
+                            const nomesFormatados = funcionariosGrupo
+                                .map(
+                                    (func) =>
+                                        `${obterNomeFuncionario(func.idFuncionario)} / MAT: ${func.matricula}`
+                                )
+                                .join("\n"); // Junta os nomes dos funcionários em uma string
+    
+                            pdf.text(
+                                nomesFormatados,
+                                margemEsquerda + 30 + index * 40,
+                                yAtual,
+                                { maxWidth: 40 }
+                            ); // Ajusta os nomes por grupo
+                        }
+                    });
+    
+                    yAtual += 10; // Incrementa para a próxima linha
+    
+                    // Adiciona nova página se necessário
+                    if (yAtual > 280) {
+                        pdf.addPage();
+                        yAtual = 20;
+                    }
+                }
+            }
+        });
+    
+        // Salva o PDF
+        pdf.save("Escala_Grupo.pdf");
+    };
+
 
     return (
         <>
@@ -233,6 +330,15 @@ export function Exibicao() {
                                             onClick={handleSalvarEscalaAlterada}
                                         >
                                             Salvar
+                                        </button>
+                                    </div>   
+                                    <div className="col-5">
+                                        <button
+                                            type="button"
+                                            className="btn btn-outline-primary me-2"
+                                            onClick={handleGerarPDF}
+                                        >
+                                            Gerar PDF
                                         </button>
                                     </div>   
                                 </div>

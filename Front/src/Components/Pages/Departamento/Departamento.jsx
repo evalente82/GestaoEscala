@@ -56,17 +56,18 @@ function DepartamentoList(props) {
             });
     }
 
-    //const indexOfLastRecord = currentPage * recordsPerPage;
-    //const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-    const currentRecords = departamento
-    //    .filter(
-    //        (departamento) =>
-    //            departamento.nome.toLowerCase().includes(searchText.toLowerCase()) ||
-    //            departamento.descricao.toLowerCase().includes(searchText.toLowerCase())
-    //    )
-    //    .slice(indexOfFirstRecord, indexOfLastRecord);
-    //useEffect(() => BuscarTodos(), []);
+    const currentRecords = filterRecords(departamento)
 
+    // Função para filtrar os registros com base no texto de busca
+    function filterRecords(records) {
+        return records.filter(record => {
+            const filtro = departamento.find(dep => dep.idDepartamento === record.idDepartamento)?.nmNome || "";
+            return (
+                record.nmNome.toLowerCase().includes(searchText.toLowerCase()) ||
+                filtro.toLowerCase().includes(searchText.toLowerCase())
+            );
+        });
+    }
 
     return (
         <>

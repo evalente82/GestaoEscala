@@ -1,11 +1,10 @@
 
-
 import logoDefesa from "../../Components/Imagens/LogoDefesaCivil.png";
 import logoSalvamento from '../../Components/Imagens/SalvamentoMaritimo.png';
 import { Link, useLocation } from 'react-router-dom';
 import './NavBar.css';
-function NavBar() {
 
+function NavBar() {
     const location = useLocation();
     return (
         <>
@@ -56,9 +55,9 @@ function NavBar() {
                                 <Link className="nav-link text-dark" to="/escalas">Escalas</Link>
                             </li>
 
-                            <li className={`nav-item ${location.pathname === '/permutas' ? 'active' : ''}`}>
-                                <Link className="nav-link text-dark" to="/permutas">Exibição</Link>
-                            </li>
+                            {/* <li className={`nav-item ${location.pathname === '/AlertPopup' ? 'active' : ''}`}>
+                                <Link className="nav-link text-dark" to="/AlertPopup">Exibição</Link>
+                            </li> */}
 
                             <li className={`nav-item ${location.pathname === '/permutas' ? 'active' : ''}`}>
                                 <Link className="nav-link text-dark" to="/permutas">Permutas</Link>

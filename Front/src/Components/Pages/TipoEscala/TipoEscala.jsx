@@ -57,7 +57,18 @@ function TipoEscalaList(props) {
                 console.error(error);
             });
     }
-    const currentRecords = tipoEscala
+    const currentRecords = filterRecords(tipoEscala)
+
+    // Função para filtrar os registros com base no texto de busca
+    function filterRecords(records) {
+        return records.filter(record => {
+            const filtro = tipoEscala.find(x => x.idTipoEscala === record.idTipoEscala)?.nmNome || "";
+            return (
+                record.nmNome.toLowerCase().includes(searchText.toLowerCase()) ||
+                filtro.toLowerCase().includes(searchText.toLowerCase())
+            );
+        });
+    }
 
     return (
         <>

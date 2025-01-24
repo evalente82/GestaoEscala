@@ -56,18 +56,17 @@ function CargoList(props) {
                 console.error(error);
             });
     }
+    const currentRecords = filterRecords(cargo)
 
-    //const indexOfLastRecord = currentPage * recordsPerPage;
-    //const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-    const currentRecords = cargo
-    //    .filter(
-    //        (departamento) =>
-    //            departamento.nome.toLowerCase().includes(searchText.toLowerCase()) ||
-    //            departamento.descricao.toLowerCase().includes(searchText.toLowerCase())
-    //    )
-    //    .slice(indexOfFirstRecord, indexOfLastRecord);
-    //useEffect(() => BuscarTodos(), []);
-
+    function filterRecords(records) {
+        return records.filter(record => {
+            const nomeDescicao = cargo.find(cargo => cargo.idCargo === record.idCargo)?.nmNome || "";
+            return (
+                record.nmNome.toLowerCase().includes(searchText.toLowerCase()) ||                
+                nomeDescicao.toLowerCase().includes(searchText.toLowerCase())
+            );
+        });
+    }
 
     return (
         <>

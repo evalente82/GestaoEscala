@@ -2,7 +2,6 @@ import NavBar from "../../Menu/NavBar";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import PropTypes from 'prop-types';
-import LoadingPopup from '../LoadingPopUp/LoadingPopUp'
 import AlertPopup from '../AlertPopup/AlertPopup'
 import { useNavigate } from 'react-router-dom';
 
@@ -115,7 +114,28 @@ function EscalaList(props) {
             });
     }
 
-    const currentRecords = escala
+    const currentRecords = filterRecords(escala)
+
+    // Função para filtrar os registros com base no texto de busca
+    function filterRecords(records) {
+        const search = searchText?.toLowerCase() || ""; // Garante que `searchText` seja uma string
+        return records.filter((record) => {
+            const nomeEscala = record.nmNomeEscala?.toLowerCase() || "";
+            const departamento = departamentos.find(dept => dept.idDepartamento === record.idDepartamento)?.nmNome.toLowerCase() || "";
+            const cargo = cargos.find(c => c.idCargo === record.idCargo)?.nmNome.toLowerCase() || "";
+            const tipoEscala = tipoEscalas.find(te => te.idTipoEscala === record.idTipoEscala)?.nmNome.toLowerCase() || "";
+            const mesReferencia = getNomeMes(record.nrMesReferencia).toLowerCase() || "";
+    
+            // Verifica se o texto de busca aparece em qualquer uma das colunas
+            return (
+                nomeEscala.includes(search) ||
+                departamento.includes(search) ||
+                cargo.includes(search) ||
+                tipoEscala.includes(search) ||
+                mesReferencia.includes(search)
+            );
+        });
+    }
     
     function getNomeMes(numeroMes) {
         var dataAtual = new Date();

@@ -77,7 +77,18 @@ function PostoTrabalhoList(props) {
             });
     }
 
-    const currentRecords = posto
+    const currentRecords = filterRecords(posto)
+
+     // Função para filtrar os registros com base no texto de busca
+     function filterRecords(records) {
+        return records.filter(record => {
+            const filtro = posto.find(p => p.idPostoTrabalho === record.idPostoTrabalho)?.nmNome || "";
+            return (
+                record.nmNome.toLowerCase().includes(searchText.toLowerCase()) ||                
+                filtro.toLowerCase().includes(searchText.toLowerCase())
+            );
+        });
+    }
     return (
         <>
             <NavBar />
