@@ -1,5 +1,6 @@
 ﻿using GestaoEscalaPermutas.Dominio.DTO.Escala;
 using GestaoEscalaPermutas.Dominio.DTO.EscalaPronta;
+using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,6 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta
         Task<List<EscalaProntaDTO>> BuscarTodos();
         Task<List<EscalaProntaDTO>> BuscarPorId(Guid idEscalaPronta);
         Task<EscalaProntaDTO[]> IncluirLista(EscalaProntaDTO[] escalaProntaDTOs);
+        Task<EscalaProntaDTO[]> AlterarEscalaPronta(Guid IdEscala, EscalaProntaDTO[] escalaProntaDTOs);
     }
 }

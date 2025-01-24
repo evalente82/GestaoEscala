@@ -2,23 +2,56 @@ import NavBar from "../../Menu/NavBar";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import PropTypes from 'prop-types';
-import LoadingPopup from '../LoadingPopUp/LoadingPopUp'
 import AlertPopup from '../AlertPopup/AlertPopup'
 import { useNavigate } from 'react-router-dom';
 
 
 function EscalaList(props) {
+    const navigate = useNavigate();
+    const [currentPage, setCurrentPage] = useState(1);
+    const [recordsPerPage] = useState(10); //, setRecordsPerPage
+    const [searchText, setSearchText] = useState("");
+    const [escala, setEscala] = useState([]);
+    const [departamentos, setDepartamentos] = useState([]);
+    const [cargos, setCargos] = useState([]);
+    const [tipoEscalas, setTipoEscalas] = useState([]);
+
+    const [alertProps, setAlertProps] = useState({
+        show: false, // Exibe ou esconde o AlertPopup
+        type: "info", // Tipo de mensagem (success, error, confirm, info)
+        title: "", // Título da modal
+        message: "", // Mensagem da modal
+        onConfirm: null, // Callback para ações de confirmação (opcional)
+        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
+    });
     // Definindo a função BuscarTodos dentro do componente FuncionarioList
+    // function BuscarTodos() {
+    //     const API_URL = "https://localhost:7207/escala";
+    //     const fetchData = async () => {
+    //         const response = await axios.get(`${API_URL}/buscarTodos`);
+    //         console.log('Escalas');
+    //         console.log(response.data);
+    //         setEscala(response.data);
+    //     };
+    //     fetchData();
+    // }
     function BuscarTodos() {
-        const API_URL = "https://localhost:7207/escala";
-        const fetchData = async () => {
-            const response = await axios.get(`${API_URL}/buscarTodos`);
-            console.log('Escalas');
-            console.log(response.data);
-            setEscala(response.data);
-        };
-        fetchData();
+        axios.get(`${API_URL}/buscarTodos`)
+            .then((response) => {
+                console.log(response.data);
+                setEscala(response.data);
+            })
+            .catch((error) => {
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Não foi possível carregar os Cargos.",
+                onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
+            });
+        });
     }
+
     function BuscarDepartamentos() {
         const fetchData = async () => {
             try {
@@ -32,6 +65,7 @@ function EscalaList(props) {
         };
         fetchData();
     }
+
     function Buscarcargos() {
         const fetchData = async () => {
             try {
@@ -45,6 +79,7 @@ function EscalaList(props) {
         };
         fetchData();
     }
+
     function BuscarTipoEscalas() {
         const fetchData = async () => {
             try {
@@ -56,20 +91,13 @@ function EscalaList(props) {
         };
         fetchData();
     }
+
     EscalaList.propTypes = {
         ShowForm: PropTypes.func.isRequired,
         ShowMontaEscala: PropTypes.func.isRequired,// Indica que ShowForm é uma função obrigatória
     };
 
-    const navigate = useNavigate();
-    const [currentPage, setCurrentPage] = useState(1);
-    const [recordsPerPage] = useState(10); //, setRecordsPerPage
-    const [searchText, setSearchText] = useState("");
-    const [escala, setEscala] = useState([]);
-    const [departamentos, setDepartamentos] = useState([]);
-    const [cargos, setCargos] = useState([]);
-    const [tipoEscalas, setTipoEscalas] = useState([]);
-
+    
     // Chame BuscarTodos() no início do componente para carregar os cargos
     useEffect(() => {
         BuscarDepartamentos(setDepartamentos);
@@ -93,38 +121,91 @@ function EscalaList(props) {
         fetchData();
     }, []);
 
+    // function handleDelete(id) {
+    //     // Mostrar a popup de confirmação
+    //     if (window.confirm("Tem certeza que deseja excluir Uma escala que já foi Gerada ?")) {
+    //         DeleteEscala(id);
+    //     }
+    // }
     function handleDelete(id) {
-        // Mostrar a popup de confirmação
-        if (window.confirm("Tem certeza que deseja excluir este registro?")) {
-            DeleteEscala(id);
-        }
+        setAlertProps({
+            show: true,
+            type: "confirm",
+            title: "Confirmar exclusão",
+            message: "Tem certeza que deseja excluir este registro?",
+            onConfirm: () => {
+                DeleteEscala(id); // Executa a exclusão
+                setAlertProps((prev) => ({ ...prev, show: false })); // Fecha o AlertPopup após confirmar
+            },
+            onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
+        });
     }
 
+    // function DeleteEscala(idEscala) {
+    //     axios
+    //         .delete(`https://localhost:7207/escala/Deletar/${idEscala}`)
+    //         .then((response) => {
+    //             console.log(response);
+    //             setEscala(
+    //                 escala.filter((usuario) => usuario.id !== idEscala)
+    //             );
+    //             BuscarTodos();
+    //         })
+    //         .catch((error) => {
+    //             console.error(error);
+    //         });
+    // }
     function DeleteEscala(idEscala) {
         axios
-            .delete(`https://localhost:7207/escala/Deletar/${idEscala}`)
+            .delete(`${API_URL}/Deletar/${idEscala}`)
             .then((response) => {
                 console.log(response);
                 setEscala(
                     escala.filter((usuario) => usuario.id !== idEscala)
                 );
                 BuscarTodos();
+                setAlertProps({
+                    show: true,
+                    type: "success",
+                    title: "Sucesso",
+                    message: "Registro excluído com sucesso!",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
             })
             .catch((error) => {
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Falha ao excluir o registro.",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
                 console.error(error);
             });
     }
+    const currentRecords = filterRecords(escala)
 
-    //const indexOfLastRecord = currentPage * recordsPerPage;
-    //const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-    const currentRecords = escala
-    //    .filter(
-    //        (departamento) =>
-    //            departamento.nome.toLowerCase().includes(searchText.toLowerCase()) ||
-    //            departamento.descricao.toLowerCase().includes(searchText.toLowerCase())
-    //    )
-    //    .slice(indexOfFirstRecord, indexOfLastRecord);
-    //useEffect(() => BuscarTodos(), []);
+    // Função para filtrar os registros com base no texto de busca
+    function filterRecords(records) {
+        const search = searchText?.toLowerCase() || ""; // Garante que `searchText` seja uma string
+        return records.filter((record) => {
+            const nomeEscala = record.nmNomeEscala?.toLowerCase() || "";
+            const departamento = departamentos.find(dept => dept.idDepartamento === record.idDepartamento)?.nmNome.toLowerCase() || "";
+            const cargo = cargos.find(c => c.idCargo === record.idCargo)?.nmNome.toLowerCase() || "";
+            const tipoEscala = tipoEscalas.find(te => te.idTipoEscala === record.idTipoEscala)?.nmNome.toLowerCase() || "";
+            const mesReferencia = getNomeMes(record.nrMesReferencia).toLowerCase() || "";
+    
+            // Verifica se o texto de busca aparece em qualquer uma das colunas
+            return (
+                nomeEscala.includes(search) ||
+                departamento.includes(search) ||
+                cargo.includes(search) ||
+                tipoEscala.includes(search) ||
+                mesReferencia.includes(search)
+            );
+        });
+    }
+    
     function getNomeMes(numeroMes) {
         var dataAtual = new Date();
         var numeroMesAtual = dataAtual.getMonth();
@@ -166,7 +247,7 @@ function EscalaList(props) {
                 placeholder="Pesquisar..."
                 className="form-control mb-3"
             />
-            <div className="d-flex justify-content-center">
+            {/* <div className="d-flex justify-content-center">
                 <button
                     type="button"
                     className="btn btn-outline-primary me-2"
@@ -183,7 +264,7 @@ function EscalaList(props) {
                 >
                     Próximo
                 </button>
-            </div>
+            </div> */}
             <table className="table">
                 <thead>
                     <tr>
@@ -203,9 +284,7 @@ function EscalaList(props) {
                         .map((escala, index) => {
                             return (
                                 <tr key={index}>
-                                    {/*<td>{funcionario.idFuncionario}</td>*/}
                                     <td>{escala.nmNomeEscala}</td>
-                                    {/*<td>{cargos.find(cargo => cargo.idCargos === funcionario.idCargos)?.nmNomeEscala}</td>*/}
                                     <td>{departamentos.find(departamento => departamento.idDepartamento === escala.idDepartamento)?.nmNome}</td>
                                     <td>{cargos.find(cargo => cargo.idCargo === escala.idCargo)?.nmNome}</td>
                                     <td>{tipoEscalas.find(tipoEscala => tipoEscala.idTipoEscala === escala.idTipoEscala)?.nmNome}</td>
@@ -230,6 +309,7 @@ function EscalaList(props) {
                                             onClick={() => navigate(`/Exibicao/${escala.idEscala}`)}
                                             type="button"
                                             className="btn btn-success btn-sm me-2"
+                                            disabled={escala.isGerada == false}
                                         >
                                             Visualizar Escala
                                         </button>
@@ -260,6 +340,14 @@ function EscalaList(props) {
                         })}
                 </tbody>
             </table>
+            <AlertPopup
+              type={alertProps.type}
+              title={alertProps.title}
+              message={alertProps.message}
+              show={alertProps.show}
+              onConfirm={alertProps.onConfirm}
+              onClose={alertProps.onClose}
+          />               
         </>
 
     );
@@ -303,7 +391,13 @@ function EscalaForm(props) {
     const [tipoEscalaSelecionado, setTipoEscalaSelecionado] = useState('');
     const [ativo, setAtivo] = useState(props.escala.isAtivo || false);
     const [gerada, setGerada] = useState(props.escala.isGerada || false);
-    
+    const [alertProps, setAlertProps] = useState({
+        show: false, // Define se o AlertPopup deve ser exibido
+        type: "info", // Tipo da mensagem (success, error, info, confirm)
+        title: "", // Título da modal
+        message: "", // Mensagem da modal
+        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
+    });
 
     useEffect(() => {
         BuscarDepartametos();
@@ -396,18 +490,26 @@ function EscalaForm(props) {
                     data
                 )
                 .then(() => {
-                    props.ShowList();
+                    setAlertProps({
+                        show: true,
+                        type: "success",
+                        title: "Sucesso",
+                        message: "Escala atualizada com sucesso!",
+                        onClose: () => {
+                            setAlertProps((prev) => ({ ...prev, show: false }));
+                            props.ShowList(); // Voltar para a lista após fechar a modal
+                        },
+                    });
                 })
                 .catch((error) => {
-                    if (error.response && error.response.status === 400) {
-                        const errors = error.response.data;
-                        console.log(errors);
-                        // outros tratamentos de erro
-                    } else {
-                        console.log('teste1 ' + data)
-                        console.log(error);
-                        // outros tratamentos de erro
-                    }
+                    setAlertProps({
+                        show: true,
+                        type: "error",
+                        title: "Erro",
+                        message: "Falha ao atualizar a Escala.",
+                        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                    });
+                    console.error(error);
                 });
         } else {
             const data = {
@@ -424,19 +526,26 @@ function EscalaForm(props) {
             axios
                 .post("https://localhost:7207/escala/Incluir", data)
                 .then(() => {
-                    props.ShowList();
-                    console.log('Ação Incluir')
-                    console.log(data)
+                    setAlertProps({
+                        show: true,
+                        type: "success",
+                        title: "Sucesso",
+                        message: "Escala cadastrada com sucesso!",
+                        onClose: () => {
+                            setAlertProps((prev) => ({ ...prev, show: false }));
+                            props.ShowList(); // Voltar para a lista após fechar a modal
+                        },
+                    });
                 })
                 .catch((error) => {
-                    if (error.response && error.response.status === 400) {
-                        const errors = error.response.data;
-                        console.log(errors);
-                        console.log(data)
-                    } else {
-                        console.log(error);
-                        console.log('debug: ' + data)
-                    }
+                    setAlertProps({
+                        show: true,
+                        type: "error",
+                        title: "Erro",
+                        message: "Falha ao cadastrar a Escala.",
+                        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                    });
+                    console.error(error);
                 });
         }
     };
@@ -600,6 +709,13 @@ function EscalaForm(props) {
                     </form>
                 </div>
             </div>
+            <AlertPopup
+              type={alertProps.type}
+              title={alertProps.title}
+              message={alertProps.message}
+              show={alertProps.show}
+              onClose={alertProps.onClose}            
+          />                
         </>
     );
 }
@@ -619,17 +735,6 @@ function MontaEscala(props) {
         }).isRequired,
     };
 
-    useEffect(() => {
-        setNome(props.escala.nmNomeEscala || '');
-        setMesReferencia(props.escala.nrMesReferencia || '');
-        setPessoaPorPosto(props.escala.nrPessoaPorPosto || '');
-        setAtivo(props.escala.isAtivo || false);
-        setDepartamentoSelecionado(props.escala.idDepartamento || '');
-        setCargoSelecionado(props.escala.idCargo || '');
-        setTipoEscalaSelecionado(props.escala.idTipoEscala || '');
-    }, [props.escala]);
-
-    // const [errorMessage, setErrorMessage] = useState('');
     const [nome, setNome] = useState(props.escala.nmNomeEscala || '');
     const [mesReferencia, setMesReferencia] = useState(props.escala.nrMesReferencia || '');
     const [pessoaPorPosto, setPessoaPorPosto] = useState(props.escala.nrPessoaPorPosto || '');
@@ -641,9 +746,25 @@ function MontaEscala(props) {
     const [tipoEscalaSelecionado, setTipoEscalaSelecionado] = useState('');
     const [ativo, setAtivo] = useState(props.escala.isAtivo || false);
     const [isLoading, setIsLoading] = useState(false);
-    const [isAlertPopup, setIsAlertPopup] = useState(false);
     const [erro, setError] = useState(false);
 
+    const [alertProps, setAlertProps] = useState({
+        show: false, // Define se o AlertPopup deve ser exibido
+        type: "info", // Tipo da mensagem (success, error, info, confirm)
+        title: "", // Título da modal
+        message: "", // Mensagem da modal
+        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
+    });
+
+    useEffect(() => {
+        setNome(props.escala.nmNomeEscala || '');
+        setMesReferencia(props.escala.nrMesReferencia || '');
+        setPessoaPorPosto(props.escala.nrPessoaPorPosto || '');
+        setAtivo(props.escala.isAtivo || false);
+        setDepartamentoSelecionado(props.escala.idDepartamento || '');
+        setCargoSelecionado(props.escala.idCargo || '');
+        setTipoEscalaSelecionado(props.escala.idTipoEscala || '');
+    }, [props.escala]);
 
     useEffect(() => {
         BuscarDepartametos();
@@ -721,16 +842,26 @@ function MontaEscala(props) {
                     }
                 )
                 .then(() => {
-                    
-                    setIsAlertPopup(true);
-                    alert("Escala: " + props.escala.nmNomeEscala + " gerada com sucesso!");
-                    props.ShowList();
-                    setIsLoading(false);
+                    setAlertProps({
+                        show: true,
+                        type: "success",
+                        title: "Sucesso",
+                        message: "Escala construida com sucesso!",
+                        onClose: () => {
+                            setAlertProps((prev) => ({ ...prev, show: false }));
+                            props.ShowList(); // Voltar para a lista após fechar a modal
+                        },
+                    });
                 })
                 .catch((error) => {
-                    setIsLoading(false);
-                    setError(error); // Defina o estado do erro quando ocorrer um erro
-                    console.log(error);
+                    setAlertProps({
+                        show: true,
+                        type: "error",
+                        title: "Erro",
+                        message: "Falha ao Grera a Escala.",
+                        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                    });
+                    console.error(error);
                 });
         }
     };
@@ -738,7 +869,6 @@ function MontaEscala(props) {
         <>
             <NavBar />
             {erro && <AlertPopup error={erro} />}
-            {isLoading && <LoadingPopup />}
             <h2 className="text-center mb-3">
                 {props.escala.idEscala
                     ? "Montar Escala Definitiva"
@@ -859,6 +989,7 @@ function MontaEscala(props) {
                             <label className="col-sm-4 col-form-label">Qtd Pessoa por Posto</label>
                             <div className="col-sm-8">
                                 <input
+                                    type="number"
                                     disabled
                                     className="form-control"
                                     name="pessoaPorPosto"
@@ -903,6 +1034,13 @@ function MontaEscala(props) {
                     </form>
                 </div>
             </div>
+            <AlertPopup
+              type={alertProps.type}
+              title={alertProps.title}
+              message={alertProps.message}
+              show={alertProps.show}
+              onClose={alertProps.onClose}            
+          />              
         </>
     );
 }

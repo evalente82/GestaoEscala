@@ -79,7 +79,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
         {
             try
             {
-                var funcionarios = await _context.Funcionarios.ToListAsync();
+                var funcionarios = await _context.Funcionarios.OrderBy(x => x.NmNome).ToListAsync();
                 var funcionarioDTO = _mapper.Map<List<FuncionarioDTO>>(funcionarios);
                 return funcionarioDTO;
             }

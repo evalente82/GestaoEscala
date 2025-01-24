@@ -98,19 +98,17 @@ namespace GestaoEscalaPermutas.Dominio.Services.Escala
                 else
                 {
                     var escalaExistente = await _context.Escalas.FindAsync(id);
-                    if (escalaExistente == null)
+                    var escalaProntaExistente = _context.EscalaPronta.Where(x => x.IdEscala == id).ToList();
+                    if (escalaExistente == null || escalaProntaExistente == null)
                     {
                         return new EscalaDTO { valido = false, mensagem = "Escala não encontrado." };
                     }
 
-
-                    // O EF Core rastreará que o objeto foi modificado
                     _context.Escalas.Remove(escalaExistente);
+                    _context.EscalaPronta.RemoveRange(escalaProntaExistente);
 
-                    // Salva as alterações no banco de dados
                     await _context.SaveChangesAsync();
 
-                    //retornar avido de deletado
                     return new EscalaDTO { valido = true, mensagem = "Escala deletado com sucesso." };
                 }
             }

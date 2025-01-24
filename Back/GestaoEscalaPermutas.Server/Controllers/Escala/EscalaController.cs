@@ -110,7 +110,9 @@ namespace GestaoEscalaPermutas.Server.Controllers.Escala
             var listFuncionarios = funcionarios.Where(x => x.IdCargo == escala.IdCargo).ToList();
 
             //buscar lista de postos
-            var listPostos = await _postoTrabalhoService.BuscarTodosAtivos();
+            var list = await _postoTrabalhoService.BuscarTodosAtivos();
+            var listPostos = list.Where(x => x.IdDepartamento == escala.IdDepartamento).ToList();
+
 
             //buscar o tipo de escala
             var tipoEscala = await _tipoEscalaService.BuscarPorId(escala.IdTipoEscala);
@@ -303,6 +305,55 @@ namespace GestaoEscalaPermutas.Server.Controllers.Escala
             }
 
             return Ok(escalaProntaModels);
+        }
+
+        [HttpPut]
+        [Route("SalvarEscalaAlterada")]
+        public async Task<ActionResult> AlterarEscalaPronta([FromBody] EscalaProntaDTO[] escalaProntaDTO)
+        {
+            try
+            {
+                if (escalaProntaDTO == null || escalaProntaDTO.Length == 0)
+                {
+                    return BadRequest(new RetornoModel
+                    {
+                        Valido = false,
+                        Mensagem = "Nenhuma escala foi enviada para alteração."
+                    });
+                }
+
+                // Extrai o ID da escala para remover os registros antigos
+                var idEscala = escalaProntaDTO.First().IdEscala;
+
+                // Chama a service para processar a alteração
+                var resultado = await _escalaProntaService.AlterarEscalaPronta(idEscala, escalaProntaDTO);
+
+                // Verifica o retorno da service
+                if (!resultado.Any() || resultado.Any(e => !e.valido))
+                {
+                    var erro = resultado.FirstOrDefault(e => !e.valido);
+                    return BadRequest(new RetornoModel
+                    {
+                        Valido = false,
+                        Mensagem = erro?.mensagem ?? "Erro desconhecido ao salvar a escala."
+                    });
+                }
+
+                // Retorna sucesso
+                return Ok(new RetornoModel
+                {
+                    Valido = true,
+                    Mensagem = "Escala alterada com sucesso."
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new RetornoModel
+                {
+                    Valido = false,
+                    Mensagem = $"Erro interno ao salvar a escala: {ex.Message}"
+                });
+            }
         }
     }
 }

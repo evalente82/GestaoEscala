@@ -3,8 +3,22 @@ import NavBar from "../../Menu/NavBar";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import PropTypes from 'prop-types';
+import AlertPopup from '../AlertPopup/AlertPopup';
 
 function FuncionarioList(props) {
+    const [searchText, setSearchText] = useState("");
+    const [funcionario, setFuncionario] = useState([]);
+    const [cargos, setCargos] = useState([]);
+    const [alertProps, setAlertProps] = useState({
+        show: false, // Exibe ou esconde o AlertPopup
+        type: "info", // Tipo de mensagem (success, error, confirm, info)
+        title: "", // Título da modal
+        message: "", // Mensagem da modal
+        onConfirm: null, // Callback para ações de confirmação (opcional)
+        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
+    });
+    const API_URL = "https://localhost:7207/funcionario";
+
     // Definindo a função BuscarTodos dentro do componente FuncionarioList
     function BuscarTodos() {
         const fetchData = async () => {
@@ -19,14 +33,22 @@ function FuncionarioList(props) {
     }
 
     function BuscarFuncionarios() {
-        const API_URL = "https://localhost:7207/funcionario";
-        const fetchData = async () => {
-            const response = await axios.get(`${API_URL}/buscarTodos`);
-            console.log(response.data);
-            setFuncionario(response.data);
-        };
-        fetchData();
+        axios.get(`${API_URL}/buscarTodos`)
+            .then((response) => {
+                console.log(response.data);
+                setFuncionario(response.data);
+            })
+            .catch((error) => {
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Não foi possível carregar os Cargos.",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
+                });
+            });
     }
+
 
     useEffect(() => {
         // Chamando a função BuscarTodos dentro de useEffect
@@ -36,21 +58,11 @@ function FuncionarioList(props) {
     FuncionarioList.propTypes = {
         ShowForm: PropTypes.func.isRequired, // Indica que ShowForm é uma função obrigatória
     };
-    const [currentPage, setCurrentPage] = useState(1);
-    const [recordsPerPage] = useState(10); //, setRecordsPerPage
-
-    const [searchText, setSearchText] = useState("");
-
-    const [funcionario, setFuncionario] = useState([]);
-
-    const [cargos, setCargos] = useState([]);
+    
     // Chame BuscarTodos() no início do componente para carregar os cargos
     useEffect(() => {
         BuscarTodos(setCargos);
-    }, []); // Passando um array vazio, o efeito será executado apenas uma vez no carregamento do componente
-
-    const API_URL = "https://localhost:7207/funcionario";
-    
+    }, []); // Passando um array vazio, o efeito será executado apenas uma vez no carregamento do componente    
 
     useEffect(() => {
         const fetchData = async () => {
@@ -62,38 +74,62 @@ function FuncionarioList(props) {
     }, []);
 
     function handleDelete(id) {
-        // Mostrar a popup de confirmação
-        if (window.confirm("Tem certeza que deseja excluir este registro?")) {
-            DeleteFuncionario(id);
-        }
+        setAlertProps({
+            show: true,
+            type: "confirm",
+            title: "Confirmar exclusão",
+            message: "Tem certeza que deseja excluir este registro?",
+            onConfirm: () => {
+                DeleteFuncionario(id); // Executa a exclusão
+                setAlertProps((prev) => ({ ...prev, show: false })); // Fecha o AlertPopup após confirmar
+            },
+            onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
+        });
     }
 
     function DeleteFuncionario(idFuncionario) {
         axios
-            .delete(`https://localhost:7207/funcionario/Deletar/${idFuncionario}`)
+        .delete(`https://localhost:7207/funcionario/Deletar/${idFuncionario}`)
             .then((response) => {
                 console.log(response);
                 setFuncionario(
                     funcionario.filter((usuario) => usuario.id !== idFuncionario)
                 );
                 BuscarFuncionarios();
+                setAlertProps({
+                    show: true,
+                    type: "success",
+                    title: "Sucesso",
+                    message: "Registro excluído com sucesso!",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
             })
             .catch((error) => {
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Falha ao excluir o registro.",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
                 console.error(error);
             });
     }
+    
+    const currentRecords = filterRecords(funcionario);
 
-    //const indexOfLastRecord = currentPage * recordsPerPage;
-    //const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-    const currentRecords = funcionario
-    //    .filter(
-    //        (departamento) =>
-    //            departamento.nome.toLowerCase().includes(searchText.toLowerCase()) ||
-    //            departamento.descricao.toLowerCase().includes(searchText.toLowerCase())
-    //    )
-    //    .slice(indexOfFirstRecord, indexOfLastRecord);
-    //useEffect(() => BuscarTodos(), []);
-
+    // Função para filtrar os registros com base no texto de busca
+    function filterRecords(records) {
+        return records.filter(record => {
+            const cargoNome = cargos.find(cargo => cargo.idCargo === record.idCargo)?.nmNome || "";
+            return (
+                record.nmNome.toLowerCase().includes(searchText.toLowerCase()) ||
+                record.nrMatricula.toString().includes(searchText) ||
+                record.nmEndereco.toLowerCase().includes(searchText.toLowerCase()) ||
+                cargoNome.toLowerCase().includes(searchText.toLowerCase())
+            );
+        });
+    }
 
     return (
         <>
@@ -122,28 +158,9 @@ function FuncionarioList(props) {
                 placeholder="Pesquisar..."
                 className="form-control mb-3"
             />
-            <div className="d-flex justify-content-center">
-                <button
-                    type="button"
-                    className="btn btn-outline-primary me-2"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                >
-                    Anterior
-                </button>
-                <button
-                    type="button"
-                    className="btn btn-outline-primary"
-                    disabled={currentRecords.length < recordsPerPage}
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                >
-                    Próximo
-                </button>
-            </div>
             <table className="table">
                 <thead>
                     <tr>
-                        {/*<th>ID</th>*/}
                         <th>NOME</th>
                         <th>MATRÍCULA</th>
                         <th>TELEFONE</th>
@@ -158,13 +175,11 @@ function FuncionarioList(props) {
                         .map((funcionario, index) => {
                             return (
                                 <tr key={index}>
-                                    {/*<td>{funcionario.idFuncionario}</td>*/}
                                     <td style={{ textAlign: "left" }}>{funcionario.nmNome}</td>
                                     <td style={{ textAlign: "left" }}>{funcionario.nrMatricula}</td>
                                     <td style={{ textAlign: "left" }}>{funcionario.nrTelefone}</td>
                                     <td style={{ textAlign: "left" }}>{funcionario.nmEndereco}</td>
-                                    <td>{cargos.find(cargo => cargo.idCargos === funcionario.idCargos)?.nmNome}</td>
-                                    {/*<td>{funcionario.idCargos}</td>*/}
+                                    <td>{cargos.find(cargo => cargo.idCargo === funcionario.idCargo)?.nmNome}</td>
                                     <td>
                                         <input
                                             type="checkbox"
@@ -194,6 +209,14 @@ function FuncionarioList(props) {
                         })}
                 </tbody>
             </table>
+            <AlertPopup
+                type={alertProps.type}
+                title={alertProps.title}
+                message={alertProps.message}
+                show={alertProps.show}
+                onConfirm={alertProps.onConfirm}
+                onClose={alertProps.onClose}
+            />           
         </>
 
     );
@@ -208,12 +231,11 @@ function FuncionarioForm(props) {
             nrTelefone: PropTypes.number,
             nmEmail: PropTypes.string,
             nmEndereco: PropTypes.string,
-            idCargos: PropTypes.number,
+            idCargo: PropTypes.String,
             isAtivo: PropTypes.bool,
         }).isRequired,
     };
-
-    // const [errorMessage, setErrorMessage] = useState('');
+    
     const [nome, setNome] = useState(props.funcionario.nmNome || '');
     const [ativo, setAtivo] = useState(props.funcionario.isAtivo || false);
     const [matricula, setMatricula] = useState(props.funcionario.nrMatricula || '');
@@ -222,6 +244,13 @@ function FuncionarioForm(props) {
     const [endereco, setEndereco] = useState(props.funcionario.nmEndereco || '');
     const [cargos, setCargos] = useState([]);
     const [cargoSelecionado, setCargoSelecionado] = useState('');
+    const [alertProps, setAlertProps] = useState({
+        show: false, // Define se o AlertPopup deve ser exibido
+        type: "info", // Tipo da mensagem (success, error, info, confirm)
+        title: "", // Título da modal
+        message: "", // Mensagem da modal
+        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
+    });
 
     useEffect(() => {
         BuscarTodos();
@@ -240,7 +269,7 @@ function FuncionarioForm(props) {
 
     useEffect(() => {
         if (props.funcionario.idFuncionario) {
-            setCargoSelecionado(props.funcionario.idCargos.toString());
+            setCargoSelecionado(props.funcionario.idCargo.toString());
         }
     }, [props.funcionario.idFuncionario]);
 
@@ -259,7 +288,7 @@ function FuncionarioForm(props) {
                 nrTelefone: telefone,
                 nmEmail: email,
                 nmEndereco: endereco,
-                idCargos: cargoSelecionado,
+                idCargo: cargoSelecionado,
                 isAtivo: ativo,
             };
             axios
@@ -269,18 +298,26 @@ function FuncionarioForm(props) {
                     data
                 )
                 .then(() => {
-                    props.ShowList();
+                    setAlertProps({
+                        show: true,
+                        type: "success",
+                        title: "Sucesso",
+                        message: "Funcionário atualizado com sucesso!",
+                        onClose: () => {
+                            setAlertProps((prev) => ({ ...prev, show: false }));
+                            props.ShowList(); // Voltar para a lista após fechar a modal
+                        },
+                    });
                 })
                 .catch((error) => {
-                    if (error.response && error.response.status === 400) {
-                        const errors = error.response.data;
-                        console.log(errors);
-                        alert(errors.Email);
-                        // outros tratamentos de erro
-                    } else {
-                        console.log(error);
-                        // outros tratamentos de erro
-                    }
+                    setAlertProps({
+                        show: true,
+                        type: "error",
+                        title: "Erro",
+                        message: "Falha ao atualizar o Funcionário.",
+                        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                    });
+                    console.error(error);
                 });
         } else {
             const data = {
@@ -289,24 +326,32 @@ function FuncionarioForm(props) {
                 nrTelefone: telefone,
                 nmEmail: email,
                 nmEndereco: endereco,
-                idCargos: cargoSelecionado,
+                idCargo: cargoSelecionado,
                 isAtivo: ativo,
             };
             axios
                 .post("https://localhost:7207/funcionario/Incluir", data)
                 .then(() => {
-                    props.ShowList();
+                    setAlertProps({
+                        show: true,
+                        type: "success",
+                        title: "Sucesso",
+                        message: "Funcionário cadastrado com sucesso!",
+                        onClose: () => {
+                            setAlertProps((prev) => ({ ...prev, show: false }));
+                            props.ShowList(); // Voltar para a lista após fechar a modal
+                        },
+                    });
                 })
                 .catch((error) => {
-                    if (error.response && error.response.status === 400) {
-                        const errors = error.response.data;
-                        console.log(errors);
-                        alert(errors.Email);
-                        // outros tratamentos de erro
-                    } else {
-                        console.log(error);
-                        // outros tratamentos de erro
-                    }
+                    setAlertProps({
+                        show: true,
+                        type: "error",
+                        title: "Erro",
+                        message: "Falha ao cadastrar o Funcionário.",
+                        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                    });
+                    console.error(error);
                 });
         }
     };
@@ -356,6 +401,7 @@ function FuncionarioForm(props) {
                             <label className="col-sm-4 col-form-label">Matrícula</label>
                             <div className="col-sm-8">
                                 <input
+                                    type="number"
                                     className="form-control"
                                     name="matricula"
                                     defaultValue={props.funcionario.nrMatricula}
@@ -369,6 +415,7 @@ function FuncionarioForm(props) {
                             <label className="col-sm-4 col-form-label">Telefone</label>
                             <div className="col-sm-8">
                                 <input
+                                    type="number"
                                     className="form-control"
                                     name="telefone"
                                     defaultValue={props.funcionario.nrTelefone}
@@ -403,7 +450,7 @@ function FuncionarioForm(props) {
                                 >
                                     <option value="">Selecione um cargo</option>
                                     {cargos.map(cargo => (
-                                        <option key={cargo.idCargos} value={cargo.idCargos}>{cargo.nmNome}</option>
+                                        <option key={cargo.idCargo} value={cargo.idCargo}>{cargo.nmNome}</option>
                                     ))}
                                 </select>
                             </div>
@@ -455,6 +502,13 @@ function FuncionarioForm(props) {
                     </form>
                 </div>
             </div>
+             <AlertPopup
+                type={alertProps.type}
+                title={alertProps.title}
+                message={alertProps.message}
+                show={alertProps.show}
+                onClose={alertProps.onClose}
+            />
         </>
     );
 }

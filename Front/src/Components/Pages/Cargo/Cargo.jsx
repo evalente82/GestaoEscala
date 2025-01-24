@@ -2,19 +2,25 @@ import NavBar from "../../Menu/NavBar";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import PropTypes from 'prop-types';
+import AlertPopup from '../AlertPopup/AlertPopup';
 
 function CargoList(props) {
     CargoList.propTypes = {
         ShowForm: PropTypes.func.isRequired, // Indica que ShowForm é uma função obrigatória
     };
-    const [currentPage, setCurrentPage] = useState(1);
-    const [recordsPerPage] = useState(10); //, setRecordsPerPage
-
+   
     const [searchText, setSearchText] = useState("");
-
     const [cargo, setCargo] = useState([]);
-
     const API_URL = "https://localhost:7207/cargo";
+    const [alertProps, setAlertProps] = useState({
+        show: false, // Exibe ou esconde o AlertPopup
+        type: "info", // Tipo de mensagem (success, error, confirm, info)
+        title: "", // Título da modal
+        message: "", // Mensagem da modal
+        onConfirm: null, // Callback para ações de confirmação (opcional)
+        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
+    });
+
     function BuscarTodos() {
         axios.get(`${API_URL}/buscarTodos`)
             .then((response) => {
@@ -22,7 +28,13 @@ function CargoList(props) {
                 setCargo(response.data);
             })
             .catch((error) => {
-                console.log(error);
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Não foi possível carregar os Cargos.",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
+                });
             });
     }
 
@@ -36,38 +48,58 @@ function CargoList(props) {
     }, []);
 
     function handleDelete(id) {
-        // Mostrar a popup de confirmação
-        if (window.confirm("Tem certeza que deseja excluir este registro?")) {
-            DeleteCargo(id);
-        }
+        setAlertProps({
+            show: true,
+            type: "confirm",
+            title: "Confirmar exclusão",
+            message: "Tem certeza que deseja excluir este registro?",
+            onConfirm: () => {
+                DeleteCargo(id); // Executa a exclusão
+                setAlertProps((prev) => ({ ...prev, show: false })); // Fecha o AlertPopup após confirmar
+            },
+            onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
+        });
     }
 
-    function DeleteCargo(idCargos) {
+    function DeleteCargo(idCargo) {
         axios
-            .delete(`https://localhost:7207/cargo/Deletar/${idCargos}`)
+            .delete(`https://localhost:7207/cargo/Deletar/${idCargo}`)
             .then((response) => {
                 console.log(response);
                 setCargo(
-                    cargo.filter((usuario) => usuario.id !== idCargos)
+                    cargo.filter((usuario) => usuario.id !== idCargo)
                 );
                 BuscarTodos();
+                setAlertProps({
+                    show: true,
+                    type: "success",
+                    title: "Sucesso",
+                    message: "Registro excluído com sucesso!",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
             })
             .catch((error) => {
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Falha ao excluir o registro.",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
                 console.error(error);
             });
     }
+    const currentRecords = filterRecords(cargo)
 
-    //const indexOfLastRecord = currentPage * recordsPerPage;
-    //const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-    const currentRecords = cargo
-    //    .filter(
-    //        (departamento) =>
-    //            departamento.nome.toLowerCase().includes(searchText.toLowerCase()) ||
-    //            departamento.descricao.toLowerCase().includes(searchText.toLowerCase())
-    //    )
-    //    .slice(indexOfFirstRecord, indexOfLastRecord);
-    //useEffect(() => BuscarTodos(), []);
-
+    function filterRecords(records) {
+        return records.filter(record => {
+            const nomeDescicao = cargo.find(cargo => cargo.idCargo === record.idCargo)?.nmNome || "";
+            return (
+                record.nmNome.toLowerCase().includes(searchText.toLowerCase()) ||                
+                nomeDescicao.toLowerCase().includes(searchText.toLowerCase())
+            );
+        });
+    }
 
     return (
         <>
@@ -96,7 +128,7 @@ function CargoList(props) {
                 placeholder="Pesquisar..."
                 className="form-control mb-3"
             />
-            <div className="d-flex justify-content-center">
+            {/* <div className="d-flex justify-content-center">
                 <button
                     type="button"
                     className="btn btn-outline-primary me-2"
@@ -113,7 +145,7 @@ function CargoList(props) {
                 >
                     Próximo
                 </button>
-            </div>
+            </div> */}
             <table className="table">
                 <thead>
                     <tr>
@@ -147,7 +179,7 @@ function CargoList(props) {
                                             Editar
                                         </button>
                                         <button
-                                            onClick={() => handleDelete(cargo.idCargos)}
+                                            onClick={() => handleDelete(cargo.idCargo)}
                                             type="button"
                                             className="btn btn-danger btn-sm"
                                         >
@@ -159,6 +191,14 @@ function CargoList(props) {
                         })}
                 </tbody>
             </table>
+            <AlertPopup
+                type={alertProps.type}
+                title={alertProps.title}
+                message={alertProps.message}
+                show={alertProps.show}
+                onConfirm={alertProps.onConfirm}
+                onClose={alertProps.onClose}
+        />
         </>
 
     );
@@ -167,7 +207,7 @@ function CargoForm(props) {
     CargoForm.propTypes = {
         ShowList: PropTypes.func.isRequired,
         cargo: PropTypes.shape({
-            idCargos: PropTypes.number,
+            idCargo: PropTypes.number,
             nmNome: PropTypes.string,
             nmDescricao: PropTypes.string,
             isAtivo: PropTypes.bool,
@@ -177,6 +217,13 @@ function CargoForm(props) {
     const [nome, setNome] = useState(props.cargo.nmNome || '');
     const [descricao, setDescricao] = useState(props.cargo.nmDescricao || '');
     const [ativo, setAtivo] = useState(props.cargo.isAtivo || false);
+    const [alertProps, setAlertProps] = useState({
+        show: false, // Define se o AlertPopup deve ser exibido
+        type: "info", // Tipo da mensagem (success, error, info, confirm)
+        title: "", // Título da modal
+        message: "", // Mensagem da modal
+        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
+    });
 
     function handleAtivoChange(e) {
         setAtivo(e.target.checked);
@@ -185,7 +232,7 @@ function CargoForm(props) {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (props.cargo.idCargos) {
+        if (props.cargo.idCargo) {
             const data = {
                 nmNome: nome,
                 nmDescricao: descricao,
@@ -194,20 +241,30 @@ function CargoForm(props) {
             axios
                 .patch(
                     "https://localhost:7207/cargo/Atualizar/" +
-                    props.cargo.idCargos,
+                    props.cargo.idCargo,
                     data
                 )
                 .then(() => {
-                    props.ShowList();
+                    setAlertProps({
+                        show: true,
+                        type: "success",
+                        title: "Sucesso",
+                        message: "Cargo atualizado com sucesso!",
+                        onClose: () => {
+                            setAlertProps((prev) => ({ ...prev, show: false }));
+                            props.ShowList(); // Voltar para a lista após fechar a modal
+                        },
+                    });
                 })
                 .catch((error) => {
-                    if (error.response && error.response.status === 400) {
-                        const errors = error.response.data;
-                        console.log(errors);
-                        alert(errors.Email);
-                    } else {
-                        console.log(error);
-                    }
+                    setAlertProps({
+                        show: true,
+                        type: "error",
+                        title: "Erro",
+                        message: "Falha ao atualizar o cargo.",
+                        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                    });
+                    console.error(error);
                 });
         } else {
             const data = {
@@ -218,40 +275,49 @@ function CargoForm(props) {
             axios
                 .post("https://localhost:7207/cargo/Incluir", data)
                 .then(() => {
-                    props.ShowList();
+                    setAlertProps({
+                        show: true,
+                        type: "success",
+                        title: "Sucesso",
+                        message: "Cargo cadastrado com sucesso!",
+                        onClose: () => {
+                            setAlertProps((prev) => ({ ...prev, show: false }));
+                            props.ShowList(); // Voltar para a lista após fechar a modal
+                        },
+                    });
                 })
                 .catch((error) => {
-                    if (error.response && error.response.status === 400) {
-                        const errors = error.response.data;
-                        console.log(errors);
-                        alert(errors.Email);
-                    } else {
-                        console.log(error);
-                    }
+                    setAlertProps({
+                        show: true,
+                        type: "error",
+                        title: "Erro",
+                        message: "Falha ao cadastrar o cargo.",
+                        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                    });
+                    console.error(error);
                 });
         }
     };
-
     return (
         <>
             <NavBar />
             <h2 className="text-center mb-3">
-                {props.cargo.idCargos
+                {props.cargo.idCargo
                     ? "Editar Cargo"
                     : "Cadastrar Novo Cargo"}
             </h2>
             <div className="row">
                 <div className="col-lg-6 mx-auto">
                     <form onSubmit={(e) => handleSubmit(e)}>
-                        {props.cargo.idCargos && (
+                        {props.cargo.idCargo && (
                             <div className="row mb-3">
                                 <label className="col-sm-4 col-form-label">ID</label>
                                 <div className="col-sm-8">
                                     <input
                                         readOnly
                                         className="form-control-plaintext"
-                                        name="idCargos"
-                                        defaultValue={props.cargo.idCargos}
+                                        name="idCargo"
+                                        defaultValue={props.cargo.idCargo}
                                         required
                                         onChange={(e) => setNome(e.target.value)}
                                     ></input>
@@ -318,6 +384,13 @@ function CargoForm(props) {
                     </form>
                 </div>
             </div>
+            <AlertPopup
+                type={alertProps.type}
+                title={alertProps.title}
+                message={alertProps.message}
+                show={alertProps.show}
+                onClose={alertProps.onClose}
+            />
         </>
     );
 }
