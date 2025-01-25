@@ -19,7 +19,6 @@ using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.Services.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.Interfaces.Mensageria;
 using GestaoEscalaPermutas.Dominio.Services.Mensageria;
-using GestaoEscalaPermutas.Server.Controllers.Mensageria;
 using GestaoEscalaPermutas.Dominio.Interfaces.Permutas;
 using GestaoEscalaPermutas.Dominio.Services.Permutas;
 
@@ -64,7 +63,6 @@ builder.Services.AddScoped<IEscalaService, EscalaService>();
 builder.Services.AddScoped<IPostoTrabalhoService, PostoTrabalhoService>();
 builder.Services.AddScoped<ITipoEscalaService, TipoEscalaService>();
 builder.Services.AddScoped<IEscalaProntaService, EscalaProntaService>();
-//builder.Services.AddTransient<IPermutasService, PermutasService>();
 builder.Services.AddScoped<IPermutasService, PermutasService>();
 builder.Services.AddSingleton<IMessageBus>(sp =>
 {
@@ -76,11 +74,18 @@ builder.Services.AddHostedService<UsuarioMessageConsumer>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigin",
-        policy => policy.WithOrigins("http://localhost:5173")
-                        .AllowAnyMethod()
-                        .AllowAnyHeader());
+    options.AddPolicy("AllowAllOrigins", policy =>
+        policy.AllowAnyOrigin() // Permite qualquer origem
+              .AllowAnyMethod() // Permite qualquer método HTTP (GET, POST, PUT, DELETE, etc.)
+              .AllowAnyHeader()); // Permite qualquer cabeçalho
 });
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowSpecificOrigin",
+//        policy => policy.WithOrigins("http://localhost:5174")
+//                        .AllowAnyMethod()
+//                        .AllowAnyHeader());
+//});
 
 var app = builder.Build();
 
@@ -117,7 +122,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
-app.UseCors("AllowSpecificOrigin");
+app.UseCors("AllowAllOrigins");
 
 app.UseAuthorization();
 

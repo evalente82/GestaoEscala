@@ -10,6 +10,7 @@ import { Funcionario } from './Components/Pages/Funcionario/Funcionario';
 import { TipoEscala } from './Components/Pages/TipoEscala/TipoEscala';
 import {Exibicao}  from './Components/Pages/Exibiçao/Exibicao';
 import { EditarEscala } from './Components/Pages/EditarEscala/EditarEscala'; 
+import { Permuta } from './Components/Pages/Permuta/Permuta';
 function App() {
     return (
         <>            
@@ -24,6 +25,7 @@ function App() {
                     <Route path="/funcionario" element={<Funcionario />} />
                     <Route path="/TipoEscala/" element={<TipoEscala />} />
                     <Route path="/Exibicao/:idEscala" element={<Exibicao />} />
+                    <Route path="/permuta" element={<Permuta />} />
                 </Routes>
                 <Footer />
             </BrowserRouter>

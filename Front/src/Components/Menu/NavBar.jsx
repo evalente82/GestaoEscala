@@ -59,8 +59,8 @@ function NavBar() {
                                 <Link className="nav-link text-dark" to="/Exibicao">Exibição</Link>
                             </li> */}
 
-                            <li className={`nav-item ${location.pathname === '/permutas' ? 'active' : ''}`}>
-                                <Link className="nav-link text-dark" to="/permutas">Permutas</Link>
+                            <li className={`nav-item ${location.pathname === '/permuta' ? 'active' : ''}`}>
+                                <Link className="nav-link text-dark" to="/permuta">Permutas</Link>
                             </li>
                         </ul>
                     </div>
