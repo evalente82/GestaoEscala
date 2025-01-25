@@ -161,4 +161,6 @@ namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
             }
         }
     }
+
+
 }

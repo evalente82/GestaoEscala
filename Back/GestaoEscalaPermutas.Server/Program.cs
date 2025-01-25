@@ -17,6 +17,9 @@ using GestaoEscalaPermutas.Dominio.Interfaces.PostoTrabalho;
 using GestaoEscalaPermutas.Dominio.Interfaces.TipoEscala;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.Services.EscalaPronta;
+using GestaoEscalaPermutas.Dominio.Interfaces.Mensageria;
+using GestaoEscalaPermutas.Dominio.Services.Mensageria;
+using GestaoEscalaPermutas.Server.Controllers.Mensageria;
 
 var builder = WebApplication.CreateBuilder(args);
 var connString = builder.Configuration.GetConnectionString("EmUso");
@@ -58,8 +61,13 @@ builder.Services.AddTransient<IEscalaService, EscalaService>();
 builder.Services.AddTransient<IPostoTrabalhoService, PostoTrabalhoService>();
 builder.Services.AddTransient<ITipoEscalaService, TipoEscalaService>();
 builder.Services.AddTransient<IEscalaProntaService, EscalaProntaService>();
-
-            
+builder.Services.AddSingleton<IMessageBus>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var hostName = configuration["RabbitMQ:HostName"];
+    return new RabbitMqMessageBus(hostName);
+});
+builder.Services.AddHostedService<UsuarioMessageConsumer>();
 
 builder.Services.AddCors(options =>
 {
