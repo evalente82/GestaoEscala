@@ -14,13 +14,21 @@ using GestaoEscalaPermutas.Server.Models.TipoEscala;
 using GestaoEscalaPermutas.Dominio.DTO.TipoEscala;
 using GestaoEscalaPermutas.Server.Models.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.DTO.EscalaPronta;
+using GestaoEscalaPermutas.Dominio.DTO.Permutas;
+using GestaoEscalaPermutas.Server.Models.Permuta;
 
 namespace GestaoEscalaPermutas.Server.Profiles
 {
     public class MappingProfiles:Profile
     {
         public MappingProfiles()
-        {           
+        {
+            CreateMap<PermutaModel, PermutasDTO>()
+            .ReverseMap();
+            CreateMap<PermutasDTO, Permuta>().ForMember(x => x.DtDataSolicitadaTroca, opt => opt.MapFrom(src => src.DtDataSolicitadaTroca));
+            CreateMap<Permuta, PermutasDTO>()
+            .ForMember(x => x.valido, opt => opt.MapFrom(src => true))
+            .ForMember(x => x.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso"));
 
             CreateMap<DepartamentoModel, DepartamentoDTO>()
             .ReverseMap();

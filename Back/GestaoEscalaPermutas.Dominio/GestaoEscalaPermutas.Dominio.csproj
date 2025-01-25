@@ -9,12 +9,15 @@
   <ItemGroup>
     <Compile Remove="Interfaces\Empresa\**" />
     <Compile Remove="Interfaces\Permuta\**" />
+    <Compile Remove="Services\Empresa\**" />
     <Compile Remove="Services\Permuta\**" />
     <EmbeddedResource Remove="Interfaces\Empresa\**" />
     <EmbeddedResource Remove="Interfaces\Permuta\**" />
+    <EmbeddedResource Remove="Services\Empresa\**" />
     <EmbeddedResource Remove="Services\Permuta\**" />
     <None Remove="Interfaces\Empresa\**" />
     <None Remove="Interfaces\Permuta\**" />
+    <None Remove="Services\Empresa\**" />
     <None Remove="Services\Permuta\**" />
   </ItemGroup>
 
@@ -23,10 +26,6 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.2" />
     <PackageReference Include="RabbitMQ.Client" Version="6.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\Empresa\" />
   </ItemGroup>
 
   <ItemGroup>

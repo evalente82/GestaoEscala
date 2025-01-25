@@ -15,19 +15,19 @@ public partial class Permuta
 
     [StringLength(100)]
     [Unicode(false)]
-    public required string NmNomeSolicitante { get; set; }
+    public string NmNomeSolicitante { get; set; }
     public Guid IdFuncionarioSolicitado { get; set; }
 
     [StringLength(100)]
     [Unicode(false)]
-    public required string NmNomeSolicitado { get; set; }
-    public Guid IdFuncionarioAprovador { get; set; }
+    public string NmNomeSolicitado { get; set; }
+    public Guid? IdFuncionarioAprovador { get; set; }
 
     [StringLength(100)]
     [Unicode(false)]
-    public required string NmNomeAprovador { get; set; }
+    public string? NmNomeAprovador { get; set; }
     public DateTime DtSolicitacao { get; set; }
     public DateTime DtDataSolicitadaTroca { get; set; }
-    public DateTime DtAprovacao { get; set; }
+    public DateTime? DtAprovacao { get; set; }
 
 }

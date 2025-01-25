@@ -20,6 +20,8 @@ using GestaoEscalaPermutas.Dominio.Services.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.Interfaces.Mensageria;
 using GestaoEscalaPermutas.Dominio.Services.Mensageria;
 using GestaoEscalaPermutas.Server.Controllers.Mensageria;
+using GestaoEscalaPermutas.Dominio.Interfaces.Permutas;
+using GestaoEscalaPermutas.Dominio.Services.Permutas;
 
 var builder = WebApplication.CreateBuilder(args);
 var connString = builder.Configuration.GetConnectionString("EmUso");
@@ -51,16 +53,19 @@ builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddDbContext<DefesaCivilMaricaContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("EmUso")));
 
+
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddResponseCompression();
 
-builder.Services.AddTransient<IDepartamentoService, DepartamentoService>();
-builder.Services.AddTransient<ICargoService, CargoService>();
-builder.Services.AddTransient<IFuncionarioService, FuncionarioService>();
-builder.Services.AddTransient<IEscalaService, EscalaService>();
-builder.Services.AddTransient<IPostoTrabalhoService, PostoTrabalhoService>();
-builder.Services.AddTransient<ITipoEscalaService, TipoEscalaService>();
-builder.Services.AddTransient<IEscalaProntaService, EscalaProntaService>();
+builder.Services.AddScoped<IDepartamentoService, DepartamentoService>();
+builder.Services.AddScoped<ICargoService, CargoService>();
+builder.Services.AddScoped<IFuncionarioService, FuncionarioService>();
+builder.Services.AddScoped<IEscalaService, EscalaService>();
+builder.Services.AddScoped<IPostoTrabalhoService, PostoTrabalhoService>();
+builder.Services.AddScoped<ITipoEscalaService, TipoEscalaService>();
+builder.Services.AddScoped<IEscalaProntaService, EscalaProntaService>();
+//builder.Services.AddTransient<IPermutasService, PermutasService>();
+builder.Services.AddScoped<IPermutasService, PermutasService>();
 builder.Services.AddSingleton<IMessageBus>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();

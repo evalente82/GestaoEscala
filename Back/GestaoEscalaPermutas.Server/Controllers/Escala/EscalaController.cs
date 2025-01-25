@@ -10,14 +10,12 @@ using GestaoEscalaPermutas.Dominio.Interfaces.TipoEscala;
 using GestaoEscalaPermutas.Dominio.DTO.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
 using GestaoEscalaPermutas.Server.Models.EscalaPronta;
-using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
-using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 
 namespace GestaoEscalaPermutas.Server.Controllers.Escala
 {
     [ApiController]
     [Route("escala")]
-    public class EscalaController:ControllerBase
+    public class EscalaController : ControllerBase
     {
         private readonly IEscalaService _escalaService;
         private readonly IEscalaProntaService _escalaProntaService;
@@ -35,6 +33,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.Escala
             _funcionarioService = funcionarioService;
             _tipoEscalaService = tipoEscalaService;
         }
+        
         [HttpPost]
         [Route("Incluir/")]
         public async Task<ActionResult> IncluirEscala([FromBody] EscalaDTO escala)
