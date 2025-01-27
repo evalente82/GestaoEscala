@@ -9,6 +9,7 @@ import Select from 'react-select';
 function PermutaList(props) {
     const [searchText, setSearchText] = useState("");
     const [permuta, setPermuta] = useState([]);
+    const [escalas, setEscalas] = useState([]);
     
     const [alertProps, setAlertProps] = useState({
         show: false, // Exibe ou esconde o AlertPopup
@@ -36,10 +37,21 @@ function PermutaList(props) {
                 });
             });
     }
+    function BuscarEscalas() {
+        axios.get("https://localhost:7207/escala/buscarTodos")
+            .then((response) => {
+                console.log("Escalas carregadas:", response.data);
+                setEscalas(response.data); // Armazena as escalas no estado
+            })
+            .catch((error) => {
+                console.error("Erro ao carregar escalas:", error);
+            });
+    }
 
     useEffect(() => {
         // Chamando a função BuscarTodos dentro de useEffect
         BuscarTodos();
+        BuscarEscalas();
     }, []);
 
     PermutaList.propTypes = {
@@ -90,20 +102,31 @@ function PermutaList(props) {
             });
     }
     
-    //const currentRecords = filterRecords(permuta);
+    const filteredRecords = filterRecords(permuta);
 
     // Função para filtrar os registros com base no texto de busca
-    // function filterRecords(records) {
-    //     return records.filter(record => {
-    //         const filtro = permuta.find(p => p.idPermuta === record.idPermuta)?.nmNome || "";
-    //         return (
-    //             record.nmNome.toLowerCase().includes(searchText.toLowerCase()) ||
-    //             record.nrMatricula.toString().includes(searchText) ||
-    //             record.nmEndereco.toLowerCase().includes(searchText.toLowerCase()) ||
-    //             filtro.toLowerCase().includes(searchText.toLowerCase())
-    //         );
-    //     });
-    // }
+function filterRecords(records) {
+    return records.filter((record) => {
+        const search = searchText.toLowerCase(); // Normaliza o texto de busca
+
+        return (
+            record.nmNomeSolicitante?.toLowerCase().includes(search) || // Filtro pelo nome do Solicitante
+            record.nmNomeSolicitado?.toLowerCase().includes(search) || // Filtro pelo nome do Solicitado
+            record.dtDataSolicitadaTroca?.toLowerCase().includes(search) || // Filtro pela Data da Troca
+            record.dtSolicitacao?.toLowerCase().includes(search) // Filtro pela Data da Solicitação
+        );
+    });
+}
+
+function formatarData(dataISO) {
+    if (!dataISO) return ""; // Retorna vazio caso a data seja inválida ou indefinida
+    const data = new Date(dataISO);
+    const dia = String(data.getDate()).padStart(2, "0");
+    const mes = String(data.getMonth() + 1).padStart(2, "0");
+    const ano = data.getFullYear();
+    return `${dia}-${mes}-${ano}`;
+}
+
 
     return (
         <>
@@ -132,7 +155,7 @@ function PermutaList(props) {
                 placeholder="Pesquisar..."
                 className="form-control mb-3"
             />
-            <table className="table">
+             <table className="table">
                 <thead>
                     <tr>
                         <th>NOME SOLICITANTE</th>
@@ -145,36 +168,33 @@ function PermutaList(props) {
                     </tr>
                 </thead>
                 <tbody>
-                    {permuta
-                        .map((p, index) => {
-                            return (
-                                <tr key={index}>
-                                    <td style={{ textAlign: "left" }}>{p.nmNomeSolicitante}</td>
-                                    <td style={{ textAlign: "left" }}>{p.nmNomeSolicitado}</td>
-                                    <td style={{ textAlign: "left" }}>{p.dtDataSolicitadaTroca}</td>
-                                    <td style={{ textAlign: "left" }}>{p.dtSolicitacao}</td>
-                                    <td style={{ textAlign: "left" }}>{p.nmNomeAprovador}</td>
-                                    <td style={{ textAlign: "left" }}>{p.dtAprovacao}</td>
-                                    <td style={{ textAlign: "left" }}>{p.idEscala}</td>
-                                    <td style={{ width: "10px", whiteSpace: "nowrap" }}>
-                                        <button
-                                            onClick={() => props.ShowForm(p)}
-                                            type="button"
-                                            className="btn btn-primary btn-sm me-2"
-                                        >
-                                            Editar
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(p.idFuncionario)}
-                                            type="button"
-                                            className="btn btn-danger btn-sm"
-                                        >
-                                            Delete
-                                        </button>
-                                    </td>
-                                </tr>
-                            );
-                        })}
+                    {filteredRecords.map((p, index) => (
+                        <tr key={index}>
+                            <td style={{ textAlign: "left" }}>{p.nmNomeSolicitante}</td>
+                            <td style={{ textAlign: "left" }}>{p.nmNomeSolicitado}</td>
+                            <td style={{ textAlign: "left" }}>{formatarData(p.dtDataSolicitadaTroca)}</td>
+                            <td style={{ textAlign: "left" }}>{formatarData(p.dtSolicitacao)}</td>
+                            <td style={{ textAlign: "left" }}>{p.nmNomeAprovador}</td>
+                            <td style={{ textAlign: "left" }}>{formatarData(p.dtAprovacao)}</td>
+                            <td style={{ textAlign: "left" }}>{escalas.find((e) => e.idEscala === p.idEscala)?.nmNomeEscala || "Escala não encontrada"}</td>
+                            <td style={{ width: "10px", whiteSpace: "nowrap" }}>
+                            <button
+                            onClick={() => props.ShowForm(p)}
+                            type="button"
+                            className="btn btn-primary btn-sm me-2"
+                        >
+                            Editar
+                        </button>
+                        <button
+                            onClick={() => handleDelete(p.idPermuta)}
+                            type="button"
+                            className="btn btn-danger btn-sm"
+                        >
+                            Delete
+                        </button>
+                    </td>    
+                        </tr>
+                    ))}
                 </tbody>
             </table>
             <AlertPopup
@@ -211,7 +231,7 @@ function PermutaForm(props) {
     useEffect(() => {
         setIdDaEscala(props.permuta.idEscala || '');
         setNomeSolicitante(props.permuta.nmNomeSolicitante || '');
-        setSolicitado(props.permuta.nmNomeSolicitado || '');
+        setNomeSolicitado (props.permuta.nmNomeSolicitado || '');
         setNomeAprovador(props.permuta.nmNomeAprovador || '');
         setIdFuncionarioSolicitante(props.permuta.idFuncionarioSolicitante || '');
         setIdFuncionarioSolicitado(props.permuta.idFuncionarioSolicitado || '');
@@ -222,7 +242,7 @@ function PermutaForm(props) {
     }, [props.permuta]);
 
     const [nomeSolicitante, setNomeSolicitante] = useState(props.permuta.nmNomeSolicitante || '');
-    const [nomeSolicitado, setSolicitado] = useState(props.permuta.nmNomeSolicitado || '');
+    const [nomeSolicitado, setNomeSolicitado ] = useState(props.permuta.nmNomeSolicitado || '');
     const [nomeAprovador, setNomeAprovador] = useState(props.permuta.nmNomeAprovador || '');
     const [idFuncionarioSolicitante, setIdFuncionarioSolicitante] = useState(props.permuta.idFuncionarioSolicitante || '');
     const [idFuncionarioSolicitado, setIdFuncionarioSolicitado] = useState(props.permuta.idFuncionarioSolicitado || '');
@@ -239,11 +259,25 @@ function PermutaForm(props) {
     });
     const [funcionarios, setFuncionarios] = useState([]); // Lista de funcionários
     const [filtro, setFiltro] = useState(''); // Filtro de busca no select
+    const [escala, setEscala] = useState(null);
+    const [buscaEscalaPronta, setBuscaEscalaPronta] = useState(null);
+    const [diasDisponiveis, setDiasDisponiveis] = useState([]);
+    const [datasTrabalhoSolicitante, setDatasTrabalhoSolicitante] = useState([]);
+    const [datasTrabalhoSolicitado, setDatasTrabalhoSolicitado] = useState([]);
+
+
 
     useEffect(() => {
         BuscarFuncionarios();
+        BuscaEscala()
     }, []);
 
+    useEffect(() => {
+        if (idDaEscala) {
+            BuscaEscalaPronta(idDaEscala);
+        }
+    }, [idDaEscala, idFuncionarioSolicitante, idFuncionarioSolicitado]);
+   
     function BuscarFuncionarios() {
         axios.get("https://localhost:7207/funcionario/buscarTodos")
             .then((response) => {
@@ -261,36 +295,115 @@ function PermutaForm(props) {
             });
     }
 
-    const handleFuncionarioChange = (e) => {
-        const selectedId = e.target.value;
-        const funcionarioSelecionado = funcionarios.find((f) => f.idFuncionario === selectedId);
+    function BuscaEscala() {
+        axios
+            .get("https://localhost:7207/escala/buscarTodos")
+            .then((response) => {
+                setEscala(response.data);
+                console.log('buscando escala !');
+                console.log(response.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
 
-        if (funcionarioSelecionado) {
-            setIdFuncionarioSolicitante(funcionarioSelecionado.idFuncionario);
-            setNomeSolicitante(funcionarioSelecionado.nmNome);
-        }
-    };
+    function BuscaEscalaPronta(idEscala) {
+        axios
+            .get(`https://localhost:7207/escalaPronta/buscarPorId/${idEscala}`)
+            .then((response) => {
+                const escala = response.data;
+                console.log("Dados recebidos de escalaPronta:", escala);
+    
+                if (!Array.isArray(escala)) {
+                    console.error("Formato inesperado de escala:", escala);
+                    return;
+                }
+    
+                // Filtrar datas para o Solicitante
+                const datasSolicitante = escala
+                    .filter((dia) => dia.idFuncionario === idFuncionarioSolicitante)
+                    .map((dia) => dia.dtDataServico);
+    
+                // Filtrar datas para o Solicitado
+                const datasSolicitado = escala
+                    .filter((dia) => dia.idFuncionario === idFuncionarioSolicitado)
+                    .map((dia) => dia.dtDataServico);
+    
+                // Atualizar os estados
+                setDatasTrabalhoSolicitante(datasSolicitante);
+                setDatasTrabalhoSolicitado(datasSolicitado);
+    
+                console.log("Datas de trabalho do Solicitante:", datasSolicitante);
+                console.log("Datas de trabalho do Solicitado:", datasSolicitado);
+            })
+            .catch((error) => {
+                console.error("Erro ao buscar escala pronta:", error);
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Falha ao carregar as datas da escala.",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
+            });
+    }
+    
+
+    function getMesPorExtenso(mes) {
+        const meses = [
+            "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+            "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+        ];
+        return meses[mes - 1] || ""; // Ajusta índice (1 para Janeiro)
+    }
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
+    
+        // Validação: Solicitante e Solicitado não podem ser iguais
+        if (idFuncionarioSolicitante === idFuncionarioSolicitado) {
+            setAlertProps({
+                show: true,
+                type: "error",
+                title: "Erro",
+                message: "O solicitante e o solicitado não podem ser a mesma pessoa.",
+                onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+            });
+            return;
+        }
+    
+        // Validação: Verificar se o Solicitado já trabalha na data selecionada
+        if (datasTrabalhoSolicitado.includes(dtDataSolicitadaTroca)) {
+            setAlertProps({
+                show: true,
+                type: "error",
+                title: "Erro",
+                message: "O funcionário solicitado já está trabalhando nesta data.",
+                onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+            });
+            return;
+        }
+    
+        // Dados comuns para envio
+        const data = {
+            idEscala: idDaEscala,
+            idFuncionarioSolicitante: idFuncionarioSolicitante,
+            nmNomeSolicitante: nomeSolicitante,
+            idFuncionarioSolicitado: idFuncionarioSolicitado,
+            nmNomeSolicitado: nomeSolicitado,
+            dtSolicitacao: new Date().toISOString(), // Data atual em UTC
+            dtDataSolicitadaTroca: new Date(dtDataSolicitadaTroca).toISOString(), // Converte para UTC
+        };
+    
+        console.log("Dados para enviar:", data); // Log para depuração
+    
+        // Verifica se é atualização ou inclusão
         if (props.permuta.idPermuta) {
-            const data = {
-                idEscala: idDaEscala,
-                nmNomeSolicitante: nomeSolicitante,
-                nmNomeSolicitado: nomeSolicitado,
-                nmNomeAprovador: nomeAprovador,
-                idFuncionarioSolicitante: idFuncionarioSolicitante,
-                idFuncionarioSolicitado: idFuncionarioSolicitado,
-                idFuncionarioAprovador: idFuncionarioAprovador,
-                dtSolicitacao: dtSolicitacao,
-                dtDataSolicitadaTroca: dtDataSolicitadaTroca,
-                dtAprovacao: dtAprovacao,
-            };
+            // Atualização
             axios
                 .patch(
-                    "https://localhost:7207/permutas/Atualizar/" +
-                    props.permuta.idPermuta,
+                    `https://localhost:7207/permutas/Atualizar/${props.permuta.idPermuta}`,
                     data
                 )
                 .then(() => {
@@ -298,7 +411,7 @@ function PermutaForm(props) {
                         show: true,
                         type: "success",
                         title: "Sucesso",
-                        message: "Funcionário atualizado com sucesso!",
+                        message: "Permuta atualizada com sucesso!",
                         onClose: () => {
                             setAlertProps((prev) => ({ ...prev, show: false }));
                             props.ShowList(); // Voltar para a lista após fechar a modal
@@ -310,23 +423,13 @@ function PermutaForm(props) {
                         show: true,
                         type: "error",
                         title: "Erro",
-                        message: "Falha ao atualizar o Permuta.",
+                        message: "Falha ao atualizar a Permuta.",
                         onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
                     });
-                    console.error(error);
+                    console.error("Erro ao atualizar permuta:", error);
                 });
         } else {
-            const data = {
-                nmNomeSolicitante: nomeSolicitante,
-                nmNomeSolicitado: nomeSolicitado,
-                nmNomeAprovador: nomeAprovador,
-                idFuncionarioSolicitante: idFuncionarioSolicitante,
-                idFuncionarioSolicitado: idFuncionarioSolicitado,
-                idFuncionarioAprovador: idFuncionarioAprovador,
-                dtSolicitacao: dtSolicitacao,
-                dtDataSolicitadaTroca: dtDataSolicitadaTroca,
-                dtAprovacao: dtAprovacao,
-            };
+            // Inclusão
             axios
                 .post("https://localhost:7207/permutas/Incluir", data)
                 .then(() => {
@@ -349,13 +452,15 @@ function PermutaForm(props) {
                         message: "Falha ao cadastrar a Permuta.",
                         onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
                     });
-                    console.error(error);
+                    console.error("Erro ao salvar permuta:", error);
                 });
         }
     };
+    
+    
     const [selectedOption, setSelectedOption] = useState(null);
 
-    function SelectComFiltro({ funcionarios, value, onChange }) {
+    function SelectComFiltroSolicitante({ funcionarios, value, onChange }) {
     const opcoes = funcionarios
         .filter((f) => f.idFuncionario && f.nmNome) // Remove funcionários com dados inválidos
         .map((f) => ({
@@ -363,23 +468,52 @@ function PermutaForm(props) {
             label: `${f.nmNome} - ${f.nrMatricula}`,
         }));
 
-    console.log("Opções disponíveis para o select:", opcoes); // Log das opções disponíveis
-    console.log("Valor recebido no value:", value); // Log do valor recebido no select
+        console.log("Opções disponíveis para o select:", opcoes); // Log das opções disponíveis
+        console.log("Valor recebido no value:", value); // Log do valor recebido no select
 
-    return (
-        <Select
-            options={opcoes}
-            placeholder="Digite para buscar..."
-            value={opcoes.find((o) => o.value === value) || null} // Sincroniza o valor com o pai
-            onChange={(selectedOption) => {
-                console.log("Opção selecionada:", selectedOption); // Log do clique no dropdown
-                onChange(selectedOption ? selectedOption.value : null); // Passa o ID selecionado para o pai
-            }}
-            isClearable
-            noOptionsMessage={() => "Nenhuma opção encontrada"}
-        />
-    );
-}
+        return (
+            <Select
+                options={opcoes}
+                placeholder="Digite para buscar..."
+                value={opcoes.find((o) => o.value === value) || null} // Sincroniza o valor com o pai
+                onChange={(selectedOption) => {
+                    console.log("Opção selecionada:", selectedOption); // Log do clique no dropdown
+                    onChange(selectedOption ? selectedOption.value : null); // Passa o ID selecionado para o pai
+                }}
+                isClearable
+                noOptionsMessage={() => "Nenhuma opção encontrada"}
+            />
+        );
+    }
+
+    function SelectComFiltroSolicitado({ funcionarios, value, onChange }) {
+        const opcoes = funcionarios
+        .filter((f) => f.idFuncionario && f.nmNome) // Remove funcionários com dados inválidos
+        .map((f) => ({
+            value: f.idFuncionario,
+            label: `${f.nmNome} - ${f.nrMatricula}`,
+        }));
+
+        console.log("Opções disponíveis para o select:", opcoes); // Log das opções disponíveis
+        console.log("Valor recebido no value:", value); // Log do valor recebido no select
+
+        return (
+            <Select
+                options={opcoes}
+                placeholder="Digite para buscar..."
+                value={opcoes.find((o) => o.value === value) || null} // Sincroniza o valor com o pai
+                onChange={(selectedOption) => {
+                    console.log("Opção selecionada:", selectedOption); // Log do clique no dropdown
+                    onChange(selectedOption ? selectedOption.value : null); // Passa o ID selecionado para o pai
+                }}
+                isClearable
+                noOptionsMessage={() => "Nenhuma opção encontrada"}
+            />
+        );
+    }
+    
+    
+
 
     return (
         <>
@@ -412,66 +546,95 @@ function PermutaForm(props) {
                         <div className="row mb-3">
                             <label className="col-sm-4 col-form-label">ID DA ESCALA</label>
                             <div className="col-sm-8">
-                                <input
-                                    className="form-control"
-                                    name="nome"
-                                    defaultValue={props.permuta.idEscala}
-                                    required
-                                    onChange={(e) => setIdDaEscala(e.target.value)}
-                                ></input>
+                            <Select
+                                options={(escala || []).map((e) => ({
+                                    value: e.idEscala,
+                                    label: `${e.nmNomeEscala} - ${getMesPorExtenso(e.nrMesReferencia)}`,
+                                }))}
+                                placeholder="Selecione uma escala"
+                                onChange={(selectedOption) => {
+                                    if (selectedOption) {
+                                        setIdDaEscala(selectedOption.value);
+                                        BuscaEscalaPronta(selectedOption.value);
+                                    }
+                                }}
+                                isClearable
+                                noOptionsMessage={() => "Nenhuma escala encontrada"}
+                            />
                             </div>
                         </div>
 
                         <div className="row mb-3">
                             <label className="col-sm-4 col-form-label">Nome Solicitante</label>
                             <div className="col-sm-8">
-                            <SelectComFiltro
-                                funcionarios={funcionarios}
-                                value={idFuncionarioSolicitante} // Valor controlado pelo estado do pai
-                                onChange={(id) => {
-                                    const funcionarioSelecionado = funcionarios.find((f) => f.idFuncionario === id);
+                            <SelectComFiltroSolicitante
+                            name="nomeSolicitante"
+                            funcionarios={funcionarios}
+                            value={idFuncionarioSolicitante} // Valor controlado pelo estado
+                            onChange={(id) => {
+                                const funcionarioSelecionado = funcionarios.find((f) => f.idFuncionario === id);
 
-                                    if (funcionarioSelecionado) {
-                                        setIdFuncionarioSolicitante(funcionarioSelecionado.idFuncionario);
-                                        setNomeSolicitante(funcionarioSelecionado.nmNome);
-
-                                        console.log("Funcionário selecionado:", funcionarioSelecionado); // Log do funcionário selecionado
-                                    } else {
-                                        setIdFuncionarioSolicitante(null);
-                                        setNomeSolicitante("");
-
-                                        console.log("Nenhum funcionário selecionado.");
-                                    }
-                                }}
-                            />
+                                if (funcionarioSelecionado) {
+                                    setIdFuncionarioSolicitante(funcionarioSelecionado.idFuncionario);
+                                    setNomeSolicitante(funcionarioSelecionado.nmNome);
+                                    console.log("Solicitante selecionado:", funcionarioSelecionado); // Log do funcionário selecionado
+                                } else {
+                                    setIdFuncionarioSolicitante(null);
+                                    setNomeSolicitante("");
+                                    console.log("Nenhum solicitante selecionado.");
+                                }
+                            }}
+                        />
                             </div>
                         </div>
 
-                        {/* <div className="row mb-3">
+                        <div className="row mb-3">
                             <label className="col-sm-4 col-form-label">Nome Solicitado</label>
                             <div className="col-sm-8">
-                                <input
-                                    className="form-control"
-                                    name="matricula"
-                                    defaultValue={props.permuta.nmNomeSolicitado}
-                                    required
-                                    onChange={(e) => setSolicitado(e.target.value)}
-                                ></input>
-                            </div>
-                        </div> */}
+                            <SelectComFiltroSolicitado
+                            name="NomeSolicitado"
+                            funcionarios={funcionarios}
+                            value={idFuncionarioSolicitado} // Valor controlado pelo estado
+                            onChange={(id) => {
+                                const funcionarioSelecionado = funcionarios.find((f) => f.idFuncionario === id);
 
-                        {/* <div className="row mb-3">
+                                if (funcionarioSelecionado) {
+                                    setIdFuncionarioSolicitado(funcionarioSelecionado.idFuncionario);
+                                    setNomeSolicitado(funcionarioSelecionado.nmNome);
+                                    console.log("Solicitado selecionado:", funcionarioSelecionado); // Log do funcionário selecionado
+                                } else {
+                                    setIdFuncionarioSolicitado(null);
+                                    setNomeSolicitado("");
+                                    console.log("Nenhum solicitado selecionado.");
+                                }
+                            }}
+                        />
+                            </div>
+                        </div>
+
+                        <div className="row mb-3">
                             <label className="col-sm-4 col-form-label">Data da troca</label>
                             <div className="col-sm-8">
-                                <input
-                                    className="form-control"
-                                    name="telefone"
-                                    defaultValue={props.permuta.dtDataSolicitadaTroca}
-                                    required
-                                    onChange={(e) => setDtDataSolicitadaTroca(e.target.value)}
-                                ></input>
+                            <select
+                                className="form-control"
+                                value={dtDataSolicitadaTroca}
+                                onChange={(e) => setDtDataSolicitadaTroca(e.target.value)}
+                            >
+                                <option value="" disabled>
+                                    Selecione uma data
+                                </option>
+                                {datasTrabalhoSolicitante.length > 0 ? (
+                                    datasTrabalhoSolicitante.map((dia, index) => (
+                                        <option key={`${index}-${dia}`} value={dia}>
+                                            {dia}
+                                        </option>
+                                    ))
+                                ) : (
+                                    <option disabled>Sem datas disponíveis</option>
+                                )}
+                            </select>
                             </div>
-                        </div> */}
+                        </div>
 
 
                         <div className="row">
