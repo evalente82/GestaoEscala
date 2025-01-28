@@ -32,7 +32,6 @@ namespace GestaoEscalaPermutas.Dominio.DTO.Funcionario
 
         public string? NmEmail { get; set; }
 
-        public string? NmSenha { get; set; }
         public DateTime DtCriacao { get; set; }
 
     }

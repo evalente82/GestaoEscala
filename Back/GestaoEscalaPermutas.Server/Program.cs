@@ -21,6 +21,18 @@ using GestaoEscalaPermutas.Dominio.Interfaces.Mensageria;
 using GestaoEscalaPermutas.Dominio.Services.Mensageria;
 using GestaoEscalaPermutas.Dominio.Interfaces.Permutas;
 using GestaoEscalaPermutas.Dominio.Services.Permutas;
+using GestaoEscalaPermutas.Dominio.Interfaces.Login;
+using GestaoEscalaPermutas.Dominio.Services.Login;
+using GestaoEscalaPermutas.Server.Profiles;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using GestaoEscalaPermutas.Dominio.Interfaces.Usuario;
+using GestaoEscalaPermutas.Dominio.Services.Usuarios;
+using GestaoEscalaPermutas.Dominio.Interfaces.PerfilFuncionalidades;
+using GestaoEscalaPermutas.Dominio.Services.PerfilFuncionalidades;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 var connString = builder.Configuration.GetConnectionString("EmUso");
@@ -54,6 +66,7 @@ builder.Services.AddDbContext<DefesaCivilMaricaContext>(options =>
 
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddAutoMapper(typeof(MappingProfiles));
 builder.Services.AddResponseCompression();
 
 builder.Services.AddScoped<IDepartamentoService, DepartamentoService>();
@@ -64,6 +77,11 @@ builder.Services.AddScoped<IPostoTrabalhoService, PostoTrabalhoService>();
 builder.Services.AddScoped<ITipoEscalaService, TipoEscalaService>();
 builder.Services.AddScoped<IEscalaProntaService, EscalaProntaService>();
 builder.Services.AddScoped<IPermutasService, PermutasService>();
+builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IPerfilService, PerfilService>();
+
+
 builder.Services.AddSingleton<IMessageBus>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
@@ -79,13 +97,27 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod() // Permite qualquer método HTTP (GET, POST, PUT, DELETE, etc.)
               .AllowAnyHeader()); // Permite qualquer cabeçalho
 });
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowSpecificOrigin",
-//        policy => policy.WithOrigins("http://localhost:5174")
-//                        .AllowAnyMethod()
-//                        .AllowAnyHeader());
-//});
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = "sua-aplicacao",
+        ValidAudience = "sua-aplicacao",
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("sua-chave-secreta-aqui"))
+    };
+});
+
+
+
 
 var app = builder.Build();
 
@@ -125,6 +157,7 @@ app.UseRouting();
 app.UseCors("AllowAllOrigins");
 
 app.UseAuthorization();
+app.UseAuthentication();
 
 app.MapControllers();
 

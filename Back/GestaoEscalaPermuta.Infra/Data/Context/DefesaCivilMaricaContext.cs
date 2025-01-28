@@ -17,6 +17,7 @@ public partial class DefesaCivilMaricaContext : DbContext
     }
     public DefesaCivilMaricaContext(DbContextOptions<DefesaCivilMaricaContext> options) : base(options)
     {
+
     }
 
     public virtual DbSet<Cargo> Cargos { get; set; }
@@ -35,15 +36,16 @@ public partial class DefesaCivilMaricaContext : DbContext
 
     public virtual DbSet<PostoTrabalho> PostoTrabalhos { get; set; }
 
-    public virtual DbSet<TipoEscala> TipoEscalas { get; set; }
-
-    public DbSet<Perfil> Perfis { get; set; }
+    public virtual DbSet<TipoEscala> TipoEscalas { get; set; }    
 
     public DbSet<Funcionalidade> Funcionalidades { get; set; }
 
     public DbSet<FuncionarioPerfil> FuncionariosPerfis { get; set; }
 
     public DbSet<PerfilFuncionalidade> PerfisFuncionalidades { get; set; }
+    public DbSet<Login> Login { get; set; }
+    public DbSet<Usuarios> Usuario { get; set; }
+    public DbSet<Perfil> Perfil { get; set; }
 
 
 
@@ -55,6 +57,7 @@ public partial class DefesaCivilMaricaContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+
         var hostEnvironment = Host.CreateDefaultBuilder().Build().Services.GetRequiredService<IHostEnvironment>();
 
         IConfiguration configuration = new ConfigurationBuilder()
@@ -237,9 +240,30 @@ public partial class DefesaCivilMaricaContext : DbContext
         #region PERFIL
         modelBuilder.Entity<Perfil>(entity =>
         {
-            entity.HasKey(e => e.IdPerfil).HasName("PK_IdPerfil");
+            entity.ToTable("Perfis"); // Nome da tabela no banco de dados
+            entity.HasKey(p => p.IdPerfil);
+            entity.Property(p => p.Nome).IsRequired().HasMaxLength(100);
+            entity.Property(p => p.Descricao).HasMaxLength(255);
         });
         #endregion
+
+        #region LOGIN
+        modelBuilder.Entity<Login>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Usuario).IsRequired();
+            entity.Property(e => e.SenhaHash).IsRequired();
+        });
+        #endregion
+
+        #region USUARIO
+        modelBuilder.Entity<Usuarios>(entity =>
+        {
+            modelBuilder.Entity<Usuarios>()
+        .ToTable("usuarios"); // Inclua as aspas duplas para corresponder ao nome sensível a case
+        });
+        #endregion
+
 
         OnModelCreatingPartial(modelBuilder);
     }

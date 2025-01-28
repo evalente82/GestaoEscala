@@ -1,8 +1,0 @@
-/* Adicione essas classes CSS no seu arquivo de estilo */
-.pessoa {
-    display: none;
-  }
-  
-  .pessoa.funcionariosDia {
-    display: block;
-  }

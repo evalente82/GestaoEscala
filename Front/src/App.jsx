@@ -9,13 +9,24 @@ import { Escala } from './Components/Pages/Escala/Escala';
 import { Funcionario } from './Components/Pages/Funcionario/Funcionario';
 import { TipoEscala } from './Components/Pages/TipoEscala/TipoEscala';
 import {Exibicao}  from './Components/Pages/Exibiçao/Exibicao';
-import { EditarEscala } from './Components/Pages/EditarEscala/EditarEscala'; 
 import { Permuta } from './Components/Pages/Permuta/Permuta';
+import EsqueciSenha from './Components/Pages/Login/EsqueciSenha';
+import Login from './Components/Pages/Login/Login';
+import {Perfil} from './Components/Pages/Perfil/Perfil';
+
+
 function App() {
     return (
         <>            
             <BrowserRouter>
                 <Routes>
+                     {/* Rota de Login (página inicial) */}
+                     <Route path="/" element={<Login />} />
+
+                    {/* Rota de Esqueci Senha */}
+                    <Route path="/EsqueciSenha" element={<EsqueciSenha />} />
+
+                    {/* Outras páginas */}
                     <Route path="/*" element={<Home />} />
                     <Route path="/home" element={<Home />} />
                     <Route path="/cargo" element={<Cargo/>} />
@@ -26,6 +37,7 @@ function App() {
                     <Route path="/TipoEscala/" element={<TipoEscala />} />
                     <Route path="/Exibicao/:idEscala" element={<Exibicao />} />
                     <Route path="/permuta" element={<Permuta />} />
+                    <Route path="/Perfil" element={<Perfil />} />
                 </Routes>
                 <Footer />
             </BrowserRouter>

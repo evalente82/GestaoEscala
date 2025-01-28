@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
 {
     public class Perfil
     {
+        [Key]
         public Guid IdPerfil { get; set; }
 
         [StringLength(100)]
-        public string NmNome { get; set; } = null!;
+        public string Nome { get; set; } = null!;
+
+        public string? Descricao { get; set; } // Descrição opcional do perfil
 
         // Relacionamentos
         public ICollection<FuncionarioPerfil>? FuncionariosPerfis { get; set; }

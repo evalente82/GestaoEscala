@@ -20,7 +20,5 @@ namespace GestaoEscalaPermutas.Server.Models.Funcionarios
         public bool IsAtivo { get; set; }
 
         public string? NmEmail { get; set; }
-
-        public string? NmSenha { get; set; }
     }
 }

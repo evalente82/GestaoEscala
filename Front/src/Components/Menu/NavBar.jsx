@@ -55,18 +55,20 @@ function NavBar() {
                                 <Link className="nav-link text-dark" to="/escalas">Escalas</Link>
                             </li>
 
-                            {/* <li className={`nav-item ${location.pathname === '/Exibicao' ? 'active' : ''}`}>
-                                <Link className="nav-link text-dark" to="/Exibicao">Exibição</Link>
-                            </li> */}
-
                             <li className={`nav-item ${location.pathname === '/permuta' ? 'active' : ''}`}>
                                 <Link className="nav-link text-dark" to="/permuta">Permutas</Link>
                             </li>
+
+                            <li className={`nav-item ${location.pathname === '/Perfil' ? 'active' : ''}`}>
+                                <Link className="nav-link text-dark" to="/Perfil">Perfil</Link>
+                            </li>
+
+                            
                         </ul>
                     </div>
-                    <Link className="navbar-brand" to="/">
+                    {/* <Link className="navbar-brand" to="/">
                         <img className="logo-image" src={logoSalvamento} alt="Logo da Defesa Civil de Maricá" />
-                    </Link>
+                    </Link> */}
                 </div>
             </nav>
         </>
@@ -77,6 +79,7 @@ export function Footer() {
         <footer>
             <div className='container p-3 mt5 border-top'>
                 <small className='d-block text-muted text-center'>&copy; 2023 - DEFESA CIVIL MARICÁ CONTROLE DE ESCALAS</small>
+                <small className='d-block text-muted text-center'>&copy; Todos os direitos reservados à VCORP Sistem</small>
 
             </div>
         </footer>

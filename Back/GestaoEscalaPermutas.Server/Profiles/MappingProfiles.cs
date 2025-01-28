@@ -16,6 +16,12 @@ using GestaoEscalaPermutas.Server.Models.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.DTO.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.DTO.Permutas;
 using GestaoEscalaPermutas.Server.Models.Permuta;
+using GestaoEscalaPermutas.Server.Models.Login;
+using GestaoEscalaPermutas.Dominio.DTO.Login;
+using GestaoEscalaPermutas.Dominio.DTO.Usuario;
+using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
+using GestaoEscalaPermutas.Dominio.DTO.PerfilFuncionalidade;
+using GestaoEscalaPermutas.Server.Models.PerfilFuncionalidade;
 
 namespace GestaoEscalaPermutas.Server.Profiles
 {
@@ -23,6 +29,24 @@ namespace GestaoEscalaPermutas.Server.Profiles
     {
         public MappingProfiles()
         {
+            CreateMap<Perfil, PerfilDTO>().ReverseMap();
+            CreateMap<PerfilDTO, PerfilModel>().ReverseMap();
+
+            CreateMap<DepInfra.Usuarios, UsuarioDTO>().ReverseMap();
+
+            CreateMap<Usuarios, UsuarioDTO>()
+                .ReverseMap();
+
+            // Mapeamento entre LoginModel e LoginDTO
+            CreateMap<LoginModel, LoginDTO>()
+                .ReverseMap();
+
+            // Mapeamento entre Login e LoginDTO
+            CreateMap<Login, LoginDTO>()
+                .ForMember(dest => dest.valido, opt => opt.MapFrom(src => true))
+                .ForMember(dest => dest.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso"))
+                .ReverseMap(); // Permite o mapeamento bidirecional
+
             CreateMap<PermutaModel, PermutasDTO>()
             .ReverseMap();
             CreateMap<PermutasDTO, Permuta>().ForMember(x => x.DtDataSolicitadaTroca, opt => opt.MapFrom(src => src.DtDataSolicitadaTroca));
