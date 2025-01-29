@@ -24,17 +24,7 @@ function EscalaList(props) {
         onConfirm: null, // Callback para ações de confirmação (opcional)
         onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
     });
-    // Definindo a função BuscarTodos dentro do componente FuncionarioList
-    // function BuscarTodos() {
-    //     const API_URL = "https://localhost:7207/escala";
-    //     const fetchData = async () => {
-    //         const response = await axios.get(`${API_URL}/buscarTodos`);
-    //         console.log('Escalas');
-    //         console.log(response.data);
-    //         setEscala(response.data);
-    //     };
-    //     fetchData();
-    // }
+
     function BuscarTodos() {
         axios.get(`${API_URL}/buscarTodos`)
             .then((response) => {
@@ -121,12 +111,6 @@ function EscalaList(props) {
         fetchData();
     }, []);
 
-    // function handleDelete(id) {
-    //     // Mostrar a popup de confirmação
-    //     if (window.confirm("Tem certeza que deseja excluir Uma escala que já foi Gerada ?")) {
-    //         DeleteEscala(id);
-    //     }
-    // }
     function handleDelete(id) {
         setAlertProps({
             show: true,
@@ -141,20 +125,6 @@ function EscalaList(props) {
         });
     }
 
-    // function DeleteEscala(idEscala) {
-    //     axios
-    //         .delete(`https://localhost:7207/escala/Deletar/${idEscala}`)
-    //         .then((response) => {
-    //             console.log(response);
-    //             setEscala(
-    //                 escala.filter((usuario) => usuario.id !== idEscala)
-    //             );
-    //             BuscarTodos();
-    //         })
-    //         .catch((error) => {
-    //             console.error(error);
-    //         });
-    // }
     function DeleteEscala(idEscala) {
         axios
             .delete(`${API_URL}/Deletar/${idEscala}`)
@@ -247,28 +217,9 @@ function EscalaList(props) {
                 placeholder="Pesquisar..."
                 className="form-control mb-3"
             />
-            {/* <div className="d-flex justify-content-center">
-                <button
-                    type="button"
-                    className="btn btn-outline-primary me-2"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                >
-                    Anterior
-                </button>
-                <button
-                    type="button"
-                    className="btn btn-outline-primary"
-                    disabled={currentRecords.length < recordsPerPage}
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                >
-                    Próximo
-                </button>
-            </div> */}
             <table className="table">
                 <thead>
                     <tr>
-                        {/*<th>ID</th>*/}
                         <th>NOME</th>
                         <th>DEPARTAMENTO</th>
                         <th>CARGO</th>
@@ -379,7 +330,6 @@ function EscalaForm(props) {
         setTipoEscalaSelecionado(props.escala.idTipoEscala || '');
     }, [props.escala]);
 
-    // const [errorMessage, setErrorMessage] = useState('');
     const [nome, setNome] = useState(props.escala.nmNomeEscala || '');
     const [mesReferencia, setMesReferencia] = useState(props.escala.nrMesReferencia || '');
     const [pessoaPorPosto, setPessoaPorPosto] = useState(props.escala.nrPessoaPorPosto || '');
@@ -559,7 +509,6 @@ function EscalaForm(props) {
             </h2>
             <div className="row">
                 <div className="col-lg-6 mx-auto">
-                    {/* {errorMessage} */}
                     <form onSubmit={(e) => handleSubmit(e)}>
                         {props.escala.idEscala && (
                             <div className="row mb-3">
@@ -809,7 +758,6 @@ function MontaEscala(props) {
             });
     }
 
-
     var nomesMeses = [
         "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
         "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
@@ -876,7 +824,6 @@ function MontaEscala(props) {
             </h2>
             <div className="row">
                 <div className="col-lg-6 mx-auto">
-                    {/* {errorMessage} */}
                     <form onSubmit={(e) => handleSubmit(e)}>
                         {props.escala.idEscala && (
                             <div className="row mb-3">

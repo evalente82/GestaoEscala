@@ -17,6 +17,24 @@ using GestaoEscalaPermutas.Dominio.Interfaces.PostoTrabalho;
 using GestaoEscalaPermutas.Dominio.Interfaces.TipoEscala;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.Services.EscalaPronta;
+using GestaoEscalaPermutas.Dominio.Interfaces.Mensageria;
+using GestaoEscalaPermutas.Dominio.Services.Mensageria;
+using GestaoEscalaPermutas.Dominio.Interfaces.Permutas;
+using GestaoEscalaPermutas.Dominio.Services.Permutas;
+using GestaoEscalaPermutas.Dominio.Interfaces.Login;
+using GestaoEscalaPermutas.Dominio.Services.Login;
+using GestaoEscalaPermutas.Server.Profiles;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using GestaoEscalaPermutas.Dominio.Interfaces.Usuario;
+using GestaoEscalaPermutas.Dominio.Services.Usuarios;
+using GestaoEscalaPermutas.Dominio.Interfaces.PerfilFuncionalidades;
+using GestaoEscalaPermutas.Dominio.Services.PerfilFuncionalidades;
+using GestaoEscalaPermutas.Dominio.Interfaces.PerfisFuncionalidades;
+using GestaoEscalaPermutas.Dominio.Services.PerfisFuncionalidades;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 var connString = builder.Configuration.GetConnectionString("EmUso");
@@ -48,26 +66,65 @@ builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddDbContext<DefesaCivilMaricaContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("EmUso")));
 
+
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddAutoMapper(typeof(MappingProfiles));
 builder.Services.AddResponseCompression();
 
-builder.Services.AddTransient<IDepartamentoService, DepartamentoService>();
-builder.Services.AddTransient<ICargoService, CargoService>();
-builder.Services.AddTransient<IFuncionarioService, FuncionarioService>();
-builder.Services.AddTransient<IEscalaService, EscalaService>();
-builder.Services.AddTransient<IPostoTrabalhoService, PostoTrabalhoService>();
-builder.Services.AddTransient<ITipoEscalaService, TipoEscalaService>();
-builder.Services.AddTransient<IEscalaProntaService, EscalaProntaService>();
+builder.Services.AddScoped<IDepartamentoService, DepartamentoService>();
+builder.Services.AddScoped<ICargoService, CargoService>();
+builder.Services.AddScoped<IFuncionarioService, FuncionarioService>();
+builder.Services.AddScoped<IEscalaService, EscalaService>();
+builder.Services.AddScoped<IPostoTrabalhoService, PostoTrabalhoService>();
+builder.Services.AddScoped<ITipoEscalaService, TipoEscalaService>();
+builder.Services.AddScoped<IEscalaProntaService, EscalaProntaService>();
+builder.Services.AddScoped<IPermutasService, PermutasService>();
+builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IPerfilService, PerfilService>();
+builder.Services.AddScoped<IFuncionalidadeService, FuncionalidadeService>();
+builder.Services.AddScoped<ICargoPerfisService, CargoPerfisService>();
+builder.Services.AddScoped<IPerfisFuncionalidadesService, PerfisFuncionalidadesService>();
 
-            
+
+
+
+builder.Services.AddSingleton<IMessageBus>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var hostName = configuration["RabbitMQ:HostName"];
+    return new RabbitMqMessageBus(hostName);
+});
+builder.Services.AddHostedService<UsuarioMessageConsumer>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigin",
-        policy => policy.WithOrigins("http://localhost:5173")
-                        .AllowAnyMethod()
-                        .AllowAnyHeader());
+    options.AddPolicy("AllowAllOrigins", policy =>
+        policy.AllowAnyOrigin() // Permite qualquer origem
+              .AllowAnyMethod() // Permite qualquer método HTTP (GET, POST, PUT, DELETE, etc.)
+              .AllowAnyHeader()); // Permite qualquer cabeçalho
 });
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = "sua-aplicacao",
+        ValidAudience = "sua-aplicacao",
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("sua-chave-secreta-aqui"))
+    };
+});
+
+
+
 
 var app = builder.Build();
 
@@ -104,9 +161,10 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
-app.UseCors("AllowSpecificOrigin");
+app.UseCors("AllowAllOrigins");
 
 app.UseAuthorization();
+app.UseAuthentication();
 
 app.MapControllers();
 

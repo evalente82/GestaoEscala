@@ -15,10 +15,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GestaoEscalaPermutas.Domini
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GestaoEscalaPermutas.Infra", "GestaoEscalaPermuta.Infra\GestaoEscalaPermutas.Infra.csproj", "{D8B4212D-4A66-4B9B-BEE0-1452876A5C42}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4-TestesUnitarios", "4-TestesUnitarios", "{5793E69D-CAD3-4B49-A5CF-7E59EBE5179C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesteUnitario", "TesteUnitario\TesteUnitario.csproj", "{4C67A315-328E-4146-B81F-D8D34A8DC42B}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,10 +33,6 @@ Global
 		{D8B4212D-4A66-4B9B-BEE0-1452876A5C42}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8B4212D-4A66-4B9B-BEE0-1452876A5C42}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8B4212D-4A66-4B9B-BEE0-1452876A5C42}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4C67A315-328E-4146-B81F-D8D34A8DC42B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4C67A315-328E-4146-B81F-D8D34A8DC42B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4C67A315-328E-4146-B81F-D8D34A8DC42B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4C67A315-328E-4146-B81F-D8D34A8DC42B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -49,7 +41,6 @@ Global
 		{C0020EFD-9ED7-4329-9252-FB5AA0947F0D} = {BE8F6AF7-A597-478B-AEC0-D7CF62F4C060}
 		{C071F66A-485A-4380-9EC9-293905540D1D} = {F85544CA-B361-49DE-AE27-D62072EF4698}
 		{D8B4212D-4A66-4B9B-BEE0-1452876A5C42} = {7C5C2EA6-6B59-4B5C-BDB2-8E8929E4E93A}
-		{4C67A315-328E-4146-B81F-D8D34A8DC42B} = {5793E69D-CAD3-4B49-A5CF-7E59EBE5179C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {ABE64A0E-55F5-4AE6-BB26-0267663CC3A7}

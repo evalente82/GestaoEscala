@@ -1,0 +1,32 @@
+﻿using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
+using GestaoEscalaPermutas.Dominio.Interfaces.Mensageria;
+using Microsoft.AspNetCore.Mvc;
+
+namespace GestaoEscalaPermutas.Server.Controllers.Mensageria
+{
+
+    //[ApiController]
+    //[Route("api/[controller]")]
+    //public class UsuarioController : ControllerBase
+    //{
+    //    private readonly IMessageBus _messageBus;
+
+    //    public UsuarioController(IMessageBus messageBus)
+    //    {
+    //        _messageBus = messageBus;
+    //    }
+
+    //    [HttpPost]
+    //    [Route("criar")]
+    //    public async Task<IActionResult> CriarUsuario([FromBody] FuncionarioDTO usuarioDto)
+    //    {
+    //        // Lógica de criação do usuário (persistência no banco etc.)
+
+    //        // Publicar mensagem no RabbitMQ
+    //        await _messageBus.PublishAsync("usuarios.queue", usuarioDto);
+
+    //        return Ok("Usuário criado e mensagem publicada.");
+    //    }
+    //}
+
+}

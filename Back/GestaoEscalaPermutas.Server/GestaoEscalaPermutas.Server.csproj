@@ -12,10 +12,27 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\Empresa\**" />
+    <Compile Remove="Controllers\Permuta\**" />
+    <Compile Remove="Models\Empresa\**" />
+    <Content Remove="Controllers\Empresa\**" />
+    <Content Remove="Controllers\Permuta\**" />
+    <Content Remove="Models\Empresa\**" />
+    <EmbeddedResource Remove="Controllers\Empresa\**" />
+    <EmbeddedResource Remove="Controllers\Permuta\**" />
+    <EmbeddedResource Remove="Models\Empresa\**" />
+    <None Remove="Controllers\Empresa\**" />
+    <None Remove="Controllers\Permuta\**" />
+    <None Remove="Models\Empresa\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Controllers\Escala\EscalaController.cs~RF664ededa.TMP" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy">
       <Version>9.0.0</Version>
     </PackageReference>
@@ -25,18 +42,12 @@
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.2" />
+    <PackageReference Include="RabbitMQ.Client" Version="6.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\GestaoEscalaPermutas.Dominio\GestaoEscalaPermutas.Dominio.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\Empresa\" />
-    <Folder Include="Controllers\Permuta\" />
-    <Folder Include="Models\Empresa\" />
-    <Folder Include="Models\Permuta\" />
   </ItemGroup>
 
 </Project>

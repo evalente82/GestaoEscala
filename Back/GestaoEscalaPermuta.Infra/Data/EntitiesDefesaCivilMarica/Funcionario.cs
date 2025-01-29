@@ -31,9 +31,5 @@ public partial class Funcionario
     [StringLength(100)]
     [Unicode(false)]
     public string? NmEmail { get; set; }
-
-    [StringLength(100)]
-    [Unicode(false)]
-    public string? NmSenha { get; set; }
-
+    public ICollection<CargoPerfis> CargoPerfis { get; set; } = new List<CargoPerfis>();
 }

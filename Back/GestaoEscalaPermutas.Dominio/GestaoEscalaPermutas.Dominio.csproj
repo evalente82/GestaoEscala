@@ -7,16 +7,26 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.2" />
+    <Compile Remove="Interfaces\Empresa\**" />
+    <Compile Remove="Interfaces\Permuta\**" />
+    <Compile Remove="Services\Empresa\**" />
+    <Compile Remove="Services\Permuta\**" />
+    <EmbeddedResource Remove="Interfaces\Empresa\**" />
+    <EmbeddedResource Remove="Interfaces\Permuta\**" />
+    <EmbeddedResource Remove="Services\Empresa\**" />
+    <EmbeddedResource Remove="Services\Permuta\**" />
+    <None Remove="Interfaces\Empresa\**" />
+    <None Remove="Interfaces\Permuta\**" />
+    <None Remove="Services\Empresa\**" />
+    <None Remove="Services\Permuta\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Interfaces\Empresa\" />
-    <Folder Include="Interfaces\Permuta\" />
-    <Folder Include="Services\Empresa\" />
-    <Folder Include="Services\Permuta\" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.2" />
+    <PackageReference Include="RabbitMQ.Client" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>

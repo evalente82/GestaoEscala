@@ -1,15 +1,14 @@
-
 import logoDefesa from "../../Components/Imagens/LogoDefesaCivil.png";
-import logoSalvamento from '../../Components/Imagens/SalvamentoMaritimo.png';
 import { Link, useLocation } from 'react-router-dom';
 import './NavBar.css';
 
 function NavBar() {
     const location = useLocation();
+
     return (
         <>
             Defesa Civil de Maricá
-            <nav className="navbar navbar-expand-lg navbar-light bg-white border-bottom box-sahdow py-3 mb3">
+            <nav className="navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow py-3 mb-3">
                 <div className="container">
                     <Link className="navbar-brand" to="/">
                         <img className="logo-image" src={logoDefesa} alt="Logo da Defesa Civil de Maricá" />
@@ -27,59 +26,103 @@ function NavBar() {
                     </button>
                     <div className="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                            {/*<li className={`nav-item ${location.pathname === '/home' ? 'active' : ''}`}>*/}
-                            {/*    <Link className="nav-link text-dark" aria-current="page" to="/home">Home</Link>*/}
-                            {/*</li>*/}
-
-                            <li className={`nav-item ${location.pathname === '/departamento' ? 'active' : ''}`}>
-                                <Link className="nav-link text-dark" to="/departamento">Departamento</Link>
+                            {/* Submenu exemplo */}
+                            <li className="nav-item dropdown">
+                                <a
+                                    className="nav-link dropdown-toggle text-dark"
+                                    href="#"
+                                    id="departamentoDropdown"
+                                    role="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                >
+                                    Departamentos
+                                </a>
+                                <ul className="dropdown-menu" aria-labelledby="departamentoDropdown">
+                                    <li>
+                                        <Link className="dropdown-item" to="/departamento">Departamento</Link>
+                                    </li>
+                                    <li>
+                                        <Link className="dropdown-item" to="/cargo">Cargo</Link>
+                                    </li>
+                                    <li>
+                                        <Link className="dropdown-item" to="/funcionario">Funcionários</Link>
+                                    </li>
+                                </ul>
                             </li>
 
-                            <li className={`nav-item ${location.pathname === '/cargo' ? 'active' : ''}`}>
-                                <Link className="nav-link text-dark" to="/cargo">Cargo</Link>
+                            {/* Submenu exemplo 2 */}
+                            <li className="nav-item dropdown">
+                                <a
+                                    className="nav-link dropdown-toggle text-dark"
+                                    href="#"
+                                    id="configuracoesDropdown"
+                                    role="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                >
+                                    Configurações
+                                </a>
+                                <ul className="dropdown-menu" aria-labelledby="configuracoesDropdown">
+                                    <li>
+                                        <Link className="dropdown-item" to="/PostoTrabalho">Postos</Link>
+                                    </li>
+                                    <li>
+                                        <Link className="dropdown-item" to="/tipoEscala">Tipo Escala</Link>
+                                    </li>
+                                    <li>
+                                        <Link className="dropdown-item" to="/escalas">Escalas</Link>
+                                    </li>
+                                    <li>
+                                        <Link className="dropdown-item" to="/permuta">Permutas</Link>
+                                    </li>
+                                </ul>
                             </li>
 
-                            <li className={`nav-item ${location.pathname === '/funcionario' ? 'active' : ''}`}>
-                                <Link className="nav-link text-dark" aria-current="page" to="/funcionario">Funcionários</Link>
-                            </li>
-                            
-                            <li className={`nav-item ${location.pathname === '/PostoTrabalho' ? 'active' : ''}`}>
-                                <Link className="nav-link text-dark" to="/PostoTrabalho">Postos</Link>
-                            </li>
-
-                            <li className={`nav-item ${location.pathname === '/tipoEscala' ? 'active' : ''}`}>
-                                <Link className="nav-link text-dark" to="/tipoEscala">Tipo Escala</Link>
-                            </li>
-
-                            <li className={`nav-item ${location.pathname === '/escalas' ? 'active' : ''}`}>
-                                <Link className="nav-link text-dark" to="/escalas">Escalas</Link>
-                            </li>
-
-                            {/* <li className={`nav-item ${location.pathname === '/Exibicao' ? 'active' : ''}`}>
-                                <Link className="nav-link text-dark" to="/Exibicao">Exibição</Link>
-                            </li> */}
-
-                            <li className={`nav-item ${location.pathname === '/permutas' ? 'active' : ''}`}>
-                                <Link className="nav-link text-dark" to="/permutas">Permutas</Link>
+                            {/* Submenu Perfis e Funcionalidades */}
+                            <li className="nav-item dropdown">
+                                <a
+                                    className="nav-link dropdown-toggle text-dark"
+                                    href="#"
+                                    id="perfisDropdown"
+                                    role="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                >
+                                    Perfis e Funcionalidades
+                                </a>
+                                <ul className="dropdown-menu" aria-labelledby="perfisDropdown">
+                                    <li>
+                                        <Link className="dropdown-item" to="/Perfil">Perfil</Link>
+                                    </li>
+                                    <li>
+                                        <Link className="dropdown-item" to="/Funcionalidade">Funcionalidade</Link>
+                                    </li>
+                                    <li>
+                                        <Link className="dropdown-item" to="/PerfisFuncionalidades">Perfil Funcionalidade</Link>
+                                    </li>
+                                    <li>
+                                        <Link className="dropdown-item" to="/FuncionariosPerfis">Funcionários Perfis</Link>
+                                    </li>
+                                </ul>
                             </li>
                         </ul>
                     </div>
-                    <Link className="navbar-brand" to="/">
-                        <img className="logo-image" src={logoSalvamento} alt="Logo da Defesa Civil de Maricá" />
-                    </Link>
                 </div>
             </nav>
         </>
     );
 }
+
 export function Footer() {
     return (
         <footer>
-            <div className='container p-3 mt5 border-top'>
+            <div className='container p-3 mt-5 border-top'>
                 <small className='d-block text-muted text-center'>&copy; 2023 - DEFESA CIVIL MARICÁ CONTROLE DE ESCALAS</small>
-
+                <small className='d-block text-muted text-center'>&copy; Todos os direitos reservados à VCORP Sistem</small>
             </div>
         </footer>
     );
 }
+
 export default NavBar;
