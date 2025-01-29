@@ -65,7 +65,7 @@ namespace GestaoEscalaPermutas.Server.Profiles
             // ======= PERFIS FUNCIONALIDADES =======
             CreateMap<PerfisFuncionalidades, PerfisFuncionalidadesDTO>()
                 .ForMember(dest => dest.NomePerfil, opt => opt.MapFrom(src => src.Perfil.Nome))
-                .ForMember(dest => dest.NomeFuncionalidade, opt => opt.MapFrom(src => src.Funcionalidade.NmNome))
+                .ForMember(dest => dest.NomeFuncionalidade, opt => opt.MapFrom(src => src.Funcionalidade.Nome))
                 .ReverseMap();
 
             CreateMap<PerfisFuncionalidades, FuncionalidadeDTO>().ReverseMap();
