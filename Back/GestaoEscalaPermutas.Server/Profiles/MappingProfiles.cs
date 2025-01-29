@@ -37,6 +37,12 @@ namespace GestaoEscalaPermutas.Server.Profiles
                 .ForMember(dest => dest.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso")) // ✅ Mensagem padrão
                 .ReverseMap();
 
+            CreateMap<Funcionario, FuncionarioDTO>()
+                .ForMember(dest => dest.IdFuncionario, opt => opt.MapFrom(src => src.IdFuncionario))
+                .ForMember(dest => dest.NmNome, opt => opt.MapFrom(src => src.NmNome))
+                .ForMember(dest => dest.IdCargo, opt => opt.MapFrom(src => src.IdCargo))
+                .ReverseMap();
+
             CreateMap<FuncionarioModel, FuncionarioDTO>().ReverseMap();
             CreateMap<Funcionario, FuncionarioDTO>()
                 .ForMember(dest => dest.valido, opt => opt.MapFrom(src => true))
@@ -67,13 +73,7 @@ namespace GestaoEscalaPermutas.Server.Profiles
             CreateMap<FuncionalidadeModel, FuncionalidadeDTO>().ReverseMap();
 
             // ======= FUNCIONÁRIOS PERFIS =======
-            CreateMap<CargoPerfis, CargoPerfisDTO>()
-                .ForMember(dest => dest.NomeFuncionario, opt => opt.MapFrom(src => src.Cargo.NmNome))
-                .ForMember(dest => dest.NomePerfil, opt => opt.MapFrom(src => src.Perfil.Nome))
-                .ReverseMap();
-
-            CreateMap<CargoPerfisDTO, FuncionariosPerfisModel>().ReverseMap();
-            CreateMap<CargoPerfis, PerfilDTO>().ReverseMap();
+           
 
             // ======= USUÁRIOS E LOGIN =======
             CreateMap<DepInfra.Usuarios, UsuarioDTO>().ReverseMap();

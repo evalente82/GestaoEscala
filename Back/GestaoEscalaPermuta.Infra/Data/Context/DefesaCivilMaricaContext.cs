@@ -43,7 +43,6 @@ public partial class DefesaCivilMaricaContext : DbContext
     public DbSet<Usuarios> Usuario { get; set; }
     public DbSet<Perfil> Perfil { get; set; }
     public DbSet<PerfisFuncionalidades> PerfisFuncionalidades { get; set; }
-    public DbSet<CargoPerfis> FuncionariosPerfis { get; set; }
 
 
 
@@ -190,6 +189,12 @@ public partial class DefesaCivilMaricaContext : DbContext
         });
 
         modelBuilder.Entity<Funcionario>()
+        .HasOne(f => f.Cargo)
+        .WithMany() // Não precisa mapear a relação inversa
+        .HasForeignKey(f => f.IdCargo)
+        .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Funcionario>()
         .Property(e => e.IdFuncionario)
         .HasColumnType("uuid")
         .HasDefaultValueSql("uuid_generate_v4()");
@@ -201,10 +206,6 @@ public partial class DefesaCivilMaricaContext : DbContext
                 v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
         #endregion
 
-        #region FUNCIONARIOPERFIL
-        modelBuilder.Entity<CargoPerfis>()
-            .HasKey(fp => new { fp.IdCargo, fp.IdPerfil });
-        #endregion
 
         #region TIPO_ESCALA
         modelBuilder.Entity<TipoEscala>(entity =>
@@ -289,20 +290,6 @@ public partial class DefesaCivilMaricaContext : DbContext
         #endregion
 
         #region CARGO_PERFIL
-        modelBuilder.Entity<CargoPerfis>()
-            .HasKey(fp => new { fp.IdCargo, fp.IdPerfil });
-
-        modelBuilder.Entity<CargoPerfis>()
-            .HasOne(cp => cp.Cargo)
-            .WithMany(c => c.Perfis)
-            .HasForeignKey(cp => cp.IdCargo)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<CargoPerfis>()
-            .HasOne(cp => cp.Perfil)
-            .WithMany()
-            .HasForeignKey(cp => cp.IdPerfil)
-            .OnDelete(DeleteBehavior.Cascade);
         #endregion
 
 

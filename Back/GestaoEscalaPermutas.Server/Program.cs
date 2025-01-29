@@ -72,7 +72,7 @@ builder.Services.AddAutoMapper(typeof(MappingProfiles));
 builder.Services.AddResponseCompression();
 
 builder.Services.AddScoped<IDepartamentoService, DepartamentoService>();
-builder.Services.AddScoped<ICargoService, CargoService>();
+builder.Services.AddScoped<GestaoEscalaPermutas.Dominio.Interfaces.Cargos.ICargoService, CargoService>();
 builder.Services.AddScoped<IFuncionarioService, FuncionarioService>();
 builder.Services.AddScoped<IEscalaService, EscalaService>();
 builder.Services.AddScoped<IPostoTrabalhoService, PostoTrabalhoService>();
@@ -83,7 +83,6 @@ builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IPerfilService, PerfilService>();
 builder.Services.AddScoped<IFuncionalidadeService, FuncionalidadeService>();
-builder.Services.AddScoped<ICargoPerfisService, CargoPerfisService>();
 builder.Services.AddScoped<IPerfisFuncionalidadesService, PerfisFuncionalidadesService>();
 
 
