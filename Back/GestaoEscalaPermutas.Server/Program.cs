@@ -31,6 +31,8 @@ using GestaoEscalaPermutas.Dominio.Interfaces.Usuario;
 using GestaoEscalaPermutas.Dominio.Services.Usuarios;
 using GestaoEscalaPermutas.Dominio.Interfaces.PerfilFuncionalidades;
 using GestaoEscalaPermutas.Dominio.Services.PerfilFuncionalidades;
+using GestaoEscalaPermutas.Dominio.Interfaces.PerfisFuncionalidades;
+using GestaoEscalaPermutas.Dominio.Services.PerfisFuncionalidades;
 
 
 
@@ -80,6 +82,11 @@ builder.Services.AddScoped<IPermutasService, PermutasService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IPerfilService, PerfilService>();
+builder.Services.AddScoped<IFuncionalidadeService, FuncionalidadeService>();
+builder.Services.AddScoped<ICargoPerfisService, CargoPerfisService>();
+builder.Services.AddScoped<IPerfisFuncionalidadesService, PerfisFuncionalidadesService>();
+
+
 
 
 builder.Services.AddSingleton<IMessageBus>(sp =>

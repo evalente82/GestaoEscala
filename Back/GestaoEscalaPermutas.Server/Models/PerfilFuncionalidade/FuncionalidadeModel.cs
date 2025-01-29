@@ -4,14 +4,8 @@ namespace GestaoEscalaPermutas.Server.Models.PerfilFuncionalidade
 {
     public class FuncionalidadeModel: RetornoModel
     {
-        
         public Guid IdFuncionalidade { get; set; }
-
-        public string NmNome { get; set; } = null!;
-
-        public string NmDescricao { get; set; } = null!;
-
-        // Relacionamentos
-        public ICollection<PerfilFuncionalidadeModel>? PerfisFuncionalidades { get; set; }
+        public string Nome { get; set; } = null!;
+        public string? Descricao { get; set; }
     }
 }

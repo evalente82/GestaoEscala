@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
 {
-    public class PerfilFuncionalidade
+    public class CargoPerfis
     {
+        public Guid IdCargo { get; set; }
         public Guid IdPerfil { get; set; }
-        public Guid IdFuncionalidade { get; set; }
 
         // Relacionamentos
+        public Cargo Cargo { get; set; } = null!;
         public Perfil Perfil { get; set; } = null!;
-        public Funcionalidade Funcionalidade { get; set; } = null!;
     }
 }

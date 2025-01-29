@@ -36,16 +36,15 @@ public partial class DefesaCivilMaricaContext : DbContext
 
     public virtual DbSet<PostoTrabalho> PostoTrabalhos { get; set; }
 
-    public virtual DbSet<TipoEscala> TipoEscalas { get; set; }    
+    public virtual DbSet<TipoEscala> TipoEscalas { get; set; }
 
     public DbSet<Funcionalidade> Funcionalidades { get; set; }
-
-    public DbSet<FuncionarioPerfil> FuncionariosPerfis { get; set; }
-
-    public DbSet<PerfilFuncionalidade> PerfisFuncionalidades { get; set; }
     public DbSet<Login> Login { get; set; }
     public DbSet<Usuarios> Usuario { get; set; }
     public DbSet<Perfil> Perfil { get; set; }
+    public DbSet<PerfisFuncionalidades> PerfisFuncionalidades { get; set; }
+    public DbSet<CargoPerfis> FuncionariosPerfis { get; set; }
+
 
 
 
@@ -203,8 +202,8 @@ public partial class DefesaCivilMaricaContext : DbContext
         #endregion
 
         #region FUNCIONARIOPERFIL
-        modelBuilder.Entity<FuncionarioPerfil>()
-            .HasKey(fp => new { fp.IdFuncionario, fp.IdPerfil });
+        modelBuilder.Entity<CargoPerfis>()
+            .HasKey(fp => new { fp.IdCargo, fp.IdPerfil });
         #endregion
 
         #region TIPO_ESCALA
@@ -226,15 +225,23 @@ public partial class DefesaCivilMaricaContext : DbContext
         #endregion
 
         #region PERFIL_FUNCIONALIDADE
-        modelBuilder.Entity<PerfilFuncionalidade>()
+        modelBuilder.Entity<PerfisFuncionalidades>()
             .HasKey(pf => new { pf.IdPerfil, pf.IdFuncionalidade });
         #endregion
 
         #region FUNCIONALIDADE
-        modelBuilder.Entity<Funcionalidade>(entity =>
-        {
-            entity.HasKey(e => e.IdFuncionalidade).HasName("PK_IdFuncionalidade");
-        });
+        modelBuilder.Entity<Funcionalidade>().ToTable("Funcionalidades");
+        modelBuilder.Entity<Funcionalidade>()
+            .HasKey(f => f.IdFuncionalidade);
+
+        modelBuilder.Entity<Funcionalidade>()
+            .Property(f => f.Nome)
+            .HasMaxLength(50)
+            .IsRequired();
+
+        modelBuilder.Entity<Funcionalidade>()
+            .Property(f => f.Descricao)
+            .HasMaxLength(255);
         #endregion
 
         #region PERFIL
@@ -262,6 +269,40 @@ public partial class DefesaCivilMaricaContext : DbContext
             modelBuilder.Entity<Usuarios>()
         .ToTable("usuarios"); // Inclua as aspas duplas para corresponder ao nome sensível a case
         });
+        #endregion
+
+        #region PERFIL_FUNCIONALIDADE
+        modelBuilder.Entity<PerfisFuncionalidades>()
+            .HasKey(pf => new { pf.IdPerfil, pf.IdFuncionalidade });
+
+        modelBuilder.Entity<PerfisFuncionalidades>()
+            .HasOne(pf => pf.Perfil)
+            .WithMany(p => p.PerfisFuncionalidades)
+            .HasForeignKey(pf => pf.IdPerfil)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<PerfisFuncionalidades>()
+            .HasOne(pf => pf.Funcionalidade)
+            .WithMany(f => f.PerfisFuncionalidades)
+            .HasForeignKey(pf => pf.IdFuncionalidade)
+            .OnDelete(DeleteBehavior.Cascade);
+        #endregion
+
+        #region CARGO_PERFIL
+        modelBuilder.Entity<CargoPerfis>()
+            .HasKey(fp => new { fp.IdCargo, fp.IdPerfil });
+
+        modelBuilder.Entity<CargoPerfis>()
+            .HasOne(cp => cp.Cargo)
+            .WithMany(c => c.Perfis)
+            .HasForeignKey(cp => cp.IdCargo)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CargoPerfis>()
+            .HasOne(cp => cp.Perfil)
+            .WithMany()
+            .HasForeignKey(cp => cp.IdPerfil)
+            .OnDelete(DeleteBehavior.Cascade);
         #endregion
 
 

@@ -18,8 +18,9 @@ public partial class Cargo
     [StringLength(200)]
     [Unicode(false)]
     public string? NmDescricao { get; set; }
-
     public bool IsAtivo { get; set; }
-
     public DateTime DtCriacao { get; set; }
+
+    // Propriedade de navegação para os Perfis relacionados
+    public ICollection<CargoPerfis>? Perfis { get; set; }
 }

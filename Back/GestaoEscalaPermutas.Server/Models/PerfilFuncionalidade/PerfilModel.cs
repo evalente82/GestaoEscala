@@ -1,6 +1,5 @@
 ﻿using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
-using System;
-using System.Collections.Generic;
+
 using System.ComponentModel.DataAnnotations;
 
 namespace GestaoEscalaPermutas.Server.Models.PerfilFuncionalidade
@@ -15,7 +14,7 @@ namespace GestaoEscalaPermutas.Server.Models.PerfilFuncionalidade
         public string? Descricao { get; set; }
 
         // Relacionamentos
-        public ICollection<FuncionarioPerfil>? FuncionariosPerfis { get; set; }
-        public ICollection<PerfilFuncionalidadeModel>? PerfisFuncionalidades { get; set; }
+        public ICollection<ICargoPerfisService>? FuncionariosPerfis { get; set; }
+        public ICollection<PerfilFuncionalidadesModel>? PerfisFuncionalidades { get; set; }
     }
 }

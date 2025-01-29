@@ -1,16 +1,12 @@
-﻿using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
-using System.ComponentModel.DataAnnotations;
-
+﻿
 namespace GestaoEscalaPermutas.Server.Models.PerfilFuncionalidade
 {
-    public class PerfilFuncionalidadeModel: RetornoModel
-    {       
+    public class PerfilFuncionalidadesModel : RetornoModel
+    {
         public Guid IdPerfil { get; set; }
-        
         public Guid IdFuncionalidade { get; set; }
 
-        // Relacionamentos
-        public Perfil Perfil { get; set; } = null!;
-        public Funcionalidade Funcionalidade { get; set; } = null!;
+        public string NomePerfil { get; set; } = string.Empty; // Nome do perfil associado
+        public string NomeFuncionalidade { get; set; } = string.Empty; // Nome da funcionalidade associada
     }
 }
