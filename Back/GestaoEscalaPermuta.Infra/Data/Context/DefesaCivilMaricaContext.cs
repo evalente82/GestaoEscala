@@ -19,30 +19,22 @@ public partial class DefesaCivilMaricaContext : DbContext
     {
 
     }
-
     public virtual DbSet<Cargo> Cargos { get; set; }
-
     public virtual DbSet<Departamento> Departamentos { get; set; }
-
     public virtual DbSet<Empresa> Empresas { get; set; }
-
     public virtual DbSet<Escala> Escalas { get; set; }
-
     public virtual DbSet<EscalaPronta> EscalaPronta { get; set; }
-
     public virtual DbSet<Funcionario> Funcionarios { get; set; }
-
     public virtual DbSet<Permuta> Permuta { get; set; }
-
     public virtual DbSet<PostoTrabalho> PostoTrabalhos { get; set; }
-
     public virtual DbSet<TipoEscala> TipoEscalas { get; set; }
-
     public DbSet<Funcionalidade> Funcionalidades { get; set; }
     public DbSet<Login> Login { get; set; }
     public DbSet<Usuarios> Usuario { get; set; }
     public DbSet<Perfil> Perfil { get; set; }
     public DbSet<PerfisFuncionalidades> PerfisFuncionalidades { get; set; }
+    public DbSet<CargoPerfis> CargoPerfis { get; set; }
+    
 
 
 
@@ -290,6 +282,21 @@ public partial class DefesaCivilMaricaContext : DbContext
         #endregion
 
         #region CARGO_PERFIL
+        // Mapeando a chave composta
+        modelBuilder.Entity<CargoPerfis>()
+            .HasKey(cp => new { cp.IdCargo, cp.IdPerfil });
+
+        modelBuilder.Entity<CargoPerfis>()
+            .HasOne(cp => cp.Cargo)
+            .WithMany(c => c.CargoPerfis) // Deve estar mapeado no modelo Cargo
+            .HasForeignKey(cp => cp.IdCargo)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CargoPerfis>()
+            .HasOne(cp => cp.Perfil)
+            .WithMany(p => p.CargoPerfis) // Deve estar mapeado no modelo Perfil
+            .HasForeignKey(cp => cp.IdPerfil)
+            .OnDelete(DeleteBehavior.Cascade);
         #endregion
 
 

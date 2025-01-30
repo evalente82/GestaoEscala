@@ -102,7 +102,7 @@ function NavBar() {
                                         <Link className="dropdown-item" to="/PerfisFuncionalidades">Perfil Funcionalidade</Link>
                                     </li>
                                     <li>
-                                        <Link className="dropdown-item" to="/FuncionariosPerfis">Funcionários Perfis</Link>
+                                        <Link className="dropdown-item" to="/CargoPerfis">Cargo Perfis</Link>
                                     </li>
                                 </ul>
                             </li>

@@ -21,4 +21,8 @@ public partial class Cargo
     public bool IsAtivo { get; set; }
     public DateTime DtCriacao { get; set; }
 
+
+    // Relacionamento com Perfis
+    public ICollection<CargoPerfis> CargoPerfis { get; set; } = new List<CargoPerfis>();
+
 }

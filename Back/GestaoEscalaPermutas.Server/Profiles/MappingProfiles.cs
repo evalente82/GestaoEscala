@@ -33,7 +33,6 @@ namespace GestaoEscalaPermutas.Server.Profiles
         {
             // ======= FUNCIONÁRIOS =======
             CreateMap<Funcionario, FuncionarioDTO>()
-                .ForMember(dest => dest.valido, opt => opt.MapFrom(src => true)) // ✅ Sempre define como true
                 .ForMember(dest => dest.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso")) // ✅ Mensagem padrão
                 .ReverseMap();
 
@@ -45,15 +44,12 @@ namespace GestaoEscalaPermutas.Server.Profiles
 
             CreateMap<FuncionarioModel, FuncionarioDTO>().ReverseMap();
             CreateMap<Funcionario, FuncionarioDTO>()
-                .ForMember(dest => dest.valido, opt => opt.MapFrom(src => true))
                 .ForMember(dest => dest.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso"))
                 .ReverseMap();
 
             // ======= CARGOS =======
             CreateMap<CargoModel, CargoDTO>().ReverseMap();
             CreateMap<Cargo, CargoDTO>()
-                .ForMember(x => x.DtCriacao, opt => opt.MapFrom(src => src.DtCriacao))
-                .ForMember(x => x.valido, opt => opt.MapFrom(src => true))
                 .ForMember(x => x.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso"))
                 .ReverseMap();
 
@@ -72,15 +68,19 @@ namespace GestaoEscalaPermutas.Server.Profiles
             CreateMap<Funcionalidade, FuncionalidadeDTO>().ReverseMap();
             CreateMap<FuncionalidadeModel, FuncionalidadeDTO>().ReverseMap();
 
-            // ======= FUNCIONÁRIOS PERFIS =======
-           
+            // ======= CARGOS PERFIS =======
+            CreateMap<CargoPerfis, CargoPerfilDTO>()
+             .ForMember(dest => dest.IdCargo, opt => opt.MapFrom(src => src.IdCargo))
+             .ForMember(dest => dest.NomeCargo, opt => opt.MapFrom(src => src.Cargo.NmNome)) // Se existir relação
+             .ForMember(dest => dest.IdPerfil, opt => opt.MapFrom(src => src.IdPerfil))
+             .ForMember(dest => dest.NomePerfil, opt => opt.MapFrom(src => src.Perfil.Nome)) // Se existir relação
+             .ReverseMap();
 
             // ======= USUÁRIOS E LOGIN =======
             CreateMap<DepInfra.Usuarios, UsuarioDTO>().ReverseMap();
             CreateMap<Usuarios, UsuarioDTO>().ReverseMap();
             CreateMap<LoginModel, LoginDTO>().ReverseMap();
             CreateMap<Login, LoginDTO>()
-                .ForMember(dest => dest.valido, opt => opt.MapFrom(src => true))
                 .ForMember(dest => dest.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso"))
                 .ReverseMap();
 
@@ -88,7 +88,6 @@ namespace GestaoEscalaPermutas.Server.Profiles
             CreateMap<PermutaModel, PermutasDTO>().ReverseMap();
             CreateMap<Permuta, PermutasDTO>()
                 .ForMember(x => x.DtDataSolicitadaTroca, opt => opt.MapFrom(src => src.DtDataSolicitadaTroca))
-                .ForMember(x => x.valido, opt => opt.MapFrom(src => true))
                 .ForMember(x => x.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso"))
                 .ReverseMap();
 
@@ -96,7 +95,6 @@ namespace GestaoEscalaPermutas.Server.Profiles
             CreateMap<DepartamentoModel, DepartamentoDTO>().ReverseMap();
             CreateMap<Departamento, DepartamentoDTO>()
                 .ForMember(x => x.DtCriacao, opt => opt.MapFrom(src => src.DtCriacao))
-                .ForMember(x => x.valido, opt => opt.MapFrom(src => true))
                 .ForMember(x => x.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso"))
                 .ReverseMap();
 
@@ -104,28 +102,24 @@ namespace GestaoEscalaPermutas.Server.Profiles
             CreateMap<EscalaModel, EscalaDTO>().ReverseMap();
             CreateMap<Escala, EscalaDTO>()
                 .ForMember(x => x.DtCriacao, opt => opt.MapFrom(src => src.DtCriacao))
-                .ForMember(x => x.valido, opt => opt.MapFrom(src => true))
                 .ForMember(x => x.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso"))
                 .ReverseMap();
 
             // ======= POSTOS DE TRABALHO =======
             CreateMap<PostoTrabalhoModel, PostoTrabalhoDTO>().ReverseMap();
             CreateMap<PostoTrabalho, PostoTrabalhoDTO>()
-                .ForMember(x => x.valido, opt => opt.MapFrom(src => true))
                 .ForMember(x => x.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso"))
                 .ReverseMap();
 
             // ======= TIPOS DE ESCALA =======
             CreateMap<TipoEscalaModel, TipoEscalaDTO>().ReverseMap();
             CreateMap<TipoEscala, TipoEscalaDTO>()
-                .ForMember(x => x.valido, opt => opt.MapFrom(src => true))
                 .ForMember(x => x.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso"))
                 .ReverseMap();
 
             // ======= ESCALA PRONTA =======
             CreateMap<EscalaProntaModel, EscalaProntaDTO>().ReverseMap();
             CreateMap<EscalaPronta, EscalaProntaDTO>()
-                .ForMember(x => x.valido, opt => opt.MapFrom(src => true))
                 .ForMember(x => x.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso"))
                 .ReverseMap();
 
