@@ -6,3 +6,4 @@ Sistemas
 /Back/.vs/ProjectEvaluation
 /Back/package-lock.json
 /Back/package.json
+*.sqlite
