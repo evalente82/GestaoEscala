@@ -9,7 +9,14 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.Login
 {
     public interface ILoginService
     {
-        Task<LoginDTO> Incluir(LoginDTO loginDTO);
-        Task<LoginResponseDTO> Autenticar(LoginDTO loginRequest);
+        /// <summary>
+        /// Autentica um usuário e retorna um token JWT contendo suas permissões.
+        /// </summary>
+        Task<LoginResponseDTO> Autenticar(LoginRequestDTO loginRequest);
+
+        /// <summary>
+        /// Registra um novo usuário no sistema.
+        /// </summary>
+        Task<LoginResponseDTO> Incluir(LoginDTO loginDTO);
     }
 }

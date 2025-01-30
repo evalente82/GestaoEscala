@@ -32,6 +32,8 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
 
         [Required]
         public DateTime DataCriacao { get; set; } = DateTime.UtcNow;
-        public string Perfil { get; set; } // Ex.: "Administrador", "Guarda Vidas"
+        // 🔹 Alteração: Agora Perfil é um objeto relacionado, não apenas uma string
+        public Guid IdPerfil { get; set; }
+        public Perfil Perfil { get; set; } = null!;
     }
 }

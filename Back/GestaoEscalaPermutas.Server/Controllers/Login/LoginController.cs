@@ -36,7 +36,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.Login
         [Route("autenticar")]
         public async Task<ActionResult> Autenticar([FromBody] LoginRequestDTO loginRequest)
         {
-            var loginResponse = await _loginService.Autenticar(_mapper.Map<LoginDTO>(loginRequest));
+            var loginResponse = await _loginService.Autenticar(loginRequest);
 
             return loginResponse.Valido
                 ? Ok(loginResponse)

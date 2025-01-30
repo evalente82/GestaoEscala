@@ -16,41 +16,44 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
     {
         private readonly DefesaCivilMaricaContext _context;
         private readonly IMapper _mapper;
+
         public LoginService(DefesaCivilMaricaContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
 
-        public async Task<LoginResponseDTO> Autenticar(LoginDTO loginRequest)
+        /// <summary>
+        /// Autentica um usuário e gera um token com as permissões.
+        /// </summary>
+        public async Task<LoginResponseDTO> Autenticar(LoginRequestDTO loginRequest)
         {
             try
             {
-                // Busca o usuário pelo nome
+                // Busca o usuário no banco de dados
                 var usuario = await _context.Usuario
-                    .FirstOrDefaultAsync(u => u.IdUsuario == loginRequest.Id);
+                    .Include(u => u.Perfil) // Inclui o perfil do usuário
+                    .ThenInclude(p => p.PerfisFuncionalidades) // Inclui as permissões do perfil
+                    .ThenInclude(pf => pf.Funcionalidade) // Inclui os nomes das funcionalidades
+                    .FirstOrDefaultAsync(u => u.Email == loginRequest.Usuario);// aqui vai buscar o email ? forçar 
 
                 if (usuario == null)
                 {
-                    return new LoginResponseDTO
-                    {
-                        Valido = false,
-                        Mensagem = "Usuário ou senha inválidos."
-                    };
+                    return new LoginResponseDTO { Valido = false, Mensagem = "Usuário ou senha inválidos." };
                 }
 
-                // Verifica a senha
                 if (!BCrypt.Net.BCrypt.Verify(loginRequest.Senha, usuario.SenhaHash))
                 {
-                    return new LoginResponseDTO
-                    {
-                        Valido = false,
-                        Mensagem = "Usuário ou senha inválidos."
-                    };
+                    return new LoginResponseDTO { Valido = false, Mensagem = "Usuário ou senha inválidos." };
                 }
 
-                // Gera o token JWT
-                var token = GerarTokenJWT(usuario);
+                // Obtém as permissões do usuário
+                var permissoes = usuario.Perfil?.PerfisFuncionalidades?
+                    .Select(pf => pf.Funcionalidade.Nome)
+                    .ToList() ?? new List<string>();
+
+                // Gera o token JWT com as permissões
+                var token = GerarTokenJWT(usuario, permissoes);
 
                 return new LoginResponseDTO
                 {
@@ -70,20 +73,30 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
             }
         }
 
-        // Método para gerar o token JWT
-        private string GerarTokenJWT(DepInfra.Usuarios usuario)
+        /// <summary>
+        /// Gera um token JWT com permissões.
+        /// </summary>
+        private string GerarTokenJWT(DepInfra.Usuarios usuario, List<string> permissoes)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes("sua_chave_secreta_aqui"); // Use uma chave forte
 
+            //var secret = _config["JwtSettings:Secret"]; // analisar para usar mais segurança
+            //var key = Encoding.ASCII.GetBytes(secret);
+
+            var claims = new List<Claim>
+    {
+                new Claim(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),
+                new Claim(ClaimTypes.Name, usuario.Nome), // Corrigido de usuario.Usuario para usuario.Nome
+                new Claim(ClaimTypes.Role, usuario.Perfil?.Nome ?? "SemPerfil") // Corrigido de usuario.Perfil.Nome para usuario.Perfil (que é string)
+    };
+
+            // Adiciona permissões como claims personalizadas
+            claims.AddRange(permissoes.Select(p => new Claim("Permissao", p)));
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
-                {
-            new Claim(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),
-            new Claim(ClaimTypes.Name, usuario.Nome),
-            new Claim(ClaimTypes.Role, usuario.Perfil) // Inclui o perfil como Role
-        }),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddHours(8),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
@@ -92,33 +105,40 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
             return tokenHandler.WriteToken(token);
         }
 
-        public async Task<LoginDTO> Incluir(LoginDTO loginDTO)
+        /// <summary>
+        /// Cria um novo usuário no sistema.
+        /// </summary>
+        public async Task<LoginResponseDTO> Incluir(LoginDTO loginDTO)
         {
             try
             {
-                if (loginDTO == null)
+                var usuarioExistente = await _context.Usuario.AnyAsync(u => u.Email == loginDTO.Usuario);
+                if (usuarioExistente)
                 {
-                    return new LoginDTO { valido = false, mensagem = "Objeto não preenchido." };
+                    return new LoginResponseDTO { Valido = false, Mensagem = "Usuário já cadastrado." };
                 }
 
-                // Gera o hash da senha
-                loginDTO.SenhaHash = BCrypt.Net.BCrypt.HashPassword(loginDTO.Senha);
+                // Gera o hash da senha antes de salvar
+                loginDTO.SenhaHash = BCrypt.Net.BCrypt.HashPassword(loginDTO.Senha, workFactor: 12);// maior segurança
 
-                // Mapear LoginDTO para Login
-                var login = _mapper.Map<DepInfra.Login>(loginDTO);
+                // Converte DTO para entidade
+                var usuario = _mapper.Map<DepInfra.Usuarios>(loginDTO) ?? new DepInfra.Usuarios();
 
-                // Salvar no banco
-                _context.Login.Add(login);
+
+                // Salva no banco de dados
+                _context.Usuario.Add(usuario);
                 await _context.SaveChangesAsync();
 
-                return _mapper.Map<LoginDTO>(login);
+                return new LoginResponseDTO
+                {
+                    Valido = true,
+                    Mensagem = "Usuário cadastrado com sucesso."
+                };
             }
             catch (Exception e)
             {
-                return new LoginDTO { valido = false, mensagem = $"Erro ao incluir: {e.Message}" };
+                return new LoginResponseDTO { Valido = false, Mensagem = $"Erro ao incluir usuário: {e.Message}" };
             }
         }
-
-
     }
 }

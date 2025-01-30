@@ -159,6 +159,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseMiddleware<PermissaoMiddleware>();
 app.UseHttpsRedirection();
 app.UseRouting();
 
