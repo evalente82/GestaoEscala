@@ -198,7 +198,6 @@ public partial class DefesaCivilMaricaContext : DbContext
                 v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
         #endregion
 
-
         #region TIPO_ESCALA
         modelBuilder.Entity<TipoEscala>(entity =>
         {
@@ -256,12 +255,28 @@ public partial class DefesaCivilMaricaContext : DbContext
         });
         #endregion
 
-        #region USUARIO
+        #region USUARIOS
+        modelBuilder.Entity<Usuarios>()
+        .Property(u => u.DataCriacao)
+        .HasColumnType("timestamptz") // 🔹 Define o tipo correto no PostgreSQL
+        .HasConversion(
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc), // 🔹 Salva como UTC
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc) // 🔹 Lê como UTC
+        );
+
+        modelBuilder.Entity<Usuarios>()
+            .Property(u => u.TokenExpiracao)
+            .HasColumnType("timestamptz")
+            .HasConversion(
+                v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v, // 🔹 Converte ao salvar
+                v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v  // 🔹 Converte ao ler
+            );
         modelBuilder.Entity<Usuarios>(entity =>
         {
             modelBuilder.Entity<Usuarios>()
-        .ToTable("usuarios"); // Inclua as aspas duplas para corresponder ao nome sensível a case
+            .ToTable("usuarios"); // Inclua as aspas duplas para corresponder ao nome sensível a case
         });
+        
         #endregion
 
         #region PERFIL_FUNCIONALIDADE

@@ -77,6 +77,15 @@ namespace GestaoEscalaPermutas.Server.Profiles
              .ReverseMap();
 
             // ======= USUÁRIOS E LOGIN =======
+            CreateMap<LoginResponseDTO, LoginModel>();
+            CreateMap<LoginResponseDTO, LoginModel>()
+            .ForMember(dest => dest.Usuario, opt => opt.MapFrom(src => src.NomeUsuario));
+
+            CreateMap<LoginDTO, LoginModel>()
+                .ForMember(dest => dest.SenhaHash, opt => opt.AllowNull())
+                .ForMember(dest => dest.Perfil, opt => opt.AllowNull());
+
+
             CreateMap<DepInfra.Usuarios, UsuarioDTO>().ReverseMap();
             CreateMap<Usuarios, UsuarioDTO>().ReverseMap();
             CreateMap<LoginModel, LoginDTO>().ReverseMap();

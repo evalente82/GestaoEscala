@@ -4,35 +4,44 @@ import axios from "axios";
 import "./Login.css";
 
 function Login() {
-    const [usuario, setUsuario] = useState("");
-    const [senha, setSenha] = useState("");
+    const [usuario, setUsuario] = useState(""); // Correto
+    const [senha, setSenha] = useState(""); // Correto
     const [alertMessage, setAlertMessage] = useState("");
     const navigate = useNavigate();
 
-    const handleLogin = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-
-        const data = {
-            usuario,
-            senha,
-        };
-
-        axios
-            .post("https://localhost:7207/auth/login", data)
-            .then(() => {
-                // Lógica de sucesso: Redireciona para o dashboard
-                navigate("/dashboard");
-            })
-            .catch(() => {
-                setAlertMessage("Usuário ou senha inválidos.");
+        
+        try {
+            const response = await axios.post("https://localhost:7207/login/autenticar", { 
+                usuario, // Correto
+                senha 
+            }, {
+                headers: {
+                    "Content-Type": "application/json"
+                }
             });
+
+            // Extrair token da resposta
+            const { token } = response.data;
+            localStorage.setItem("token", token);
+
+            // Decodificar token
+            const decoded = JSON.parse(atob(token.split(".")[1]));
+            const permissoes = decoded["Permissao"] || [];
+
+            // Armazenar permissões e nome do usuário no localStorage
+            localStorage.setItem("permissoes", JSON.stringify(permissoes));
+            localStorage.setItem("nomeUsuario", decoded.name);
+
+            navigate("/home");
+        } catch (error) {
+            setAlertMessage(error.response?.data?.mensagem || "Erro ao fazer login. Tente novamente.");
+        }
     };
 
     return (
-        
         <div className="login-container">
-            
-            {/* Título principal */}
             <h1 className="main-title">Prefeitura Municipal de Maricá</h1>
             <div className="login-card">
                 <div className="text-center">
@@ -47,7 +56,7 @@ function Login() {
                 {alertMessage && (
                     <div className="alert alert-danger mt-3">{alertMessage}</div>
                 )}
-                <form onSubmit={handleLogin}>
+                <form onSubmit={handleSubmit}>
                     <div className="mb-3">
                         <label htmlFor="usuario" className="form-label">
                             Usuário
@@ -90,8 +99,6 @@ function Login() {
                     </a>
                 </div>
             </div>
-
-            {/* Footer */}
             <footer>
                 <div className="container p-3 mt-5 border-top">
                     <small className="d-block text-muted text-center">

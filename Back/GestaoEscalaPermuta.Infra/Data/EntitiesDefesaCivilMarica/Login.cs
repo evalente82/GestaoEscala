@@ -17,7 +17,6 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
         [Required]
         public string Usuario { get; set; }
 
-        [Required]
         public string SenhaHash { get; set; }
 
         public string Perfil { get; set; } // Exemplo: "Administrador", "Guarda Vidas"

@@ -31,7 +31,25 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
         public Guid? IdFuncionario { get; set; }
 
         [Required]
-        public DateTime DataCriacao { get; set; } = DateTime.UtcNow;
-        public string Perfil { get; set; } // Ex.: "Administrador", "Guarda Vidas"
+        private DateTime _dataCriacao = DateTime.UtcNow;
+        public DateTime DataCriacao
+        {
+            get => _dataCriacao;
+            set => _dataCriacao = DateTime.SpecifyKind(value, DateTimeKind.Utc); // 🔹 Agora sempre será UTC
+        }
+
+        [ForeignKey("Perfil")]
+        public Guid IdPerfil { get; set; }
+        public Perfil Perfil { get; set; } = null!;
+        public string? TokenRecuperacaoSenha { get; set; }
+        private DateTime? _tokenExpiracao;
+        public DateTime? TokenExpiracao
+        {
+            get => _tokenExpiracao;
+            set => _tokenExpiracao = value.HasValue
+                ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc)
+                : null; // 🔹 Sempre define como UTC
+        }
+
     }
 }
