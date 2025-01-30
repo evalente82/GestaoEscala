@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BCrypt.Net;
 using GestaoEscalaPermutas.Dominio.DTO.Login;
+using GestaoEscalaPermutas.Dominio.Interfaces.Email;
 using GestaoEscalaPermutas.Dominio.Interfaces.Login;
 using GestaoEscalaPermutas.Infra.Data.Context;
 using Microsoft.EntityFrameworkCore;
@@ -16,13 +17,14 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
     {
         private readonly DefesaCivilMaricaContext _context;
         private readonly IMapper _mapper;
+        private readonly IEmailService _emailService;        
 
-        public LoginService(DefesaCivilMaricaContext context, IMapper mapper)
+        public LoginService(DefesaCivilMaricaContext context, IMapper mapper, IEmailService emailService)
         {
             _context = context;
             _mapper = mapper;
+            _emailService = emailService;
         }
-
 
         /// <summary>
         /// Autentica um usuário e gera um token com as permissões.
@@ -81,8 +83,6 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
             }
         }
 
-
-
         /// <summary>
         /// Gera um token JWT com permissões.
         /// </summary>
@@ -112,7 +112,6 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
-
 
         /// <summary>
         /// Cria um novo usuário no sistema.
@@ -175,6 +174,69 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
             catch (Exception e)
             {
                 return new LoginResponseDTO { Valido = false, Mensagem = $"Erro ao incluir usuário: {e.Message}" };
+            }
+        }
+
+        /// <summary>
+        /// Gera um Token para redefinir a senha.
+        /// </summary>
+        public async Task<LoginResponseDTO> GerarTokenRedefinicaoSenha(string email)
+        {
+            try
+            {
+                var usuario = await _context.Usuario.FirstOrDefaultAsync(u => u.Email == email);
+
+                if (usuario == null)
+                    return new LoginResponseDTO { Valido = false, Mensagem = "E-mail não encontrado." };
+
+                // Gera um token único e define a expiração
+                var token = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+                usuario.TokenRecuperacaoSenha = token;
+                usuario.TokenExpiracao = DateTime.UtcNow;
+                if (usuario.TokenExpiracao.HasValue && usuario.TokenExpiracao.Value.Kind == DateTimeKind.Unspecified)
+                {
+                    usuario.TokenExpiracao = DateTime.SpecifyKind(usuario.TokenExpiracao.Value, DateTimeKind.Utc);
+                }
+
+
+                _context.Usuario.Update(usuario);
+                await _context.SaveChangesAsync();
+
+                // Enviar e-mail com link para redefinição de senha
+                var linkRedefinicao = $"https://seusistema.com/redefinir-senha?token={token}";
+
+                await _emailService.EnviarEmail(usuario.Email, "Recuperação de Senha",
+                    $"Clique no link para redefinir sua senha: <a href='{linkRedefinicao}'>Redefinir Senha</a>");
+
+                return new LoginResponseDTO { Valido = true, Mensagem = "E-mail enviado com sucesso." };
+            }
+            catch (Exception e)
+            {
+                return new LoginResponseDTO { Valido = false, Mensagem = $"Erro ao gerar link de redefinição: {e.Message}" };
+            }
+        }
+
+        public async Task<LoginResponseDTO> RedefinirSenha(RedefinirSenhaRequestDTO request)
+        {
+            try
+            {
+                var usuario = await _context.Usuario.FirstOrDefaultAsync(u => u.TokenRecuperacaoSenha == request.Token);
+
+                if (usuario == null || usuario.TokenExpiracao < DateTime.UtcNow)
+                    return new LoginResponseDTO { Valido = false, Mensagem = "Token inválido ou expirado." };
+
+                usuario.SenhaHash = BCrypt.Net.BCrypt.HashPassword(request.NovaSenha, workFactor: 12);
+                usuario.TokenRecuperacaoSenha = null;
+                usuario.TokenExpiracao = null;
+
+                _context.Usuario.Update(usuario);
+                await _context.SaveChangesAsync();
+
+                return new LoginResponseDTO { Valido = true, Mensagem = "Senha redefinida com sucesso." };
+            }
+            catch (Exception e)
+            {
+                return new LoginResponseDTO { Valido = false, Mensagem = $"Erro ao redefinir senha: {e.Message}" };
             }
         }
 

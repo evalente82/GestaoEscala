@@ -48,5 +48,25 @@ namespace GestaoEscalaPermutas.Server.Controllers.Login
                 ? Ok(loginResponse)
                 : BadRequest(loginResponse);
         }
+
+        [HttpPost("esqueci-senha")]
+        public async Task<IActionResult> EsqueciSenha([FromBody] EsqueciSenhaRequestDTO request)
+        {
+            if (string.IsNullOrEmpty(request.Email))
+                return BadRequest(new { mensagem = "E-mail é obrigatório." });
+
+            var resultado = await _loginService.GerarTokenRedefinicaoSenha(request.Email);
+
+            return resultado.Valido ? Ok(new { mensagem = resultado.Mensagem }) : BadRequest(new { mensagem = resultado.Mensagem });
+        }
+
+        [HttpPost("redefinir-senha")]
+        public async Task<IActionResult> RedefinirSenha([FromBody] RedefinirSenhaRequestDTO request)
+        {
+            var resultado = await _loginService.RedefinirSenha(request);
+
+            return resultado.Valido ? Ok(new { mensagem = resultado.Mensagem }) : BadRequest(new { mensagem = resultado.Mensagem });
+        }
+
     }
 }

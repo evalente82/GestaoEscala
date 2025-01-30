@@ -17,5 +17,7 @@ namespace GestaoEscalaPermutas.Dominio.DTO.Usuario
         public Guid? IdFuncionario { get; set; } // FK para Funcionarios
         public Guid IdPerfil { get; set; } // FK para Perfis
         public DateTime DataCriacao { get; set; }
+        public string? TokenRecuperacaoSenha { get; set; }
+        public DateTime? TokenExpiracao { get; set; }
     }
 }

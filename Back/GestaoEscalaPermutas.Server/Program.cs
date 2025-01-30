@@ -34,6 +34,7 @@ using GestaoEscalaPermutas.Dominio.Services.PerfilFuncionalidades;
 using GestaoEscalaPermutas.Dominio.Interfaces.PerfisFuncionalidades;
 using GestaoEscalaPermutas.Dominio.Services.PerfisFuncionalidades;
 using GestaoEscalaPermutas.Dominio.Services.CargoPerfis;
+using GestaoEscalaPermutas.Dominio.Interfaces.Email;
 
 
 
@@ -86,6 +87,8 @@ builder.Services.AddScoped<IPerfilService, PerfilService>();
 builder.Services.AddScoped<IFuncionalidadeService, FuncionalidadeService>();
 builder.Services.AddScoped<IPerfisFuncionalidadesService, PerfisFuncionalidadesService>();
 builder.Services.AddScoped<ICargoPerfisService, CargoPerfisService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 
 
 

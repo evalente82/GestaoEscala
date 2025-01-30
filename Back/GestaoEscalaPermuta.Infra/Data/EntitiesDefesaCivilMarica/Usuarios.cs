@@ -36,5 +36,12 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
         [ForeignKey("Perfil")]
         public Guid IdPerfil { get; set; }
         public Perfil Perfil { get; set; } = null!;
+        public string? TokenRecuperacaoSenha { get; set; }
+        private DateTime? _tokenExpiracao;
+        public DateTime? TokenExpiracao
+        {
+            get => _tokenExpiracao;
+            set => _tokenExpiracao = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : null;
+        }
     }
 }

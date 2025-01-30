@@ -19,5 +19,7 @@ namespace GestaoEscalaPermutas.Server.Models.Usuario
 
         public DateTime DataCriacao { get; set; } = DateTime.UtcNow;
         public string Perfil { get; set; } // Ex.: "Administrador", "Guarda Vidas"
+        public string? TokenRecuperacaoSenha { get; set; }
+        public DateTime? TokenExpiracao { get; set; } = DateTime.UtcNow;
     }
 }
