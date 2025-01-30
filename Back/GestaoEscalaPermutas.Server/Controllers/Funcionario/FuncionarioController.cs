@@ -22,7 +22,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.Funcionarios
         }
 
         [HttpPost]
-        [Permissao("VisualizarIncluir")]
+        //[Permissao("VisualizarIncluir")]
         [Route("Incluir/")]
         public async Task<ActionResult> IncluirFuncionario([FromBody] FuncionarioDTO funcionario)
         {
@@ -33,7 +33,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.Funcionarios
         }
 
         [HttpPatch]
-        [Permissao("VisualizarAtualizar")]
+        //[Permissao("VisualizarAtualizar")]
         [Route("Atualizar/{id:Guid}")]
         public async Task<ActionResult> AtualizarFuncionario(Guid id, [FromBody] FuncionarioDTO funcionario)
         {
@@ -61,7 +61,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.Funcionarios
         }
 
         [HttpDelete]
-        [Permissao("VisualizarDeletar")]
+        //[Permissao("VisualizarDeletar")]
         [Route("Deletar/{id:Guid}")]
         public async Task<ActionResult> DeletarFuncionario(Guid id)
         {
@@ -71,7 +71,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.Funcionarios
         }
 
         [HttpPost]
-        [Permissao("VisualizarIncluir")]
+        //[Permissao("VisualizarIncluir")]
         [Route("IncluirLista/")]
         public async Task<ActionResult> IncluirListaFuncionario([FromBody] FuncionarioDTO[] funcionarios)
         {

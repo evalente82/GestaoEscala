@@ -9,23 +9,25 @@ function Login() {
     const [alertMessage, setAlertMessage] = useState("");
     const navigate = useNavigate();
 
-    const handleLogin = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-
-        const data = {
-            usuario,
-            senha,
-        };
-
-        axios
-            .post("https://localhost:7207/auth/login", data)
-            .then(() => {
-                // Lógica de sucesso: Redireciona para o dashboard
-                navigate("/dashboard");
-            })
-            .catch(() => {
-                setAlertMessage("Usuário ou senha inválidos.");
+        try {
+            const response = await axios.post("https://localhost:7207/login/autenticar", { 
+                usuario: email, 
+                senha 
             });
+    
+            const { token } = response.data;
+            localStorage.setItem("token", token);
+    
+            const decoded = JSON.parse(atob(token.split(".")[1]));
+            const permissoes = decoded["Permissao"] || [];
+    
+            setUser({ nome: decoded.name, permissoes });
+            navigate("/dashboard");
+        } catch (error) {
+            alert("Erro ao logar: " + (error.response?.data?.mensagem || "Tente novamente"));
+        }
     };
 
     return (
@@ -47,7 +49,7 @@ function Login() {
                 {alertMessage && (
                     <div className="alert alert-danger mt-3">{alertMessage}</div>
                 )}
-                <form onSubmit={handleLogin}>
+                <form onSubmit={handleSubmit}>
                     <div className="mb-3">
                         <label htmlFor="usuario" className="form-label">
                             Usuário

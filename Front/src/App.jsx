@@ -16,13 +16,35 @@ import {Perfil} from './Components/Pages/PerfilFuncionalidades/Perfil';
 import {Funcionalidade} from './Components/Pages/PerfilFuncionalidades/Funcionalidade';
 import {PerfisFuncionalidades} from './Components/Pages/PerfilFuncionalidades/PerfisFuncionalidades';
 import {CargoPerfis} from './Components/Pages/PerfilFuncionalidades/CargoPerfis';
+import { useAuth } from "../src/Components/Pages/AuthContext";
+import { Navigate } from "react-router-dom";
 
+function RotaProtegida({ permissoesNecessarias, children }) {
+    const { token, permissoes } = useAuth();
+
+    if (!token) {
+        return <Navigate to="/login" />;
+    }
+
+    if (!permissoesNecessarias.some(p => permissoes.includes(p))) {
+        return <h1>Acesso Negado</h1>;
+    }
+
+    return children;
+}
 
 function App() {
     return (
         <>            
             <BrowserRouter>
                 <Routes>
+                    {/* <Route path="/funcionarios" element={
+                    <RotaProtegida permissoesNecessarias={["VisualizarFuncionarios"]}>
+                        <Funcionario />
+                        </RotaProtegida>
+                        } /> */}
+
+
                      {/* Rota de Login (página inicial) */}
                      <Route path="/" element={<Login />} />
 
