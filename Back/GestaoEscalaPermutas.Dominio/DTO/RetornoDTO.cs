@@ -11,17 +11,34 @@ namespace GestaoEscalaPermutas.Dominio.DTO
     {
         public RetornoDTO()
         {
-            this.valido = false;
+            this.valido = true;
             this.mensagem = "";
         }
+
         public RetornoDTO(bool valido, string mensagem)
         {
             this.valido = valido;
             this.mensagem = mensagem;
         }
+
         [JsonIgnore]
         public bool valido { get; set; }
+
         [JsonIgnore]
         public string mensagem { get; set; }
+
+        public void DefinirValidade(bool condicao, string mensagemErro = "")
+        {
+            if (condicao)
+            {
+                valido = true;
+                mensagem = "Registro recebido com sucesso";
+            }
+            else
+            {
+                valido = false;
+                mensagem = string.IsNullOrEmpty(mensagemErro) ? "Dados inválidos." : mensagemErro;
+            }
+        }
     }
 }

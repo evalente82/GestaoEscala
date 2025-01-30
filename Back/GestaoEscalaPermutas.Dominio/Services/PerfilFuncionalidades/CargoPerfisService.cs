@@ -1,69 +1,74 @@
-﻿using GestaoEscalaPermutas.Infra.Data.Context;
+﻿using AutoMapper;
 using GestaoEscalaPermutas.Dominio.DTO.PerfilFuncionalidade;
-using AutoMapper;
-using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
+using GestaoEscalaPermutas.Dominio.Interfaces.PerfilFuncionalidades;
+using GestaoEscalaPermutas.Infra.Data.Context;
 using Microsoft.EntityFrameworkCore;
+using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 
-public class CargoPerfisService : ICargoPerfisService
+namespace GestaoEscalaPermutas.Dominio.Services.CargoPerfis
 {
-    private readonly DefesaCivilMaricaContext _context;
-    private readonly IMapper _mapper;
+    public class CargoPerfisService : ICargoPerfisService
+    {
+        private readonly DefesaCivilMaricaContext _context;
+        private readonly IMapper _mapper;
 
-    public CargoPerfisService(DefesaCivilMaricaContext context, IMapper mapper)
-    {
-        _context = context;
-        _mapper = mapper;
-    }
-
-    public async Task<IEnumerable<CargoPerfisDTO>> BuscarTodos()
-    {
-        var funcionariosPerfis = await _context.FuncionariosPerfis.ToListAsync();
-        return _mapper.Map<IEnumerable<CargoPerfisDTO>>(funcionariosPerfis);
-    }
-    public async Task<bool> AtribuirPerfilAoFuncionario(Guid idFuncionario, Guid idPerfil)
-    {
-        if (await _context.FuncionariosPerfis.AnyAsync(fp => fp.IdCargo == idFuncionario && fp.IdPerfil == idPerfil))
+        public CargoPerfisService(DefesaCivilMaricaContext context, IMapper mapper)
         {
-            return false; // Associação já existe
+            _context = context;
+            _mapper = mapper;
         }
 
-        _context.FuncionariosPerfis.Add(new CargoPerfis
+        public async Task<IEnumerable<CargoPerfilDTO>> BuscarTodos()
         {
-            IdCargo = idFuncionario,
-            IdPerfil = idPerfil
-        });
+            var cargoPerfis = await _context.CargoPerfis
+                .Include(cp => cp.Cargo)
+                .Include(cp => cp.Perfil)
+                .ToListAsync();
 
-        await _context.SaveChangesAsync();
-        return true;
-    }
-
-    public async Task<bool> RemoverPerfilDoFuncionario(Guid idFuncionario, Guid idPerfil)
-    {
-        var vinculo = await _context.FuncionariosPerfis.FirstOrDefaultAsync(fp => fp.IdCargo == idFuncionario && fp.IdPerfil == idPerfil);
-
-        if (vinculo == null)
-        {
-            return false;
+            return _mapper.Map<IEnumerable<CargoPerfilDTO>>(cargoPerfis);
         }
 
-        _context.FuncionariosPerfis.Remove(vinculo);
-        await _context.SaveChangesAsync();
-        return true;
-    }
+        public async Task<bool> AtribuirPerfilAoCargo(Guid idCargo, Guid idPerfil)
+        {
+            var existeRelacionamento = await _context.CargoPerfis
+                .AnyAsync(cp => cp.IdCargo == idCargo && cp.IdPerfil == idPerfil);
 
-    public async Task<IEnumerable<CargoPerfisDTO>> BuscarPerfisPorFuncionario(Guid idFuncionario)
-    {
-        var perfis = await _context.FuncionariosPerfis
-            .Where(fp => fp.IdCargo == idFuncionario)
-            .Include(fp => fp.Perfil)
-            .Select(fp => new CargoPerfisDTO
+            if (existeRelacionamento)
+                return false;
+
+            var novoRelacionamento = new DepInfra.CargoPerfis
             {
-                IdFuncionario = fp.IdCargo,
-                IdPerfil = fp.IdPerfil,
-                NomePerfil = fp.Perfil.Nome
-            })
-            .ToListAsync();
+                IdCargo = idCargo,
+                IdPerfil = idPerfil
+            };
 
-        return perfis;
+            _context.CargoPerfis.Add(novoRelacionamento);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> RemoverPerfilDoCargo(Guid idCargo, Guid idPerfil)
+        {
+            var relacionamento = await _context.CargoPerfis
+                .FirstOrDefaultAsync(cp => cp.IdCargo == idCargo && cp.IdPerfil == idPerfil);
+
+            if (relacionamento == null)
+                return false;
+
+            _context.CargoPerfis.Remove(relacionamento);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<IEnumerable<CargoPerfilDTO>> BuscarPerfisPorCargo(Guid idCargo)
+        {
+            var perfis = await _context.CargoPerfis
+                .Include(cp => cp.Perfil)
+                .Where(cp => cp.IdCargo == idCargo)
+                .Select(cp => cp.Perfil)
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<CargoPerfilDTO>>(perfis);
+        }
     }
 }

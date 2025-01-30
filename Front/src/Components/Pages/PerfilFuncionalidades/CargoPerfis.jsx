@@ -7,9 +7,9 @@ import AlertPopup from "../AlertPopup/AlertPopup";
 import Select from 'react-select';
 
 
-function FuncionariosPerfisList(props) {
+function CargoPerfisList(props) {
     const [searchText, setSearchText] = useState("");
-    const [funcionariosPerfis, setFuncionariosPerfis] = useState([]);
+    const [cargoPerfis, setCargoPerfis] = useState([]);
     const [alertProps, setAlertProps] = useState({
         show: false,
         type: "info",
@@ -19,76 +19,76 @@ function FuncionariosPerfisList(props) {
         onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
     });
 
-    const API_URL = "https://localhost:7207/funcionariosPerfis";
+    const API_URL = "https://localhost:7207/cargoPerfis";
 
-    function BuscarFuncionariosPerfis() {
-        console.log("Buscando funcionários e perfis...");
+    function BuscarCargoPerfis() {
+        console.log("Buscando Cargo e perfis...");
         axios
             .get(`${API_URL}/buscarTodos`)
             .then((response) => {
                 console.log("Dados recebidos da API:", response.data);
-                setFuncionariosPerfis(response.data);
+                setCargoPerfis(response.data);
             })
             .catch((error) => {
-                console.error("Erro ao buscar funcionários e perfis:", error);
+                console.error("Erro ao buscar Cargo e perfis:", error);
                 setAlertProps({
                     show: true,
                     type: "error",
                     title: "Erro",
-                    message: "Não foi possível carregar as vinculações de funcionários e perfis.",
+                    message: "Não foi possível carregar as vinculações de cargo e perfis.",
                     onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
                 });
             });
     }
 
     useEffect(() => {
-        BuscarFuncionariosPerfis();
+        BuscarCargoPerfis();
     }, []);
 
-    const filteredFuncionariosPerfis = funcionariosPerfis.filter((fp) =>
-        fp.nomeFuncionario?.toLowerCase().includes(searchText.toLowerCase())
+    const filteredCargoPerfis = cargoPerfis.filter((fp) =>
+        fp.nomeCargo?.toLowerCase().includes(searchText.toLowerCase())
     );
 
-    console.log("Funcionários e Perfis filtrados:", filteredFuncionariosPerfis);
+    console.log("Cargo e Perfis filtrados:", filteredCargoPerfis);
 
-    function handleDelete(idFuncionario, idPerfil) {
+    function handleDelete(idCargo, idPerfil) {
         console.log("Iniciando exclusão do perfil...");
-        console.log("ID Funcionário:", idFuncionario);
+        console.log("ID Cargo:", idCargo);
         console.log("ID Perfil:", idPerfil);
 
         setAlertProps({
             show: true,
             type: "confirm",
             title: "Confirmar Desvinculação",
-            message: "Tem certeza que deseja remover este perfil do funcionário?",
+            message: "Tem certeza que deseja remover este perfil do Cargo?",
             onConfirm: () => {
-                DesvincularPerfil(idFuncionario, idPerfil);
+                DesvincularPerfil(idCargo, idPerfil);
                 setAlertProps((prev) => ({ ...prev, show: false }));
             },
             onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
         });
     }
 
-    function DesvincularPerfil(idFuncionario, idPerfil) {
+    function DesvincularPerfil(idCargo, idPerfil) {
         console.log("Chamando API para desvincular perfil...");
-        console.log("ID Funcionário:", idFuncionario);
+        console.log("ID Cargo:", idCargo);
         console.log("ID Perfil:", idPerfil);
 
         axios
-            .delete(`${API_URL}/desvincular`, {
+            .delete(`${API_URL}/deletar`, {
                 data: {
-                    idFuncionario: idFuncionario,
+                    idFuncionario: idCargo,
                     idPerfil: idPerfil,
                 },
             })
             .then(() => {
                 console.log("Perfil desvinculado com sucesso!");
-                BuscarFuncionariosPerfis();
+                BuscarCargoPerfis();
                 setAlertProps({
                     show: true,
                     type: "success",
                     title: "Sucesso",
-                    message: "Perfil desvinculado do funcionário com sucesso!",
+                    message: "Perfil desvinculado do Cargo com sucesso!",
                     onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
                 });
             })
@@ -107,7 +107,7 @@ function FuncionariosPerfisList(props) {
     return (
         <>
             <NavBar />
-            <h3 className="text-center mb-3">Funcionários e Perfis</h3>
+            <h3 className="text-center mb-3">Cargo e Perfis</h3>
             <button
                 onClick={() => props.ShowForm()}
                 type="button"
@@ -121,26 +121,26 @@ function FuncionariosPerfisList(props) {
                 type="text"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                placeholder="Pesquisar Funcionários..."
+                placeholder="Pesquisar Cargos..."
                 className="form-control mb-3"
             />
             <table className="table">
                 <thead>
                     <tr>
-                        <th>FUNCIONÁRIO</th>
+                        <th>CARGOS</th>
                         <th>PERFIL</th>
                         <th>AÇÕES</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredFuncionariosPerfis.length > 0 ? (
-                        filteredFuncionariosPerfis.map((fp, index) => (
+                    {filteredCargoPerfis.length > 0 ? (
+                        filteredCargoPerfis.map((fp, index) => (
                             <tr key={index}>
-                                <td>{fp.nomeFuncionario || "N/A"}</td>
+                                <td>{fp.nomeCargo || "N/A"}</td>
                                 <td>{fp.nomePerfil || "N/A"}</td>
                                 <td>
                                     <button
-                                        onClick={() => handleDelete(fp.idFuncionario, fp.idPerfil)}
+                                        onClick={() => handleDelete(fp.idCargo, fp.idPerfil)}
                                         type="button"
                                         className="btn btn-danger btn-sm"
                                     >
@@ -152,7 +152,7 @@ function FuncionariosPerfisList(props) {
                     ) : (
                         <tr>
                             <td colSpan="3" className="text-center">
-                                Nenhum funcionário encontrado.
+                                Nenhum Cargo encontrado.
                             </td>
                         </tr>
                     )}
@@ -170,14 +170,14 @@ function FuncionariosPerfisList(props) {
     );
 }
 
-function FuncionariosPerfisForm(props) {
-    FuncionariosPerfisForm.propTypes = {
+function CargoPerfisForm(props) {
+    CargoPerfisForm.propTypes = {
         ShowList: PropTypes.func.isRequired,
     };
 
-    const [funcionarios, setFuncionarios] = useState([]);
+    const [cargos, setCargos] = useState([]);
     const [perfis, setPerfis] = useState([]);
-    const [funcionarioSelecionado, setFuncionarioSelecionado] = useState("");
+    const [cargoSelecionado, setCargoSelecionado] = useState("");
     const [perfilSelecionado, setPerfilSelecionado] = useState("");
     const [alertProps, setAlertProps] = useState({
         show: false,
@@ -188,12 +188,12 @@ function FuncionariosPerfisForm(props) {
     });
 
     useEffect(() => {
-        axios.get("https://localhost:7207/funcionario/buscarTodos")
+        axios.get("https://localhost:7207/cargo/buscarTodos")
             .then((response) => {
-                console.log("Dados de funcionários recebidos:", response.data);
-                setFuncionarios(response.data);
+                console.log("Dados de Cargos recebidossssss:", response.data);
+                setCargos(response.data);
             })
-            .catch((error) => console.error("Erro ao buscar funcionários:", error));
+            .catch((error) => console.error("Erro ao buscar Cargos:", error));
 
         axios.get("https://localhost:7207/perfil/buscarTodos")
             .then((response) => {
@@ -203,22 +203,19 @@ function FuncionariosPerfisForm(props) {
             .catch((error) => console.error("Erro ao buscar perfis:", error));
     }, []);
 
-    // Formata os funcionários para o SelectComFiltro
-    const opcoesFuncionarios = funcionarios
-        .filter((f) => f.idFuncionario && f.nmNome)
-        .map((f) => ({
-            value: f.idFuncionario,
-            label: `${f.nmNome} - ${f.nrMatricula}`,
+    const opcoesCargos = cargos
+        .filter((c) => c.idCargo && c.nmNome)
+        .map((c) => ({
+            value: c.idCargo,
+            label: `${c.nmNome}`,
         }));
 
-    // Formata os perfis para Select padrão
     const opcoesPerfis = perfis.map((perfil) => ({
         value: perfil.idPerfil,
         label: perfil.nome,
     }));
 
-    // Componente de seleção com busca
-function SelectComFiltro({ options, value, onChange, placeholder }) {
+    function SelectComFiltro({ options, value, onChange, placeholder }) {
     console.log("Opções disponíveis para o select:", options);
     console.log("Valor recebido no value:", value);
 
@@ -237,51 +234,81 @@ function SelectComFiltro({ options, value, onChange, placeholder }) {
     );
 }
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        console.log("Funcionário Selecionado (ID):", funcionarioSelecionado);
-        console.log("Perfil Selecionado (ID):", perfilSelecionado);
+    // Buscar corretamente os nomes associados ao ID selecionado
+    const perfilSelecionadoNome = perfis.find(
+        (perfil) => perfil.idPerfil === perfilSelecionado
+    )?.nome || "Perfil não encontrado"; // Ajustado para evitar undefined
 
-        try {
-            await axios.post("https://localhost:7207/funcionariosPerfis/incluir", {
-                idFuncionario: funcionarioSelecionado,
-                idPerfil: perfilSelecionado,
-            });
-            setAlertProps({
-                show: true,
-                type: "success",
-                title: "Sucesso",
-                message: "Perfil vinculado ao funcionário com sucesso!",
-                onClose: () => {
-                    setAlertProps((prev) => ({ ...prev, show: false }));
-                    props.ShowList();
-                },
-            });
-        } catch (error) {
-            console.error("Erro ao vincular perfil ao funcionário:", error);
-            setAlertProps({
-                show: true,
-                type: "error",
-                title: "Erro",
-                message: "Falha ao vincular perfil ao funcionário.",
-                onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
-            });
-        }
-    };
+    const cargoSelecionadoNome = cargos.find(
+        (cargo) => cargo.idCargo === cargoSelecionado
+    )?.nmNome || "Cargo não encontrado"; // Ajustado para evitar undefined
+
+    console.log("Cargo Selecionado (ID):", cargoSelecionado);
+    console.log("Cargo Selecionado (Nome):", cargoSelecionadoNome);
+    console.log("Perfil Selecionado (ID):", perfilSelecionado);
+    console.log("Perfil Selecionado (Nome):", perfilSelecionadoNome);
+
+    // Validar se os valores são válidos antes da requisição
+    if (!cargoSelecionado || !perfilSelecionado) {
+        setAlertProps({
+            show: true,
+            type: "error",
+            title: "Erro",
+            message: "Selecione um cargo e um perfil antes de continuar.",
+            onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+        });
+        return;
+    }
+
+    try {
+        const response = await axios.post("https://localhost:7207/cargoPerfis/incluir", {
+            idCargo: cargoSelecionado,
+            nomeCargo: cargoSelecionadoNome,
+            idPerfil: perfilSelecionado,
+            nomePerfil: perfilSelecionadoNome,
+        });
+
+        console.log("Resposta da API:", response.data);
+
+        setAlertProps({
+            show: true,
+            type: "success",
+            title: "Sucesso",
+            message: "Perfil vinculado ao Cargo com sucesso!",
+            onClose: () => {
+                setAlertProps((prev) => ({ ...prev, show: false }));
+                props.ShowList();
+            },
+        });
+    } catch (error) {
+        console.error("Erro ao vincular perfil ao Cargo:", error.response?.data || error.message);
+
+        setAlertProps({
+            show: true,
+            type: "error",
+            title: "Erro",
+            message: error.response?.data?.mensagem || "Falha ao vincular perfil ao Cargo.",
+            onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+        });
+    }
+};
+
 
     return (
         <>
             <NavBar />
-            <h2 className="text-center mb-3">Vincular Perfil ao Funcionário</h2>
+            <h2 className="text-center mb-3">Vincular Perfil ao Cargo</h2>
             <form onSubmit={handleSubmit}>
                 <div className="mb-3">
-                    <label className="form-label">Funcionário</label>
+                    <label className="form-label">Cargo</label>
                     <SelectComFiltro
-                        options={opcoesFuncionarios}
-                        value={funcionarioSelecionado}
-                        onChange={setFuncionarioSelecionado}
-                        placeholder="Selecione um funcionário..."
+                        options={opcoesCargos}
+                        value={cargoSelecionado}
+                        onChange={setCargoSelecionado}
+                        placeholder="Selecione um cargo..."
                     />
                 </div>
                 <div className="mb-3">
@@ -316,15 +343,15 @@ function SelectComFiltro({ options, value, onChange, placeholder }) {
     );
 }
 
-export function FuncionariosPerfis() {
-    const [content, setContent] = useState(<FuncionariosPerfisList ShowForm={ShowForm} />);
+export function CargoPerfis() {
+    const [content, setContent] = useState(<CargoPerfisList ShowForm={ShowForm} />);
 
     function ShowList() {
-        setContent(<FuncionariosPerfisList ShowForm={ShowForm} />);
+        setContent(<CargoPerfisList ShowForm={ShowForm} />);
     }
 
     function ShowForm() {
-        setContent(<FuncionariosPerfisForm ShowList={ShowList} />);
+        setContent(<CargoPerfisForm ShowList={ShowList} />);
     }
 
     return <div className="container">{content}</div>;

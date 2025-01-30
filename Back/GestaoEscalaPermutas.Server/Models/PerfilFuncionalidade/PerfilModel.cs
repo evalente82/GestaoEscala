@@ -14,7 +14,6 @@ namespace GestaoEscalaPermutas.Server.Models.PerfilFuncionalidade
         public string? Descricao { get; set; }
 
         // Relacionamentos
-        public ICollection<ICargoPerfisService>? FuncionariosPerfis { get; set; }
         public ICollection<PerfilFuncionalidadesModel>? PerfisFuncionalidades { get; set; }
     }
 }

@@ -2,13 +2,11 @@
 
 namespace GestaoEscalaPermutas.Server.Models.PerfilFuncionalidade
 {
-    public class CargoPerfisModel
+    public class CargoPerfisModel: RetornoModel
     {
-        public Guid IdFuncionario { get; set; }
+        public Guid IdCargo { get; set; }
         public Guid IdPerfil { get; set; }
-
-        // Relacionamentos
-        public Cargo Funcionario { get; set; } = null!;
+        public Cargo Cargo { get; set; } = null!;
         public Perfil Perfil { get; set; } = null!;
     }
 }
