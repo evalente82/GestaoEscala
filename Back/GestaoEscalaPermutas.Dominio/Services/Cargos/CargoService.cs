@@ -81,6 +81,9 @@ namespace GestaoEscalaPermutas.Dominio.Services.Cargos
             {
                 var cargos = await _context.Cargos.ToListAsync();
                 var cargosDTO = _mapper.Map<List<CargoDTO>>(cargos);
+                // Definir a validação diretamente pelo método criado
+                cargosDTO.ForEach(c => c.DefinirValidade(!string.IsNullOrWhiteSpace(c.NmNome), "Nome do cargo não pode ser vazio."));
+
                 return cargosDTO;
             }
             catch (Exception e)

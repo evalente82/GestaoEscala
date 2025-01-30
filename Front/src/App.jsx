@@ -15,7 +15,7 @@ import Login from './Components/Pages/Login/Login';
 import {Perfil} from './Components/Pages/PerfilFuncionalidades/Perfil';
 import {Funcionalidade} from './Components/Pages/PerfilFuncionalidades/Funcionalidade';
 import {PerfisFuncionalidades} from './Components/Pages/PerfilFuncionalidades/PerfisFuncionalidades';
-import {FuncionariosPerfis} from './Components/Pages/PerfilFuncionalidades/FuncionarioPerfis';
+import {CargoPerfis} from './Components/Pages/PerfilFuncionalidades/CargoPerfis';
 
 
 function App() {
@@ -43,7 +43,7 @@ function App() {
                     <Route path="/Perfil" element={<Perfil />} />
                     <Route path="/Funcionalidade" element={<Funcionalidade />} />
                     <Route path="/PerfisFuncionalidades" element={<PerfisFuncionalidades />} />
-                    <Route path="/FuncionariosPerfis" element={<FuncionariosPerfis />} />
+                    <Route path="/CargoPerfis" element={<CargoPerfis />} />
                 </Routes>
                 <Footer />
             </BrowserRouter>

@@ -21,6 +21,8 @@ public partial class Cargo
     public bool IsAtivo { get; set; }
     public DateTime DtCriacao { get; set; }
 
-    // Propriedade de navegação para os Perfis relacionados
-    public ICollection<CargoPerfis>? Perfis { get; set; }
+
+    // Relacionamento com Perfis
+    public ICollection<CargoPerfis> CargoPerfis { get; set; } = new List<CargoPerfis>();
+
 }

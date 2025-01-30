@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
+namespace GestaoEscalaPermutas.Dominio.DTO.PerfilFuncionalidade
 {
-    public class CargoPerfis
+    public class CargoPerfilDTO : RetornoDTO
     {
         public Guid IdCargo { get; set; }
+        public string NomeCargo { get; set; } = null!;
+
         public Guid IdPerfil { get; set; }
-        public Cargo Cargo { get; set; } = null!;
-        public Perfil Perfil { get; set; } = null!;
+        public string NomePerfil { get; set; } = null!;
     }
 }

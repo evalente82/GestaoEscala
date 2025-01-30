@@ -14,8 +14,10 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
 
         public string? Descricao { get; set; } // Descrição opcional do perfil
 
-        // Relacionamentos
-        public ICollection<CargoPerfis>? FuncionariosPerfis { get; set; }
+        // Relacionamentos com Perfis
         public ICollection<PerfisFuncionalidades>? PerfisFuncionalidades { get; set; }
+
+        // Relacionamento com Cargos
+        public ICollection<CargoPerfis> CargoPerfis { get; set; } = new List<CargoPerfis>();
     }
 }
