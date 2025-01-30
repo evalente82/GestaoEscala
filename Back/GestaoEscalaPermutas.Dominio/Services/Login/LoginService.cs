@@ -193,17 +193,12 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
                 var token = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
                 usuario.TokenRecuperacaoSenha = token;
                 usuario.TokenExpiracao = DateTime.UtcNow;
-                if (usuario.TokenExpiracao.HasValue && usuario.TokenExpiracao.Value.Kind == DateTimeKind.Unspecified)
-                {
-                    usuario.TokenExpiracao = DateTime.SpecifyKind(usuario.TokenExpiracao.Value, DateTimeKind.Utc);
-                }
-
 
                 _context.Usuario.Update(usuario);
                 await _context.SaveChangesAsync();
 
                 // Enviar e-mail com link para redefinição de senha
-                var linkRedefinicao = $"https://seusistema.com/redefinir-senha?token={token}";
+                var linkRedefinicao = $"http://localhost:5173/RedefinirSenha?token={token}";
 
                 await _emailService.EnviarEmail(usuario.Email, "Recuperação de Senha",
                     $"Clique no link para redefinir sua senha: <a href='{linkRedefinicao}'>Redefinir Senha</a>");
@@ -222,7 +217,10 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
             {
                 var usuario = await _context.Usuario.FirstOrDefaultAsync(u => u.TokenRecuperacaoSenha == request.Token);
 
-                if (usuario == null || usuario.TokenExpiracao < DateTime.UtcNow)
+                var timezoneOffset = TimeSpan.FromHours(-3); // UTC-3
+                var agoraUtc3 = DateTime.UtcNow.Add(timezoneOffset);
+
+                if (usuario == null || usuario.TokenExpiracao < agoraUtc3)
                     return new LoginResponseDTO { Valido = false, Mensagem = "Token inválido ou expirado." };
 
                 usuario.SenhaHash = BCrypt.Net.BCrypt.HashPassword(request.NovaSenha, workFactor: 12);

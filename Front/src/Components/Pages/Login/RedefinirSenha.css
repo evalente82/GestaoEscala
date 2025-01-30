@@ -1,0 +1,121 @@
+/* Container principal */
+.redefinir-senha-container {
+    display: flex;
+    flex-direction: column; /* Coloca os elementos em uma coluna */
+    justify-content: center; /* Centraliza verticalmente */
+    align-items: center; /* Centraliza horizontalmente */
+    height: 100vh;
+    background-color: #f7f9fc; /* Cor de fundo suave */
+    padding: 1rem; /* Adiciona espaçamento interno */
+    text-align: center;
+}
+
+/* Título principal */
+.main-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #003580; /* Azul forte */
+    margin-bottom: 2rem; /* Espaço abaixo do título */
+}
+
+/* Card */
+.redefinir-senha-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    width: 100%;
+}
+
+/* Título do card */
+.redefinir-senha-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #003580;
+    margin-bottom: 0.5rem;
+}
+
+/* Logo */
+.logo-defesa-civil {
+    width: 80px;
+    height: auto;
+    margin-bottom: 1rem;
+}
+
+/* Mensagens de alerta */
+.alert {
+    font-size: 0.9rem;
+    color: white;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    margin-bottom: 1rem;
+}
+
+.alert-danger {
+    background-color: #dc3545; /* Vermelho */
+}
+
+.alert-success {
+    background-color: #28a745; /* Verde */
+}
+
+/* Formulário */
+.form-label {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    text-align: left;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.form-control:focus {
+    border-color: #003580;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 53, 128, 0.5);
+}
+
+/* Botão */
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Link de voltar */
+.text-center a {
+    color: #003580;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.text-center a:hover {
+    text-decoration: underline;
+}
+
+/* Footer */
+footer {
+    margin-top: 2rem;
+    padding: 1rem 0;
+    border-top: 1px solid #ddd;
+    width: 100%;
+    text-align: center;
+}
+
+footer small {
+    display: block;
+    color: #555;
+}

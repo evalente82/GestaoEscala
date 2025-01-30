@@ -257,12 +257,20 @@ public partial class DefesaCivilMaricaContext : DbContext
 
         #region USUARIOS
         modelBuilder.Entity<Usuarios>()
-        .Property(u => u.TokenExpiracao)
-        .HasColumnType("timestamptz") // PostgreSQL entenderá como TIMESTAMPTZ
+        .Property(u => u.DataCriacao)
+        .HasColumnType("timestamptz") // 🔹 Define o tipo correto no PostgreSQL
         .HasConversion(
-            v => v.HasValue ? v.Value.ToUniversalTime() : v, // Antes de salvar, converte para UTC
-            v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v // Ao recuperar, define como UTC
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc), // 🔹 Salva como UTC
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc) // 🔹 Lê como UTC
         );
+
+        modelBuilder.Entity<Usuarios>()
+            .Property(u => u.TokenExpiracao)
+            .HasColumnType("timestamptz")
+            .HasConversion(
+                v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v, // 🔹 Converte ao salvar
+                v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v  // 🔹 Converte ao ler
+            );
         modelBuilder.Entity<Usuarios>(entity =>
         {
             modelBuilder.Entity<Usuarios>()

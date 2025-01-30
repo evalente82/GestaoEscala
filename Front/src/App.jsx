@@ -18,6 +18,7 @@ import {PerfisFuncionalidades} from './Components/Pages/PerfilFuncionalidades/Pe
 import {CargoPerfis} from './Components/Pages/PerfilFuncionalidades/CargoPerfis';
 import { useAuth } from "../src/Components/Pages/AuthContext";
 import { Navigate } from "react-router-dom";
+import RedefinirSenha from './Components/Pages/Login/RedefinirSenha';
 
 function RotaProtegida({ permissoesNecessarias, children }) {
     const { token, permissoes } = useAuth();
@@ -50,6 +51,8 @@ function App() {
 
                     {/* Rota de Esqueci Senha */}
                     <Route path="/EsqueciSenha" element={<EsqueciSenha />} />
+                    {/* Rota de Redefinir Senha */}
+                    <Route path="/RedefinirSenha" element={<RedefinirSenha />} />
 
                     {/* Outras páginas */}
                     <Route path="/*" element={<Home />} />

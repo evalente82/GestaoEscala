@@ -7,16 +7,16 @@ public class EmailService: IEmailService
 {
     public async Task EnviarEmail(string destinatario, string assunto, string corpo)
     {
-        var smtpClient = new SmtpClient("smtp.seuservidor.com")
+        var smtpClient = new SmtpClient("smtp.gmail.com")
         {
             Port = 587,
-            Credentials = new NetworkCredential("seuemail@dominio.com", "suaSenha"),
+            Credentials = new NetworkCredential("endrigo.valente@gmail.com", "vdjt bjvp uipt hnoy"),
             EnableSsl = true
         };
 
         var mailMessage = new MailMessage
         {
-            From = new MailAddress("seuemail@dominio.com"),
+            From = new MailAddress("endrigo.valente@gmail.com"),
             Subject = assunto,
             Body = corpo,
             IsBodyHtml = true

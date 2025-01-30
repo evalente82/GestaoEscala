@@ -31,7 +31,12 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
         public Guid? IdFuncionario { get; set; }
 
         [Required]
-        public DateTime DataCriacao { get; set; } = DateTime.UtcNow;
+        private DateTime _dataCriacao = DateTime.UtcNow;
+        public DateTime DataCriacao
+        {
+            get => _dataCriacao;
+            set => _dataCriacao = DateTime.SpecifyKind(value, DateTimeKind.Utc); // 🔹 Agora sempre será UTC
+        }
 
         [ForeignKey("Perfil")]
         public Guid IdPerfil { get; set; }
@@ -41,7 +46,10 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
         public DateTime? TokenExpiracao
         {
             get => _tokenExpiracao;
-            set => _tokenExpiracao = value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : null;
+            set => _tokenExpiracao = value.HasValue
+                ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc)
+                : null; // 🔹 Sempre define como UTC
         }
+
     }
 }
