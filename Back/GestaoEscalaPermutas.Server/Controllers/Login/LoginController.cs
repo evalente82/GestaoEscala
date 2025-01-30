@@ -26,7 +26,13 @@ namespace GestaoEscalaPermutas.Server.Controllers.Login
         [Route("Incluir/")]
         public async Task<ActionResult> IncluirLogin([FromBody] LoginDTO funcionario)
         {
+            if (string.IsNullOrEmpty(funcionario.Usuario) || string.IsNullOrEmpty(funcionario.Senha))
+            {
+                return BadRequest(new { Mensagem = "Usuário e senha são obrigatórios." });
+            }
+
             var loginDTO = await _loginService.Incluir(_mapper.Map<LoginDTO>(funcionario));
+
             var loginModel = _mapper.Map<LoginModel>(loginDTO);
 
             return (loginModel.Valido) ? Ok(loginModel) : BadRequest(new RetornoModel { Valido = false, Mensagem = loginModel.Mensagem });

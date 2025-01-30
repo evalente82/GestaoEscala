@@ -89,14 +89,16 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
         private string GerarTokenJWT(DepInfra.Usuarios usuario, List<string> permissoes)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("sua_chave_secreta_aqui"); // Substituir por configuração segura
+            var key = Encoding.UTF8.GetBytes("ChaveSeguraSuperLongaParaTokenJWT123!");
+
+            //var key = Encoding.ASCII.GetBytes("sua_chave_secreta_aqui"); // Substituir por configuração segura
 
             var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),
-        new Claim(ClaimTypes.Name, usuario.Nome),
-        new Claim(ClaimTypes.Role, usuario.Perfil?.Nome ?? "SemPerfil")
-    };
+            {
+                new Claim(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),
+                new Claim(ClaimTypes.Name, usuario.Nome),
+                new Claim(ClaimTypes.Role, usuario.Perfil?.Nome ?? "SemPerfil")
+            };
 
             claims.AddRange(permissoes.Select(p => new Claim("Permissao", p)));
 
@@ -133,21 +135,42 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
                     return new LoginResponseDTO { Valido = false, Mensagem = "Funcionário não encontrado para este e-mail." };
                 }
 
-                loginDTO.SenhaHash = BCrypt.Net.BCrypt.HashPassword(loginDTO.Senha, workFactor: 12);
+                loginDTO.SenhaHash = !string.IsNullOrEmpty(loginDTO.Senha)
+                    ? BCrypt.Net.BCrypt.HashPassword(loginDTO.Senha, workFactor: 12)
+                    : throw new Exception("Senha não pode ser nula.");
+
+                var cargo = await _context.Cargos.FirstOrDefaultAsync(c => c.IdCargo == funcionario.IdCargo);
+
+                var cargoPerfil = await _context.CargoPerfis.FirstOrDefaultAsync(p => p.IdCargo == cargo.IdCargo);
+                var perfil = await _context.Perfil.FirstOrDefaultAsync(p => p.IdPerfil == cargoPerfil.IdPerfil);
+
+                //loginDTO.Perfil = perfil?.IdPerfil != null ? perfil.IdPerfil.ToString() : "Sem Perfil";// Garante que Perfil nunca seja nulo
 
                 var usuario = new DepInfra.Usuarios
                 {
                     IdUsuario = Guid.NewGuid(),
+                    IdFuncionario = funcionario.IdFuncionario,
+                    IdPerfil = perfil.IdPerfil,
                     Nome = funcionario.NmNome,
                     Email = loginDTO.Usuario,
                     SenhaHash = loginDTO.SenhaHash,
-                    Perfil = funcionario.Cargo?.CargoPerfis.FirstOrDefault()?.Perfil
+                    Perfil = await _context.Perfil.FirstOrDefaultAsync(p => p.IdPerfil == cargoPerfil.IdPerfil)
                 };
 
                 _context.Usuario.Add(usuario);
                 await _context.SaveChangesAsync();
 
-                return new LoginResponseDTO { Valido = true, Mensagem = "Usuário cadastrado com sucesso." };
+                // 🔹 Gerar o Token JWT para o novo usuário
+                var permissoes = new List<string> { perfil?.Nome ?? "SemPerfil" };
+                var token = GerarTokenJWT(usuario, permissoes);
+
+                return new LoginResponseDTO
+                {
+                    Valido = true,
+                    Mensagem = "Usuário cadastrado com sucesso.",
+                    Token = token,
+                    NomeUsuario = usuario.Nome
+                };
             }
             catch (Exception e)
             {

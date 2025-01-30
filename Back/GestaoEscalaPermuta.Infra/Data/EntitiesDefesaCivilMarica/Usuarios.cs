@@ -32,7 +32,8 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
 
         [Required]
         public DateTime DataCriacao { get; set; } = DateTime.UtcNow;
-        // 🔹 Alteração: Agora Perfil é um objeto relacionado, não apenas uma string
+
+        [ForeignKey("Perfil")]
         public Guid IdPerfil { get; set; }
         public Perfil Perfil { get; set; } = null!;
     }
