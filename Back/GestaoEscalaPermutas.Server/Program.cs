@@ -13,7 +13,6 @@ using GestaoEscalaPermutas.Dominio.Services.Escala;
 using GestaoEscalaPermutas.Dominio.Services.PostoTrabalho;
 using GestaoEscalaPermutas.Dominio.Services.TipoEscala;
 using GestaoEscalaPermutas.Dominio.Interfaces.Escala;
-using GestaoEscalaPermutas.Dominio.Interfaces.PostoTrabalho;
 using GestaoEscalaPermutas.Dominio.Interfaces.TipoEscala;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.Services.EscalaPronta;
@@ -35,6 +34,8 @@ using GestaoEscalaPermutas.Dominio.Interfaces.PerfisFuncionalidades;
 using GestaoEscalaPermutas.Dominio.Services.PerfisFuncionalidades;
 using GestaoEscalaPermutas.Dominio.Services.CargoPerfis;
 using GestaoEscalaPermutas.Dominio.Interfaces.Email;
+using GestaoEscalaPermutas.Dominio.Services.Setor;
+using GestaoEscalaPermutas.Dominio.Interfaces.Setor;
 
 
 
@@ -88,6 +89,7 @@ builder.Services.AddScoped<IFuncionalidadeService, FuncionalidadeService>();
 builder.Services.AddScoped<IPerfisFuncionalidadesService, PerfisFuncionalidadesService>();
 builder.Services.AddScoped<ICargoPerfisService, CargoPerfisService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<ISetorService, SetorService>();
 
 
 

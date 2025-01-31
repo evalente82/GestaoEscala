@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using GestaoEscalaPermutas.Dominio.DTO.PostoTrabalho;
-using GestaoEscalaPermutas.Dominio.Interfaces.PostoTrabalho;
 using GestaoEscalaPermutas.Infra.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;

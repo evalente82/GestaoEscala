@@ -19,6 +19,9 @@ import {CargoPerfis} from './Components/Pages/PerfilFuncionalidades/CargoPerfis'
 import { useAuth } from "../src/Components/Pages/AuthContext";
 import { Navigate } from "react-router-dom";
 import RedefinirSenha from './Components/Pages/Login/RedefinirSenha';
+import ExibirPDF  from './Components/Pages/Exibiçao/ExibirPDF';
+import {Setor}  from './Components/Pages/Setor/Setor';
+
 
 function RotaProtegida({ permissoesNecessarias, children }) {
     const { token, permissoes } = useAuth();
@@ -53,7 +56,8 @@ function App() {
                     <Route path="/EsqueciSenha" element={<EsqueciSenha />} />
                     {/* Rota de Redefinir Senha */}
                     <Route path="/RedefinirSenha" element={<RedefinirSenha />} />
-
+                    <Route path="/ExibirPDF" element={<ExibirPDF />} />
+                    ExibirPDF
                     {/* Outras páginas */}
                     <Route path="/*" element={<Home />} />
                     <Route path="/home" element={<Home />} />
@@ -69,6 +73,8 @@ function App() {
                     <Route path="/Funcionalidade" element={<Funcionalidade />} />
                     <Route path="/PerfisFuncionalidades" element={<PerfisFuncionalidades />} />
                     <Route path="/CargoPerfis" element={<CargoPerfis />} />
+                    <Route path="/Setor" element={<Setor />} />
+                    
                 </Routes>
                 <Footer />
             </BrowserRouter>

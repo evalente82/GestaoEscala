@@ -1,8 +1,7 @@
-﻿using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
-
+﻿
 namespace GestaoEscalaPermutas.Dominio.DTO.PostoTrabalho
 {
-    public class PostoTrabalhoDTO: RetornoDTO
+    public class PostoTrabalhoDTO : RetornoDTO
     {
         public PostoTrabalhoDTO()
         {
@@ -20,5 +19,8 @@ namespace GestaoEscalaPermutas.Dominio.DTO.PostoTrabalho
         public DateTime DtCriacao { get; set; }
 
         public Guid IdDepartamento { get; set; }
+        public Guid? IdSetor { get; set; } // Novo campo
+        public string? NomeSetor { get; set; } // Adicionado para exibição do nome do setor
+
     }
 }

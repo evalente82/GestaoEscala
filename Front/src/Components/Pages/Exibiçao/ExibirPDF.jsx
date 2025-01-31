@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import NavBar from "../../Menu/NavBar";
@@ -5,14 +6,13 @@ import { useParams } from 'react-router-dom';
 import './Exibicao.css';
 import jsPDF from 'jspdf';
 
-
-export function Exibicao() {
+const ExibirPDF = () => {
+    const [pdfUrl, setPdfUrl] = useState(null);
     const [escala, setEscala] = useState(null);
-    const [tipoEscala, setTipoEscala] = useState(null);
     const [postos, setPostos] = useState(null);
     const [funcionarios, setFuncionarios] = useState(null);
     const [buscaEscalaPronta, setBuscaEscalaPronta] = useState(null);
-    const { idEscala } = useParams();
+    const { idEscala } = useParams('71175b9c-a573-4daf-9f2d-a1cfd582b669');
     const [showEditContent, setShowEditContent] = useState(false);
     const [funcionarioOrigem, setFuncionarioOrigem] = useState('');
     const [funcionarioDestino, setFuncionarioDestino] = useState('');
@@ -20,16 +20,14 @@ export function Exibicao() {
     const [highlightedIds, setHighlightedIds] = useState([]); // IDs a serem destacados
 
     useEffect(() => {
-        BuscaEscala(idEscala);
+        BuscaEscala('71175b9c-a573-4daf-9f2d-a1cfd582b669');
         BuscaFuncionarios();
-        BuscaEscalaPronta(idEscala);
-        
+        BuscaEscalaPronta('71175b9c-a573-4daf-9f2d-a1cfd582b669');
     }, []);
 
     useEffect(() => {
         if (escala) {
             BuscaPostos(escala.idDepartamento);
-            BuscarTipoEscalaPorId(escala.idTipoEscala)
         }
     }, [escala]);
 
@@ -44,30 +42,12 @@ export function Exibicao() {
             BuscaPostos(escala.idDepartamento);
         }
     }, [escala, buscaEscalaPronta]);
-    
-    console.log('tipoEscala')
-    console.log(tipoEscala)
 
     function obterQuantidadeDiasNoMes(ano, mes) {
         const ultimoDiaDoMes = new Date(ano, mes, 0).getDate();
         return ultimoDiaDoMes;
     }
-    function BuscarTipoEscalaPorId(idTipoEscala) {
-        axios.get(`https://localhost:7207/tipoEscala/buscarPorId/${idTipoEscala}`)
-            .then((response) => {
-                console.log(response.data);
-                setTipoEscala(response.data);
-            })
-            .catch((error) => {
-                setAlertProps({
-                    show: true,
-                    type: "error",
-                    title: "Erro",
-                    message: "Não foi possível carregar os Cargos.",
-                onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
-            });
-        });
-    }
+
     function BuscaEscala(id) {
         axios
             .get(`https://localhost:7207/escala/buscarPorId/${id}`)
@@ -209,6 +189,7 @@ export function Exibicao() {
         return meses[numeroMes - 1] || "MÊS INVÁLIDO"; // Retorna o mês ou "MÊS INVÁLIDO" se o número for inválido
     }
 
+
     const handleGerarPDF = () => {
         const pdf = new jsPDF('portrait', 'mm', 'a4');
         const margemEsquerda = 10;
@@ -226,8 +207,8 @@ export function Exibicao() {
     
         const titulo = [
             "GRUPAMENTO DE PREVENÇÃO E SALVAMENTO AQUÁTICO",
-            obterNomeMes(escala.nrMesReferencia) +" - " + buscaEscalaPronta[0].dtDataServico.substring(0,4),
-            `${tipoEscala.nrHorasTrabalhada} x ${tipoEscala.nrHorasFolga} Horário ${tipoEscala.nmDescricao}`
+            "FEVEREIRO 2025",
+            "(12H X 60H / 08:00H ÀS 20:00H)"
         ];
     
         titulo.forEach((linha, index) => {
@@ -272,7 +253,7 @@ export function Exibicao() {
             pdf.setTextColor(0, 0, 0);
             pdf.setFontSize(12);
     
-            const postoTitulo = `${nomePosto} `;
+            const postoTitulo = `${nomePosto} – 12X60  08H ÀS 20H`;
             const textWidthPosto = pdf.getTextWidth(postoTitulo);
             pdf.text(postoTitulo, margemEsquerda + (larguraTotal - textWidthPosto) / 2, yAtual + 8);
     
@@ -299,7 +280,7 @@ export function Exibicao() {
             const larguraColuna1 = 30;
             const larguraColuna2 = 80;
             const larguraColuna3 = 80;
-            const alturaLinhaBase = 12;
+            const alturaLinha = 12;
     
             // 🔹 Criando grupos com base nos dias trabalhados
             const agrupamentoDias = {};
@@ -324,15 +305,10 @@ export function Exibicao() {
     
             let grupoIndex = 0;
             Object.entries(agrupamentoDias).forEach(([diasTrabalhados, funcionariosNoGrupo]) => {
-                // ✅ Processa a quebra de linha nos dias trabalhados
-                const diasFormatados = ["A", "B", "C"].includes(diasTrabalhados) ? "-" : diasTrabalhados;
-                const linhasDias = pdf.splitTextToSize(diasFormatados, larguraColuna3 - 8);
-                let alturaExtra = (linhasDias.length - 1) * 6; // Expande a linha conforme a quantidade de quebras
-    
                 // ✅ Coluna 1 (Grupo - A, B, C, etc.)
                 pdf.setFillColor(255, 140, 0);
                 pdf.setDrawColor(0, 0, 0);
-                pdf.rect(margemEsquerda, yAtual, larguraColuna1, alturaLinhaBase + alturaExtra, "DF");
+                pdf.rect(margemEsquerda, yAtual, larguraColuna1, alturaLinha, "DF");
     
                 pdf.setTextColor(0, 0, 0);
                 pdf.setFontSize(14);
@@ -341,7 +317,7 @@ export function Exibicao() {
     
                 // ✅ Coluna 2 (Nome dos Funcionários)
                 pdf.setFillColor(255, 255, 255);
-                pdf.rect(margemEsquerda + larguraColuna1, yAtual, larguraColuna2, alturaLinhaBase + alturaExtra, "DF");
+                pdf.rect(margemEsquerda + larguraColuna1, yAtual, larguraColuna2, alturaLinha, "DF");
     
                 pdf.setFontSize(12);
                 pdf.setFont("Helvetica", "normal");
@@ -350,18 +326,20 @@ export function Exibicao() {
                     .join("\n");
                 pdf.text(nomesFuncionarios, margemEsquerda + larguraColuna1 + 5, yAtual + 6);
     
-                // ✅ Coluna 3 (Dias Trabalhados) - Agora corretamente dentro da borda
+                // ✅ Coluna 3 (Dias Trabalhados)
                 pdf.setFillColor(255, 255, 255);
-                pdf.rect(margemEsquerda + larguraColuna1 + larguraColuna2, yAtual, larguraColuna3, alturaLinhaBase + alturaExtra, "DF");
+                pdf.rect(margemEsquerda + larguraColuna1 + larguraColuna2, yAtual, larguraColuna3, alturaLinha, "DF");
     
                 pdf.setFontSize(12);
-                linhasDias.forEach((linha, index) => {
-                    pdf.text(linha, margemEsquerda + larguraColuna1 + larguraColuna2 + 5, yAtual + 8 + (index * 6));
-                });
     
-                yAtual += alturaLinhaBase + alturaExtra;
+                // 🔹 Substitui as letras A, B, C na coluna de dias por "-"
+                const diasFormatados = ["A", "B", "C"].includes(diasTrabalhados) ? "-" : diasTrabalhados;
+                pdf.text(diasFormatados || "-", margemEsquerda + larguraColuna1 + larguraColuna2 + 10, yAtual + 8);
+    
+                yAtual += alturaLinha;
                 grupoIndex++;
     
+                // 🔹 Adiciona nova página se necessário
                 if (yAtual > 280) {
                     pdf.addPage();
                     yAtual = 20;
@@ -369,122 +347,39 @@ export function Exibicao() {
             });
         });
     
-        pdf.save("Escala_Praia_Modelo.pdf");
+        const pdfBlob = pdf.output("blob");
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        setPdfUrl(pdfUrl);
     };
     
     
     
     
+    
+    
+    
 
+    
 
     return (
-        <>
-            <NavBar />
-            <div className="container mt-3">
-                <h1>Exibição da Escala {escala ? escala.nmNomeEscala : 'Carregando...'}</h1>
-                <button
-                    type="button"
-                    className="btn btn-outline-primary me-2"
-                    onClick={() => setShowEditContent(!showEditContent)}
-                >
-                    EDITAR
-                </button>
-                {showEditContent && (
-                    <>
-                        <div className="container highlight-box mt-3">
-                            <div className="row">
-                                <div className="col-4">
-                                    <input
-                                        className="form-control mb-2"
-                                        style={{ width: '100%' }}
-                                        value={funcionarioOrigem}
-                                        onChange={(e) => setFuncionarioOrigem(e.target.value)}
-                                        placeholder="Funcionário Origem"
-                                    />
-                                    <input
-                                        className="form-control mb-2"
-                                        style={{ width: '100%' }}
-                                        value={funcionarioDestino}
-                                        onChange={(e) => setFuncionarioDestino(e.target.value)}
-                                        placeholder="Funcionário Destino"
-                                    />
-                                    
-                                </div>
-                                
-                                <div className="col-1">
-                                    <button
-                                        type="button"
-                                        className="btn btn-outline-primary me-2"
-                                        onClick={handleTrocarFuncionario}
-                                    >
-                                        Trocar
-                                    </button>
-                                    
-                                </div> 
-                                <div className="row">
-                                    <div className="col-1">
-                                        <button
-                                            type="button"
-                                            className="btn btn-outline-primary me-2"
-                                            onClick={handleSalvarEscalaAlterada}
-                                        >
-                                            Salvar
-                                        </button>
-                                    </div>   
-                                    <div className="col-5">
-                                        <button
-                                            type="button"
-                                            className="btn btn-outline-primary me-2"
-                                            onClick={handleGerarPDF}
-                                        >
-                                            Gerar PDF
-                                        </button>
-                                    </div>   
-                                </div>
-                            </div>
-                        </div>
-                    </>
-                )}
-                
-                <div className="table-container mt-3">                
-                    <table className="table">
-                        <thead>
-                            <tr>
-                                <th>Dia</th>
-                                {postos && postos.map((posto) => (
-                                    <th key={posto.idPostoTrabalho}>{posto.nmNome}</th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {Array.from({ length: numDias }, (_, index) => (
-                                <tr key={index + 1}>
-                                    <td className="border">{index + 1}</td>
-                                    {postos && postos.map((posto) => (
-                                        <td key={posto.idPostoTrabalho}>
-                                            {escalaAlterada
-                                                .filter(item =>
-                                                    new Date(item.dtDataServico).getDate() === index + 1 &&
-                                                    item.idPostoTrabalho === posto.idPostoTrabalho
-                                                )
-                                                .map(item => (
-                                                    <div
-                                                        key={item.idEscalaPronta}
-                                                        className={highlightedIds.includes(item.idFuncionario) ? 'highlight' : ''}
-                                                    >
-                                                        {obterNomeFuncionario(item.idFuncionario)}
-                                                    </div>
-                                                ))}
-                                        </td>
-                                    ))}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </>
-    );
-}
+        <div className="container mt-3">
+            <h1>Exibição da Escala</h1>
+            
+            <button
+                type="button"
+                className="btn btn-outline-primary me-2"
+                onClick={handleGerarPDF}
+            >
+                Gerar PDF
+            </button>
 
-export default Exibicao;
+            {pdfUrl && (
+                <div className="pdf-container mt-3">
+                    <iframe src={pdfUrl} width="100%" height="500px" title="Pré-visualização do PDF"></iframe>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default ExibirPDF;
