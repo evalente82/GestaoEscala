@@ -20,6 +20,7 @@ import { useAuth } from "../src/Components/Pages/AuthContext";
 import { Navigate } from "react-router-dom";
 import RedefinirSenha from './Components/Pages/Login/RedefinirSenha';
 import ExibirPDF  from './Components/Pages/Exibiçao/ExibirPDF';
+import {Setor}  from './Components/Pages/Setor/Setor';
 
 
 function RotaProtegida({ permissoesNecessarias, children }) {
@@ -72,6 +73,8 @@ function App() {
                     <Route path="/Funcionalidade" element={<Funcionalidade />} />
                     <Route path="/PerfisFuncionalidades" element={<PerfisFuncionalidades />} />
                     <Route path="/CargoPerfis" element={<CargoPerfis />} />
+                    <Route path="/Setor" element={<Setor />} />
+                    
                 </Routes>
                 <Footer />
             </BrowserRouter>

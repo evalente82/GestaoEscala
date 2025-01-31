@@ -9,6 +9,7 @@ using GestaoEscalaPermutas.Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using GestaoEscalaPermutas.Dominio.DTO.TipoEscala;
 using GestaoEscalaPermutas.Server.Models.TipoEscala;
+using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 
 namespace GestaoEscalaPermutas.Server.Controllers.TipoEscala
 {
@@ -68,6 +69,19 @@ namespace GestaoEscalaPermutas.Server.Controllers.TipoEscala
             var tipoEscalaDTO = await _tipoEscalaService.Deletar(id);
             var tipoEscalasModel = _mapper.Map<TipoEscalaModel>(tipoEscalaDTO);
             return (tipoEscalasModel.Valido) ? Ok(tipoEscalasModel.Mensagem) : BadRequest(new RetornoModel { Valido = false, Mensagem = tipoEscalasModel.Mensagem });
+        }
+
+        [HttpGet]
+        [Route("buscarPorId/{id:Guid}")]
+        public async Task<ActionResult> BuscarTipoEscala(Guid id)
+        {
+            var TipoEscala = await _tipoEscalaService.BuscarPorId(id);
+
+            if (!TipoEscala.valido)
+            {
+                return BadRequest(new RetornoModel { Valido = false, Mensagem = TipoEscala.mensagem });
+            }
+            return Ok(TipoEscala);
         }
     }
 }

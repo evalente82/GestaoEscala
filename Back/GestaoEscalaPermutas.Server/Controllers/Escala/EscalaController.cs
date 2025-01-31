@@ -4,7 +4,6 @@ using GestaoEscalaPermutas.Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using GestaoEscalaPermutas.Dominio.DTO.Escala;
 using GestaoEscalaPermutas.Server.Models.Escala;
-using GestaoEscalaPermutas.Dominio.Interfaces.PostoTrabalho;
 using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
 using GestaoEscalaPermutas.Dominio.Interfaces.TipoEscala;
 using GestaoEscalaPermutas.Dominio.DTO.EscalaPronta;

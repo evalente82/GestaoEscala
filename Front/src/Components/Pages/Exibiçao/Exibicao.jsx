@@ -8,6 +8,7 @@ import jsPDF from 'jspdf';
 
 export function Exibicao() {
     const [escala, setEscala] = useState(null);
+    const [tipoEscala, setTipoEscala] = useState(null);
     const [postos, setPostos] = useState(null);
     const [funcionarios, setFuncionarios] = useState(null);
     const [buscaEscalaPronta, setBuscaEscalaPronta] = useState(null);
@@ -22,11 +23,13 @@ export function Exibicao() {
         BuscaEscala(idEscala);
         BuscaFuncionarios();
         BuscaEscalaPronta(idEscala);
+        
     }, []);
 
     useEffect(() => {
         if (escala) {
             BuscaPostos(escala.idDepartamento);
+            BuscarTipoEscalaPorId(escala.idTipoEscala)
         }
     }, [escala]);
 
@@ -41,12 +44,30 @@ export function Exibicao() {
             BuscaPostos(escala.idDepartamento);
         }
     }, [escala, buscaEscalaPronta]);
+    
+    console.log('tipoEscala')
+    console.log(tipoEscala)
 
     function obterQuantidadeDiasNoMes(ano, mes) {
         const ultimoDiaDoMes = new Date(ano, mes, 0).getDate();
         return ultimoDiaDoMes;
     }
-
+    function BuscarTipoEscalaPorId(idTipoEscala) {
+        axios.get(`https://localhost:7207/tipoEscala/buscarPorId/${idTipoEscala}`)
+            .then((response) => {
+                console.log(response.data);
+                setTipoEscala(response.data);
+            })
+            .catch((error) => {
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Não foi possível carregar os Cargos.",
+                onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
+            });
+        });
+    }
     function BuscaEscala(id) {
         axios
             .get(`https://localhost:7207/escala/buscarPorId/${id}`)
@@ -179,6 +200,15 @@ export function Exibicao() {
     };
     const numDias = escala ? obterQuantidadeDiasNoMes(2025, escala.nrMesReferencia) : 0;
 
+    function obterNomeMes(numeroMes) {
+        const meses = [
+            "JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO",
+            "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"
+        ];
+        
+        return meses[numeroMes - 1] || "MÊS INVÁLIDO"; // Retorna o mês ou "MÊS INVÁLIDO" se o número for inválido
+    }
+
     const handleGerarPDF = () => {
         const pdf = new jsPDF('portrait', 'mm', 'a4');
         const margemEsquerda = 10;
@@ -196,8 +226,8 @@ export function Exibicao() {
     
         const titulo = [
             "GRUPAMENTO DE PREVENÇÃO E SALVAMENTO AQUÁTICO",
-            "FEVEREIRO 2025",
-            "(12H X 60H / 08:00H ÀS 20:00H)"
+            obterNomeMes(escala.nrMesReferencia) +" - " + buscaEscalaPronta[0].dtDataServico.substring(0,4),
+            `${tipoEscala.nrHorasTrabalhada} x ${tipoEscala.nrHorasFolga} Horário ${tipoEscala.nmDescricao}`
         ];
     
         titulo.forEach((linha, index) => {
@@ -242,7 +272,7 @@ export function Exibicao() {
             pdf.setTextColor(0, 0, 0);
             pdf.setFontSize(12);
     
-            const postoTitulo = `${nomePosto} – 12X60  08H ÀS 20:00H`;
+            const postoTitulo = `${nomePosto} `;
             const textWidthPosto = pdf.getTextWidth(postoTitulo);
             pdf.text(postoTitulo, margemEsquerda + (larguraTotal - textWidthPosto) / 2, yAtual + 8);
     

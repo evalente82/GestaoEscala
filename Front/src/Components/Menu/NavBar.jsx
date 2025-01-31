@@ -67,6 +67,9 @@ function NavBar() {
                                     Configurações
                                 </a>
                                 <ul className="dropdown-menu" aria-labelledby="configuracoesDropdown">
+                                <li>
+                                        <Link className="dropdown-item" to="/Setor">Setor</Link>
+                                    </li>
                                     <li>
                                         <Link className="dropdown-item" to="/PostoTrabalho">Postos</Link>
                                     </li>

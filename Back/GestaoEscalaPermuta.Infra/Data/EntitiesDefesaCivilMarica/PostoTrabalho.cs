@@ -25,5 +25,8 @@ public partial class PostoTrabalho
     public DateTime DtCriacao { get; set; }
 
     public Guid IdDepartamento { get; set; }
+    public Guid? IdSetor { get; set; } // Nova coluna referenciando Setor
+    [ForeignKey("IdSetor")]
+    public virtual Setor? Setor { get; set; }
 
 }

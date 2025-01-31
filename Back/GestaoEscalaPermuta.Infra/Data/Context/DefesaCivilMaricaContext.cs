@@ -34,7 +34,8 @@ public partial class DefesaCivilMaricaContext : DbContext
     public DbSet<Perfil> Perfil { get; set; }
     public DbSet<PerfisFuncionalidades> PerfisFuncionalidades { get; set; }
     public DbSet<CargoPerfis> CargoPerfis { get; set; }
-    
+    public DbSet<Setor> Setor { get; set; }
+
 
 
 
@@ -152,6 +153,18 @@ public partial class DefesaCivilMaricaContext : DbContext
 
         modelBuilder.Entity<Permuta>()
         .Property(e => e.IdPermuta)
+        .HasColumnType("uuid")
+        .HasDefaultValueSql("uuid_generate_v4()");
+        #endregion
+
+        #region Setor
+        modelBuilder.Entity<Setor>(entity =>
+        {
+            entity.HasKey(e => e.IdSetor).HasName("PK_IdSetor");
+        });
+
+        modelBuilder.Entity<Setor>()
+        .Property(e => e.IdSetor)
         .HasColumnType("uuid")
         .HasDefaultValueSql("uuid_generate_v4()");
         #endregion
