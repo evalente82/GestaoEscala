@@ -48,6 +48,9 @@ function NavBar() {
                                     <li>
                                         <Link className="dropdown-item" to="/funcionario">Funcionários</Link>
                                     </li>
+                                    <li>
+                                        <Link className="dropdown-item" to="/ExibirPDF">ExibirPDF</Link>
+                                    </li>
                                 </ul>
                             </li>
 
