@@ -10,6 +10,7 @@ export function Exibicao() {
     const [escala, setEscala] = useState(null);
     const [tipoEscala, setTipoEscala] = useState(null);
     const [postos, setPostos] = useState(null);
+    const [setores, setSetores] = useState([]);
     const [funcionarios, setFuncionarios] = useState(null);
     const [buscaEscalaPronta, setBuscaEscalaPronta] = useState(null);
     const { idEscala } = useParams();
@@ -44,9 +45,25 @@ export function Exibicao() {
             BuscaPostos(escala.idDepartamento);
         }
     }, [escala, buscaEscalaPronta]);
+
+    useEffect(() => {
+        BuscaSetores();
+    }, []);
     
     console.log('tipoEscala')
     console.log(tipoEscala)
+
+    function BuscaSetores() {
+        axios
+            .get("https://localhost:7207/setor/buscarTodos")
+            .then((response) => {
+                setSetores(response.data);
+                console.log("Setores carregados:", response.data);
+            })
+            .catch((error) => {
+                console.error("Erro ao buscar setores:", error);
+            });
+    }
 
     function obterQuantidadeDiasNoMes(ano, mes) {
         const ultimoDiaDoMes = new Date(ano, mes, 0).getDate();
@@ -209,6 +226,7 @@ export function Exibicao() {
         return meses[numeroMes - 1] || "MÊS INVÁLIDO"; // Retorna o mês ou "MÊS INVÁLIDO" se o número for inválido
     }
 
+    
     const handleGerarPDF = () => {
         const pdf = new jsPDF('portrait', 'mm', 'a4');
         const margemEsquerda = 10;
@@ -226,7 +244,7 @@ export function Exibicao() {
     
         const titulo = [
             "GRUPAMENTO DE PREVENÇÃO E SALVAMENTO AQUÁTICO",
-            obterNomeMes(escala.nrMesReferencia) +" - " + buscaEscalaPronta[0].dtDataServico.substring(0,4),
+            obterNomeMes(escala.nrMesReferencia) + " - " + buscaEscalaPronta[0].dtDataServico.substring(0, 4),
             `${tipoEscala.nrHorasTrabalhada} x ${tipoEscala.nrHorasFolga} Horário ${tipoEscala.nmDescricao}`
         ];
     
@@ -237,149 +255,160 @@ export function Exibicao() {
     
         yAtual += 23;
     
-        // ✅ "SETOR A"
-        pdf.setFillColor(180, 30, 30);
-        pdf.setDrawColor(0, 0, 0);
-        pdf.rect(margemEsquerda, yAtual, larguraTotal, 15, "DF");
-    
-        pdf.setTextColor(255, 255, 255);
-        pdf.setFontSize(18);
-        pdf.setFont("Helvetica", "bold");
-    
-        const setorTitulo = "SETOR A";
-        const textWidthSetor = pdf.getTextWidth(setorTitulo);
-        pdf.text(setorTitulo, margemEsquerda + (larguraTotal - textWidthSetor) / 2, yAtual + 10);
-    
-        yAtual += 15;
-    
-        // 🔹 Organiza os dados por Posto de Trabalho
-        const postosAgrupados = {};
+        // 🔹 Organiza os dados por Setor e Posto de Trabalho
+        const setoresAgrupados = {};
         buscaEscalaPronta.forEach(item => {
-            if (!postosAgrupados[item.idPostoTrabalho]) {
-                postosAgrupados[item.idPostoTrabalho] = [];
+            const idSetor = postos.find(p => p.idPostoTrabalho === item.idPostoTrabalho)?.idSetor || "SetorDesconhecido";
+    
+            if (!setoresAgrupados[idSetor]) {
+                setoresAgrupados[idSetor] = {};
             }
-            postosAgrupados[item.idPostoTrabalho].push(item);
+            if (!setoresAgrupados[idSetor][item.idPostoTrabalho]) {
+                setoresAgrupados[idSetor][item.idPostoTrabalho] = [];
+            }
+            setoresAgrupados[idSetor][item.idPostoTrabalho].push(item);
         });
     
-        Object.keys(postosAgrupados).forEach(idPostoTrabalho => {
-            const nomePosto = postos.find(p => p.idPostoTrabalho === idPostoTrabalho)?.nmNome || "Posto Desconhecido";
+        // 🔹 Ordena os setores em ordem alfabética antes de iterar
+        const setoresOrdenados = Object.keys(setoresAgrupados)
+            .map(idSetor => ({
+                idSetor,
+                nomeSetor: setores.find(s => s.idSetor === idSetor)?.nmNome || "Setor Desconhecido"
+            }))
+            .sort((a, b) => a.nomeSetor.localeCompare(b.nomeSetor));
     
-            // ✅ Posto de Trabalho - Bloco Amarelo
-            pdf.setFillColor(255, 255, 0);
+        // 🔹 Iterando sobre cada setor e seus postos sem alterar a lógica de exibição dos funcionários e dias
+        setoresOrdenados.forEach(({ idSetor, nomeSetor }) => {
+            // ✅ Adiciona o Setor no PDF
+            pdf.setFillColor(180, 30, 30);
             pdf.setDrawColor(0, 0, 0);
-            pdf.rect(margemEsquerda, yAtual, larguraTotal, 12, "DF");
+            pdf.rect(margemEsquerda, yAtual, larguraTotal, 15, "DF");
     
-            pdf.setTextColor(0, 0, 0);
-            pdf.setFontSize(12);
+            pdf.setTextColor(255, 255, 255);
+            pdf.setFontSize(18);
+            pdf.setFont("Helvetica", "bold");
     
-            const postoTitulo = `${nomePosto} `;
-            const textWidthPosto = pdf.getTextWidth(postoTitulo);
-            pdf.text(postoTitulo, margemEsquerda + (larguraTotal - textWidthPosto) / 2, yAtual + 8);
+            const textWidthSetor = pdf.getTextWidth(nomeSetor);
+            pdf.text(nomeSetor, margemEsquerda + (larguraTotal - textWidthSetor) / 2, yAtual + 10);
     
-            yAtual += 12;
+            yAtual += 15;
     
-            // 🔹 Agrupando funcionários e dias trabalhados
-            const funcionariosAgrupados = {};
-            postosAgrupados[idPostoTrabalho].forEach(item => {
-                if (!funcionariosAgrupados[item.idFuncionario]) {
-                    funcionariosAgrupados[item.idFuncionario] = [];
-                }
-                funcionariosAgrupados[item.idFuncionario].push(item.dtDataServico);
-            });
+            // 🔹 Mantendo a estrutura original dos postos e dias trabalhados
+            Object.keys(setoresAgrupados[idSetor]).forEach(idPostoTrabalho => {
+                const nomePosto = postos.find(p => p.idPostoTrabalho === idPostoTrabalho)?.nmNome || "Posto Desconhecido";
     
-            // 🔹 Remover funcionários com nome "Desconhecido"
-            Object.keys(funcionariosAgrupados).forEach(idFuncionario => {
-                if (obterNomeFuncionario(idFuncionario) === "Desconhecido") {
-                    delete funcionariosAgrupados[idFuncionario];
-                }
-            });
-    
-            // 🔹 Criando estrutura correta da tabela
-            const gruposLetras = ["A", "B", "C", "D", "E", "F"];
-            const larguraColuna1 = 30;
-            const larguraColuna2 = 80;
-            const larguraColuna3 = 80;
-            const alturaLinhaBase = 12;
-    
-            // 🔹 Criando grupos com base nos dias trabalhados
-            const agrupamentoDias = {};
-            Object.entries(funcionariosAgrupados).forEach(([idFuncionario, dias]) => {
-                const chaveDias = dias
-                    .map(data => new Date(data).getDate().toString().padStart(2, '0'))
-                    .sort()
-                    .join("-");
-    
-                if (!agrupamentoDias[chaveDias]) {
-                    agrupamentoDias[chaveDias] = [];
-                }
-                agrupamentoDias[chaveDias].push(idFuncionario);
-            });
-    
-            // 🔹 Se não houver funcionários, adiciona SEM FUNCIONÁRIO para cada grupo de dias (A, B, C)
-            if (Object.keys(agrupamentoDias).length === 0) {
-                gruposLetras.slice(0, 3).forEach(letra => {
-                    agrupamentoDias[letra] = ["SEM FUNCIONÁRIO"];
-                });
-            }
-    
-            let grupoIndex = 0;
-            Object.entries(agrupamentoDias).forEach(([diasTrabalhados, funcionariosNoGrupo]) => {
-                // ✅ Processa a quebra de linha nos dias trabalhados
-                const diasFormatados = ["A", "B", "C"].includes(diasTrabalhados) ? "-" : diasTrabalhados;
-                const linhasDias = pdf.splitTextToSize(diasFormatados, larguraColuna3 - 8);
-                let alturaExtra = (linhasDias.length - 1) * 6; // Expande a linha conforme a quantidade de quebras
-    
-                // ✅ Coluna 1 (Grupo - A, B, C, etc.)
-                pdf.setFillColor(255, 140, 0);
+                // ✅ Posto de Trabalho - Bloco Amarelo
+                pdf.setFillColor(255, 255, 0);
                 pdf.setDrawColor(0, 0, 0);
-                pdf.rect(margemEsquerda, yAtual, larguraColuna1, alturaLinhaBase + alturaExtra, "DF");
+                pdf.rect(margemEsquerda, yAtual, larguraTotal, 12, "DF");
     
                 pdf.setTextColor(0, 0, 0);
-                pdf.setFontSize(14);
-                pdf.setFont("Helvetica", "bold");
-                pdf.text(gruposLetras[grupoIndex % gruposLetras.length], margemEsquerda + 12, yAtual + 8);
-    
-                // ✅ Coluna 2 (Nome dos Funcionários)
-                pdf.setFillColor(255, 255, 255);
-                pdf.rect(margemEsquerda + larguraColuna1, yAtual, larguraColuna2, alturaLinhaBase + alturaExtra, "DF");
-    
                 pdf.setFontSize(12);
-                pdf.setFont("Helvetica", "normal");
-                const nomesFuncionarios = funcionariosNoGrupo
-                    .map(idFuncionario => (idFuncionario === "SEM FUNCIONÁRIO" ? "SEM FUNCIONÁRIO" : obterNomeFuncionario(idFuncionario)))
-                    .join("\n");
-                pdf.text(nomesFuncionarios, margemEsquerda + larguraColuna1 + 5, yAtual + 6);
     
-                // ✅ Coluna 3 (Dias Trabalhados) - Agora corretamente dentro da borda
-                pdf.setFillColor(255, 255, 255);
-                pdf.rect(margemEsquerda + larguraColuna1 + larguraColuna2, yAtual, larguraColuna3, alturaLinhaBase + alturaExtra, "DF");
+                const postoTitulo = `${nomePosto} `;
+                const textWidthPosto = pdf.getTextWidth(postoTitulo);
+                pdf.text(postoTitulo, margemEsquerda + (larguraTotal - textWidthPosto) / 2, yAtual + 8);
     
-                pdf.setFontSize(12);
-                linhasDias.forEach((linha, index) => {
-                    pdf.text(linha, margemEsquerda + larguraColuna1 + larguraColuna2 + 5, yAtual + 8 + (index * 6));
+                yAtual += 12;
+    
+                // 🔹 Mantendo a estrutura correta de agrupamento de funcionários e dias trabalhados
+                const funcionariosAgrupados = {};
+                setoresAgrupados[idSetor][idPostoTrabalho].forEach(item => {
+                    if (!funcionariosAgrupados[item.idFuncionario]) {
+                        funcionariosAgrupados[item.idFuncionario] = [];
+                    }
+                    funcionariosAgrupados[item.idFuncionario].push(item.dtDataServico);
                 });
     
-                yAtual += alturaLinhaBase + alturaExtra;
-                grupoIndex++;
+                // 🔹 Remover funcionários com nome "Desconhecido"
+                Object.keys(funcionariosAgrupados).forEach(idFuncionario => {
+                    if (obterNomeFuncionario(idFuncionario) === "Desconhecido") {
+                        delete funcionariosAgrupados[idFuncionario];
+                    }
+                });
     
-                if (yAtual > 280) {
-                    pdf.addPage();
-                    yAtual = 20;
+                // 🔹 Criando estrutura correta da tabela
+                const gruposLetras = ["A", "B", "C", "D", "E", "F"];
+                const larguraColuna1 = 30;
+                const larguraColuna2 = 80;
+                const larguraColuna3 = 80;
+                const alturaLinhaBase = 12;
+    
+                // 🔹 Criando grupos com base nos dias trabalhados
+                const agrupamentoDias = {};
+                Object.entries(funcionariosAgrupados).forEach(([idFuncionario, dias]) => {
+                    const chaveDias = dias
+                        .map(data => new Date(data).getDate().toString().padStart(2, '0'))
+                        .sort()
+                        .join("-");
+    
+                    if (!agrupamentoDias[chaveDias]) {
+                        agrupamentoDias[chaveDias] = [];
+                    }
+                    agrupamentoDias[chaveDias].push(idFuncionario);
+                });
+    
+                // 🔹 Se não houver funcionários, adiciona "-" na coluna de DIAS
+                if (Object.keys(agrupamentoDias).length === 0) {
+                    agrupamentoDias["-"] = ["SEM FUNCIONÁRIO"];
                 }
+    
+                let grupoIndex = 0;
+                Object.entries(agrupamentoDias).forEach(([diasTrabalhados, funcionariosNoGrupo]) => {
+                    // ✅ Mantendo os dias trabalhados dentro da borda
+                    const diasFormatados = funcionariosNoGrupo.includes("SEM FUNCIONÁRIO") ? "-" : diasTrabalhados;
+                    const linhasDias = pdf.splitTextToSize(diasFormatados, larguraColuna3 - 8);
+                    let alturaExtra = (linhasDias.length - 1) * 6;
+    
+                    // ✅ Coluna 1 (Grupo)
+                    pdf.setFillColor(255, 140, 0);
+                    pdf.setDrawColor(0, 0, 0);
+                    pdf.rect(margemEsquerda, yAtual, larguraColuna1, alturaLinhaBase + alturaExtra, "DF");
+    
+                    pdf.setTextColor(0, 0, 0);
+                    pdf.setFontSize(14);
+                    pdf.setFont("Helvetica", "bold");
+                    pdf.text(gruposLetras[grupoIndex % gruposLetras.length], margemEsquerda + 12, yAtual + 8);
+    
+                    // ✅ Coluna 2 (Nome dos Funcionários)
+                    pdf.setFillColor(255, 255, 255);
+                    pdf.rect(margemEsquerda + larguraColuna1, yAtual, larguraColuna2, alturaLinhaBase + alturaExtra, "DF");
+    
+                    pdf.setFontSize(12);
+                    pdf.setFont("Helvetica", "normal");
+                    const nomesFuncionarios = funcionariosNoGrupo
+                        .map(idFuncionario => (idFuncionario === "SEM FUNCIONÁRIO" ? "SEM FUNCIONÁRIO" : obterNomeFuncionario(idFuncionario)))
+                        .join("\n");
+                    pdf.text(nomesFuncionarios, margemEsquerda + larguraColuna1 + 5, yAtual + 6);
+    
+                    // ✅ Coluna 3 (Dias Trabalhados)
+                    pdf.setFillColor(255, 255, 255);
+                    pdf.rect(margemEsquerda + larguraColuna1 + larguraColuna2, yAtual, larguraColuna3, alturaLinhaBase + alturaExtra, "DF");
+    
+                    pdf.setFontSize(12);
+                    linhasDias.forEach((linha, index) => {
+                        pdf.text(linha, margemEsquerda + larguraColuna1 + larguraColuna2 + 5, yAtual + 8 + (index * 6));
+                    });
+    
+                    yAtual += alturaLinhaBase + alturaExtra;
+                    grupoIndex++;
+    
+                    if (yAtual > 280) {
+                        pdf.addPage();
+                        yAtual = 20;
+                    }
+                });
+    
+                yAtual += 0;
             });
         });
     
         pdf.save("Escala_Praia_Modelo.pdf");
     };
     
-    
-    
-    
-
 
     return (
         <>
-            <NavBar />
             <div className="container mt-3">
                 <h1>Exibição da Escala {escala ? escala.nmNomeEscala : 'Carregando...'}</h1>
                 <button

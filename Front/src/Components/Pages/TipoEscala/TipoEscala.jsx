@@ -104,7 +104,7 @@ function TipoEscalaList(props) {
 
     return (
         <>
-            <NavBar />
+            
             <h3 className="text-center mb-3">Listagem de Tipos de Escala</h3>
             <button
                 onClick={() => props.ShowForm({})}

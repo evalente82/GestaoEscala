@@ -96,7 +96,6 @@ function PerfisFuncionalidadesList(props) {
 
     return (
         <>
-            <NavBar />
             <h3 className="text-center mb-3">Perfis e Funcionalidades</h3>
             <button
                 onClick={() => props.ShowForm()}
@@ -229,7 +228,6 @@ function PerfisFuncionalidadesForm(props) {
 
     return (
         <>
-            <NavBar />
             <h2 className="text-center mb-3">Vincular Funcionalidade ao Perfil</h2>
             <form onSubmit={handleSubmit}>
                 <div className="mb-3">

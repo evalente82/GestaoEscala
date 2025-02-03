@@ -98,7 +98,6 @@ function DepartamentoList(props) {
 
     return (
         <>
-            <NavBar />
             <h3 className="text-center mb-3">Listagem de Departamentos</h3>
             <button
                 onClick={() => props.ShowForm({})}
@@ -272,7 +271,6 @@ function DepartamentoForm(props) {
     };
     return (
         <>
-            <NavBar />
             <h2 className="text-center mb-3">
                 {props.departamento.idDepartamento
                     ? "Editar Departamento"

@@ -1,50 +1,42 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./Login.css";
+import "./Login.css"; // Mantendo o mesmo estilo do Login
 
-function Login() {
-    const [usuario, setUsuario] = useState(""); 
-    const [senha, setSenha] = useState(""); 
+function PrimeiroAcesso() {
+    const [usuario, setUsuario] = useState("");
+    const [senha, setSenha] = useState("");
+    const [confirmarSenha, setConfirmarSenha] = useState("");
     const [alertMessage, setAlertMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
+        if (senha !== confirmarSenha) {
+            setAlertMessage("As senhas não coincidem.");
+            return;
+        }
+
         try {
-            const response = await axios.post("https://localhost:7207/login/autenticar", { 
-                usuario, 
-                senha 
+            const response = await axios.post("https://localhost:7207/login/Incluir", {
+                usuario,
+                senha
             }, {
                 headers: { "Content-Type": "application/json" }
             });
-    
-            // 🔹 Confirma que a resposta tem o campo `permissoes`
-            console.log("Resposta da API:", response.data);
-    
-            const { token, nomeUsuario, permissoes } = response.data;
-    
-            if (!permissoes || !Array.isArray(permissoes)) {
-                console.error("⚠️ Permissões não recebidas corretamente.");
+
+            if (response.status === 200) {
+                setSuccessMessage("Cadastro realizado com sucesso! Redirecionando...");
+                setTimeout(() => navigate("/"), 3000);
+            } else {
+                setAlertMessage(response.data?.mensagem || "Erro ao criar acesso.");
             }
-    
-            console.log("Token recebido:", token);
-            console.log("Nome recebido:", nomeUsuario);
-            console.log("Permissões recebidas:", permissoes);
-    
-            localStorage.setItem("token", token);
-            localStorage.setItem("nomeUsuario", nomeUsuario);
-            localStorage.setItem("permissoes", JSON.stringify(permissoes));
-    
-            console.log("Permissões armazenadas no localStorage:", localStorage.getItem("permissoes"));
-    
-            navigate("/Home");
         } catch (error) {
-            setAlertMessage(error.response?.data?.mensagem || "Erro ao fazer login. Tente novamente.");
+            setAlertMessage(error.response?.data?.mensagem || "Erro ao criar acesso.");
         }
     };
-    
 
     return (
         <div className="login-container">
@@ -57,14 +49,13 @@ function Login() {
                         alt="Logo Defesa Civil"
                         className="login-logo"
                     />
-                    <h2 className="text-center mt-3">Login</h2>
+                    <h2 className="text-center mt-3">Primeiro Acesso</h2>
                 </div>
                 {alertMessage && <div className="alert alert-danger mt-3">{alertMessage}</div>}
+                {successMessage && <div className="alert alert-success mt-3">{successMessage}</div>}
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
-                        <label htmlFor="usuario" className="form-label">
-                            Usuário
-                        </label>
+                        <label htmlFor="usuario" className="form-label">E-mail</label>
                         <input
                             type="text"
                             className="form-control"
@@ -75,9 +66,7 @@ function Login() {
                         />
                     </div>
                     <div className="mb-3">
-                        <label htmlFor="senha" className="form-label">
-                            Senha
-                        </label>
+                        <label htmlFor="senha" className="form-label">Senha</label>
                         <input
                             type="password"
                             className="form-control"
@@ -87,30 +76,21 @@ function Login() {
                             required
                         />
                     </div>
-                    <button type="submit" className="btn btn-primary w-100">
-                        Entrar
-                    </button>
+                    <div className="mb-3">
+                        <label htmlFor="confirmarSenha" className="form-label">Confirmar Senha</label>
+                        <input
+                            type="password"
+                            className="form-control"
+                            id="confirmarSenha"
+                            value={confirmarSenha}
+                            onChange={(e) => setConfirmarSenha(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <button type="submit" className="btn btn-primary w-100">Criar Acesso</button>
                 </form>
                 <div className="text-center mt-3">
-                    <a
-                        href="#"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            navigate("/PrimeiroAcesso");
-                        }}
-                        className="d-block"
-                    >
-                        Primeiro Acesso
-                    </a>
-                    <a
-                        href="#"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            navigate("/EsqueciSenha");
-                        }}
-                    >
-                        Esqueci minha senha
-                    </a>
+                    <a href="#" onClick={(e) => { e.preventDefault(); navigate("/"); }}>Voltar para Login</a>
                 </div>
             </div>
             <footer>
@@ -127,4 +107,4 @@ function Login() {
     );
 }
 
-export default Login;
+export default PrimeiroAcesso;

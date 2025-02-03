@@ -65,6 +65,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
                     .Select(pf => pf.Funcionalidade.Nome)
                     .Distinct()
                     .ToList() ?? new List<string>();
+                Console.WriteLine("Permissões encontradas: " + string.Join(", ", permissoes));
 
                 // Gera o token JWT
                 var token = GerarTokenJWT(usuario, permissoes);
@@ -74,7 +75,8 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
                     Valido = true,
                     Mensagem = "Autenticado com sucesso.",
                     Token = token,
-                    NomeUsuario = usuario.Nome
+                    NomeUsuario = usuario.Nome ?? string.Empty, // 🔹 Garante que nunca será null
+                    Permissoes = permissoes
                 };
             }
             catch (Exception e)

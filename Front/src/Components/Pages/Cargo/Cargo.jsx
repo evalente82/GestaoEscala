@@ -103,7 +103,6 @@ function CargoList(props) {
 
     return (
         <>
-            <NavBar />
             <h3 className="text-center mb-3">Listagem de Cargos</h3>
             <button
                 onClick={() => props.ShowForm({})}
@@ -300,7 +299,6 @@ function CargoForm(props) {
     };
     return (
         <>
-            <NavBar />
             <h2 className="text-center mb-3">
                 {props.cargo.idCargo
                     ? "Editar Cargo"

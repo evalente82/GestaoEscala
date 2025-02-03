@@ -81,7 +81,6 @@ function SetorList(props) {
 
     return (
         <>
-            <NavBar />
             <h3 className="text-center mb-3">Listagem de Setores</h3>
             <button onClick={() => props.ShowForm({})} className="btn btn-primary me-2">
                 Cadastrar

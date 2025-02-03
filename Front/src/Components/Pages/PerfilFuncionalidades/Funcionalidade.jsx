@@ -91,7 +91,6 @@ function FuncionalidadeList(props) {
 
     return (
         <>
-            <NavBar />
             <h3 className="text-center mb-3">Listagem de Funcionalidades</h3>
             <button
                 onClick={() => props.ShowForm({})}
@@ -235,7 +234,6 @@ function FuncionalidadeForm(props) {
 
     return (
         <>
-            <NavBar />
             <h2 className="text-center mb-3">
                 {props.funcionalidade.idFuncionalidade
                     ? "Editar Funcionalidade"

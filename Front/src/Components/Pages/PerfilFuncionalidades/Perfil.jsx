@@ -89,7 +89,6 @@ function PerfilList(props) {
 
     return (
         <>
-            <NavBar />
             <h3 className="text-center mb-3">Listagem de Perfis</h3>
             <button
                 onClick={() => props.ShowForm({})}
@@ -233,7 +232,6 @@ function PerfilForm(props) {
 
     return (
         <>
-            <NavBar />
             <h2 className="text-center mb-3">
                 {props.perfil.idPerfil ? "Editar Perfil" : "Cadastrar Novo Perfil"}
             </h2>

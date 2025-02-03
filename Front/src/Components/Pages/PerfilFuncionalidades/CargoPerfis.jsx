@@ -106,7 +106,6 @@ function CargoPerfisList(props) {
 
     return (
         <>
-            <NavBar />
             <h3 className="text-center mb-3">Cargo e Perfis</h3>
             <button
                 onClick={() => props.ShowForm()}
@@ -299,7 +298,6 @@ const handleSubmit = async (e) => {
 
     return (
         <>
-            <NavBar />
             <h2 className="text-center mb-3">Vincular Perfil ao Cargo</h2>
             <form onSubmit={handleSubmit}>
                 <div className="mb-3">

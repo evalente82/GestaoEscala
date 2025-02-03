@@ -130,7 +130,6 @@ function formatarData(dataISO) {
 
     return (
         <>
-            <NavBar />
             <h3 className="text-center mb-3">Lista de Permutas</h3>
             <button
                 onClick={() => props.ShowForm({})}
@@ -517,7 +516,6 @@ function PermutaForm(props) {
 
     return (
         <>
-            <NavBar />
             <h2 className="text-center mb-3">
                 {props.permuta.idPermuta
                     ? "Editar Permuta"

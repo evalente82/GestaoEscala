@@ -381,7 +381,6 @@ function PostoTrabalhoForm(props) {
     };
     return (
         <>
-            <NavBar />
             <h2 className="text-center mb-3">
                 {props.posto.idPostoTrabalho
                     ? "Editar Postos"
