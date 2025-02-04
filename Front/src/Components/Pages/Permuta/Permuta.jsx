@@ -5,12 +5,17 @@ import axios from "axios";
 import PropTypes from 'prop-types';
 import AlertPopup from '../AlertPopup/AlertPopup';
 import Select from 'react-select';
+import { useAuth } from "../AuthContext"; // Importa o contexto de autenticação
 
 function PermutaList(props) {
     const [searchText, setSearchText] = useState("");
     const [permuta, setPermuta] = useState([]);
     const [escalas, setEscalas] = useState([]);
-    
+    const { permissoes } = useAuth(); // Obtém as permissões do usuário
+
+    // Função para verificar se o usuário tem permissão específica
+    const possuiPermissao = (permissao) => permissoes.includes(permissao);
+
     const [alertProps, setAlertProps] = useState({
         show: false, // Exibe ou esconde o AlertPopup
         type: "info", // Tipo de mensagem (success, error, confirm, info)
@@ -166,34 +171,41 @@ function formatarData(dataISO) {
                         <th>NOME APROVADOR</th>
                         <th>DATA APROVAÇÃO</th>
                         <th>NOME ESCALA</th>
+                        <th>AÇÕES</th> {/* Coluna para os botões */}
                     </tr>
                 </thead>
                 <tbody>
                     {filteredRecords.map((p, index) => (
                         <tr key={index}>
-                            <td style={{ textAlign: "left" }}>{p.nmNomeSolicitante}</td>
-                            <td style={{ textAlign: "left" }}>{p.nmNomeSolicitado}</td>
-                            <td style={{ textAlign: "left" }}>{formatarData(p.dtDataSolicitadaTroca)}</td>
-                            <td style={{ textAlign: "left" }}>{formatarData(p.dtSolicitacao)}</td>
-                            <td style={{ textAlign: "left" }}>{p.nmNomeAprovador}</td>
-                            <td style={{ textAlign: "left" }}>{formatarData(p.dtAprovacao)}</td>
-                            <td style={{ textAlign: "left" }}>{escalas.find((e) => e.idEscala === p.idEscala)?.nmNomeEscala || "Escala não encontrada"}</td>
+                            <td>{p.nmNomeSolicitante}</td>
+                            <td>{p.nmNomeSolicitado}</td>
+                            <td>{formatarData(p.dtDataSolicitadaTroca)}</td>
+                            <td>{formatarData(p.dtSolicitacao)}</td>
+                            <td>{p.nmNomeAprovador}</td>
+                            <td>{formatarData(p.dtAprovacao)}</td>
+                            <td>{escalas.find((e) => e.idEscala === p.idEscala)?.nmNomeEscala || "Escala não encontrada"}</td>
                             <td style={{ width: "10px", whiteSpace: "nowrap" }}>
-                            <button
-                            onClick={() => props.ShowForm(p)}
-                            type="button"
-                            className="btn btn-primary btn-sm me-2"
-                        >
-                            Editar
-                        </button>
-                        <button
-                            onClick={() => handleDelete(p.idPermuta)}
-                            type="button"
-                            className="btn btn-danger btn-sm"
-                        >
-                            Delete
-                        </button>
-                    </td>    
+                                {/* Botão Editar - Aparece apenas para quem tem "EditarPermuta" */}
+                                {possuiPermissao("EditarPermuta") && (
+                                    <button
+                                        onClick={() => props.ShowForm(p)}
+                                        type="button"
+                                        className="btn btn-primary btn-sm me-2"
+                                    >
+                                        Editar
+                                    </button>
+                                )}
+                                {/* Botão Deletar - Aparece apenas para quem tem "DeletarPermuta" */}
+                                {possuiPermissao("DeletarPermuta") && (
+                                    <button
+                                        onClick={() => handleDelete(p.idPermuta)}
+                                        type="button"
+                                        className="btn btn-danger btn-sm"
+                                    >
+                                        Deletar
+                                    </button>
+                                )}
+                            </td>
                         </tr>
                     ))}
                 </tbody>

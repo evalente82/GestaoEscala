@@ -7,55 +7,45 @@ export function AuthProvider({ children }) {
     const [nomeUsuario, setNomeUsuario] = useState(localStorage.getItem("nomeUsuario") || "");
     const [permissoes, setPermissoes] = useState(() => {
         try {
-            const permissoesStorage = localStorage.getItem("permissoes");
-            console.log("🔍 Permissões no localStorage:", permissoesStorage);
-            return permissoesStorage ? JSON.parse(permissoesStorage) : [];
-        } catch (error) {
-            console.error("Erro ao carregar permissões:", error);
+            return JSON.parse(localStorage.getItem("permissoes")) || [];
+        } catch {
             return [];
         }
     });
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const atualizarDados = () => {
-            try {
-                const tokenStorage = localStorage.getItem("token");
-                const nomeStorage = localStorage.getItem("nomeUsuario");
-                const permissoesStorage = localStorage.getItem("permissoes");
-
-                setToken(tokenStorage);
-                setNomeUsuario(nomeStorage || "");
-
-                if (permissoesStorage) {
-                    setPermissoes(JSON.parse(permissoesStorage));
-                } else {
-                    setPermissoes([]);
-                }
-
-                console.log("🔍 Permissões carregadas:", permissoesStorage);
-            } catch (error) {
-                console.error("Erro ao analisar JSON das permissões:", error);
-                setPermissoes([]);
-            }
+            setToken(localStorage.getItem("token"));
+            setNomeUsuario(localStorage.getItem("nomeUsuario") || "");
+            setPermissoes(JSON.parse(localStorage.getItem("permissoes")) || []);
+            setLoading(false);
         };
 
         atualizarDados();
-
         window.addEventListener("storage", atualizarDados);
         return () => window.removeEventListener("storage", atualizarDados);
     }, []);
 
+    const login = (token, nomeUsuario, permissoes) => {
+        localStorage.setItem("token", token);
+        localStorage.setItem("nomeUsuario", nomeUsuario);
+        localStorage.setItem("permissoes", JSON.stringify(permissoes));
+
+        setToken(token);
+        setNomeUsuario(nomeUsuario);
+        setPermissoes(permissoes);
+    };
+
     const logout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("nomeUsuario");
-        localStorage.removeItem("permissoes");
+        localStorage.clear();
         setToken(null);
         setNomeUsuario("");
         setPermissoes([]);
     };
 
     return (
-        <AuthContext.Provider value={{ token, nomeUsuario, permissoes, logout }}>
+        <AuthContext.Provider value={{ token, nomeUsuario, permissoes, login, logout, loading }}>
             {children}
         </AuthContext.Provider>
     );
