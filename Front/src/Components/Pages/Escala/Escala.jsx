@@ -4,6 +4,7 @@ import axios from "axios";
 import PropTypes from 'prop-types';
 import AlertPopup from '../AlertPopup/AlertPopup'
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../AuthContext";
 
 
 function EscalaList(props) {
@@ -15,6 +16,8 @@ function EscalaList(props) {
     const [departamentos, setDepartamentos] = useState([]);
     const [cargos, setCargos] = useState([]);
     const [tipoEscalas, setTipoEscalas] = useState([]);
+    const { permissoes } = useAuth();
+    const possuiPermissao = (permissao) => permissoes.includes(permissao);
 
     const [alertProps, setAlertProps] = useState({
         show: false, // Exibe ou esconde o AlertPopup
@@ -194,20 +197,22 @@ function EscalaList(props) {
         <>
             <h3 className="text-center mb-3">Listagem de Escalas</h3>
             <div className="text-center mb-3">
+            {possuiPermissao("CadastrarEscala") && (
                     <button 
                         onClick={() => props.ShowForm({})}
                         type="button"
                         className="btn btn-primary me-2"
                         >
                         Cadastrar
-                    </button>
-                    <button
-                        onClick={() => BuscarFuncionarios()}
+                    </button>)}
+                    {possuiPermissao("CadastrarEscala") && (
+                        <button
+                        onClick={() => BuscarTodos()}
                         type="button"
                         className="btn btn-outline-primary me-2"
                         >
                         Atualizar
-                    </button>
+                    </button>)}
                 </div>
             <br />
             <br />
@@ -257,6 +262,8 @@ function EscalaList(props) {
                                         />
                                     </td>
                                     <td style={{ width: "10px", whiteSpace: "nowrap" }}>
+                                        {/* Botão Visualizar - Aparece apenas para quem tem "VisualizarEscalas" */}
+                                {possuiPermissao("VisualizarEscalas") && (
                                     <button
                                             onClick={() => navigate(`/Exibicao/${escala.idEscala}`)}
                                             type="button"
@@ -264,28 +271,34 @@ function EscalaList(props) {
                                             disabled={escala.isGerada == false}
                                         >
                                             Visualizar Escala
-                                        </button>
+                                        </button>)}
+                                        {/* Botão Gerar - Aparece apenas para quem tem "GerarEscalas" */}
+                                {possuiPermissao("GerarEscalas") && (
                                         <button
                                             onClick={() => props.ShowMontaEscala(escala)}
                                             type="button"
                                             className="btn btn-warning btn-sm me-2"
                                         >
                                             Gerar Escala
-                                        </button>
+                                        </button>)}
+                                        {/* Botão Editar - Aparece apenas para quem tem "EditarEscalas" */}
+                                {possuiPermissao("EditarEscalas") && (
                                         <button
                                             onClick={() => props.ShowForm(escala)}
                                             type="button"
                                             className="btn btn-primary btn-sm me-2"
                                         >
                                             Editar
-                                        </button>
+                                        </button>)}
+                                        {/* Botão Deletar - Aparece apenas para quem tem "DeletarEscalas" */}
+                                {possuiPermissao("DeletarEscalas") && (
                                         <button
                                             onClick={() => handleDelete(escala.idEscala)}
                                             type="button"
                                             className="btn btn-danger btn-sm"
                                         >
                                             Delete
-                                        </button>
+                                        </button>)}
                                     </td>
                                 </tr>
                             );

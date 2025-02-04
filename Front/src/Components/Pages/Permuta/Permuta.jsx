@@ -5,12 +5,15 @@ import axios from "axios";
 import PropTypes from 'prop-types';
 import AlertPopup from '../AlertPopup/AlertPopup';
 import Select from 'react-select';
+import { useAuth } from "../AuthContext";
 
 function PermutaList(props) {
     const [searchText, setSearchText] = useState("");
     const [permuta, setPermuta] = useState([]);
     const [escalas, setEscalas] = useState([]);
-    
+    const { permissoes } = useAuth();
+    const possuiPermissao = (permissao) => permissoes.includes(permissao);
+
     const [alertProps, setAlertProps] = useState({
         show: false, // Exibe ou esconde o AlertPopup
         type: "info", // Tipo de mensagem (success, error, confirm, info)
@@ -140,7 +143,7 @@ function formatarData(dataISO) {
                         Cadastrar
                     </button>
                     <button
-                        onClick={() => BuscarFuncionarios()}
+                        onClick={() => BuscarTodos()}
                         type="button"
                         className="btn btn-outline-primary me-2"
                         >
@@ -179,20 +182,26 @@ function formatarData(dataISO) {
                             <td style={{ textAlign: "left" }}>{formatarData(p.dtAprovacao)}</td>
                             <td style={{ textAlign: "left" }}>{escalas.find((e) => e.idEscala === p.idEscala)?.nmNomeEscala || "Escala não encontrada"}</td>
                             <td style={{ width: "10px", whiteSpace: "nowrap" }}>
-                            <button
-                            onClick={() => props.ShowForm(p)}
-                            type="button"
-                            className="btn btn-primary btn-sm me-2"
-                        >
-                            Editar
-                        </button>
-                        <button
-                            onClick={() => handleDelete(p.idPermuta)}
-                            type="button"
-                            className="btn btn-danger btn-sm"
-                        >
-                            Delete
-                        </button>
+                            {/* Botão Editar - Aparece apenas para quem tem "EditarPermuta" */}
+                            {possuiPermissao("EditarPermuta") && (
+                                    <button
+                                        onClick={() => props.ShowForm(p)}
+                                        type="button"
+                                        className="btn btn-primary btn-sm me-2"
+                                    >
+                                        Editar
+                                    </button>
+                                )}
+                                {/* Botão Deletar - Aparece apenas para quem tem "DeletarPermuta" */}
+                                {possuiPermissao("DeletarPermuta") && (
+                                    <button
+                                        onClick={() => handleDelete(p.idPermuta)}
+                                        type="button"
+                                        className="btn btn-danger btn-sm"
+                                    >
+                                        Deletar
+                                    </button>
+                                )}
                     </td>    
                         </tr>
                     ))}

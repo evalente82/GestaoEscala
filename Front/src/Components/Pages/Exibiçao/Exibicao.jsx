@@ -4,6 +4,7 @@ import NavBar from "../../Menu/NavBar";
 import { useParams } from 'react-router-dom';
 import './Exibicao.css';
 import jsPDF from 'jspdf';
+import { useAuth } from "../AuthContext";
 
 
 export function Exibicao() {
@@ -19,6 +20,8 @@ export function Exibicao() {
     const [funcionarioDestino, setFuncionarioDestino] = useState('');
     const [escalaAlterada, setEscalaAlterada] = useState([]);
     const [highlightedIds, setHighlightedIds] = useState([]); // IDs a serem destacados
+    const { permissoes } = useAuth();
+    const possuiPermissao = (permissao) => permissoes.includes(permissao);
 
     useEffect(() => {
         BuscaEscala(idEscala);
@@ -412,13 +415,14 @@ export function Exibicao() {
             <div className="container mt-3">
                 <div className="text-center mb-3">
                 <h1 >Exibição da Escala {escala ? escala.nmNomeEscala : 'Carregando...'}</h1>
+                {possuiPermissao("EditarEscalas") && (
                 <button
                     type="button"
                     className="btn btn-outline-primary me-2"
                     onClick={() => setShowEditContent(!showEditContent)}
                 >
                     EDITAR
-                </button>
+                </button>)}
                 </div>
                 
                 {showEditContent && (

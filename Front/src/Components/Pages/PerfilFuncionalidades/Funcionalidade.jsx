@@ -101,7 +101,7 @@ function FuncionalidadeList(props) {
                         Cadastrar
                     </button>
                     <button
-                        onClick={() => BuscarFuncionarios()}
+                        onClick={() => BuscarFuncionalidades()}
                         type="button"
                         className="btn btn-outline-primary me-2"
                         >

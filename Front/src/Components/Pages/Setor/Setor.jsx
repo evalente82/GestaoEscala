@@ -98,7 +98,7 @@ function SetorList(props) {
                         Cadastrar
                     </button>
                     <button
-                        onClick={() => BuscarFuncionarios()}
+                        onClick={() => BuscarTodos()}
                         type="button"
                         className="btn btn-outline-primary me-2"
                         >

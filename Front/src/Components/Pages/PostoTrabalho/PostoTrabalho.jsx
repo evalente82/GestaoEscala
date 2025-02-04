@@ -157,7 +157,7 @@ function PostoTrabalhoList(props) {
                         Cadastrar
                     </button>
                     <button
-                        onClick={() => BuscarFuncionarios()}
+                        onClick={() => BuscarPostos()}
                         type="button"
                         className="btn btn-outline-primary me-2"
                         >

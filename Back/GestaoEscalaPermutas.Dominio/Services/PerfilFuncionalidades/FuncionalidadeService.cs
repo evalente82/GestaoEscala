@@ -57,7 +57,7 @@ public class FuncionalidadeService : IFuncionalidadeService
 
     public async Task<IEnumerable<FuncionalidadeDTO>> BuscarTodas()
     {
-        var funcionalidades = await _context.Funcionalidades.ToListAsync();
+        var funcionalidades = await _context.Funcionalidades.OrderBy(x => x.Nome).ToListAsync();
         return _mapper.Map<IEnumerable<FuncionalidadeDTO>>(funcionalidades);
     }
 

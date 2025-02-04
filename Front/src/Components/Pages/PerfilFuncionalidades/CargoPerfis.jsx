@@ -116,7 +116,7 @@ function CargoPerfisList(props) {
                         Cadastrar
                     </button>
                     <button
-                        onClick={() => BuscarFuncionarios()}
+                        onClick={() => BuscarCargoPerfis()}
                         type="button"
                         className="btn btn-outline-primary me-2"
                         >
