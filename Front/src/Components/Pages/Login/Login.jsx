@@ -39,7 +39,7 @@ function Login() {
     
             console.log("Permissões armazenadas no localStorage:", localStorage.getItem("permissoes"));
     
-            navigate("/Home");
+            navigate("/Funcionario");
         } catch (error) {
             setAlertMessage(error.response?.data?.mensagem || "Erro ao fazer login. Tente novamente.");
         }

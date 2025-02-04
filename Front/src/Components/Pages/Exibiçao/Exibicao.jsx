@@ -410,7 +410,8 @@ export function Exibicao() {
     return (
         <>
             <div className="container mt-3">
-                <h1>Exibição da Escala {escala ? escala.nmNomeEscala : 'Carregando...'}</h1>
+                <div className="text-center mb-3">
+                <h1 >Exibição da Escala {escala ? escala.nmNomeEscala : 'Carregando...'}</h1>
                 <button
                     type="button"
                     className="btn btn-outline-primary me-2"
@@ -418,6 +419,8 @@ export function Exibicao() {
                 >
                     EDITAR
                 </button>
+                </div>
+                
                 {showEditContent && (
                     <>
                         <div className="container highlight-box mt-3">

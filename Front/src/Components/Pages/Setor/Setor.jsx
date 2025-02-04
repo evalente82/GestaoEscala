@@ -68,6 +68,13 @@ function SetorList(props) {
                 console.log("[LOG] Setor deletado com sucesso.");
                 setSetores(setores.filter((s) => s.idSetor !== idSetor));
                 BuscarTodos();
+                setAlertProps({
+                    show: true,
+                    type: "success",
+                    title: "Sucesso",
+                    message: "Registro excluído com sucesso!",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
             })
             .catch((error) => {
                 console.error("[ERRO] Falha ao excluir setor:", error);
@@ -82,12 +89,22 @@ function SetorList(props) {
     return (
         <>
             <h3 className="text-center mb-3">Listagem de Setores</h3>
-            <button onClick={() => props.ShowForm({})} className="btn btn-primary me-2">
-                Cadastrar
-            </button>
-            <button onClick={() => BuscarTodos()} className="btn btn-outline-primary me-2">
-                Atualizar
-            </button>
+                <div className="text-center mb-3">
+                    <button 
+                        onClick={() => props.ShowForm({})}
+                        type="button"
+                        className="btn btn-primary me-2"
+                        >
+                        Cadastrar
+                    </button>
+                    <button
+                        onClick={() => BuscarFuncionarios()}
+                        type="button"
+                        className="btn btn-outline-primary me-2"
+                        >
+                        Atualizar
+                    </button>
+                </div>
             <br /><br />
             <input
                 type="text"
@@ -154,37 +171,70 @@ function SetorForm(props) {
     const [nome, setNome] = useState(setorInicial.nmNome);
     const [descricao, setDescricao] = useState(setorInicial.nmDescricao);
     const [ativo, setAtivo] = useState(setorInicial.isAtivo);
+    const [alertProps, setAlertProps] = useState({
+        show: false, // Define se o AlertPopup deve ser exibido
+        type: "info", // Tipo da mensagem (success, error, info, confirm)
+        title: "", // Título da modal
+        message: "", // Mensagem da modal
+        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
+    });
 
     function handleAtivoChange(e) {
         setAtivo(e.target.checked);
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const data = { nmNome: nome, nmDescricao: descricao, isAtivo: ativo };
-
+    
         console.log("[LOG] Enviando dados para salvar setor:", data);
-
-        if (setorInicial.idSetor) {
-            axios.patch(`https://localhost:7207/setor/Atualizar/${setorInicial.idSetor}`, data)
-                .then(() => {
-                    console.log("[LOG] Setor atualizado com sucesso.");
-                    props.ShowList();
-                })
-                .catch((error) => console.error("[ERRO] Falha ao atualizar setor:", error));
-        } else {
-            axios.post("https://localhost:7207/setor/Incluir", data)
-                .then(() => {
-                    console.log("[LOG] Novo setor cadastrado com sucesso.");
-                    props.ShowList();
-                })
-                .catch((error) => console.error("[ERRO] Falha ao cadastrar setor:", error));
+    
+        try {
+            if (setorInicial.idSetor) {
+                await axios.patch(`https://localhost:7207/setor/Atualizar/${setorInicial.idSetor}`, data);
+                console.log("[LOG] Setor atualizado com sucesso.");
+    
+                setAlertProps({
+                    show: true,
+                    type: "success",
+                    title: "Sucesso",
+                    message: "Setor atualizado com sucesso!",
+                    onClose: () => {
+                        setAlertProps(prev => ({ ...prev, show: false }));
+                        props.ShowList(); // 🔹 Só exibe a lista depois do alerta ser fechado
+                    },
+                });
+    
+            } else {
+                await axios.post("https://localhost:7207/setor/Incluir", data);
+                console.log("[LOG] Novo setor cadastrado com sucesso.");
+    
+                setAlertProps({
+                    show: true,
+                    type: "success",
+                    title: "Sucesso",
+                    message: "Setor cadastrado com sucesso!",
+                    onClose: () => {
+                        setAlertProps(prev => ({ ...prev, show: false }));
+                        props.ShowList(); // 🔹 Só exibe a lista depois do alerta ser fechado
+                    },
+                });
+            }
+        } catch (error) {
+            console.error("[ERRO] Falha ao salvar setor:", error);
+            setAlertProps({
+                show: true,
+                type: "error",
+                title: "Erro",
+                message: "Falha ao cadastrar ou atualizar o Setor.",
+                onClose: () => setAlertProps(prev => ({ ...prev, show: false })),
+            });
         }
     };
+    
 
     return (
         <>
-            <NavBar />
             <h2 className="text-center mb-3">{setorInicial.idSetor ? "Editar Setor" : "Cadastrar Novo Setor"}</h2>
             <div className="row">
                 <div className="col-lg-6 mx-auto">
@@ -229,6 +279,13 @@ function SetorForm(props) {
                     </form>
                 </div>
             </div>
+            <AlertPopup
+                type={alertProps.type}
+                title={alertProps.title}
+                message={alertProps.message}
+                show={alertProps.show}
+                onClose={alertProps.onClose}  
+            />
         </>
     );
 }

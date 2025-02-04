@@ -65,7 +65,7 @@ function LayoutComMenu() {
                         <Home />
                     </RotaProtegida>
                 } />
-                <Route path="/funcionarios" element={
+                <Route path="/funcionario" element={
                     <RotaProtegida permissoesNecessarias={["VisualizarFuncionarios"]}>
                         <Funcionario />
                     </RotaProtegida>
