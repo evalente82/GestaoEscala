@@ -26,20 +26,41 @@ namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
                 {
                     return new FuncionarioDTO { valido = false, mensagem = "Objeto não preenchido." };
                 }
-                else
-                {
-                    var funcionario = _mapper.Map<DepInfra.Funcionario>(funcionarioDTO);
 
-                    _context.Funcionarios.Add(funcionario);
-                    await _context.SaveChangesAsync();
-                    return _mapper.Map<FuncionarioDTO>(funcionario);
+                // ✅ Verifica se a matrícula ou e-mail já existem
+                bool matriculaExiste = await _context.Funcionarios
+                    .AnyAsync(f => f.NrMatricula == funcionarioDTO.NrMatricula );
+
+                bool emailExiste = await _context.Funcionarios
+                    .AnyAsync(f => f.NmEmail == funcionarioDTO.NmEmail);
+
+                if (matriculaExiste && emailExiste)
+                {
+                    return new FuncionarioDTO { valido = false, mensagem = "Matrícula e E-mail já cadastrados." };
                 }
+                if (matriculaExiste)
+                {
+                    return new FuncionarioDTO { valido = false, mensagem = "Matrícula já cadastrada." };
+                }
+                if (emailExiste)
+                {
+                    return new FuncionarioDTO { valido = false, mensagem = "E-mail já cadastrado." };
+                }
+
+                // ✅ Mapeia e insere o funcionário no banco de dados
+                var funcionario = _mapper.Map<DepInfra.Funcionario>(funcionarioDTO);
+
+                _context.Funcionarios.Add(funcionario);
+                await _context.SaveChangesAsync();
+
+                return _mapper.Map<FuncionarioDTO>(funcionario);
             }
             catch (Exception e)
             {
-                return new FuncionarioDTO { valido = false, mensagem = $"Erro ao receber o Objeto: {e.Message}" };
+                return new FuncionarioDTO { valido = false, mensagem = $"Erro ao processar a solicitação: {e.Message}" };
             }
         }
+
         public async Task<FuncionarioDTO> Alterar(Guid id, FuncionarioDTO funcionarioDTO)
         {
             try

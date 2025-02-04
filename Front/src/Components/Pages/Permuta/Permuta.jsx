@@ -130,22 +130,23 @@ function formatarData(dataISO) {
 
     return (
         <>
-            <NavBar />
             <h3 className="text-center mb-3">Lista de Permutas</h3>
-            <button
-                onClick={() => props.ShowForm({})}
-                type="button"
-                className="btn btn-primary me-2"
-            >
-                Cadastrar
-            </button>
-            <button
-                onClick={() => BuscarTodos()}
-                type="button"
-                className="btn btn-outline-primary me-2"
-            >
-                Atualizar
-            </button>
+            <div className="text-center mb-3">
+                    <button 
+                        onClick={() => props.ShowForm({})}
+                        type="button"
+                        className="btn btn-primary me-2"
+                        >
+                        Cadastrar
+                    </button>
+                    <button
+                        onClick={() => BuscarFuncionarios()}
+                        type="button"
+                        className="btn btn-outline-primary me-2"
+                        >
+                        Atualizar
+                    </button>
+                </div>
             <br />
             <br />
             <input
@@ -264,6 +265,8 @@ function PermutaForm(props) {
     const [diasDisponiveis, setDiasDisponiveis] = useState([]);
     const [datasTrabalhoSolicitante, setDatasTrabalhoSolicitante] = useState([]);
     const [datasTrabalhoSolicitado, setDatasTrabalhoSolicitado] = useState([]);
+    const [funcionariosEscala, setFuncionariosEscala] = useState([]); // Lista de funcionários filtrados pela escala
+
 
 
 
@@ -320,22 +323,32 @@ function PermutaForm(props) {
                     return;
                 }
     
-                // Filtrar datas para o Solicitante
-                const datasSolicitante = escala
-                    .filter((dia) => dia.idFuncionario === idFuncionarioSolicitante)
-                    .map((dia) => dia.dtDataServico);
+                // Obter IDs únicos de funcionários da escala selecionada
+                const idsFuncionariosNaEscala = [...new Set(escala.map(dia => dia.idFuncionario))];
     
-                // Filtrar datas para o Solicitado
-                const datasSolicitado = escala
-                    .filter((dia) => dia.idFuncionario === idFuncionarioSolicitado)
-                    .map((dia) => dia.dtDataServico);
+                // Filtrar os funcionários que pertencem à escala selecionada
+                const funcionariosNaEscala = funcionarios.filter(f =>
+                    idsFuncionariosNaEscala.includes(f.idFuncionario)
+                );
     
-                // Atualizar os estados
-                setDatasTrabalhoSolicitante(datasSolicitante);
-                setDatasTrabalhoSolicitado(datasSolicitado);
+                setFuncionariosEscala(funcionariosNaEscala); // Atualiza os funcionários filtrados
     
-                console.log("Datas de trabalho do Solicitante:", datasSolicitante);
-                console.log("Datas de trabalho do Solicitado:", datasSolicitado);
+                // Atualizar as datas disponíveis para cada funcionário
+                const mapDatasTrabalho = escala.reduce((acc, dia) => {
+                    if (!acc[dia.idFuncionario]) {
+                        acc[dia.idFuncionario] = [];
+                    }
+                    acc[dia.idFuncionario].push(dia.dtDataServico);
+                    return acc;
+                }, {});
+    
+                // Atualiza os dias disponíveis por funcionário
+                setDatasTrabalhoSolicitante(mapDatasTrabalho[idFuncionarioSolicitante] || []);
+                setDatasTrabalhoSolicitado(mapDatasTrabalho[idFuncionarioSolicitado] || []);
+    
+                console.log("Funcionários da escala selecionada:", funcionariosNaEscala);
+                console.log("Datas do Solicitante:", mapDatasTrabalho[idFuncionarioSolicitante] || []);
+                console.log("Datas do Solicitado:", mapDatasTrabalho[idFuncionarioSolicitado] || []);
             })
             .catch((error) => {
                 console.error("Erro ao buscar escala pronta:", error);
@@ -343,11 +356,13 @@ function PermutaForm(props) {
                     show: true,
                     type: "error",
                     title: "Erro",
-                    message: "Falha ao carregar as datas da escala.",
+                    message: "Falha ao carregar os funcionários da escala.",
                     onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
                 });
             });
     }
+    
+    
     
 
     function getMesPorExtenso(mes) {
@@ -460,54 +475,56 @@ function PermutaForm(props) {
     
     const [selectedOption, setSelectedOption] = useState(null);
 
-    function SelectComFiltroSolicitante({ funcionarios, value, onChange }) {
-    const opcoes = funcionarios
-        .filter((f) => f.idFuncionario && f.nmNome) // Remove funcionários com dados inválidos
-        .map((f) => ({
+    function SelectComFiltroSolicitante({ value, onChange }) {
+        const opcoes = funcionariosEscala.map((f) => ({
             value: f.idFuncionario,
             label: `${f.nmNome} - ${f.nrMatricula}`,
         }));
-
-        console.log("Opções disponíveis para o select:", opcoes); // Log das opções disponíveis
-        console.log("Valor recebido no value:", value); // Log do valor recebido no select
-
+    
         return (
             <Select
                 options={opcoes}
                 placeholder="Digite para buscar..."
-                value={opcoes.find((o) => o.value === value) || null} // Sincroniza o valor com o pai
+                value={opcoes.find((o) => o.value === value) || null}
                 onChange={(selectedOption) => {
-                    console.log("Opção selecionada:", selectedOption); // Log do clique no dropdown
-                    onChange(selectedOption ? selectedOption.value : null); // Passa o ID selecionado para o pai
+                    if (selectedOption) {
+                        setIdFuncionarioSolicitante(selectedOption.value);
+                        setNomeSolicitante(selectedOption.label);
+                        
+                        // Atualiza as datas disponíveis para o solicitante
+                        setDatasTrabalhoSolicitante( 
+                            escala.find(e => e.idFuncionario === selectedOption.value)?.datas || []
+                        );
+                    } else {
+                        setIdFuncionarioSolicitante(null);
+                        setNomeSolicitante("");
+                        setDatasTrabalhoSolicitante([]);
+                    }
+                    onChange(selectedOption ? selectedOption.value : null);
                 }}
                 isClearable
-                noOptionsMessage={() => "Nenhuma opção encontrada"}
+                noOptionsMessage={() => "Nenhum funcionário disponível"}
             />
         );
     }
-
-    function SelectComFiltroSolicitado({ funcionarios, value, onChange }) {
-        const opcoes = funcionarios
-        .filter((f) => f.idFuncionario && f.nmNome) // Remove funcionários com dados inválidos
-        .map((f) => ({
+    
+    
+    function SelectComFiltroSolicitado({ value, onChange }) {
+        const opcoes = funcionariosEscala.map((f) => ({
             value: f.idFuncionario,
             label: `${f.nmNome} - ${f.nrMatricula}`,
         }));
-
-        console.log("Opções disponíveis para o select:", opcoes); // Log das opções disponíveis
-        console.log("Valor recebido no value:", value); // Log do valor recebido no select
-
+    
         return (
             <Select
                 options={opcoes}
                 placeholder="Digite para buscar..."
-                value={opcoes.find((o) => o.value === value) || null} // Sincroniza o valor com o pai
+                value={opcoes.find((o) => o.value === value) || null}
                 onChange={(selectedOption) => {
-                    console.log("Opção selecionada:", selectedOption); // Log do clique no dropdown
-                    onChange(selectedOption ? selectedOption.value : null); // Passa o ID selecionado para o pai
+                    onChange(selectedOption ? selectedOption.value : null);
                 }}
                 isClearable
-                noOptionsMessage={() => "Nenhuma opção encontrada"}
+                noOptionsMessage={() => "Nenhum funcionário na escala"}
             />
         );
     }
@@ -517,7 +534,6 @@ function PermutaForm(props) {
 
     return (
         <>
-            <NavBar />
             <h2 className="text-center mb-3">
                 {props.permuta.idPermuta
                     ? "Editar Permuta"
@@ -615,26 +631,27 @@ function PermutaForm(props) {
                         <div className="row mb-3">
                             <label className="col-sm-4 col-form-label">Data da troca</label>
                             <div className="col-sm-8">
-                            <select
-                                className="form-control"
-                                value={dtDataSolicitadaTroca}
-                                onChange={(e) => setDtDataSolicitadaTroca(e.target.value)}
-                            >
-                                <option value="" disabled>
-                                    Selecione uma data
-                                </option>
-                                {datasTrabalhoSolicitante.length > 0 ? (
-                                    datasTrabalhoSolicitante.map((dia, index) => (
-                                        <option key={`${index}-${dia}`} value={dia}>
-                                            {dia}
-                                        </option>
-                                    ))
-                                ) : (
-                                    <option disabled>Sem datas disponíveis</option>
-                                )}
-                            </select>
+                                <select
+                                    className="form-control"
+                                    value={dtDataSolicitadaTroca}
+                                    onChange={(e) => setDtDataSolicitadaTroca(e.target.value)}
+                                >
+                                    <option value="" disabled>
+                                        Selecione uma data
+                                    </option>
+                                    {datasTrabalhoSolicitante.length > 0 ? (
+                                        datasTrabalhoSolicitante.map((dia, index) => (
+                                            <option key={`${index}-${dia}`} value={dia}>
+                                                {dia}
+                                            </option>
+                                        ))
+                                    ) : (
+                                        <option disabled>Sem datas disponíveis</option>
+                                    )}
+                                </select>
                             </div>
                         </div>
+
 
 
                         <div className="row">

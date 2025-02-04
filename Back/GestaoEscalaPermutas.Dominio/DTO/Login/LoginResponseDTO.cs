@@ -12,5 +12,7 @@ namespace GestaoEscalaPermutas.Dominio.DTO.Login
         public string Mensagem { get; set; }
         public string Token { get; set; }
         public string NomeUsuario { get; set; }
+        public List<string> Permissoes { get; set; }
+
     }
 }

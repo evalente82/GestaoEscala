@@ -106,15 +106,23 @@ function CargoPerfisList(props) {
 
     return (
         <>
-            <NavBar />
             <h3 className="text-center mb-3">Cargo e Perfis</h3>
-            <button
-                onClick={() => props.ShowForm()}
-                type="button"
-                className="btn btn-primary me-2"
-            >
-                Vincular Novo Perfil
-            </button>
+                <div className="text-center mb-3">
+                    <button 
+                        onClick={() => props.ShowForm({})}
+                        type="button"
+                        className="btn btn-primary me-2"
+                        >
+                        Cadastrar
+                    </button>
+                    <button
+                        onClick={() => BuscarFuncionarios()}
+                        type="button"
+                        className="btn btn-outline-primary me-2"
+                        >
+                        Atualizar
+                    </button>
+                </div>
             <br />
             <br />
             <input
@@ -299,7 +307,6 @@ const handleSubmit = async (e) => {
 
     return (
         <>
-            <NavBar />
             <h2 className="text-center mb-3">Vincular Perfil ao Cargo</h2>
             <form onSubmit={handleSubmit}>
                 <div className="mb-3">

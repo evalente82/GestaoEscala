@@ -192,22 +192,23 @@ function EscalaList(props) {
 
     return (
         <>
-            <NavBar />
             <h3 className="text-center mb-3">Listagem de Escalas</h3>
-            <button
-                onClick={() => props.ShowForm({})}
-                type="button"
-                className="btn btn-primary me-2"
-            >
-                Cadastrar
-            </button>
-            <button
-                onClick={() => BuscarTodos()}
-                type="button"
-                className="btn btn-outline-primary me-2"
-            >
-                Atualizar
-            </button>
+            <div className="text-center mb-3">
+                    <button 
+                        onClick={() => props.ShowForm({})}
+                        type="button"
+                        className="btn btn-primary me-2"
+                        >
+                        Cadastrar
+                    </button>
+                    <button
+                        onClick={() => BuscarFuncionarios()}
+                        type="button"
+                        className="btn btn-outline-primary me-2"
+                        >
+                        Atualizar
+                    </button>
+                </div>
             <br />
             <br />
             <input
@@ -501,7 +502,6 @@ function EscalaForm(props) {
     };
     return (
         <>
-            <NavBar />
             <h2 className="text-center mb-3">
                 {props.escala.idEscala
                     ? "Editar Escala"
@@ -815,7 +815,6 @@ function MontaEscala(props) {
     };
     return (
         <>
-            <NavBar />
             {erro && <AlertPopup error={erro} />}
             <h2 className="text-center mb-3">
                 {props.escala.idEscala
