@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import AlertPopup from '../AlertPopup/AlertPopup'
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../AuthContext";
+import "./Escala.css";
 
 
 function EscalaList(props) {
@@ -267,7 +268,7 @@ function EscalaList(props) {
                                     <button
                                             onClick={() => navigate(`/Exibicao/${escala.idEscala}`)}
                                             type="button"
-                                            className="btn btn-success btn-sm me-2"
+                                            className="btn gerar-escala-btn-visualizar-escala btn-sm me-2"
                                             disabled={escala.isGerada == false}
                                         >
                                             Visualizar Escala
@@ -277,16 +278,28 @@ function EscalaList(props) {
                                         <button
                                             onClick={() => props.ShowMontaEscala(escala)}
                                             type="button"
-                                            className="btn btn-warning btn-sm me-2"
+                                            className="btn gerar-escala-btn-gerar-escala btn-sm me-2"
                                         >
                                             Gerar Escala
                                         </button>)}
+
+                                        {possuiPermissao("GerarEscalas") && (
+                                        <button
+                                            // onClick={() => props.ShowMontaEscala(escala)}
+                                            type="button"
+                                             className="btn gerar-escala-btn-mes-seguinte btn-sm me-2"
+                                             disabled={escala.isGerada == false || escala.isAtivo == false}
+                                        >
+                                            Mês Seguinte
+                                        </button>)}
+
                                         {/* Botão Editar - Aparece apenas para quem tem "EditarEscalas" */}
                                 {possuiPermissao("EditarEscalas") && (
                                         <button
                                             onClick={() => props.ShowForm(escala)}
                                             type="button"
                                             className="btn btn-primary btn-sm me-2"
+                                            disabled={escala.isGerada == true}
                                         >
                                             Editar
                                         </button>)}

@@ -19,15 +19,31 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaPronta
             _escalaProntaService = escalaProntaService;
             _mapper = mapper;
         }
-        //[HttpPost]
-        //[Route("Incluir/")]
-        //public async Task<ActionResult> IncluirEscalaPronta([FromBody] EscalaProntaDTO escalaPronta)
-        //{
-        //    var EscalaProntaDTO = await _escalaProntaService.Incluir(_mapper.Map<EscalaProntaDTO>(escalaPronta));
-        //    var escalaProntaModel = _mapper.Map<EscalaProntaModel>(EscalaProntaDTO);
 
-        //    return (escalaProntaModel.Valido) ? Ok(escalaProntaModel) : BadRequest(new RetornoModel { Valido = false, Mensagem = escalaProntaModel.Mensagem });
-        //}
+        [HttpPost("RecriarEscalaProximoMes/{idEscala}")]
+        public async Task<ActionResult> RecriarEscalaProximoMes(Guid idEscala)
+        {
+            var resultado = await _escalaProntaService.RecriarEscalaProximoMes(idEscala);
+            if (!resultado.valido)
+            {
+                return BadRequest(new RetornoModel { Valido = false, Mensagem = resultado.mensagem });
+            }
+
+            return Ok(new { mensagem = "Escala recriada com sucesso!", dados = resultado });
+        }
+
+        [HttpPost("IncluirFuncionario")]
+        public async Task<ActionResult> IncluirFuncionarioEscala([FromBody] EscalaProntaDTO escalaPronta)
+        {
+            var resultado = await _escalaProntaService.IncluirFuncionarioEscala(escalaPronta);
+
+            if (!resultado.valido)
+            {
+                return BadRequest(new RetornoModel { Valido = false, Mensagem = resultado.mensagem });
+            }
+
+            return Ok(new { mensagem = "Funcionário adicionado com sucesso!", dados = resultado });
+        }
 
         [HttpPatch]
         [Route("Atualizar/{id:Guid}")]
@@ -39,16 +55,23 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaPronta
             return (escalaProntaModel.Valido) ? Ok(escalaProntaModel) : BadRequest(new RetornoModel { Valido = false, Mensagem = escalaProntaModel.Mensagem });
         }
 
-        
-        //[HttpDelete]
-        //[Route("Deletar/{id:Guid}")]
-        //public async Task<ActionResult> DeletarEscalaPronta(Guid id)
-        //{
-        //    var escalaProntaDTO = await _escalaProntaService.Deletar(id);
-        //    var escalaProntaModel = _mapper.Map<EscalaProntaModel>(escalaProntaDTO);
-        //    return (escalaProntaModel.Valido) ? Ok(escalaProntaModel.Mensagem) : BadRequest(new RetornoModel { Valido = false, Mensagem = escalaProntaModel.Mensagem });
-        //}
+        [HttpDelete("DeletarOcorrenciaFuncionario")]
+        public async Task<ActionResult> DeletarOcorrenciaFuncionario([FromBody] DeletarFuncionarioDTO request)
+        {
+            if (request.IdFuncionario == Guid.Empty || request.IdEscala == Guid.Empty)
+            {
+                return BadRequest(new RetornoModel { Valido = false, Mensagem = "IDs inválidos." });
+            }
 
+            var resultado = await _escalaProntaService.DeletarOcorrenciaFuncionario(request.IdFuncionario, request.IdEscala);
+
+            if (!resultado.valido)
+            {
+                return BadRequest(new RetornoModel { Valido = false, Mensagem = resultado.mensagem });
+            }
+
+            return Ok(new { mensagem = "Ocorrências do funcionário removidas com sucesso!" });
+        }
 
         [HttpGet("buscarPorId/{id}")]
         public async Task<ActionResult<List<EscalaProntaDTO>>> BuscarEscalaProntaPorId(Guid id)

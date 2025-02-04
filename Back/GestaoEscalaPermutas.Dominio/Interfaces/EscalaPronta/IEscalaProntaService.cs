@@ -1,4 +1,5 @@
-﻿using GestaoEscalaPermutas.Dominio.DTO.Escala;
+﻿using GestaoEscalaPermutas.Dominio.DTO;
+using GestaoEscalaPermutas.Dominio.DTO.Escala;
 using GestaoEscalaPermutas.Dominio.DTO.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
 using System;
@@ -18,5 +19,9 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta
         Task<List<EscalaProntaDTO>> BuscarPorId(Guid idEscalaPronta);
         Task<EscalaProntaDTO[]> IncluirLista(EscalaProntaDTO[] escalaProntaDTOs);
         Task<EscalaProntaDTO[]> AlterarEscalaPronta(Guid IdEscala, EscalaProntaDTO[] escalaProntaDTOs);
+        Task<RetornoDTO> RecriarEscalaProximoMes(Guid idEscala);
+        Task<EscalaProntaDTO> DeletarOcorrenciaFuncionario(Guid idFuncionario, Guid idEscala);
+        Task<EscalaProntaDTO> IncluirFuncionarioEscala(EscalaProntaDTO escalaProntaDTO);
+
     }
 }
