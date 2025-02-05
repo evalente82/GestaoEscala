@@ -194,6 +194,44 @@ function EscalaList(props) {
         }
     }
 
+    const GeraMesSeguinte = (idEscala) => {
+        if (idEscala) {
+            axios
+                .post(
+                    `https://localhost:7207/escalaPronta/RecriarEscalaProximoMes/${idEscala}`, // 🔹 Corrigido para passar o ID na URL
+                    {}, // 🔹 O corpo da requisição deve ser um objeto vazio, pois não estamos enviando dados no corpo
+                    {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                )
+                .then(() => {
+                    setAlertProps({
+                        show: true,
+                        type: "success",
+                        title: "Sucesso",
+                        message: "Escala  do Mês seguinte construída com sucesso!",
+                        onClose: () => {
+                            setAlertProps((prev) => ({ ...prev, show: false }));
+                            BuscarTodos(); // 🔹 Atualiza a lista após recriar a escala
+                        },
+                    });
+                })
+                .catch((error) => {
+                    setAlertProps({
+                        show: true,
+                        type: "error",
+                        title: "Erro",
+                        message: "Falha ao gerar a escala.",
+                        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                    });
+                    console.error(error);
+                });
+        }
+    };
+    
+
     return (
         <>
             <h3 className="text-center mb-3">Listagem de Escalas</h3>
@@ -279,13 +317,14 @@ function EscalaList(props) {
                                             onClick={() => props.ShowMontaEscala(escala)}
                                             type="button"
                                             className="btn gerar-escala-btn-gerar-escala btn-sm me-2"
+                                            disabled={escala.isGerada == true}
                                         >
                                             Gerar Escala
                                         </button>)}
 
                                         {possuiPermissao("GerarEscalas") && (
                                         <button
-                                            // onClick={() => props.ShowMontaEscala(escala)}
+                                            onClick={() => GeraMesSeguinte(escala.idEscala)}
                                             type="button"
                                              className="btn gerar-escala-btn-mes-seguinte btn-sm me-2"
                                              disabled={escala.isGerada == false || escala.isAtivo == false}
@@ -839,6 +878,8 @@ function MontaEscala(props) {
                 });
         }
     };
+
+    
     return (
         <>
             {erro && <AlertPopup error={erro} />}

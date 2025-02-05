@@ -8,6 +8,7 @@ using GestaoEscalaPermutas.Infra.Data.Context;
 using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 namespace GestaoEscalaPermutas.Dominio.Services.EscalaPronta
 {
@@ -358,6 +359,31 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaPronta
                     IsGerada = true,
                     NrPessoaPorPosto = escalaAtual.NrPessoaPorPosto,
                 };
+                // Lista de meses em português (ajustável para outros idiomas se necessário)
+                string[] meses = CultureInfo.CurrentCulture.DateTimeFormat.MonthNames
+                    .Where(m => !string.IsNullOrEmpty(m))
+                    .Select(m => m.ToUpper())
+                    .ToArray();
+
+                // Expressão regular para encontrar os meses na string (caso venham separados por "-")
+                string padraoMeses = string.Join("|", meses);
+                //novaEscala.NmNomeEscala = "2 x 1 Praia - ABRIL - MAIO";
+
+                // Encontrar todos os meses na string
+                var matches = Regex.Matches(novaEscala.NmNomeEscala, padraoMeses);
+
+                if (matches.Count > 1) // Se houver mais de um mês, remover os anteriores
+                {
+                    // Pegamos o último mês encontrado
+                    string ultimoMes = matches[^1].Value;
+
+                    // Removemos todos os meses anteriores
+                    novaEscala.NmNomeEscala = Regex.Replace(novaEscala.NmNomeEscala, $@"\s*-\s*({padraoMeses})", "").Trim();
+
+                    // Adicionamos apenas o último mês ao final da string
+                    novaEscala.NmNomeEscala += " - " + ultimoMes;
+
+                }
 
                 _context.Escalas.Add(novaEscala);
                 await _context.SaveChangesAsync();
