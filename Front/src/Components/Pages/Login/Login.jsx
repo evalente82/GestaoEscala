@@ -82,6 +82,27 @@ function Login() {
                             required
                         />
                     </div>
+                    <div className="text-center mt-3">
+                    <a
+                        href="#"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            navigate("/PrimeiroAcesso");
+                        }}
+                        className="d-block"
+                    >
+                        Primeiro Acesso
+                    </a>
+                    <a
+                        href="#"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            navigate("/EsqueciSenha");
+                        }}
+                    >
+                        Esqueci minha senha
+                    </a>
+                </div>
                     <button type="submit" className="btn btn-primary w-100">Entrar</button>
                 </form>
             </div>

@@ -6,9 +6,16 @@ import './NavBar.css';
 
 function NavBar() {
     const navigate = useNavigate();
-    const { nomeUsuario, permissoes } = useAuth();
+    const { token, nomeUsuario, permissoes, logout } = useAuth();
     const [primeiroNome, setPrimeiroNome] = useState("");
     const [loading, setLoading] = useState(true);
+    
+
+    useEffect(() => {
+        if (!token) {
+            window.location.replace("/"); // 🔹 Garante que o usuário seja redirecionado sem ver a interface
+        }
+    }, [token]);
 
     useEffect(() => {
         console.log("🔍 Atualizando Navbar. Permissões:", permissoes);

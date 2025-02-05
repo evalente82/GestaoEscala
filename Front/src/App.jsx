@@ -20,6 +20,7 @@ import { Navigate } from "react-router-dom";
 import RedefinirSenha from "./Components/Pages/Login/RedefinirSenha";
 import PrimeiroAcesso from "./Components/Pages/Login/PreimeiroAcesso";
 import { Setor } from "./Components/Pages/Setor/Setor";
+import ProtectedRoute from "./Components/Pages/ProtectedRoute";
 
 function RotaProtegida({ permissoesNecessarias, children }) {
     const { token, permissoes } = useAuth();
@@ -60,6 +61,7 @@ function LayoutComMenu() {
                 <Route path="/PrimeiroAcesso" element={<PrimeiroAcesso />} />
 
                 {/* 🔹 Rotas Protegidas */}
+                <Route element={<ProtectedRoute />}>
                 <Route path="/home" element={
                     <RotaProtegida permissoesNecessarias={["VisualizarHome"]}>
                         <Home />
@@ -130,6 +132,8 @@ function LayoutComMenu() {
                         <Setor />
                     </RotaProtegida>
                 } />
+                </Route>
+                
             </Routes>
 
             {/* 🔹 Renderiza o footer apenas se o usuário estiver autenticado e não estiver em uma página pública */}

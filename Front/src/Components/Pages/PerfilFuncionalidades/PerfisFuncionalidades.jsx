@@ -106,7 +106,7 @@ function PerfisFuncionalidadesList(props) {
                         Cadastrar
                     </button>
                     <button
-                        onClick={() => BuscarFuncionarios()}
+                        onClick={() => BuscarPerfisFuncionalidades()}
                         type="button"
                         className="btn btn-outline-primary me-2"
                         >

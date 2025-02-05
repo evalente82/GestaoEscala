@@ -1,0 +1,17 @@
+.gerar-escala-btn-mes-seguinte {
+    background-color: rgb(140, 140, 140) !important;  /* 🔥 Define a cor laranja */
+    color: rgb(0, 0, 0) !important; /* 🔥 Texto branco */    
+    white-space: pre-line;  /* 🔥 Permite quebra de linha */
+}
+
+.gerar-escala-btn-visualizar-escala {
+    background-color: rgb(38, 127, 3) !important;  
+    color: rgb(0, 0, 0) !important; 
+    white-space: pre-line;
+}
+
+.gerar-escala-btn-gerar-escala {
+    background-color: rgb(213, 220, 2) !important;  /* 🔥 Define a cor laranja */
+    color: rgb(0, 0, 0) !important; /* 🔥 Texto branco */    
+    white-space: pre-line;  /* 🔥 Permite quebra de linha */
+}

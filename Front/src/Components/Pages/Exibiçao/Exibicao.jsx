@@ -4,6 +4,7 @@ import NavBar from "../../Menu/NavBar";
 import { useParams } from 'react-router-dom';
 import './Exibicao.css';
 import jsPDF from 'jspdf';
+import { useAuth } from "../AuthContext";
 
 
 export function Exibicao() {
@@ -11,6 +12,8 @@ export function Exibicao() {
     const [tipoEscala, setTipoEscala] = useState(null);
     const [postos, setPostos] = useState(null);
     const [setores, setSetores] = useState([]);
+    const [departamentos, setDepartamentos] = useState([]);
+    const [nomeDepartamento, setNomeDepartamento] = useState("Desconhecido");
     const [funcionarios, setFuncionarios] = useState(null);
     const [buscaEscalaPronta, setBuscaEscalaPronta] = useState(null);
     const { idEscala } = useParams();
@@ -19,6 +22,8 @@ export function Exibicao() {
     const [funcionarioDestino, setFuncionarioDestino] = useState('');
     const [escalaAlterada, setEscalaAlterada] = useState([]);
     const [highlightedIds, setHighlightedIds] = useState([]); // IDs a serem destacados
+    const { permissoes } = useAuth();
+    const possuiPermissao = (permissao) => permissoes.includes(permissao);
 
     useEffect(() => {
         BuscaEscala(idEscala);
@@ -49,6 +54,23 @@ export function Exibicao() {
     useEffect(() => {
         BuscaSetores();
     }, []);
+
+    useEffect(() => {
+        BuscarDepartamentos(setDepartamentos);
+    }, []);
+
+    useEffect(() => {
+        if (escala && departamentos.length > 0) {
+            const departamentoEncontrado = departamentos.find(dep => dep.idDepartamento === escala.idDepartamento);
+            if (departamentoEncontrado) {
+                setNomeDepartamento(departamentoEncontrado.nmDepartamento);
+            } else {
+                console.warn(`⚠️ Departamento não encontrado para idDepartamento: ${escala.idDepartamento}`);
+                setNomeDepartamento("Desconhecido");
+            }
+        }
+    }, [escala, departamentos]); // ⚡️ Executa quando escala ou departamentos mudam
+    
     
     console.log('tipoEscala')
     console.log(tipoEscala)
@@ -69,6 +91,7 @@ export function Exibicao() {
         const ultimoDiaDoMes = new Date(ano, mes, 0).getDate();
         return ultimoDiaDoMes;
     }
+
     function BuscarTipoEscalaPorId(idTipoEscala) {
         axios.get(`https://localhost:7207/tipoEscala/buscarPorId/${idTipoEscala}`)
             .then((response) => {
@@ -85,6 +108,7 @@ export function Exibicao() {
             });
         });
     }
+
     function BuscaEscala(id) {
         axios
             .get(`https://localhost:7207/escala/buscarPorId/${id}`)
@@ -96,6 +120,20 @@ export function Exibicao() {
             .catch((error) => {
                 console.log(error);
             });
+    }
+
+    function BuscarDepartamentos() {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get("https://localhost:7207/departamento/buscarTodos");
+                setDepartamentos(response.data);
+                console.log('Departamentos');
+                console.log(response.data);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        fetchData();
     }
 
     function BuscaPostos(idDepartamento) {
@@ -242,8 +280,33 @@ export function Exibicao() {
         pdf.setFont("Helvetica", "bold");
         pdf.setFontSize(14);
     
+        const departamentoDaEscala = () => {
+            if (!escala || !escala.idDepartamento) {
+                console.warn("⚠️ escala.idDepartamento não está definido!");
+                return 'Desconhecido';
+            }
+        
+            if (!departamentos || departamentos.length === 0) {
+                console.warn("⚠️ Lista de departamentos vazia ou não carregada!");
+                return 'Desconhecido';
+            }
+        
+            const departamento = departamentos.find(dep => dep.idDepartamento === escala.idDepartamento);
+        
+            if (!departamento) {
+                console.warn(`⚠️ Departamento não encontrado para idDepartamento: ${escala.idDepartamento}`);
+                return 'Desconhecido';
+            }
+        
+            return departamento.nmDescricao;
+        };
+        
+        // ✅ Testando a função
+        console.log("🏢 Nome do Departamento:", departamentoDaEscala());
+        
+        const nomeDepartamento = departamentoDaEscala();
         const titulo = [
-            "GRUPAMENTO DE PREVENÇÃO E SALVAMENTO AQUÁTICO",
+            `${nomeDepartamento}`,
             obterNomeMes(escala.nrMesReferencia) + " - " + buscaEscalaPronta[0].dtDataServico.substring(0, 4),
             `${tipoEscala.nrHorasTrabalhada} x ${tipoEscala.nrHorasFolga} Horário ${tipoEscala.nmDescricao}`
         ];
@@ -412,13 +475,14 @@ export function Exibicao() {
             <div className="container mt-3">
                 <div className="text-center mb-3">
                 <h1 >Exibição da Escala {escala ? escala.nmNomeEscala : 'Carregando...'}</h1>
+                {possuiPermissao("EditarEscalas") && (
                 <button
                     type="button"
                     className="btn btn-outline-primary me-2"
                     onClick={() => setShowEditContent(!showEditContent)}
                 >
                     EDITAR
-                </button>
+                </button>)}
                 </div>
                 
                 {showEditContent && (
