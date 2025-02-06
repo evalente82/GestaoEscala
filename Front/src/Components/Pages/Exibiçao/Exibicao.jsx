@@ -5,6 +5,8 @@ import { useParams } from 'react-router-dom';
 import './Exibicao.css';
 import jsPDF from 'jspdf';
 import { useAuth } from "../AuthContext";
+import AlertPopup from '../AlertPopup/AlertPopup';
+import FormPopup from "../AlertPopup/FormPopup";
 
 
 export function Exibicao() {
@@ -18,12 +20,44 @@ export function Exibicao() {
     const [buscaEscalaPronta, setBuscaEscalaPronta] = useState(null);
     const { idEscala } = useParams();
     const [showEditContent, setShowEditContent] = useState(false);
+    const [showIncluirContent, setShowIncluirContent] = useState(false);
+    const [showDeleteContent, setShowDeleteContent] = useState(false);
     const [funcionarioOrigem, setFuncionarioOrigem] = useState('');
     const [funcionarioDestino, setFuncionarioDestino] = useState('');
     const [escalaAlterada, setEscalaAlterada] = useState([]);
     const [highlightedIds, setHighlightedIds] = useState([]); // IDs a serem destacados
     const { permissoes } = useAuth();
     const possuiPermissao = (permissao) => permissoes.includes(permissao);
+    const [showIncluirPopup, setShowIncluirPopup] = useState(false);
+    
+    //console.log("📢 Estado atual do showIncluirPopup:", showIncluirPopup);
+    const [alertProps, setAlertProps] = useState({
+        show: false,
+        type: "info",
+        title: "",
+        message: "",
+        onConfirm: null,
+        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), 
+    });
+
+    const handleCloseAlert = () => {
+        setAlertProps(prev => ({
+            ...prev,
+            show: false,
+            onConfirm: null, // Garante que não mantém a ação de confirmação antiga
+        }));
+    };
+    
+
+    const [novoFuncionario, setNovoFuncionario] = useState({
+        idFuncionario: "",
+        idPostoTrabalho: "",
+        dtDataServico: ""
+    });
+    
+
+    
+    
 
     useEffect(() => {
         BuscaEscala(idEscala);
@@ -71,10 +105,13 @@ export function Exibicao() {
         }
     }, [escala, departamentos]); // ⚡️ Executa quando escala ou departamentos mudam
     
+    useEffect(() => {
+        console.log("📢 Estado atual do showIncluirPopup:", showIncluirPopup);
+        console.log("📢 Funcionários disponíveis:", funcionarios);
+        console.log("📢 Postos disponíveis:", postos);
+    }, [showIncluirPopup]);
     
-    console.log('tipoEscala')
-    console.log(tipoEscala)
-
+    
     function BuscaSetores() {
         axios
             .get("https://localhost:7207/setor/buscarTodos")
@@ -237,22 +274,51 @@ export function Exibicao() {
 
     const handleSalvarEscalaAlterada = async () => {
         if (!escalaAlterada || escalaAlterada.length === 0) {
-            alert("Não há dados para salvar.");
+            setAlertProps({
+                show: true,
+                type: "info",
+                title: "Aviso",
+                message: "Não há dados para salvar!",
+                onClose: () => setAlertProps((prev) => ({ ...prev, show: false }))
+            });
             return;
         }
     
         try {
             const response = await axios.put("https://localhost:7207/escala/SalvarEscalaAlterada", escalaAlterada);
+    
             if (response.status === 200) {
-                alert("Escala salva com sucesso!");
+                // 🔹 Atualiza os dados antes de exibir o alerta
+                await BuscaEscalaPronta(idEscala);
+    
+                setAlertProps({
+                    show: true,
+                    type: "success",
+                    title: "Sucesso!",
+                    message: "Escala salva com sucesso!",
+                    onClose: () => {
+                        setAlertProps((prev) => ({ ...prev, show: false }));
+                    }
+                });
             } else {
-                alert("Erro ao salvar a escala.");
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Erro ao salvar a escala.",
+                });
             }
         } catch (error) {
             console.error("Erro ao salvar a escala:", error);
-            alert("Erro ao salvar a escala.");
+            setAlertProps({
+                show: true,
+                type: "error",
+                title: "Erro",
+                message: "Erro ao salvar a escala.",
+            });
         }
     };
+    
     const numDias = escala ? obterQuantidadeDiasNoMes(2025, escala.nrMesReferencia) : 0;
 
     function obterNomeMes(numeroMes) {
@@ -263,7 +329,6 @@ export function Exibicao() {
         
         return meses[numeroMes - 1] || "MÊS INVÁLIDO"; // Retorna o mês ou "MÊS INVÁLIDO" se o número for inválido
     }
-
     
     const handleGerarPDF = () => {
         const pdf = new jsPDF('portrait', 'mm', 'a4');
@@ -469,7 +534,143 @@ export function Exibicao() {
         pdf.save("Escala_Praia_Modelo.pdf");
     };
     
+    const handleAbrirIncluirFuncionario = (idPostoTrabalho, dia) => {
+        if (!buscaEscalaPronta || buscaEscalaPronta.length === 0) {
+            //console.warn("⚠️ Nenhuma escala pronta encontrada para determinar o ano e o mês!");
+            return;
+        }
+    
+        // 🔹 Obtém o ano e o mês da primeira ocorrência da escala pronta
+        const primeiraOcorrencia = buscaEscalaPronta[0];
+        const ano = new Date(primeiraOcorrencia.dtDataServico).getFullYear();
+        const mes = String(new Date(primeiraOcorrencia.dtDataServico).getMonth() + 1).padStart(2, "0"); // Ajusta para dois dígitos
+    
+        //console.log(`🟢 Abrindo popup de inclusão para posto: ${idPostoTrabalho}, dia: ${dia}, mês: ${mes}, ano: ${ano}`);
+    
+        setNovoFuncionario({
+            idFuncionario: "", // Começa vazio para o usuário escolher
+            idPostoTrabalho, // Já vem pré-preenchido
+            dtDataServico: `${ano}-${mes}-${String(dia).padStart(2, "0")}` // Data formatada corretamente
+        });
+    
+        setShowIncluirPopup(true); // ✅ Atualiza o estado corretamente
+    };
+    
+    
+    const handleConfirmarInclusao = async () => {
+        if (!novoFuncionario.idFuncionario || !novoFuncionario.idPostoTrabalho) {
+            setAlertProps({
+                show: true,
+                type: "error",
+                title: "Erro",
+                message: "Todos os campos são obrigatórios!"
+            });
+            return;
+        }
+    
+        // 🔹 Converte a data para o formato "YYYY-MM-DD"
+        const dataFormatada = new Date(novoFuncionario.dtDataServico)
+            .toISOString()
+            .split('T')[0];
+    
+        const dadosInclusao = {
+            idEscala,
+            idPostoTrabalho: novoFuncionario.idPostoTrabalho,
+            idFuncionario: novoFuncionario.idFuncionario,
+            dtDataServico: dataFormatada
+        };
+    
+        try {
+            const response = await axios.post("https://localhost:7207/escalaPronta/IncluirFuncionario", dadosInclusao);
+            if (response.status === 201) {
+                setShowIncluirPopup(false); // Fecha o popup primeiro
+                
+                // 🔹 Aguarda a atualização da escala antes de fechar o alerta
+                await BuscaEscalaPronta(idEscala);
+                
+                setAlertProps({
+                    show: true,
+                    type: "success",
+                    title: "Sucesso!",
+                    message: "Funcionário adicionado com sucesso!",
+                    onClose: () => {
+                        setAlertProps((prev) => ({ ...prev, show: false }));
+                    }
+                });
+            } else {
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Erro ao adicionar funcionário."
+                });
+            }
+        } catch (error) {
+            console.error("Erro ao adicionar funcionário:", error);
+            
+            const mensagemErro = error.response?.data?.mensagem || "Erro desconhecido.";
+            setAlertProps({
+                show: true,
+                type: "error",
+                title: "Erro",
+                message: mensagemErro
+            });
+        }
+    };
+    
+    
 
+    const handleRemoverFuncionario = async (item) => {
+        setAlertProps({
+            show: true,
+            type: "confirm",
+            title: "Confirmação",
+            message: `Tem certeza que deseja remover ${obterNomeFuncionario(item.idFuncionario)}?`,
+            onConfirm: async () => {
+                const payload = {
+                    idFuncionario: item.idFuncionario,
+                    idEscala
+                };
+    
+                try {
+                    const response = await axios.delete("https://localhost:7207/escalaPronta/DeletarOcorrenciaFuncionario", { data: payload });
+    
+                    if (response.status === 200) {
+                        // 🔹 Atualiza a escala ANTES de fechar a modal de sucesso
+                        await BuscaEscalaPronta(idEscala);
+    
+                        setAlertProps({
+                            show: true,
+                            type: "success",
+                            title: "Sucesso!",
+                            message: "Funcionário removido com sucesso!",
+                            onClose: () => {
+                                setAlertProps((prev) => ({ ...prev, show: false }));
+                            }
+                        });
+                    } else {
+                        setAlertProps({
+                            show: true,
+                            type: "error",
+                            title: "Erro",
+                            message: "Erro ao remover funcionário.",
+                        });
+                    }
+                } catch (error) {
+                    console.error("Erro ao remover funcionário:", error);
+                    setAlertProps({
+                        show: true,
+                        type: "error",
+                        title: "Erro",
+                        message: "Erro ao remover funcionário.",
+                    });
+                }
+            },
+            onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+        });
+    };
+    
+    
     return (
         <>
             <div className="container mt-3">
@@ -540,8 +741,69 @@ export function Exibicao() {
                             </div>
                         </div>
                     </>
+                )}      
+
+                {showIncluirPopup && (
+                    <FormPopup
+                        title="Adicionar Funcionário"
+                        show={showIncluirPopup}
+                        onConfirm={handleConfirmarInclusao}
+                        onClose={() => setShowIncluirPopup(false)}
+                    >
+                        <div>
+                            <label>Funcionário:</label>
+                            <select
+                                className="form-control"
+                                value={novoFuncionario.idFuncionario}
+                                onChange={(e) => setNovoFuncionario(prev => ({ ...prev, idFuncionario: e.target.value }))}
+                            >
+                                <option value="">Selecione...</option>
+                                {funcionarios?.length > 0 ? (
+                                    funcionarios
+                                        .filter(func => func.idCargo === escala?.idCargo)
+                                        .map(func => (
+                                            <option key={func.idFuncionario} value={func.idFuncionario}>
+                                                {func.nmNome}
+                                            </option>
+                                        ))
+                                ) : (
+                                    <option disabled>Carregando funcionários...</option>
+                                )}
+                            </select>
+                        </div>
+
+                        <div className="mt-2">
+                            <label>Posto de Trabalho:</label>
+                            <select
+                                className="form-control"
+                                value={novoFuncionario.idPostoTrabalho}
+                                onChange={(e) => setNovoFuncionario(prev => ({ ...prev, idPostoTrabalho: e.target.value }))} 
+                            >
+                                <option value="">Selecione...</option>
+                                {postos?.length > 0 ? (
+                                    postos.map(posto => (
+                                        <option key={posto.idPostoTrabalho} value={posto.idPostoTrabalho}>
+                                            {posto.nmNome}
+                                        </option>
+                                    ))
+                                ) : (
+                                    <option disabled>Carregando postos...</option>
+                                )}
+                            </select>
+                        </div>
+
+                        <div className="mt-2">
+                            <label>Data do Serviço:</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                value={novoFuncionario.dtDataServico}
+                                disabled
+                            />
+                        </div>
+                    </FormPopup>
                 )}
-                
+
                 <div className="table-container mt-3">                
                     <table className="table">
                         <thead>
@@ -556,27 +818,76 @@ export function Exibicao() {
                             {Array.from({ length: numDias }, (_, index) => (
                                 <tr key={index + 1}>
                                     <td className="border">{index + 1}</td>
-                                    {postos && postos.map((posto) => (
-                                        <td key={posto.idPostoTrabalho}>
-                                            {escalaAlterada
-                                                .filter(item =>
-                                                    new Date(item.dtDataServico).getDate() === index + 1 &&
-                                                    item.idPostoTrabalho === posto.idPostoTrabalho
-                                                )
-                                                .map(item => (
-                                                    <div
-                                                        key={item.idEscalaPronta}
-                                                        className={highlightedIds.includes(item.idFuncionario) ? 'highlight' : ''}
-                                                    >
-                                                        {obterNomeFuncionario(item.idFuncionario)}
+                                    {postos && postos.map((posto) => {
+                                        const funcionariosNoPosto = escalaAlterada.filter(item =>
+                                            new Date(item.dtDataServico).getDate() === index + 1 &&
+                                            item.idPostoTrabalho === posto.idPostoTrabalho
+                                        );
+
+                                        return (
+                                            <td key={posto.idPostoTrabalho} className="position-relative">
+                                                {funcionariosNoPosto.length > 0 ? (
+                                                    funcionariosNoPosto.map(item => {
+                                                        const isFuncionarioDesconhecido = item.idFuncionario === "00000000-0000-0000-0000-000000000000" ||
+                                                            obterNomeFuncionario(item.idFuncionario) === "Desconhecido";
+
+                                                        return (
+                                                            <div key={item.idEscalaPronta} className="d-flex justify-content-start align-items-center">
+                                                                <div className="btn-container">
+                                                                    {isFuncionarioDesconhecido ? (
+                                                                        <button
+                                                                            className="btn btn-xs btn-outline-success small-btn"
+                                                                            onClick={() => handleAbrirIncluirFuncionario(posto.idPostoTrabalho, index + 1)}
+                                                                            title="Adicionar funcionário"
+                                                                        >
+                                                                            ➕
+                                                                        </button>
+                                                                    ) : (
+                                                                        <button
+                                                                            className="btn btn-xs btn-outline-danger small-btn"
+                                                                            onClick={() => handleRemoverFuncionario(item)}
+                                                                            title="Remover funcionário"
+                                                                        >
+                                                                            ❌
+                                                                        </button>
+                                                                    )}
+                                                                </div>
+                                                                <span className={`nome-funcionario ${highlightedIds.includes(item.idFuncionario) ? 'highlight' : ''}`}>
+                                                                    {isFuncionarioDesconhecido ? "Desconhecido" : obterNomeFuncionario(item.idFuncionario)}
+                                                                </span>
+                                                            </div>
+                                                        );
+                                                    })
+                                                ) : (
+                                                    <div className="d-flex justify-content-start align-items-center">
+                                                        <div className="btn-container">
+                                                            <button
+                                                                className="btn btn-xs btn-outline-success small-btn"
+                                                                onClick={() => handleAbrirIncluirFuncionario(posto.idPostoTrabalho, index + 1)}
+                                                                title="Adicionar funcionário"
+                                                            >
+                                                                ➕
+                                                            </button>
+                                                        </div>
+                                                        <span className="text-muted">Desconhecido</span>
                                                     </div>
-                                                ))}
-                                        </td>
-                                    ))}
+                                                )}
+                                            </td>
+                                        );
+                                    })}
                                 </tr>
                             ))}
                         </tbody>
+
                     </table>
+                    <AlertPopup
+                        type={alertProps.type}
+                        title={alertProps.title}
+                        message={alertProps.message}
+                        show={alertProps.show}
+                        onConfirm={alertProps.onConfirm}
+                        onClose={handleCloseAlert} // ✅ Agora está chamando a função correta
+                    />                                  
                 </div>
             </div>
         </>

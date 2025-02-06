@@ -444,6 +444,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaPronta
                 return new RetornoDTO { valido = false, mensagem = $"Erro ao recriar escala: {ex.Message}" };
             }
         }
+
         public async Task<EscalaProntaDTO> DeletarOcorrenciaFuncionario(Guid idFuncionario, Guid idEscala)
         {
             try
@@ -463,59 +464,130 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaPronta
                     return new EscalaProntaDTO { valido = false, mensagem = "Nenhuma ocorrência encontrada para o funcionário." };
                 }
 
-                _context.EscalaPronta.RemoveRange(ocorrencias);
+                // 🔹 Atualizando o campo IdFuncionario para Guid.Empty
+                foreach (var ocorrencia in ocorrencias)
+                {
+                    ocorrencia.IdFuncionario = Guid.Empty;
+                }
+
                 await _context.SaveChangesAsync();
 
-                return new EscalaProntaDTO { valido = true, mensagem = "Ocorrências do funcionário removidas com sucesso." };
+                return new EscalaProntaDTO { valido = true, 
+                    mensagem = "Ocorrências do funcionário atualizadas com sucesso." };
             }
             catch (Exception e)
             {
-                return new EscalaProntaDTO { valido = false, mensagem = $"Erro ao remover ocorrência: {e.Message}" };
+                return new EscalaProntaDTO { valido = false, mensagem = $"Erro ao atualizar ocorrência: {e.Message}" };
             }
         }
 
-        public async Task<EscalaProntaDTO> IncluirFuncionarioEscala(EscalaProntaDTO escalaProntaDTO)
+        public async Task<EscalaProntaDTO> IncluirFuncionarioEscala(EscalaProntaDTO incluiFuncEscalaProntaDTO)
         {
             try
             {
-                if (escalaProntaDTO is null)
+                if (incluiFuncEscalaProntaDTO is null)
                 {
                     return new EscalaProntaDTO { valido = false, mensagem = "Dados não preenchidos." };
                 }
 
-                // 🔹 Verifica se o posto de trabalho existe
-                var postoExiste = await _context.PostoTrabalhos.AnyAsync(p => p.IdPostoTrabalho == escalaProntaDTO.IdPostoTrabalho);
-                if (!postoExiste)
-                {
-                    return new EscalaProntaDTO { valido = false, mensagem = "Posto de trabalho não encontrado." };
-                }
+                
 
+                var escala = await _context.Escalas.Where(x => x.IdEscala == incluiFuncEscalaProntaDTO.IdEscala).FirstOrDefaultAsync();
+                var escalaPronta = await _context.EscalaPronta.Where(x => x.IdEscala == incluiFuncEscalaProntaDTO.IdEscala).ToListAsync();
                 // 🔹 Obtém a escala para verificar o limite de funcionários por posto
-                var escala = await _context.Escalas.FindAsync(escalaProntaDTO.IdEscala);
-                if (escala == null)
+                if (escalaPronta == null || escala == null)
                 {
                     return new EscalaProntaDTO { valido = false, mensagem = "Escala não encontrada." };
                 }
 
-                // 🔹 Conta quantos funcionários já estão no posto nesse dia
-                int funcionariosNoPosto = await _context.EscalaPronta
-                    .CountAsync(e => e.IdPostoTrabalho == escalaProntaDTO.IdPostoTrabalho && e.DtDataServico.Date == escalaProntaDTO.DtDataServico.Date);
-
-                if (funcionariosNoPosto >= escala.NrPessoaPorPosto)
+                var funcionarioValido = await _context.Funcionarios.Where(x => x.IdFuncionario == incluiFuncEscalaProntaDTO.IdFuncionario).FirstOrDefaultAsync();
+                if (funcionarioValido.IdCargo != escala.IdCargo)
                 {
-                    return new EscalaProntaDTO { valido = false, mensagem = "Limite de funcionários para este posto atingido!" };
+                    return new EscalaProntaDTO { valido = false, mensagem = "Funcionário com cargo diferente do permitido para a escala." };
                 }
 
-                var novaEscalaPronta = _mapper.Map<DepInfra.EscalaPronta>(escalaProntaDTO);
-                _context.EscalaPronta.Add(novaEscalaPronta);
-                await _context.SaveChangesAsync();
+                // 🔹 Verifica se o posto de trabalho existe
+                var postoExiste = escalaPronta.Any(p => p.IdPostoTrabalho == incluiFuncEscalaProntaDTO.IdPostoTrabalho);
+                if (!postoExiste)
+                {
+                    return new EscalaProntaDTO { valido = false, mensagem = "Posto de trabalho não encontrado." };
+                }                
 
-                return _mapper.Map<EscalaProntaDTO>(novaEscalaPronta);
+                // 🔹 Buscar um funcionário escalado no mesmo dia em qualquer outro posto
+                var referencia = escalaPronta
+                    .Where(e => e.IdEscala == incluiFuncEscalaProntaDTO.IdEscala && e.DtDataServico.Date == incluiFuncEscalaProntaDTO.DtDataServico.Date )
+                    .FirstOrDefault();
+
+                if (referencia == null)
+                {
+                    return new EscalaProntaDTO { valido = false, mensagem = "Nenhum funcionário encontrado em outro posto para seguir o padrão." };
+                }
+
+                var funcExistente = escalaPronta
+                    .Where(x => x.IdEscala == incluiFuncEscalaProntaDTO.IdEscala && x.IdFuncionario == incluiFuncEscalaProntaDTO.IdFuncionario)
+                    .FirstOrDefault();
+
+                if (funcExistente != null)
+                {
+                    return new EscalaProntaDTO { valido = false, mensagem = "Funcionário já existe na Escala." };
+                }
+
+                // 🔹 Identificar os dias em que esse funcionário trabalha
+                var diasTrabalho = escalaPronta
+                    .Where(e => e.IdEscala == incluiFuncEscalaProntaDTO.IdEscala 
+                            && e.IdFuncionario == referencia.IdFuncionario)
+                    .Select(e => e.DtDataServico.Date)
+                    .OrderBy(d => d)
+                    .ToList();
+
+                if (!diasTrabalho.Any())
+                {
+                    return new EscalaProntaDTO { valido = false, mensagem = "Não foi possível identificar um padrão de escala." };
+                }
+
+                List<DepInfra.EscalaPronta> novasEscalas = new();
+                foreach (var data in diasTrabalho)
+                {
+                    // 🔹 Obtém os funcionários escalados para o posto neste dia
+                    var funcionariosNoPosto = escalaPronta
+                        .Where(e => e.IdPostoTrabalho == incluiFuncEscalaProntaDTO.IdPostoTrabalho && e.DtDataServico.Date == data)
+                        .ToList();
+
+                    // 🔹 Conta quantos funcionários já estão no posto, excluindo os IDs zerados (Guid.Empty)
+                    int qtdFuncionariosNoPosto = funcionariosNoPosto.Count(e => e.IdFuncionario != Guid.Empty);
+
+                    // 🔹 Verifica se o posto já atingiu o limite permitido
+                    if (qtdFuncionariosNoPosto >= escala.NrPessoaPorPosto)
+                    {
+                        return new EscalaProntaDTO { valido = false, mensagem = "Quantidade máxima de funcioários atingida por dia neste posto." };
+                    }
+
+                    // 🔹 Se houver um funcionário com ID zerado, substituir ele pelo novo funcionário
+                    var vagaDisponivel = funcionariosNoPosto.FirstOrDefault(e => e.IdFuncionario == Guid.Empty);
+                    if (vagaDisponivel != null)
+                    {
+                        vagaDisponivel.IdFuncionario = incluiFuncEscalaProntaDTO.IdFuncionario;
+                        novasEscalas.Add(vagaDisponivel);
+                    }
+                }
+
+                if (novasEscalas.Any())
+                {
+                    foreach (var escal in novasEscalas)
+                    {
+                        _context.EscalaPronta.Update(escal); // ✅ Atualiza cada registro individualmente
+                    }
+
+                    await _context.SaveChangesAsync(); // 🔹 Salva todas as alterações no banco
+                }
+
+                return new EscalaProntaDTO { valido = true, mensagem = "Funcionário incluído na escala seguindo o padrão existente em outro posto!" };
             }
             catch (Exception e)
             {
                 return new EscalaProntaDTO { valido = false, mensagem = $"Erro ao incluir funcionário: {e.Message}" };
             }
         }
+
     }
 }

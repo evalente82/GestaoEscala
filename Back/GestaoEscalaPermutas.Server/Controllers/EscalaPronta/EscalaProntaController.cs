@@ -33,17 +33,29 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaPronta
         }
 
         [HttpPost("IncluirFuncionario")]
-        public async Task<ActionResult> IncluirFuncionarioEscala([FromBody] EscalaProntaDTO escalaPronta)
+        public async Task<IActionResult> IncluirFuncionarioEscala([FromBody] IncluirFuncionarioDTO request)
         {
-            var resultado = await _escalaProntaService.IncluirFuncionarioEscala(escalaPronta);
+            if (request == null)
+            {
+                return BadRequest(new RetornoModel { Valido = false, Mensagem = "Dados não informados." });
+            }
+
+            var resultado = await _escalaProntaService.IncluirFuncionarioEscala(new EscalaProntaDTO
+            {
+                IdEscala = request.IdEscala,
+                IdPostoTrabalho = request.IdPostoTrabalho,
+                IdFuncionario = request.IdFuncionario,
+                DtDataServico = request.DtDataServico
+            });
 
             if (!resultado.valido)
             {
                 return BadRequest(new RetornoModel { Valido = false, Mensagem = resultado.mensagem });
             }
 
-            return Ok(new { mensagem = "Funcionário adicionado com sucesso!", dados = resultado });
+            return CreatedAtAction(nameof(IncluirFuncionarioEscala), new { mensagem = "Funcionário adicionado com sucesso!", dados = resultado });
         }
+
 
         [HttpPatch]
         [Route("Atualizar/{id:Guid}")]
@@ -70,8 +82,9 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaPronta
                 return BadRequest(new RetornoModel { Valido = false, Mensagem = resultado.mensagem });
             }
 
-            return Ok(new { mensagem = "Ocorrências do funcionário removidas com sucesso!" });
+            return Ok(new { mensagem = "Ocorrências do funcionário atualizadas com sucesso!" });
         }
+
 
         [HttpGet("buscarPorId/{id}")]
         public async Task<ActionResult<List<EscalaProntaDTO>>> BuscarEscalaProntaPorId(Guid id)
