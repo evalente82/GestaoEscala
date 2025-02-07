@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 class AppStyles {
   static const TextStyle title = TextStyle(
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: FontWeight.bold,
-    color: Color(0xFF003580), // Azul forte
+    color: Colors.black,
   );
 
-  static const TextStyle errorText = TextStyle(
-    fontSize: 14,
-    color: Colors.red,
+  static const TextStyle subtitle = TextStyle(
+    fontSize: 18,
     fontWeight: FontWeight.w500,
+    color: Colors.black54,
   );
 }
