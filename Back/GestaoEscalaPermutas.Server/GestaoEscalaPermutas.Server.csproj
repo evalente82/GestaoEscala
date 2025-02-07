@@ -48,6 +48,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GestaoEscalaPermutas.Dominio\GestaoEscalaPermutas.Dominio.csproj" />
+    <ProjectReference Include="..\GestaoEscalaPermutas.Repository\GestaoEscalaPermutas.Repository.csproj" />
   </ItemGroup>
 
 </Project>

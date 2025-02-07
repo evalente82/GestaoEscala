@@ -31,6 +31,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GestaoEscalaPermuta.Infra\GestaoEscalaPermutas.Infra.csproj" />
+    <ProjectReference Include="..\GestaoEscalaPermutas.Repository\GestaoEscalaPermutas.Repository.csproj" />
   </ItemGroup>
 
 </Project>

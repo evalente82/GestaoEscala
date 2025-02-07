@@ -36,6 +36,12 @@ using GestaoEscalaPermutas.Dominio.Services.CargoPerfis;
 using GestaoEscalaPermutas.Dominio.Interfaces.Email;
 using GestaoEscalaPermutas.Dominio.Services.Setor;
 using GestaoEscalaPermutas.Dominio.Interfaces.Setor;
+using GestaoEscalaPermutas.Repository.DependencyInjection;
+using GestaoEscalaPermutas.Dominio.Services.Funcionario.GestaoEscalaPermutas.Dominio.Services.Funcionario;
+using GestaoEscalaPermutas.Dominio.Services.TipoEscala.GestaoEscalaPermutas.Dominio.Services;
+using GestaoEscalaPermutas.Dominio.Services.Funcionalidade;
+
+
 
 
 
@@ -90,8 +96,7 @@ builder.Services.AddScoped<IPerfisFuncionalidadesService, PerfisFuncionalidadesS
 builder.Services.AddScoped<ICargoPerfisService, CargoPerfisService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISetorService, SetorService>();
-
-
+builder.Services.AddRepositoryServices();
 
 
 
@@ -128,9 +133,6 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("sua-chave-secreta-aqui"))
     };
 });
-
-
-
 
 var app = builder.Build();
 

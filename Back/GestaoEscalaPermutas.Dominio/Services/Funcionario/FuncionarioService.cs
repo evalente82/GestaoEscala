@@ -4,184 +4,94 @@ using GestaoEscalaPermutas.Dominio.DTO.PostoTrabalho;
 using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
 using GestaoEscalaPermutas.Infra.Data.Context;
 using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
+using GestaoEscalaPermutas.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 
 namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
 {
-    public class FuncionarioService : IFuncionarioService
+    namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
     {
-        private readonly DefesaCivilMaricaContext _context;
-        private readonly IMapper _mapper;
-        public FuncionarioService(DefesaCivilMaricaContext context, IMapper mapper)
+        public class FuncionarioService : IFuncionarioService
         {
-            _context = context;
-            _mapper = mapper;
-        }
-        public async Task<FuncionarioDTO> Incluir(FuncionarioDTO funcionarioDTO)
-        {
-            try
+            private readonly IFuncionarioRepository _funcionarioRepository;
+            private readonly IMapper _mapper;
+
+            public FuncionarioService(IFuncionarioRepository funcionarioRepository, IMapper mapper)
+            {
+                _funcionarioRepository = funcionarioRepository;
+                _mapper = mapper;
+            }
+
+            public async Task<FuncionarioDTO> Incluir(FuncionarioDTO funcionarioDTO)
             {
                 if (funcionarioDTO is null)
-                {
                     return new FuncionarioDTO { valido = false, mensagem = "Objeto não preenchido." };
-                }
 
                 // ✅ Verifica se a matrícula ou e-mail já existem
-                bool matriculaExiste = await _context.Funcionarios
-                    .AnyAsync(f => f.NrMatricula == funcionarioDTO.NrMatricula );
-
-                bool emailExiste = await _context.Funcionarios
-                    .AnyAsync(f => f.NmEmail == funcionarioDTO.NmEmail);
+                bool matriculaExiste = await _funcionarioRepository.MatriculaExisteAsync(funcionarioDTO.NrMatricula);
+                bool emailExiste = await _funcionarioRepository.EmailExisteAsync(funcionarioDTO.NmEmail);
 
                 if (matriculaExiste && emailExiste)
-                {
                     return new FuncionarioDTO { valido = false, mensagem = "Matrícula e E-mail já cadastrados." };
-                }
                 if (matriculaExiste)
-                {
                     return new FuncionarioDTO { valido = false, mensagem = "Matrícula já cadastrada." };
-                }
                 if (emailExiste)
-                {
                     return new FuncionarioDTO { valido = false, mensagem = "E-mail já cadastrado." };
-                }
 
-                // ✅ Mapeia e insere o funcionário no banco de dados
                 var funcionario = _mapper.Map<DepInfra.Funcionario>(funcionarioDTO);
-
-                _context.Funcionarios.Add(funcionario);
-                await _context.SaveChangesAsync();
-
-                return _mapper.Map<FuncionarioDTO>(funcionario);
+                var novoFuncionario = await _funcionarioRepository.AdicionarAsync(funcionario);
+                return _mapper.Map<FuncionarioDTO>(novoFuncionario);
             }
-            catch (Exception e)
-            {
-                return new FuncionarioDTO { valido = false, mensagem = $"Erro ao processar a solicitação: {e.Message}" };
-            }
-        }
 
-        public async Task<FuncionarioDTO> Alterar(Guid id, FuncionarioDTO funcionarioDTO)
-        {
-            try
+            public async Task<FuncionarioDTO> Alterar(Guid id, FuncionarioDTO funcionarioDTO)
             {
                 if (id == Guid.Empty)
-                {
                     return new FuncionarioDTO { valido = false, mensagem = "Id fora do Range." };
-                }
-                else
-                {
-                    var funcionarioExistente = await _context.Funcionarios.FindAsync(id);
-                    if (funcionarioExistente == null)
-                    {
-                        return new FuncionarioDTO { valido = false, mensagem = "Funcionario não encontrado." };
-                    }
 
-                    // Mapeia os dados do DTO para o modelo existente (apenas as propriedades que você deseja atualizar)
-                    _mapper.Map(funcionarioDTO, funcionarioExistente);
+                var funcionarioExistente = await _funcionarioRepository.ObterPorIdAsync(id);
+                if (funcionarioExistente == null)
+                    return new FuncionarioDTO { valido = false, mensagem = "Funcionário não encontrado." };
 
-                    // O EF Core rastreará que o objeto foi modificado
-                    _context.Funcionarios.Update(funcionarioExistente);
-
-                    // Salva as alterações no banco de dados
-                    await _context.SaveChangesAsync();
-
-                    // Retorna o DTO atualizado (opcionalmente, você pode mapear de volta se quiser devolver os dados atualizados)
-                    return _mapper.Map<FuncionarioDTO>(funcionarioExistente);
-                }
+                _mapper.Map(funcionarioDTO, funcionarioExistente);
+                await _funcionarioRepository.AlterarAsync(funcionarioExistente);
+                return _mapper.Map<FuncionarioDTO>(funcionarioExistente);
             }
-            catch (Exception e)
+
+            public async Task<List<FuncionarioDTO>> BuscarTodos()
             {
-                // Considerar usar um logger para registrar a exceção
-                throw new Exception($"Erro ao alterar o objeto: {e.Message}");
+                var funcionarios = await _funcionarioRepository.ObterTodosAsync();
+                return _mapper.Map<List<FuncionarioDTO>>(funcionarios);
             }
-        }
-        public async Task<List<FuncionarioDTO>> BuscarTodos()
-        {
-            try
+
+            public async Task<List<FuncionarioDTO>> BuscarTodosAtivos()
             {
-                var funcionarios = await _context.Funcionarios.OrderBy(x => x.NmNome).ToListAsync();
-                var funcionarioDTO = _mapper.Map<List<FuncionarioDTO>>(funcionarios);
-                return funcionarioDTO;
+                var funcionariosAtivos = await _funcionarioRepository.ObterTodosAtivosAsync();
+                return _mapper.Map<List<FuncionarioDTO>>(funcionariosAtivos);
             }
-            catch (Exception e)
-            {
-                throw new Exception($"Erro ao receber o Objeto: {e.Message}");
-            }
-        }
-        public async Task<FuncionarioDTO> Deletar(Guid id)
-        {
-            try
+
+            public async Task<FuncionarioDTO> Deletar(Guid id)
             {
                 if (id == Guid.Empty)
-                {
                     return new FuncionarioDTO { valido = false, mensagem = "Id fora do Range." };
-                }
-                else
-                {
-                    var funcionarioExistente = await _context.Funcionarios.FindAsync(id);
-                    if (funcionarioExistente == null)
-                    {
-                        return new FuncionarioDTO { valido = false, mensagem = "Funacionário não encontrado." };
-                    }
 
+                var funcionarioExistente = await _funcionarioRepository.ObterPorIdAsync(id);
+                if (funcionarioExistente == null)
+                    return new FuncionarioDTO { valido = false, mensagem = "Funcionário não encontrado." };
 
-                    // O EF Core rastreará que o objeto foi modificado
-                    _context.Funcionarios.Remove(funcionarioExistente);
-
-                    // Salva as alterações no banco de dados
-                    await _context.SaveChangesAsync();
-
-                    //retornar avido de deletado
-                    return new FuncionarioDTO { valido = true, mensagem = "Funcionário deletado com sucesso." };
-                }
+                await _funcionarioRepository.RemoverAsync(id);
+                return new FuncionarioDTO { valido = true, mensagem = "Funcionário deletado com sucesso." };
             }
-            catch (Exception e)
-            {
-                throw new Exception($"Erro ao receber o Objeto: {e.Message}");
-            }
-        }
-        public async Task<FuncionarioDTO[]> IncluirLista(FuncionarioDTO[] funcionarioDTOs)
-        {
-            try
-            {
-                if (funcionarioDTOs is null)
-                {
-                    return new FuncionarioDTO[] { 
-                        new FuncionarioDTO { 
-                            valido = false, mensagem = "Lista de funcionários vazia."
-                        }
-                    };
-                }
-                else
-                {
-                    var funcionarios = _mapper.Map<DepInfra.Funcionario[]>(funcionarioDTOs);
 
-                    _context.Funcionarios.AddRange(funcionarios);
-                    await _context.SaveChangesAsync();
+            public async Task<FuncionarioDTO[]> IncluirLista(FuncionarioDTO[] funcionarioDTOs)
+            {
+                if (funcionarioDTOs is null || funcionarioDTOs.Length == 0)
+                    return new FuncionarioDTO[] { new() { valido = false, mensagem = "Lista de funcionários vazia." } };
 
-                    return _mapper.Map<FuncionarioDTO[]>(funcionarios);
-                }
-            }
-            catch (Exception e)
-            {
-                return new FuncionarioDTO[] { new FuncionarioDTO { valido = false, mensagem = $"Erro ao incluir a lista de funcionários: {e.Message}" } };
-            }
-        }
-        public async Task<List<FuncionarioDTO>> BuscarTodosAtivos()
-        {
-            try
-            {
-                var funcionarios = await _context.Funcionarios.Where(p => p.IsAtivo).ToListAsync();
-                var funcionariosAtivos = _mapper.Map<List<FuncionarioDTO>>(funcionarios);
-                return funcionariosAtivos;
-            }
-            catch (Exception e)
-            {
-                throw new Exception($"Erro ao receber o Objeto: {e.Message}");
+                var funcionarios = _mapper.Map<DepInfra.Funcionario[]>(funcionarioDTOs);
+                var novosFuncionarios = await _funcionarioRepository.AdicionarListaAsync(funcionarios);
+                return _mapper.Map<FuncionarioDTO[]>(novosFuncionarios);
             }
         }
     }
-
-
 }

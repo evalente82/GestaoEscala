@@ -3,147 +3,112 @@ using GestaoEscalaPermutas.Dominio.DTO.Escala;
 using GestaoEscalaPermutas.Dominio.DTO.TipoEscala;
 using GestaoEscalaPermutas.Dominio.Interfaces.TipoEscala;
 using GestaoEscalaPermutas.Infra.Data.Context;
+using GestaoEscalaPermutas.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 
 namespace GestaoEscalaPermutas.Dominio.Services.TipoEscala
 {
-    public class TipoEscalaService : ITipoEscalaService
+    namespace GestaoEscalaPermutas.Dominio.Services
     {
-        private readonly DefesaCivilMaricaContext _context;
-        private readonly IMapper _mapper;
-        public TipoEscalaService(DefesaCivilMaricaContext context, IMapper mapper)
+        public class TipoEscalaService : ITipoEscalaService
         {
-            _context = context;
-            _mapper = mapper;
-        }
-        public async Task<TipoEscalaDTO> Incluir(TipoEscalaDTO tipoEscalaDTO)
-        {
-            try
+            private readonly ITipoEscalaRepository _tipoEscalaRepository;
+            private readonly IMapper _mapper;
+
+            public TipoEscalaService(ITipoEscalaRepository tipoEscalaRepository, IMapper mapper)
             {
-                if (tipoEscalaDTO is null)
+                _tipoEscalaRepository = tipoEscalaRepository;
+                _mapper = mapper;
+            }
+
+            public async Task<TipoEscalaDTO> Incluir(TipoEscalaDTO tipoEscalaDTO)
+            {
+                try
                 {
-                    return new TipoEscalaDTO { valido = false, mensagem = "Objeto não preenchido." };
-                }
-                else
-                {
+                    if (tipoEscalaDTO is null)
+                        return new TipoEscalaDTO { valido = false, mensagem = "Objeto não preenchido." };
+
                     var tipoEscala = _mapper.Map<DepInfra.TipoEscala>(tipoEscalaDTO);
+                    var tipoEscalaCriado = await _tipoEscalaRepository.IncluirAsync(tipoEscala);
+                    return _mapper.Map<TipoEscalaDTO>(tipoEscalaCriado);
+                }
+                catch (Exception e)
+                {
+                    return new TipoEscalaDTO { valido = false, mensagem = $"Erro ao incluir Tipo Escala: {e.Message}" };
+                }
+            }
 
-                    _context.TipoEscalas.Add(tipoEscala);
-                    await _context.SaveChangesAsync();
-                    return _mapper.Map<TipoEscalaDTO>(tipoEscala);
-                }
-            }
-            catch (Exception e)
+            public async Task<TipoEscalaDTO> Alterar(Guid id, TipoEscalaDTO tipoEscalaDTO)
             {
-                return new TipoEscalaDTO { valido = false, mensagem = $"Erro ao receber o Objeto: {e.Message}" };
-            }
-        }
-        public async Task<TipoEscalaDTO> Alterar(Guid id, TipoEscalaDTO tipoEscalaDTO)
-        {
-            try
-            {
-                if (id == Guid.Empty)
+                try
                 {
-                    return new TipoEscalaDTO { valido = false, mensagem = "Id fora do Range." };
-                }
-                else
-                {
-                    var tipoEscalaExistente = await _context.TipoEscalas.FindAsync(id);
+                    if (id == Guid.Empty)
+                        return new TipoEscalaDTO { valido = false, mensagem = "Id fora do Range." };
+
+                    var tipoEscalaExistente = await _tipoEscalaRepository.BuscarPorIdAsync(id);
                     if (tipoEscalaExistente == null)
-                    {
-                        return new TipoEscalaDTO { valido = false, mensagem = "tipoEscala não encontrado." };
-                    }
+                        return new TipoEscalaDTO { valido = false, mensagem = "Tipo Escala não encontrado." };
 
-                    // Mapeia os dados do DTO para o modelo existente (apenas as propriedades que você deseja atualizar)
                     _mapper.Map(tipoEscalaDTO, tipoEscalaExistente);
+                    var tipoEscalaAtualizado = await _tipoEscalaRepository.AlterarAsync(tipoEscalaExistente);
 
-                    // O EF Core rastreará que o objeto foi modificado
-                    _context.TipoEscalas.Update(tipoEscalaExistente);
-
-                    // Salva as alterações no banco de dados
-                    await _context.SaveChangesAsync();
-
-                    // Retorna o DTO atualizado (opcionalmente, você pode mapear de volta se quiser devolver os dados atualizados)
-                    return _mapper.Map<TipoEscalaDTO>(tipoEscalaExistente);
+                    return _mapper.Map<TipoEscalaDTO>(tipoEscalaAtualizado);
+                }
+                catch (Exception e)
+                {
+                    throw new Exception($"Erro ao alterar Tipo Escala: {e.Message}");
                 }
             }
-            catch (Exception e)
+
+            public async Task<List<TipoEscalaDTO>> BuscarTodos()
             {
-                // Considerar usar um logger para registrar a exceção
-                throw new Exception($"Erro ao alterar o objeto: {e.Message}");
+                try
+                {
+                    var tipoEscalas = await _tipoEscalaRepository.BuscarTodosAsync();
+                    return _mapper.Map<List<TipoEscalaDTO>>(tipoEscalas);
+                }
+                catch (Exception e)
+                {
+                    throw new Exception($"Erro ao buscar todos os Tipos de Escala: {e.Message}");
+                }
+            }
+
+            public async Task<TipoEscalaDTO> Deletar(Guid id)
+            {
+                try
+                {
+                    if (id == Guid.Empty)
+                        return new TipoEscalaDTO { valido = false, mensagem = "Id fora do Range." };
+
+                    var sucesso = await _tipoEscalaRepository.DeletarAsync(id);
+                    return sucesso
+                        ? new TipoEscalaDTO { valido = true, mensagem = "Tipo Escala deletado com sucesso." }
+                        : new TipoEscalaDTO { valido = false, mensagem = "Tipo Escala não encontrado." };
+                }
+                catch (Exception e)
+                {
+                    throw new Exception($"Erro ao deletar Tipo Escala: {e.Message}");
+                }
+            }
+
+            public async Task<TipoEscalaDTO> BuscarPorId(Guid idEscala)
+            {
+                try
+                {
+                    if (idEscala == Guid.Empty)
+                        return new TipoEscalaDTO { valido = false, mensagem = "Id fora do Range." };
+
+                    var tipoEscala = await _tipoEscalaRepository.BuscarPorIdAsync(idEscala);
+                    return tipoEscala != null
+                        ? _mapper.Map<TipoEscalaDTO>(tipoEscala)
+                        : new TipoEscalaDTO { valido = false, mensagem = "Tipo Escala não encontrado." };
+                }
+                catch (Exception e)
+                {
+                    throw new Exception($"Erro ao buscar Tipo Escala por ID: {e.Message}");
+                }
             }
         }
-        public async Task<List<TipoEscalaDTO>> BuscarTodos()
-        {
-            try
-            {
-                var tipoEscalas = await _context.TipoEscalas.ToListAsync();
-                var TipoEscalaDTO = _mapper.Map<List<TipoEscalaDTO>>(tipoEscalas);
-                return TipoEscalaDTO;
-            }
-            catch (Exception e)
-            {
-                throw new Exception($"Erro ao receber o Objeto: {e.Message}");
-            }
-        }
-        public async Task<TipoEscalaDTO> Deletar(Guid id)
-        {
-            try
-            {
-                if (id == Guid.Empty)
-                {
-                    return new TipoEscalaDTO { valido = false, mensagem = "Id fora do Range." };
-                }
-                else
-                {
-                    var tipoEscalaExistente = await _context.TipoEscalas.FindAsync(id);
-                    if (tipoEscalaExistente == null)
-                    {
-                        return new TipoEscalaDTO { valido = false, mensagem = "Funacionário não encontrado." };
-                    }
-
-
-                    // O EF Core rastreará que o objeto foi modificado
-                    _context.TipoEscalas.Remove(tipoEscalaExistente);
-
-                    // Salva as alterações no banco de dados
-                    await _context.SaveChangesAsync();
-
-                    //retornar avido de deletado
-                    return new TipoEscalaDTO { valido = true, mensagem = "Funcionário deletado com sucesso." };
-                }
-            }
-            catch (Exception e)
-            {
-                throw new Exception($"Erro ao receber o Objeto: {e.Message}");
-            }
-        }
-        public async Task<TipoEscalaDTO> BuscarPorId(Guid idEscala)
-        {
-            try
-            {
-                if (idEscala == Guid.Empty)
-                {
-                    return new TipoEscalaDTO { valido = false, mensagem = "Id fora do Range." };
-                }
-                else
-                {
-                    var tipoEscalaExistente = await _context.TipoEscalas.FindAsync(idEscala);
-                    if (tipoEscalaExistente == null)
-                    {
-                        return new TipoEscalaDTO { valido = false, mensagem = "escala não encontrado." };
-                    }
-                    var tipoEscalaDTO = _mapper.Map<TipoEscalaDTO>(tipoEscalaExistente);
-                    return tipoEscalaDTO;
-                }
-            }
-            catch (Exception e)
-            {
-                // Considerar usar um logger para registrar a exceção
-                throw new Exception($"Erro ao buscar o objeto: {e.Message}");
-            }
-        }
-
     }
 }
