@@ -2,6 +2,7 @@
 using GestaoEscalaPermutas.Dominio.DTO.Setor;
 using GestaoEscalaPermutas.Dominio.Interfaces.Setor;
 using GestaoEscalaPermutas.Infra.Data.Context;
+using GestaoEscalaPermutas.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 
@@ -9,46 +10,51 @@ namespace GestaoEscalaPermutas.Dominio.Services.Setor
 {
     public class SetorService : ISetorService
     {
-        private readonly DefesaCivilMaricaContext _context;
+        private readonly ISetorRepository _setorRepository;
         private readonly IMapper _mapper;
-        public SetorService(DefesaCivilMaricaContext context, IMapper mapper)
+
+        public SetorService(ISetorRepository setorRepository, IMapper mapper)
         {
-            _context = context;
+            _setorRepository = setorRepository;
             _mapper = mapper;
         }
+
+        public async Task<SetorDTO> Incluir(SetorDTO setorDTO)
+        {
+            try
+            {
+                if (setorDTO is null)
+                    return new SetorDTO { valido = false, mensagem = "Objeto não preenchido." };
+
+                var setor = _mapper.Map<DepInfra.Setor>(setorDTO);
+                var setorCriado = await _setorRepository.IncluirAsync(setor);
+                return _mapper.Map<SetorDTO>(setorCriado);
+            }
+            catch (Exception e)
+            {
+                return new SetorDTO { valido = false, mensagem = $"Erro ao incluir setor: {e.Message}" };
+            }
+        }
+
         public async Task<SetorDTO> Alterar(Guid id, SetorDTO setorDTO)
         {
             try
             {
                 if (id == Guid.Empty)
-                {
                     return new SetorDTO { valido = false, mensagem = "Id fora do Range." };
-                }
-                else
-                {
-                    var setorExistente = await _context.Setor.FindAsync(id);
-                    if (setorExistente == null)
-                    {
-                        return new SetorDTO { valido = false, mensagem = "Posto não encontrado." };
-                    }
 
-                    // Mapeia os dados do DTO para o modelo existente (apenas as propriedades que você deseja atualizar)
-                    _mapper.Map(setorDTO, setorExistente);
+                var setorExistente = await _setorRepository.BuscarPorIdAsync(id);
+                if (setorExistente == null)
+                    return new SetorDTO { valido = false, mensagem = "Setor não encontrado." };
 
-                    // O EF Core rastreará que o objeto foi modificado
-                    _context.Setor.Update(setorExistente);
+                _mapper.Map(setorDTO, setorExistente);
+                var setorAtualizado = await _setorRepository.AlterarAsync(setorExistente);
 
-                    // Salva as alterações no banco de dados
-                    await _context.SaveChangesAsync();
-
-                    // Retorna o DTO atualizado (opcionalmente, você pode mapear de volta se quiser devolver os dados atualizados)
-                    return _mapper.Map<SetorDTO>(setorExistente);
-                }
+                return _mapper.Map<SetorDTO>(setorAtualizado);
             }
             catch (Exception e)
             {
-                // Considerar usar um logger para registrar a exceção
-                throw new Exception($"Erro ao alterar o objeto: {e.Message}");
+                throw new Exception($"Erro ao alterar setor: {e.Message}");
             }
         }
 
@@ -57,23 +63,16 @@ namespace GestaoEscalaPermutas.Dominio.Services.Setor
             try
             {
                 if (id == Guid.Empty)
-                {
                     return new SetorDTO { valido = false, mensagem = "Id fora do Range." };
-                }
-                else
-                {
-                    var setorExistente = await _context.Setor.FindAsync(id);
-                    if (setorExistente == null)
-                    {
-                        return new SetorDTO { valido = false, mensagem = "escala não encontrado." };
-                    }
-                    var setorDTO = _mapper.Map<SetorDTO>(setorExistente);
-                    return setorDTO;
-                }
+
+                var setor = await _setorRepository.BuscarPorIdAsync(id);
+                return setor != null
+                    ? _mapper.Map<SetorDTO>(setor)
+                    : new SetorDTO { valido = false, mensagem = "Setor não encontrado." };
             }
             catch (Exception e)
             {
-                throw new Exception($"Erro ao receber o Objeto: {e.Message}");
+                throw new Exception($"Erro ao buscar setor por ID: {e.Message}");
             }
         }
 
@@ -81,13 +80,12 @@ namespace GestaoEscalaPermutas.Dominio.Services.Setor
         {
             try
             {
-                var setor = await _context.Setor.ToListAsync();
-                var setorDTO = _mapper.Map<List<SetorDTO>>(setor);
-                return setorDTO;
+                var setores = await _setorRepository.BuscarTodosAsync();
+                return _mapper.Map<List<SetorDTO>>(setores);
             }
             catch (Exception e)
             {
-                throw new Exception($"Erro ao receber o Objeto: {e.Message}");
+                throw new Exception($"Erro ao buscar todos os setores: {e.Message}");
             }
         }
 
@@ -96,54 +94,16 @@ namespace GestaoEscalaPermutas.Dominio.Services.Setor
             try
             {
                 if (id == Guid.Empty)
-                {
                     return new SetorDTO { valido = false, mensagem = "Id fora do Range." };
-                }
-                else
-                {
-                    var setorExistente = await _context.Setor.FindAsync(id);
-                    if (setorExistente == null)
-                    {
-                        return new SetorDTO { valido = false, mensagem = "Posto não encontrado." };
-                    }
 
-
-                    // O EF Core rastreará que o objeto foi modificado
-                    _context.Setor.Remove(setorExistente);
-
-                    // Salva as alterações no banco de dados
-                    await _context.SaveChangesAsync();
-
-                    //retornar aviso de deletado
-                    return new SetorDTO { valido = true, mensagem = "Setor deletado com sucesso." };
-                }
+                var sucesso = await _setorRepository.DeletarAsync(id);
+                return sucesso
+                    ? new SetorDTO { valido = true, mensagem = "Setor deletado com sucesso." }
+                    : new SetorDTO { valido = false, mensagem = "Setor não encontrado." };
             }
             catch (Exception e)
             {
-                throw new Exception($"Erro ao receber o Objeto: {e.Message}");
-            }
-        }
-
-        public async Task<SetorDTO> Incluir(SetorDTO setorDTO)
-        {
-            try
-            {
-                if (setorDTO is null)
-                {
-                    return new SetorDTO { valido = false, mensagem = "Objeto não preenchido." };
-                }
-                else
-                {
-                    var setor = _mapper.Map<DepInfra.Setor>(setorDTO);
-
-                    _context.Setor.Add(setor);
-                    await _context.SaveChangesAsync();
-                    return _mapper.Map<SetorDTO>(setor);
-                }
-            }
-            catch (Exception e)
-            {
-                return new SetorDTO { valido = false, mensagem = $"Erro ao receber o Objeto: {e.Message}" };
+                throw new Exception($"Erro ao deletar setor: {e.Message}");
             }
         }
     }

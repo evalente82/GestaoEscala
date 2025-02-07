@@ -4,6 +4,7 @@ using GestaoEscalaPermutas.Dominio.DTO.Permutas;
 using GestaoEscalaPermutas.Dominio.Interfaces.Permutas;
 using GestaoEscalaPermutas.Infra.Data.Context;
 using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
+using GestaoEscalaPermutas.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 
@@ -11,34 +12,30 @@ namespace GestaoEscalaPermutas.Dominio.Services.Permutas
 {
     public class PermutasService : IPermutasService
     {
-        private readonly DefesaCivilMaricaContext _context;
+        private readonly IPermutasRepository _permutasRepository;
         private readonly IMapper _mapper;
-        public PermutasService(DefesaCivilMaricaContext context, IMapper mapper) 
+
+        public PermutasService(IPermutasRepository permutasRepository, IMapper mapper)
         {
-            _context = context;
+            _permutasRepository = permutasRepository;
             _mapper = mapper;
         }
+
         public async Task<PermutasDTO> Incluir(PermutasDTO permutasDTO)
         {
             try
             {
                 if (permutasDTO is null)
-                {
                     return new PermutasDTO { valido = false, mensagem = "Objeto não preenchido." };
-                }
-                else
-                {
-                    var permutas = _mapper.Map<DepInfra.Permuta>(permutasDTO);
 
-                    _context.Permuta.Add(permutas);
-                    await _context.SaveChangesAsync();
-                    return _mapper.Map<PermutasDTO>(permutas);
-                }
+                var permuta = _mapper.Map<DepInfra.Permuta>(permutasDTO);
+                var permutaCriada = await _permutasRepository.IncluirAsync(permuta);
+                return _mapper.Map<PermutasDTO>(permutaCriada);
             }
             catch (Exception e)
             {
-                return new PermutasDTO { valido = false, mensagem = $"Erro ao receber o Objeto: {e.Message}" };
-            };
+                return new PermutasDTO { valido = false, mensagem = $"Erro ao incluir permuta: {e.Message}" };
+            }
         }
 
         public async Task<PermutasDTO> Alterar(Guid id, PermutasDTO permutaDTO)
@@ -46,34 +43,20 @@ namespace GestaoEscalaPermutas.Dominio.Services.Permutas
             try
             {
                 if (id == Guid.Empty)
-                {
                     return new PermutasDTO { valido = false, mensagem = "Id fora do Range." };
-                }
-                else
-                {
-                    var permutaExistente = await _context.Permuta.FindAsync(id);
-                    if (permutaExistente == null)
-                    {
-                        return new PermutasDTO { valido = false, mensagem = "escala não encontrado." };
-                    }
 
-                    // Mapeia os dados do DTO para o modelo existente (apenas as propriedades que você deseja atualizar)
-                    _mapper.Map(permutaDTO, permutaExistente);
+                var permutaExistente = await _permutasRepository.BuscarPorIdAsync(id);
+                if (permutaExistente == null)
+                    return new PermutasDTO { valido = false, mensagem = "Permuta não encontrada." };
 
-                    // O EF Core rastreará que o objeto foi modificado
-                    _context.Permuta.Update(permutaExistente);
+                _mapper.Map(permutaDTO, permutaExistente);
+                var permutaAtualizada = await _permutasRepository.AlterarAsync(permutaExistente);
 
-                    // Salva as alterações no banco de dados
-                    await _context.SaveChangesAsync();
-
-                    // Retorna o DTO atualizado (opcionalmente, você pode mapear de volta se quiser devolver os dados atualizados)
-                    return _mapper.Map<PermutasDTO>(permutaExistente);
-                }
+                return _mapper.Map<PermutasDTO>(permutaAtualizada);
             }
             catch (Exception e)
             {
-                // Considerar usar um logger para registrar a exceção
-                throw new Exception($"Erro ao alterar o objeto: {e.Message}");
+                throw new Exception($"Erro ao alterar permuta: {e.Message}");
             }
         }
 
@@ -82,24 +65,16 @@ namespace GestaoEscalaPermutas.Dominio.Services.Permutas
             try
             {
                 if (idPermuta == Guid.Empty)
-                {
                     return new PermutasDTO { valido = false, mensagem = "Id fora do Range." };
-                }
-                else
-                {
-                    var permutaExistente = await _context.Permuta.FindAsync(idPermuta);
-                    if (permutaExistente == null)
-                    {
-                        return new PermutasDTO { valido = false, mensagem = "escala não encontrado." };
-                    }
-                    var permutaDTO = _mapper.Map<PermutasDTO>(permutaExistente);
-                    return permutaDTO;
-                }
+
+                var permuta = await _permutasRepository.BuscarPorIdAsync(idPermuta);
+                return permuta == null
+                    ? new PermutasDTO { valido = false, mensagem = "Permuta não encontrada." }
+                    : _mapper.Map<PermutasDTO>(permuta);
             }
             catch (Exception e)
             {
-                // Considerar usar um logger para registrar a exceção
-                throw new Exception($"Erro ao buscar o objeto: {e.Message}");
+                throw new Exception($"Erro ao buscar permuta: {e.Message}");
             }
         }
 
@@ -107,13 +82,12 @@ namespace GestaoEscalaPermutas.Dominio.Services.Permutas
         {
             try
             {
-                var permutas = await _context.Permuta.ToListAsync();
-                var permutaDTO = _mapper.Map<List<PermutasDTO>>(permutas);
-                return permutaDTO;
+                var permutas = await _permutasRepository.BuscarTodosAsync();
+                return _mapper.Map<List<PermutasDTO>>(permutas);
             }
             catch (Exception e)
             {
-                throw new Exception($"Erro ao receber o Objeto: {e.Message}");
+                throw new Exception($"Erro ao buscar todas as permutas: {e.Message}");
             }
         }
 
@@ -122,29 +96,17 @@ namespace GestaoEscalaPermutas.Dominio.Services.Permutas
             try
             {
                 if (id == Guid.Empty)
-                {
                     return new PermutasDTO { valido = false, mensagem = "Id fora do Range." };
-                }
-                else
-                {
-                    var permutaExistente = await _context.Permuta.FindAsync(id);
-                    if (permutaExistente == null)
-                    {
-                        return new PermutasDTO { valido = false, mensagem = "Escala não encontrado." };
-                    }
 
-                    _context.Permuta.Remove(permutaExistente);
-
-                    await _context.SaveChangesAsync();
-
-                    return new PermutasDTO { valido = true, mensagem = "Escala deletado com sucesso." };
-                }
+                var sucesso = await _permutasRepository.DeletarAsync(id);
+                return sucesso
+                    ? new PermutasDTO { valido = true, mensagem = "Permuta deletada com sucesso." }
+                    : new PermutasDTO { valido = false, mensagem = "Permuta não encontrada." };
             }
             catch (Exception e)
             {
-                throw new Exception($"Erro ao receber o Objeto: {e.Message}");
+                throw new Exception($"Erro ao deletar permuta: {e.Message}");
             }
         }
-
     }
 }

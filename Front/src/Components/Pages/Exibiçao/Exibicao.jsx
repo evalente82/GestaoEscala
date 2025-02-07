@@ -29,6 +29,7 @@ export function Exibicao() {
     const { permissoes } = useAuth();
     const possuiPermissao = (permissao) => permissoes.includes(permissao);
     const [showIncluirPopup, setShowIncluirPopup] = useState(false);
+    const numDias = escala ? obterQuantidadeDiasNoMes(2025, escala.nrMesReferencia) : 0;
     
     //console.log("📢 Estado atual do showIncluirPopup:", showIncluirPopup);
     const [alertProps, setAlertProps] = useState({
@@ -46,18 +47,13 @@ export function Exibicao() {
             show: false,
             onConfirm: null, // Garante que não mantém a ação de confirmação antiga
         }));
-    };
-    
+    };    
 
     const [novoFuncionario, setNovoFuncionario] = useState({
         idFuncionario: "",
         idPostoTrabalho: "",
         dtDataServico: ""
     });
-    
-
-    
-    
 
     useEffect(() => {
         BuscaEscala(idEscala);
@@ -109,8 +105,7 @@ export function Exibicao() {
         console.log("📢 Estado atual do showIncluirPopup:", showIncluirPopup);
         console.log("📢 Funcionários disponíveis:", funcionarios);
         console.log("📢 Postos disponíveis:", postos);
-    }, [showIncluirPopup]);
-    
+    }, [showIncluirPopup]);    
     
     function BuscaSetores() {
         axios
@@ -318,8 +313,6 @@ export function Exibicao() {
             });
         }
     };
-    
-    const numDias = escala ? obterQuantidadeDiasNoMes(2025, escala.nrMesReferencia) : 0;
 
     function obterNomeMes(numeroMes) {
         const meses = [
@@ -554,8 +547,7 @@ export function Exibicao() {
         });
     
         setShowIncluirPopup(true); // ✅ Atualiza o estado corretamente
-    };
-    
+    };    
     
     const handleConfirmarInclusao = async () => {
         if (!novoFuncionario.idFuncionario || !novoFuncionario.idPostoTrabalho) {
@@ -617,8 +609,6 @@ export function Exibicao() {
             });
         }
     };
-    
-    
 
     const handleRemoverFuncionario = async (item) => {
         setAlertProps({
@@ -669,7 +659,6 @@ export function Exibicao() {
             onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
         });
     };
-    
     
     return (
         <>
@@ -815,69 +804,73 @@ export function Exibicao() {
                             </tr>
                         </thead>
                         <tbody>
-                            {Array.from({ length: numDias }, (_, index) => (
-                                <tr key={index + 1}>
-                                    <td className="border">{index + 1}</td>
-                                    {postos && postos.map((posto) => {
-                                        const funcionariosNoPosto = escalaAlterada.filter(item =>
-                                            new Date(item.dtDataServico).getDate() === index + 1 &&
-                                            item.idPostoTrabalho === posto.idPostoTrabalho
-                                        );
+    {Array.from({ length: numDias }, (_, index) => (
+        <tr key={index + 1}>
+            <td className="border">{index + 1}</td>
+            {postos && postos.map((posto) => {
+                const funcionariosNoPosto = escalaAlterada.filter(item =>
+                    new Date(item.dtDataServico).getDate() === index + 1 &&
+                    item.idPostoTrabalho === posto.idPostoTrabalho
+                );
 
-                                        return (
-                                            <td key={posto.idPostoTrabalho} className="position-relative">
-                                                {funcionariosNoPosto.length > 0 ? (
-                                                    funcionariosNoPosto.map(item => {
-                                                        const isFuncionarioDesconhecido = item.idFuncionario === "00000000-0000-0000-0000-000000000000" ||
-                                                            obterNomeFuncionario(item.idFuncionario) === "Desconhecido";
+                return (
+                    <td key={posto.idPostoTrabalho} className="position-relative">
+                        {funcionariosNoPosto.length > 0 ? (
+                            funcionariosNoPosto.map(item => {
+                                const isFuncionarioDesconhecido = item.idFuncionario === "00000000-0000-0000-0000-000000000000" ||
+                                obterNomeFuncionario(item.idFuncionario) === "Desconhecido";
+                                    return (
+                                        <div key={item.idEscalaPronta} className="d-flex justify-content-start align-items-center">
+                                            {possuiPermissao("EditarEscalas") && (
+                                                <div className="btn-container">
+                                                    {isFuncionarioDesconhecido ? (
+                                                        <button
+                                                            className="btn btn-xs btn-outline-success small-btn"
+                                                            onClick={() => handleAbrirIncluirFuncionario(posto.idPostoTrabalho, index + 1)}
+                                                            title="Adicionar funcionário"
+                                                        >
+                                                            ➕
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            className="btn btn-xs btn-outline-danger small-btn"
+                                                            onClick={() => handleRemoverFuncionario(item)}
+                                                            title="Remover funcionário"
+                                                        >
+                                                            ❌
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            )}
+                                            <span className={`nome-funcionario ${highlightedIds.includes(item.idFuncionario) ? 'highlight' : ''}`}>
+                                                {isFuncionarioDesconhecido ? "Desconhecido" : obterNomeFuncionario(item.idFuncionario)}
+                                            </span>
+                                        </div>
+                                    );
+                            })
+                        ) : (
+                            <div className="d-flex justify-content-start align-items-center">
+                                {possuiPermissao("EditarEscalas") && (
+                                    <div className="btn-container">
+                                        <button
+                                            className="btn btn-xs btn-outline-success small-btn"
+                                            onClick={() => handleAbrirIncluirFuncionario(posto.idPostoTrabalho, index + 1)}
+                                            title="Adicionar funcionário"
+                                            >
+                                            ➕
+                                        </button>
+                                    </div>
+                                )}
+                                <span className="text-muted">Desconhecido</span>
+                            </div>
+                        )}
+                    </td>
+                );
+            })}
+        </tr>
+    ))}
+</tbody>
 
-                                                        return (
-                                                            <div key={item.idEscalaPronta} className="d-flex justify-content-start align-items-center">
-                                                                <div className="btn-container">
-                                                                    {isFuncionarioDesconhecido ? (
-                                                                        <button
-                                                                            className="btn btn-xs btn-outline-success small-btn"
-                                                                            onClick={() => handleAbrirIncluirFuncionario(posto.idPostoTrabalho, index + 1)}
-                                                                            title="Adicionar funcionário"
-                                                                        >
-                                                                            ➕
-                                                                        </button>
-                                                                    ) : (
-                                                                        <button
-                                                                            className="btn btn-xs btn-outline-danger small-btn"
-                                                                            onClick={() => handleRemoverFuncionario(item)}
-                                                                            title="Remover funcionário"
-                                                                        >
-                                                                            ❌
-                                                                        </button>
-                                                                    )}
-                                                                </div>
-                                                                <span className={`nome-funcionario ${highlightedIds.includes(item.idFuncionario) ? 'highlight' : ''}`}>
-                                                                    {isFuncionarioDesconhecido ? "Desconhecido" : obterNomeFuncionario(item.idFuncionario)}
-                                                                </span>
-                                                            </div>
-                                                        );
-                                                    })
-                                                ) : (
-                                                    <div className="d-flex justify-content-start align-items-center">
-                                                        <div className="btn-container">
-                                                            <button
-                                                                className="btn btn-xs btn-outline-success small-btn"
-                                                                onClick={() => handleAbrirIncluirFuncionario(posto.idPostoTrabalho, index + 1)}
-                                                                title="Adicionar funcionário"
-                                                            >
-                                                                ➕
-                                                            </button>
-                                                        </div>
-                                                        <span className="text-muted">Desconhecido</span>
-                                                    </div>
-                                                )}
-                                            </td>
-                                        );
-                                    })}
-                                </tr>
-                            ))}
-                        </tbody>
 
                     </table>
                     <AlertPopup

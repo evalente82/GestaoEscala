@@ -1,69 +1,57 @@
 ﻿using AutoMapper;
-using GestaoEscalaPermutas.Dominio.DTO;
-using GestaoEscalaPermutas.Dominio.Interfaces;
-using GestaoEscalaPermutas.Infra.Data.Context;
 using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
-using Microsoft.EntityFrameworkCore;
 using GestaoEscalaPermutas.Dominio.DTO.PerfilFuncionalidade;
 using GestaoEscalaPermutas.Dominio.Interfaces.PerfilFuncionalidades;
+using GestaoEscalaPermutas.Repository.Interfaces;
 
-public class FuncionalidadeService : IFuncionalidadeService
+namespace GestaoEscalaPermutas.Dominio.Services.Funcionalidade
 {
-    private readonly DefesaCivilMaricaContext _context;
-    private readonly IMapper _mapper;
-
-    public FuncionalidadeService(DefesaCivilMaricaContext context, IMapper mapper)
+    public class FuncionalidadeService : IFuncionalidadeService
     {
-        _context = context;
-        _mapper = mapper;
-    }
+        private readonly IFuncionalidadeRepository _funcionalidadeRepository;
+        private readonly IMapper _mapper;
 
-    public async Task<FuncionalidadeDTO> Criar(FuncionalidadeDTO funcionalidadeDTO)
-    {
-        var funcionalidade = _mapper.Map<DepInfra.Funcionalidade>(funcionalidadeDTO);
+        public FuncionalidadeService(IFuncionalidadeRepository funcionalidadeRepository, IMapper mapper)
+        {
+            _funcionalidadeRepository = funcionalidadeRepository;
+            _mapper = mapper;
+        }
 
-        await _context.Funcionalidades.AddAsync(funcionalidade);
-        await _context.SaveChangesAsync();
+        public async Task<FuncionalidadeDTO> Criar(FuncionalidadeDTO funcionalidadeDTO)
+        {
+            var funcionalidade = _mapper.Map<DepInfra.Funcionalidade>(funcionalidadeDTO);
+            funcionalidade = await _funcionalidadeRepository.CriarAsync(funcionalidade);
+            return _mapper.Map<FuncionalidadeDTO>(funcionalidade);
+        }
 
-        return _mapper.Map<FuncionalidadeDTO>(funcionalidade);
-    }
+        public async Task<FuncionalidadeDTO> Atualizar(FuncionalidadeDTO funcionalidadeDTO)
+        {
+            var funcionalidade = await _funcionalidadeRepository.BuscarPorIdAsync(funcionalidadeDTO.IdFuncionalidade);
+            if (funcionalidade == null)
+                throw new KeyNotFoundException("Funcionalidade não encontrada.");
 
-    public async Task<FuncionalidadeDTO> Atualizar(FuncionalidadeDTO funcionalidadeDTO)
-    {
-        var funcionalidade = await _context.Funcionalidades.FindAsync(funcionalidadeDTO.IdFuncionalidade);
-        if (funcionalidade == null)
-            throw new KeyNotFoundException("Funcionalidade não encontrada.");
+            funcionalidade.Nome = funcionalidadeDTO.Nome;
+            funcionalidade.Descricao = funcionalidadeDTO.Descricao;
 
-        funcionalidade.Nome = funcionalidadeDTO.Nome;
-        funcionalidade.Descricao = funcionalidadeDTO.Descricao;
+            funcionalidade = await _funcionalidadeRepository.AtualizarAsync(funcionalidade);
+            return _mapper.Map<FuncionalidadeDTO>(funcionalidade);
+        }
 
-        _context.Funcionalidades.Update(funcionalidade);
-        await _context.SaveChangesAsync();
+        public async Task<bool> Deletar(Guid id)
+        {
+            return await _funcionalidadeRepository.DeletarAsync(id);
+        }
 
-        return _mapper.Map<FuncionalidadeDTO>(funcionalidade);
-    }
+        public async Task<IEnumerable<FuncionalidadeDTO>> BuscarTodas()
+        {
+            var funcionalidades = await _funcionalidadeRepository.BuscarTodasAsync();
+            return _mapper.Map<IEnumerable<FuncionalidadeDTO>>(funcionalidades);
+        }
 
-    public async Task<bool> Deletar(Guid id)
-    {
-        var funcionalidade = await _context.Funcionalidades.FindAsync(id);
-        if (funcionalidade == null)
-            return false;
-
-        _context.Funcionalidades.Remove(funcionalidade);
-        await _context.SaveChangesAsync();
-
-        return true;
-    }
-
-    public async Task<IEnumerable<FuncionalidadeDTO>> BuscarTodas()
-    {
-        var funcionalidades = await _context.Funcionalidades.OrderBy(x => x.Nome).ToListAsync();
-        return _mapper.Map<IEnumerable<FuncionalidadeDTO>>(funcionalidades);
-    }
-
-    public async Task<FuncionalidadeDTO?> BuscarPorId(Guid id)
-    {
-        var funcionalidade = await _context.Funcionalidades.FindAsync(id);
-        return _mapper.Map<FuncionalidadeDTO?>(funcionalidade);
+        public async Task<FuncionalidadeDTO?> BuscarPorId(Guid id)
+        {
+            var funcionalidade = await _funcionalidadeRepository.BuscarPorIdAsync(id);
+            return _mapper.Map<FuncionalidadeDTO?>(funcionalidade);
+        }
     }
 }
