@@ -20,7 +20,7 @@ jobs:
 
     - name: 🔨 Build do Backend
       run: |
-        cd GestaoEscalaPermutas.Server
+        cd GestaoEscala/Back/GestaoEscalaPermutas.Server
         dotnet restore
         dotnet build --configuration Release
         dotnet publish -c Release -o ./publish
