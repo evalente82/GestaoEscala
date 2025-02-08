@@ -20,14 +20,14 @@ jobs:
 
     - name: 🔨 Build do Backend
       run: |
-        cd backend
+        cd back
         dotnet restore
         dotnet build --configuration Release
         dotnet publish -c Release -o ./publish
 
     - name: ⚛️ Build do Frontend (React)
       run: |
-        cd frontend
+        cd front
         npm install
         npm run build
         mv build ../backend/publish/wwwroot # Move o build do React para o .NET
