@@ -1,13 +1,8 @@
 ﻿using AutoMapper;
 using GestaoEscalaPermutas.Server.Models;
 using Microsoft.AspNetCore.Mvc;
-using GestaoEscalaPermutas.Dominio.Interfaces.PostoTrabalho;
-using GestaoEscalaPermutas.Dominio.DTO.PostoTrabalho;
 using GestaoEscalaPermutas.Server.Models.PostoTrabalho;
-using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
-using GestaoEscalaPermutas.Server.Models.Funcionarios;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
+using GestaoEscalaPermutas.Dominio.DTO.PostoTrabalho;
 
 namespace GestaoEscalaPermutas.Server.Controllers.PostoTrabalho
 {

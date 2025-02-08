@@ -1,108 +1,136 @@
+import { useEffect, useState } from "react";
+import { useAuth } from "../Pages/AuthContext"; 
+import { Link, useNavigate } from "react-router-dom";
 import logoDefesa from "../../Components/Imagens/LogoDefesaCivil.png";
-import { Link, useLocation } from 'react-router-dom';
 import './NavBar.css';
 
 function NavBar() {
-    const location = useLocation();
+    const navigate = useNavigate();
+    const { token, nomeUsuario, permissoes, logout } = useAuth();
+    const [primeiroNome, setPrimeiroNome] = useState("");
+    const [loading, setLoading] = useState(true);
+    
+
+    useEffect(() => {
+        if (!token) {
+            window.location.replace("/"); // 🔹 Garante que o usuário seja redirecionado sem ver a interface
+        }
+    }, [token]);
+
+    useEffect(() => {
+        console.log("🔍 Atualizando Navbar. Permissões:", permissoes);
+
+        if (nomeUsuario) {
+            setPrimeiroNome(nomeUsuario.split(" ")[0]);
+        }
+
+        // Evita que o menu seja ocultado enquanto os dados estão sendo carregados
+        setLoading(false);
+    }, [nomeUsuario, permissoes]);
+
+    const possuiPermissao = (permissao) => permissoes?.includes(permissao);
 
     return (
         <>
-            Defesa Civil de Maricá
             <nav className="navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow py-3 mb-3">
                 <div className="container">
-                    <Link className="navbar-brand" to="/">
+                    <Link className="navbar-brand" to="/home">
                         <img className="logo-image" src={logoDefesa} alt="Logo da Defesa Civil de Maricá" />
                     </Link>
-                    <button
-                        className="navbar-toggler"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#navbarSupportedContent"
-                        aria-controls="navbarSupportedContent"
-                        aria-expanded="false"
-                        aria-label="Toggle navigation"
-                    >
-                        <span className="navbar-toggler-icon"></span>
-                    </button>
                     <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                            {/* Submenu exemplo */}
-                            <li className="nav-item dropdown">
-                                <a
-                                    className="nav-link dropdown-toggle text-dark"
-                                    href="#"
-                                    id="departamentoDropdown"
-                                    role="button"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded="false"
-                                >
-                                    Departamentos
-                                </a>
-                                <ul className="dropdown-menu" aria-labelledby="departamentoDropdown">
-                                    <li>
-                                        <Link className="dropdown-item" to="/departamento">Departamento</Link>
+                        {!loading && permissoes.length > 0 && (
+                            <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+                                {/* 🔹 Departamentos */}
+                                {(possuiPermissao("VisualizarDepartamento") || possuiPermissao("VisualizarCargo") || possuiPermissao("VisualizarFuncionarios")) && (
+                                    <li className="nav-item dropdown">
+                                        <a className="nav-link dropdown-toggle text-dark" href="#" id="departamentoDropdown" role="button" data-bs-toggle="dropdown">
+                                            Departamentos
+                                        </a>
+                                        <ul className="dropdown-menu">
+                                            {possuiPermissao("VisualizarDepartamento") && (
+                                                <li><Link className="dropdown-item" to="/departamento">Departamento</Link></li>
+                                            )}
+                                            {possuiPermissao("VisualizarCargo") && (
+                                                <li><Link className="dropdown-item" to="/cargo">Cargo</Link></li>
+                                            )}
+                                            {possuiPermissao("VisualizarFuncionarios") && (
+                                                <li><Link className="dropdown-item" to="/funcionario">Funcionários</Link></li>
+                                            )}
+                                        </ul>
                                     </li>
-                                    <li>
-                                        <Link className="dropdown-item" to="/cargo">Cargo</Link>
+                                )}
+                                {/* 🔹 Configurações */}
+                                {(possuiPermissao("VisualizarSetor") || 
+                                possuiPermissao("VisualizarPostoTrabalho") || 
+                                possuiPermissao("VisualizarTipoEscala") || 
+                                possuiPermissao("VisualizarEscalas") || 
+                                possuiPermissao("VisualizarPermuta")) && (
+                                    <li className="nav-item dropdown">
+                                        <a className="nav-link dropdown-toggle text-dark" href="#" id="configuracoesDropdown" role="button" data-bs-toggle="dropdown">
+                                            Configurações
+                                        </a>
+                                        <ul className="dropdown-menu">
+                                            {possuiPermissao("VisualizarSetor") && (
+                                                <li><Link className="dropdown-item" to="/Setor">Setor</Link></li>
+                                            )}
+                                            {possuiPermissao("VisualizarPostoTrabalho") && (
+                                                <li><Link className="dropdown-item" to="/PostoTrabalho">Postos</Link></li>
+                                            )}
+                                            {possuiPermissao("VisualizarTipoEscala") && (
+                                                <li><Link className="dropdown-item" to="/tipoEscala">Tipo Escala</Link></li>
+                                            )}
+                                            {possuiPermissao("VisualizarEscalas") && (
+                                                <li><Link className="dropdown-item" to="/escalas">Escalas</Link></li>
+                                            )}
+                                            {possuiPermissao("VisualizarPermuta") && (
+                                                <li><Link className="dropdown-item" to="/permuta">Permutas</Link></li>
+                                            )}
+                                        </ul>
                                     </li>
-                                    <li>
-                                        <Link className="dropdown-item" to="/funcionario">Funcionários</Link>
-                                    </li>
-                                </ul>
-                            </li>
+                                )}
 
-                            {/* Submenu exemplo 2 */}
-                            <li className="nav-item dropdown">
-                                <a
-                                    className="nav-link dropdown-toggle text-dark"
-                                    href="#"
-                                    id="configuracoesDropdown"
-                                    role="button"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded="false"
-                                >
-                                    Configurações
-                                </a>
-                                <ul className="dropdown-menu" aria-labelledby="configuracoesDropdown">
-                                    <li>
-                                        <Link className="dropdown-item" to="/PostoTrabalho">Postos</Link>
-                                    </li>
-                                    <li>
-                                        <Link className="dropdown-item" to="/tipoEscala">Tipo Escala</Link>
-                                    </li>
-                                    <li>
-                                        <Link className="dropdown-item" to="/escalas">Escalas</Link>
-                                    </li>
-                                    <li>
-                                        <Link className="dropdown-item" to="/permuta">Permutas</Link>
-                                    </li>
-                                </ul>
-                            </li>
 
-                            {/* Submenu Perfis e Funcionalidades */}
+                            {/* 🔹 Perfis e Funcionalidades */}
+                            {(possuiPermissao("VisualizarPerfil") || 
+                            possuiPermissao("VisualizarFuncionalidade") || 
+                            possuiPermissao("VisualizarPerfisFuncionalidades") || 
+                            possuiPermissao("VisualizarCargoPerfis")) && (
+                                <li className="nav-item dropdown">
+                                    <a className="nav-link dropdown-toggle text-dark" href="#" id="perfisDropdown" role="button" data-bs-toggle="dropdown">
+                                        Perfis e Funcionalidades
+                                    </a>
+                                    <ul className="dropdown-menu">
+                                        {possuiPermissao("VisualizarPerfil") && (
+                                            <li><Link className="dropdown-item" to="/Perfil">Perfil</Link></li>
+                                        )}
+                                        {possuiPermissao("VisualizarFuncionalidade") && (
+                                            <li><Link className="dropdown-item" to="/Funcionalidade">Funcionalidade</Link></li>
+                                        )}
+                                        {possuiPermissao("VisualizarPerfisFuncionalidades") && (
+                                            <li><Link className="dropdown-item" to="/PerfisFuncionalidades">Perfil Funcionalidade</Link></li>
+                                        )}
+                                        {possuiPermissao("VisualizarCargoPerfis") && (
+                                            <li><Link className="dropdown-item" to="/CargoPerfis">Cargo Perfis</Link></li>
+                                        )}
+                                    </ul>
+                                </li>
+                            )}
+
+                            </ul>
+                        )}
+                        <ul className="navbar-nav">
                             <li className="nav-item dropdown">
-                                <a
-                                    className="nav-link dropdown-toggle text-dark"
-                                    href="#"
-                                    id="perfisDropdown"
-                                    role="button"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded="false"
-                                >
-                                    Perfis e Funcionalidades
+                                <a className="nav-link dropdown-toggle text-dark" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                    {primeiroNome || "Usuário"}
                                 </a>
-                                <ul className="dropdown-menu" aria-labelledby="perfisDropdown">
+                                <ul className="dropdown-menu dropdown-menu-end">
                                     <li>
-                                        <Link className="dropdown-item" to="/Perfil">Perfil</Link>
-                                    </li>
-                                    <li>
-                                        <Link className="dropdown-item" to="/Funcionalidade">Funcionalidade</Link>
-                                    </li>
-                                    <li>
-                                        <Link className="dropdown-item" to="/PerfisFuncionalidades">Perfil Funcionalidade</Link>
-                                    </li>
-                                    <li>
-                                        <Link className="dropdown-item" to="/CargoPerfis">Cargo Perfis</Link>
+                                        <button className="dropdown-item text-danger" onClick={() => {
+                                            localStorage.clear();
+                                            navigate("/");
+                                        }}>
+                                            Sair
+                                        </button>
                                     </li>
                                 </ul>
                             </li>
@@ -118,8 +146,12 @@ export function Footer() {
     return (
         <footer>
             <div className='container p-3 mt-5 border-top'>
-                <small className='d-block text-muted text-center'>&copy; 2023 - DEFESA CIVIL MARICÁ CONTROLE DE ESCALAS</small>
-                <small className='d-block text-muted text-center'>&copy; Todos os direitos reservados à VCORP Sistem</small>
+                <small className='d-block text-muted text-center'>
+                    &copy; 2023 - DEFESA CIVIL MARICÁ CONTROLE DE ESCALAS
+                </small>
+                <small className='d-block text-muted text-center'>
+                    &copy; Todos os direitos reservados à VCORP Sistem
+                </small>
             </div>
         </footer>
     );

@@ -13,7 +13,6 @@ using GestaoEscalaPermutas.Dominio.Services.Escala;
 using GestaoEscalaPermutas.Dominio.Services.PostoTrabalho;
 using GestaoEscalaPermutas.Dominio.Services.TipoEscala;
 using GestaoEscalaPermutas.Dominio.Interfaces.Escala;
-using GestaoEscalaPermutas.Dominio.Interfaces.PostoTrabalho;
 using GestaoEscalaPermutas.Dominio.Interfaces.TipoEscala;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.Services.EscalaPronta;
@@ -34,6 +33,15 @@ using GestaoEscalaPermutas.Dominio.Services.PerfilFuncionalidades;
 using GestaoEscalaPermutas.Dominio.Interfaces.PerfisFuncionalidades;
 using GestaoEscalaPermutas.Dominio.Services.PerfisFuncionalidades;
 using GestaoEscalaPermutas.Dominio.Services.CargoPerfis;
+using GestaoEscalaPermutas.Dominio.Interfaces.Email;
+using GestaoEscalaPermutas.Dominio.Services.Setor;
+using GestaoEscalaPermutas.Dominio.Interfaces.Setor;
+using GestaoEscalaPermutas.Repository.DependencyInjection;
+using GestaoEscalaPermutas.Dominio.Services.Funcionario.GestaoEscalaPermutas.Dominio.Services.Funcionario;
+using GestaoEscalaPermutas.Dominio.Services.TipoEscala.GestaoEscalaPermutas.Dominio.Services;
+using GestaoEscalaPermutas.Dominio.Services.Funcionalidade;
+
+
 
 
 
@@ -86,7 +94,9 @@ builder.Services.AddScoped<IPerfilService, PerfilService>();
 builder.Services.AddScoped<IFuncionalidadeService, FuncionalidadeService>();
 builder.Services.AddScoped<IPerfisFuncionalidadesService, PerfisFuncionalidadesService>();
 builder.Services.AddScoped<ICargoPerfisService, CargoPerfisService>();
-
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<ISetorService, SetorService>();
+builder.Services.AddRepositoryServices();
 
 
 
@@ -124,9 +134,6 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-
-
-
 var app = builder.Build();
 
 app.Use(async (context, next) =>
@@ -159,6 +166,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseMiddleware<PermissaoMiddleware>();
 app.UseHttpsRedirection();
 app.UseRouting();
 

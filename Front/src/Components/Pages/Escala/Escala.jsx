@@ -4,6 +4,8 @@ import axios from "axios";
 import PropTypes from 'prop-types';
 import AlertPopup from '../AlertPopup/AlertPopup'
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../AuthContext";
+import "./Escala.css";
 
 
 function EscalaList(props) {
@@ -15,6 +17,8 @@ function EscalaList(props) {
     const [departamentos, setDepartamentos] = useState([]);
     const [cargos, setCargos] = useState([]);
     const [tipoEscalas, setTipoEscalas] = useState([]);
+    const { permissoes } = useAuth();
+    const possuiPermissao = (permissao) => permissoes.includes(permissao);
 
     const [alertProps, setAlertProps] = useState({
         show: false, // Exibe ou esconde o AlertPopup
@@ -190,24 +194,65 @@ function EscalaList(props) {
         }
     }
 
+    const GeraMesSeguinte = (idEscala) => {
+        if (idEscala) {
+            axios
+                .post(
+                    `https://localhost:7207/escalaPronta/RecriarEscalaProximoMes/${idEscala}`, // 🔹 Corrigido para passar o ID na URL
+                    {}, // 🔹 O corpo da requisição deve ser um objeto vazio, pois não estamos enviando dados no corpo
+                    {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                )
+                .then(() => {
+                    setAlertProps({
+                        show: true,
+                        type: "success",
+                        title: "Sucesso",
+                        message: "Escala  do Mês seguinte construída com sucesso!",
+                        onClose: () => {
+                            setAlertProps((prev) => ({ ...prev, show: false }));
+                            BuscarTodos(); // 🔹 Atualiza a lista após recriar a escala
+                        },
+                    });
+                })
+                .catch((error) => {
+                    setAlertProps({
+                        show: true,
+                        type: "error",
+                        title: "Erro",
+                        message: "Falha ao gerar a escala.",
+                        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                    });
+                    console.error(error);
+                });
+        }
+    };
+    
+
     return (
         <>
-            <NavBar />
             <h3 className="text-center mb-3">Listagem de Escalas</h3>
-            <button
-                onClick={() => props.ShowForm({})}
-                type="button"
-                className="btn btn-primary me-2"
-            >
-                Cadastrar
-            </button>
-            <button
-                onClick={() => BuscarTodos()}
-                type="button"
-                className="btn btn-outline-primary me-2"
-            >
-                Atualizar
-            </button>
+            <div className="text-center mb-3">
+            {possuiPermissao("CadastrarEscala") && (
+                    <button 
+                        onClick={() => props.ShowForm({})}
+                        type="button"
+                        className="btn btn-primary me-2"
+                        >
+                        Cadastrar
+                    </button>)}
+                    {possuiPermissao("CadastrarEscala") && (
+                        <button
+                        onClick={() => BuscarTodos()}
+                        type="button"
+                        className="btn btn-outline-primary me-2"
+                        >
+                        Atualizar
+                    </button>)}
+                </div>
             <br />
             <br />
             <input
@@ -256,35 +301,56 @@ function EscalaList(props) {
                                         />
                                     </td>
                                     <td style={{ width: "10px", whiteSpace: "nowrap" }}>
+                                        {/* Botão Visualizar - Aparece apenas para quem tem "VisualizarEscalas" */}
+                                {possuiPermissao("VisualizarEscalas") && (
                                     <button
                                             onClick={() => navigate(`/Exibicao/${escala.idEscala}`)}
                                             type="button"
-                                            className="btn btn-success btn-sm me-2"
+                                            className="btn gerar-escala-btn-visualizar-escala btn-sm me-2"
                                             disabled={escala.isGerada == false}
                                         >
                                             Visualizar Escala
-                                        </button>
+                                        </button>)}
+                                        {/* Botão Gerar - Aparece apenas para quem tem "GerarEscalas" */}
+                                {possuiPermissao("GerarEscalas") && (
                                         <button
                                             onClick={() => props.ShowMontaEscala(escala)}
                                             type="button"
-                                            className="btn btn-warning btn-sm me-2"
+                                            className="btn gerar-escala-btn-gerar-escala btn-sm me-2"
+                                            disabled={escala.isGerada == true}
                                         >
                                             Gerar Escala
-                                        </button>
+                                        </button>)}
+
+                                        {possuiPermissao("GerarEscalas") && (
+                                        <button
+                                            onClick={() => GeraMesSeguinte(escala.idEscala)}
+                                            type="button"
+                                             className="btn gerar-escala-btn-mes-seguinte btn-sm me-2"
+                                             disabled={escala.isGerada == false || escala.isAtivo == false}
+                                        >
+                                            Mês Seguinte
+                                        </button>)}
+
+                                        {/* Botão Editar - Aparece apenas para quem tem "EditarEscalas" */}
+                                {possuiPermissao("EditarEscalas") && (
                                         <button
                                             onClick={() => props.ShowForm(escala)}
                                             type="button"
                                             className="btn btn-primary btn-sm me-2"
+                                            disabled={escala.isGerada == true}
                                         >
                                             Editar
-                                        </button>
+                                        </button>)}
+                                        {/* Botão Deletar - Aparece apenas para quem tem "DeletarEscalas" */}
+                                {possuiPermissao("DeletarEscalas") && (
                                         <button
                                             onClick={() => handleDelete(escala.idEscala)}
                                             type="button"
                                             className="btn btn-danger btn-sm"
                                         >
                                             Delete
-                                        </button>
+                                        </button>)}
                                     </td>
                                 </tr>
                             );
@@ -501,7 +567,6 @@ function EscalaForm(props) {
     };
     return (
         <>
-            <NavBar />
             <h2 className="text-center mb-3">
                 {props.escala.idEscala
                     ? "Editar Escala"
@@ -813,9 +878,10 @@ function MontaEscala(props) {
                 });
         }
     };
+
+    
     return (
         <>
-            <NavBar />
             {erro && <AlertPopup error={erro} />}
             <h2 className="text-center mb-3">
                 {props.escala.idEscala

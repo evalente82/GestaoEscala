@@ -34,7 +34,8 @@ public partial class DefesaCivilMaricaContext : DbContext
     public DbSet<Perfil> Perfil { get; set; }
     public DbSet<PerfisFuncionalidades> PerfisFuncionalidades { get; set; }
     public DbSet<CargoPerfis> CargoPerfis { get; set; }
-    
+    public DbSet<Setor> Setor { get; set; }
+
 
 
 
@@ -156,6 +157,18 @@ public partial class DefesaCivilMaricaContext : DbContext
         .HasDefaultValueSql("uuid_generate_v4()");
         #endregion
 
+        #region Setor
+        modelBuilder.Entity<Setor>(entity =>
+        {
+            entity.HasKey(e => e.IdSetor).HasName("PK_IdSetor");
+        });
+
+        modelBuilder.Entity<Setor>()
+        .Property(e => e.IdSetor)
+        .HasColumnType("uuid")
+        .HasDefaultValueSql("uuid_generate_v4()");
+        #endregion
+
         #region POSTO_TRABALHO
         modelBuilder.Entity<PostoTrabalho>(entity =>
         {
@@ -197,7 +210,6 @@ public partial class DefesaCivilMaricaContext : DbContext
                 v => v.ToUniversalTime(),
                 v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
         #endregion
-
 
         #region TIPO_ESCALA
         modelBuilder.Entity<TipoEscala>(entity =>
@@ -256,12 +268,28 @@ public partial class DefesaCivilMaricaContext : DbContext
         });
         #endregion
 
-        #region USUARIO
+        #region USUARIOS
+        modelBuilder.Entity<Usuarios>()
+        .Property(u => u.DataCriacao)
+        .HasColumnType("timestamptz") // 🔹 Define o tipo correto no PostgreSQL
+        .HasConversion(
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc), // 🔹 Salva como UTC
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc) // 🔹 Lê como UTC
+        );
+
+        modelBuilder.Entity<Usuarios>()
+            .Property(u => u.TokenExpiracao)
+            .HasColumnType("timestamptz")
+            .HasConversion(
+                v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v, // 🔹 Converte ao salvar
+                v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v  // 🔹 Converte ao ler
+            );
         modelBuilder.Entity<Usuarios>(entity =>
         {
             modelBuilder.Entity<Usuarios>()
-        .ToTable("usuarios"); // Inclua as aspas duplas para corresponder ao nome sensível a case
+            .ToTable("usuarios"); // Inclua as aspas duplas para corresponder ao nome sensível a case
         });
+        
         #endregion
 
         #region PERFIL_FUNCIONALIDADE

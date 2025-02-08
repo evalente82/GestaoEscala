@@ -9,7 +9,9 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.Login
 {
     public interface ILoginService
     {
-        Task<LoginDTO> Incluir(LoginDTO loginDTO);
-        Task<LoginResponseDTO> Autenticar(LoginDTO loginRequest);
+        Task<LoginResponseDTO> Autenticar(LoginRequestDTO loginRequest);
+        Task<LoginResponseDTO> Incluir(LoginDTO loginDTO);
+        Task<LoginResponseDTO> GerarTokenRedefinicaoSenha(string email);
+        Task<LoginResponseDTO> RedefinirSenha(RedefinirSenhaRequestDTO request);
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace GestaoEscalaPermutas.Server.Models.PostoTrabalho
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace GestaoEscalaPermutas.Server.Models.PostoTrabalho
 {
     public class PostoTrabalhoModel : RetornoModel
     {
@@ -13,5 +15,6 @@
         public DateTime DtCriacao { get; set; }
 
         public Guid IdDepartamento { get; set; }
+        public Guid? IdSetor { get; set; } // Nova coluna referenciando Setor
     }
 }

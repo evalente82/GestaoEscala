@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using GestaoEscalaPermutas.Dominio.DTO.PostoTrabalho;
-using GestaoEscalaPermutas.Dominio.Interfaces.PostoTrabalho;
 using GestaoEscalaPermutas.Infra.Data.Context;
+using GestaoEscalaPermutas.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 
@@ -9,33 +9,29 @@ namespace GestaoEscalaPermutas.Dominio.Services.PostoTrabalho
 {
     public class PostoTrabalhoService : IPostoTrabalhoService
     {
-        private readonly DefesaCivilMaricaContext _context;
+        private readonly IPostoTrabalhoRepository _postoTrabalhoRepository;
         private readonly IMapper _mapper;
-        public PostoTrabalhoService(DefesaCivilMaricaContext context, IMapper mapper)
+
+        public PostoTrabalhoService(IPostoTrabalhoRepository postoTrabalhoRepository, IMapper mapper)
         {
-            _context = context;
+            _postoTrabalhoRepository = postoTrabalhoRepository;
             _mapper = mapper;
         }
+
         public async Task<PostoTrabalhoDTO> Incluir(PostoTrabalhoDTO postoTrabalhoDTO)
         {
             try
             {
                 if (postoTrabalhoDTO is null)
-                {
                     return new PostoTrabalhoDTO { valido = false, mensagem = "Objeto não preenchido." };
-                }
-                else
-                {
-                    var postoTrabalho = _mapper.Map<DepInfra.PostoTrabalho>(postoTrabalhoDTO);
 
-                    _context.PostoTrabalhos.Add(postoTrabalho);
-                    await _context.SaveChangesAsync();
-                    return _mapper.Map<PostoTrabalhoDTO>(postoTrabalho);
-                }
+                var postoTrabalho = _mapper.Map<DepInfra.PostoTrabalho>(postoTrabalhoDTO);
+                var postoCriado = await _postoTrabalhoRepository.IncluirAsync(postoTrabalho);
+                return _mapper.Map<PostoTrabalhoDTO>(postoCriado);
             }
             catch (Exception e)
             {
-                return new PostoTrabalhoDTO { valido = false, mensagem = $"Erro ao receber o Objeto: {e.Message}" };
+                return new PostoTrabalhoDTO { valido = false, mensagem = $"Erro ao incluir posto de trabalho: {e.Message}" };
             }
         }
 
@@ -44,34 +40,20 @@ namespace GestaoEscalaPermutas.Dominio.Services.PostoTrabalho
             try
             {
                 if (id == Guid.Empty)
-                {
                     return new PostoTrabalhoDTO { valido = false, mensagem = "Id fora do Range." };
-                }
-                else
-                {
-                    var postoTrabalhoExistente = await _context.PostoTrabalhos.FindAsync(id);
-                    if (postoTrabalhoExistente == null)
-                    {
-                        return new PostoTrabalhoDTO { valido = false, mensagem = "Posto não encontrado." };
-                    }
 
-                    // Mapeia os dados do DTO para o modelo existente (apenas as propriedades que você deseja atualizar)
-                    _mapper.Map(postoTrabalhoModel, postoTrabalhoExistente);
+                var postoTrabalhoExistente = await _postoTrabalhoRepository.BuscarPorIdAsync(id);
+                if (postoTrabalhoExistente == null)
+                    return new PostoTrabalhoDTO { valido = false, mensagem = "Posto não encontrado." };
 
-                    // O EF Core rastreará que o objeto foi modificado
-                    _context.PostoTrabalhos.Update(postoTrabalhoExistente);
+                _mapper.Map(postoTrabalhoModel, postoTrabalhoExistente);
+                var postoAtualizado = await _postoTrabalhoRepository.AlterarAsync(postoTrabalhoExistente);
 
-                    // Salva as alterações no banco de dados
-                    await _context.SaveChangesAsync();
-
-                    // Retorna o DTO atualizado (opcionalmente, você pode mapear de volta se quiser devolver os dados atualizados)
-                    return _mapper.Map<PostoTrabalhoDTO>(postoTrabalhoExistente);
-                }
+                return _mapper.Map<PostoTrabalhoDTO>(postoAtualizado);
             }
             catch (Exception e)
             {
-                // Considerar usar um logger para registrar a exceção
-                throw new Exception($"Erro ao alterar o objeto: {e.Message}");
+                throw new Exception($"Erro ao alterar posto de trabalho: {e.Message}");
             }
         }
 
@@ -79,13 +61,12 @@ namespace GestaoEscalaPermutas.Dominio.Services.PostoTrabalho
         {
             try
             {
-                var postos = await _context.PostoTrabalhos.ToListAsync();
-                var postoTrabalhoDTO = _mapper.Map<List<PostoTrabalhoDTO>>(postos);
-                return postoTrabalhoDTO;
+                var postos = await _postoTrabalhoRepository.BuscarTodosAsync();
+                return _mapper.Map<List<PostoTrabalhoDTO>>(postos);
             }
             catch (Exception e)
             {
-                throw new Exception($"Erro ao receber o Objeto: {e.Message}");
+                throw new Exception($"Erro ao buscar todos os postos de trabalho: {e.Message}");
             }
         }
 
@@ -94,31 +75,16 @@ namespace GestaoEscalaPermutas.Dominio.Services.PostoTrabalho
             try
             {
                 if (id == Guid.Empty)
-                {
                     return new PostoTrabalhoDTO { valido = false, mensagem = "Id fora do Range." };
-                }
-                else
-                {
-                    var funcionarioExistente = await _context.PostoTrabalhos.FindAsync(id);
-                    if (funcionarioExistente == null)
-                    {
-                        return new PostoTrabalhoDTO { valido = false, mensagem = "Posto não encontrado." };
-                    }
 
-
-                    // O EF Core rastreará que o objeto foi modificado
-                    _context.PostoTrabalhos.Remove(funcionarioExistente);
-
-                    // Salva as alterações no banco de dados
-                    await _context.SaveChangesAsync();
-
-                    //retornar aviso de deletado
-                    return new PostoTrabalhoDTO { valido = true, mensagem = "Posto deletado com sucesso." };
-                }
+                var sucesso = await _postoTrabalhoRepository.DeletarAsync(id);
+                return sucesso
+                    ? new PostoTrabalhoDTO { valido = true, mensagem = "Posto de trabalho deletado com sucesso." }
+                    : new PostoTrabalhoDTO { valido = false, mensagem = "Posto não encontrado." };
             }
             catch (Exception e)
             {
-                throw new Exception($"Erro ao receber o Objeto: {e.Message}");
+                throw new Exception($"Erro ao deletar posto de trabalho: {e.Message}");
             }
         }
 
@@ -127,26 +93,15 @@ namespace GestaoEscalaPermutas.Dominio.Services.PostoTrabalho
             try
             {
                 if (postoDTOs is null)
-                {
-                    return new PostoTrabalhoDTO[] {
-                        new PostoTrabalhoDTO {
-                            valido = false, mensagem = "Lista de Postos vazia."
-                        }
-                    };
-                }
-                else
-                {
-                    var postos = _mapper.Map<DepInfra.PostoTrabalho[]>(postoDTOs);
+                    return new PostoTrabalhoDTO[] { new PostoTrabalhoDTO { valido = false, mensagem = "Lista de postos vazia." } };
 
-                    _context.PostoTrabalhos.AddRange(postos);
-                    await _context.SaveChangesAsync();
-
-                    return _mapper.Map<PostoTrabalhoDTO[]>(postos);
-                }
+                var postos = _mapper.Map<DepInfra.PostoTrabalho[]>(postoDTOs);
+                var postosCriados = await _postoTrabalhoRepository.IncluirListaAsync(postos);
+                return _mapper.Map<PostoTrabalhoDTO[]>(postosCriados);
             }
             catch (Exception e)
             {
-                return new PostoTrabalhoDTO[] { new PostoTrabalhoDTO { valido = false, mensagem = $"Erro ao incluir a lista de Postos: {e.Message}" } };
+                return new PostoTrabalhoDTO[] { new PostoTrabalhoDTO { valido = false, mensagem = $"Erro ao incluir lista de postos de trabalho: {e.Message}" } };
             }
         }
 
@@ -154,15 +109,13 @@ namespace GestaoEscalaPermutas.Dominio.Services.PostoTrabalho
         {
             try
             {
-                var postos = await _context.PostoTrabalhos.Where(p => p.IsAtivo).ToListAsync();
-                var postoAtivos= _mapper.Map<List<PostoTrabalhoDTO>>(postos);
-                return postoAtivos;
+                var postosAtivos = await _postoTrabalhoRepository.BuscarTodosAtivosAsync();
+                return _mapper.Map<List<PostoTrabalhoDTO>>(postosAtivos);
             }
             catch (Exception e)
             {
-                throw new Exception($"Erro ao receber o Objeto: {e.Message}");
+                throw new Exception($"Erro ao buscar postos de trabalho ativos: {e.Message}");
             }
         }
-
     }
 }

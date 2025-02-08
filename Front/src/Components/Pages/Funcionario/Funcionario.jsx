@@ -133,22 +133,24 @@ function FuncionarioList(props) {
 
     return (
         <>
-            <NavBar />
             <h3 className="text-center mb-3">Listagem de Funcionários</h3>
-            <button
-                onClick={() => props.ShowForm({})}
-                type="button"
-                className="btn btn-primary me-2"
-            >
-                Cadastrar
-            </button>
-            <button
-                onClick={() => BuscarFuncionarios()}
-                type="button"
-                className="btn btn-outline-primary me-2"
-            >
-                Atualizar
-            </button>
+                <div className="text-center mb-3">
+                    <button 
+                        onClick={() => props.ShowForm({})}
+                        type="button"
+                        className="btn btn-primary me-2"
+                        >
+                        Cadastrar
+                    </button>
+                    <button
+                        onClick={() => BuscarFuncionarios()}
+                        type="button"
+                        className="btn btn-outline-primary me-2"
+                        >
+                        Atualizar
+                    </button>
+                </div>
+            
             <br />
             <br />
             <input
@@ -280,85 +282,62 @@ function FuncionarioForm(props) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
-        if (props.funcionario.idFuncionario) {
-            const data = {
-                nmNome: nome,
-                nrMatricula: matricula,
-                nrTelefone: telefone,
-                nmEmail: email,
-                nmEndereco: endereco,
-                idCargo: cargoSelecionado,
-                isAtivo: ativo,
-            };
-            axios
-                .patch(
-                    "https://localhost:7207/funcionario/Atualizar/" +
-                    props.funcionario.idFuncionario,
-                    data
-                )
-                .then(() => {
-                    setAlertProps({
-                        show: true,
-                        type: "success",
-                        title: "Sucesso",
-                        message: "Funcionário atualizado com sucesso!",
-                        onClose: () => {
-                            setAlertProps((prev) => ({ ...prev, show: false }));
-                            props.ShowList(); // Voltar para a lista após fechar a modal
-                        },
-                    });
-                })
-                .catch((error) => {
-                    setAlertProps({
-                        show: true,
-                        type: "error",
-                        title: "Erro",
-                        message: "Falha ao atualizar o Funcionário.",
-                        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
-                    });
-                    console.error(error);
+    
+        const data = {
+            nmNome: nome,
+            nrMatricula: matricula,
+            nrTelefone: telefone,
+            nmEmail: email,
+            nmEndereco: endereco,
+            idCargo: cargoSelecionado,
+            isAtivo: ativo,
+        };
+    
+        const url = props.funcionario.idFuncionario
+            ? `https://localhost:7207/funcionario/Atualizar/${props.funcionario.idFuncionario}`
+            : "https://localhost:7207/funcionario/Incluir";
+    
+        const request = props.funcionario.idFuncionario
+            ? axios.patch(url, data)
+            : axios.post(url, data);
+    
+        request
+            .then(() => {
+                setAlertProps({
+                    show: true,
+                    type: "success",
+                    title: "Sucesso",
+                    message: props.funcionario.idFuncionario
+                        ? "Funcionário atualizado com sucesso!"
+                        : "Funcionário cadastrado com sucesso!",
+                    onClose: () => {
+                        setAlertProps((prev) => ({ ...prev, show: false }));
+                        props.ShowList(); // Voltar para a lista após fechar a modal
+                    },
                 });
-        } else {
-            const data = {
-                nmNome: nome,
-                nrMatricula: matricula,
-                nrTelefone: telefone,
-                nmEmail: email,
-                nmEndereco: endereco,
-                idCargo: cargoSelecionado,
-                isAtivo: ativo,
-            };
-            axios
-                .post("https://localhost:7207/funcionario/Incluir", data)
-                .then(() => {
-                    setAlertProps({
-                        show: true,
-                        type: "success",
-                        title: "Sucesso",
-                        message: "Funcionário cadastrado com sucesso!",
-                        onClose: () => {
-                            setAlertProps((prev) => ({ ...prev, show: false }));
-                            props.ShowList(); // Voltar para a lista após fechar a modal
-                        },
-                    });
-                })
-                .catch((error) => {
-                    setAlertProps({
-                        show: true,
-                        type: "error",
-                        title: "Erro",
-                        message: "Falha ao cadastrar o Funcionário.",
-                        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
-                    });
-                    console.error(error);
+            })
+            .catch((error) => {
+                // Verifica se há resposta do servidor e extrai a mensagem corretamente
+                const mensagemErro = error.response?.data?.mensagem
+                    ? error.response.data.mensagem
+                    : "Erro ao processar a solicitação.";
+    
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: mensagemErro,
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                    
                 });
-        }
+            });
     };
+    
+    
+    
 
     return (
         <>
-            <NavBar />
             <h2 className="text-center mb-3">
                 {props.funcionario.idFuncionario
                     ? "Editar Funcionario"

@@ -9,24 +9,22 @@ function EsqueciSenha() {
     const [successMessage, setSuccessMessage] = useState("");
     const navigate = useNavigate();
 
-    const handleResetPassword = (e) => {
+    const handleResetPassword = async (e) => {
         e.preventDefault();
-
-        axios
-            .post("https://localhost:7207/auth/esqueci-senha", { email })
-            .then(() => {
-                setSuccessMessage(
-                    "Instruções para redefinir sua senha foram enviadas para o e-mail informado."
-                );
-                setAlertMessage(""); // Limpa a mensagem de erro, se houver
-            })
-            .catch(() => {
-                setAlertMessage(
-                    "Não foi possível enviar as instruções. Verifique o e-mail informado."
-                );
-                setSuccessMessage(""); // Limpa a mensagem de sucesso, se houver
+    
+        try {
+            const response = await axios.post("https://localhost:7207/login/esqueci-senha", { email }, {
+                headers: { "Content-Type": "application/json" }
             });
+    
+            setSuccessMessage(response.data.mensagem);
+            setAlertMessage("");
+        } catch (error) {
+            setAlertMessage(error.response?.data?.mensagem || "Erro ao solicitar redefinição.");
+            setSuccessMessage("");
+        }
     };
+    
 
     return (
         <div className="esqueci-senha-container">

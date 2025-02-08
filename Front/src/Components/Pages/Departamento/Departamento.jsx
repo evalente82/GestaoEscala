@@ -98,24 +98,23 @@ function DepartamentoList(props) {
 
     return (
         <>
-            <NavBar />
             <h3 className="text-center mb-3">Listagem de Departamentos</h3>
-            <button
-                onClick={() => props.ShowForm({})}
-                type="button"
-                className="btn btn-primary me-2"
-            >
-                Cadastrar
-            </button>
-            <button
-                onClick={() => BuscarTodos()}
-                type="button"
-                className="btn btn-outline-primary me-2"
-            >
-                Atualizar
-            </button>
-            <br />
-            <br />
+            <div className="text-center mb-3">
+                    <button 
+                        onClick={() => props.ShowForm({})}
+                        type="button"
+                        className="btn btn-primary me-2"
+                        >
+                        Cadastrar
+                    </button>
+                    <button
+                        onClick={() => BuscarTodos()}
+                        type="button"
+                        className="btn btn-outline-primary me-2"
+                        >
+                        Atualizar
+                    </button>
+                </div>
             <input
                 type="text"
                 value={searchText}
@@ -272,7 +271,6 @@ function DepartamentoForm(props) {
     };
     return (
         <>
-            <NavBar />
             <h2 className="text-center mb-3">
                 {props.departamento.idDepartamento
                     ? "Editar Departamento"

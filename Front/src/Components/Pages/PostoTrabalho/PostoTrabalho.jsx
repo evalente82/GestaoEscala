@@ -7,6 +7,7 @@ import AlertPopup from '../AlertPopup/AlertPopup';
 function PostoTrabalhoList(props) {
     const [searchText, setSearchText] = useState("");
     const [posto, setPosto] = useState([]);
+    const [setor, setSetor] = useState([]);
     const [departamentos, setDepartamentos] = useState([]);
     const [alertProps, setAlertProps] = useState({
         show: false, // Exibe ou esconde o AlertPopup
@@ -48,7 +49,32 @@ function PostoTrabalhoList(props) {
 
     PostoTrabalhoList.propTypes = {
         ShowForm: PropTypes.func.isRequired, // Indica que ShowForm é uma função obrigatória
-    };    
+    };   
+    
+    function BuscarSetor() {
+        axios.get("https://localhost:7207/setor/buscarTodos")
+            .then((response) => {
+                console.log(response.data);
+                setSetor(response.data);
+            })
+            .catch((error) => {
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Não foi possível carregar os Setores.",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
+            });
+    }
+    
+    // 🔹 Adiciona o useEffect para buscar os setores no carregamento
+    useEffect(() => {
+        BuscarTodos();
+        BuscarSetor();
+    }, []); 
+    
+
 
     useEffect(() => {
         BuscarTodos(setDepartamentos);
@@ -61,7 +87,8 @@ function PostoTrabalhoList(props) {
             setPosto(response.data);
         };
         fetchData();
-    }, []);    
+    }, []);  
+
 
     function handleDelete(id) {
         setAlertProps({
@@ -120,22 +147,23 @@ function PostoTrabalhoList(props) {
     }
     return (
         <>
-            <NavBar />
             <h3 className="text-center mb-3">Listagem de Postos</h3>
-            <button
-                onClick={() => props.ShowForm({})}
-                type="button"
-                className="btn btn-primary me-2"
-            >
-                Cadastrar
-            </button>
-            <button
-                onClick={() => BuscarPostos()}
-                type="button"
-                className="btn btn-outline-primary me-2"
-            >
-                Atualizar
-            </button>
+                <div className="text-center mb-3">
+                    <button 
+                        onClick={() => props.ShowForm({})}
+                        type="button"
+                        className="btn btn-primary me-2"
+                        >
+                        Cadastrar
+                    </button>
+                    <button
+                        onClick={() => BuscarPostos()}
+                        type="button"
+                        className="btn btn-outline-primary me-2"
+                        >
+                        Atualizar
+                    </button>
+                </div>
             <br />
             <br />
             <input
@@ -151,6 +179,7 @@ function PostoTrabalhoList(props) {
                         <th>NOME</th>
                         <th>ENDEREÇO</th>
                         <th>DEPARTAMENTO</th>
+                        <th>SETOR</th>
                         <th>ATIVO</th>
                     </tr>
                 </thead>
@@ -162,6 +191,8 @@ function PostoTrabalhoList(props) {
                                     <td style={{ textAlign: "left" }}>{posto.nmNome}</td>
                                     <td style={{ textAlign: "left" }}>{posto.nmEnderco}</td>
                                     <td>{departamentos.find(departamento => departamento.idDepartamento === posto.idDepartamento)?.nmNome}</td>
+                                    <td>{setor.find(s => s.idSetor === posto.idSetor)?.nmNome || "Setor não encontrado"}</td>
+
                                     <td>
                                         <input
                                             type="checkbox"
@@ -206,10 +237,11 @@ function PostoTrabalhoForm(props) {
     PostoTrabalhoForm.propTypes = {
         ShowList: PropTypes.func.isRequired,
         posto: PropTypes.shape({
-            idPostoTrabalho: PropTypes.number,
+            idPostoTrabalho: PropTypes.string,
             nmNome: PropTypes.string,
-            nmEnderco: PropTypes.number,
-            idDepartamento: PropTypes.number,
+            nmEnderco: PropTypes.string,
+            idDepartamento: PropTypes.string,
+            idSetor: PropTypes.string,
             isAtivo: PropTypes.bool,
         }).isRequired,
     };
@@ -218,6 +250,8 @@ function PostoTrabalhoForm(props) {
     const [endereco, setEndereco] = useState(props.posto.nmEnderco || '');
     const [departamentos, setDepartamentos] = useState([]);
     const [departamentoSelecionado, setDepartamentoSelecionado] = useState('');
+    const [setor, setSetor] = useState([]);
+    const [setorSelecionado, setSetorSelecionado] = useState('');
     const [alertProps, setAlertProps] = useState({
         show: false, // Define se o AlertPopup deve ser exibido
         type: "info", // Tipo da mensagem (success, error, info, confirm)
@@ -242,10 +276,31 @@ function PostoTrabalhoForm(props) {
     }
 
     useEffect(() => {
+        BuscarSetor();
+    }, []);
+    const API_URL_Setor = "https://localhost:7207/setor";
+    function BuscarSetor() {
+        axios.get(`${API_URL_Setor}/buscarTodos`)
+            .then((response) => {
+                console.log(response.data);
+                setSetor(response.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
+    useEffect(() => {
         if (props.posto.idPostoTrabalho) {
             setDepartamentoSelecionado(props.posto.idDepartamento.toString());
         }
     }, [props.posto.idPostoTrabalho]);
+
+    useEffect(() => {
+        if (props.posto.idSetor) {
+            setSetorSelecionado(props.posto.idSetor.toString());
+        }
+    }, [props.posto.idSetor]);
 
 
     function handleAtivoChange(e) {
@@ -260,6 +315,7 @@ function PostoTrabalhoForm(props) {
                 nmNome: nome,
                 nmEnderco: endereco,
                 idDepartamento: departamentoSelecionado,
+                idSetor: setorSelecionado,
                 isAtivo: ativo,
             };
             axios
@@ -295,6 +351,7 @@ function PostoTrabalhoForm(props) {
                 nmNome: nome,
                 nmEnderco: endereco,
                 idDepartamento: departamentoSelecionado,
+                idSetor: setorSelecionado,
                 isAtivo: ativo,
             };
             axios
@@ -325,7 +382,6 @@ function PostoTrabalhoForm(props) {
     };
     return (
         <>
-            <NavBar />
             <h2 className="text-center mb-3">
                 {props.posto.idPostoTrabalho
                     ? "Editar Postos"
@@ -389,6 +445,24 @@ function PostoTrabalhoForm(props) {
                                     <option value="">Selecione um departamento</option>
                                     {departamentos.map(departamento => (
                                         <option key={departamento.idDepartamento} value={departamento.idDepartamento}>{departamento.nmNome}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Setor</label>
+                            <div className="col-sm-8">
+                                <select
+                                    className="form-control"
+                                    name="setor"
+                                    value={setorSelecionado}
+                                    onChange={(e) => setSetorSelecionado(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Selecione um setor</option>
+                                    {setor.map(s => (
+                                        <option key={s.idSetor} value={s.idSetor}>{s.nmNome}</option>
                                     ))}
                                 </select>
                             </div>

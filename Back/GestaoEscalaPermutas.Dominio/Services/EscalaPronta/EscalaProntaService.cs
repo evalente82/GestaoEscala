@@ -1,235 +1,171 @@
 ﻿using AutoMapper;
+using GestaoEscalaPermutas.Dominio.DTO;
 using GestaoEscalaPermutas.Dominio.DTO.Escala;
 using GestaoEscalaPermutas.Dominio.DTO.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
 using GestaoEscalaPermutas.Infra.Data.Context;
+using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
+using GestaoEscalaPermutas.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
+
 namespace GestaoEscalaPermutas.Dominio.Services.EscalaPronta
 {
     public class EscalaProntaService : IEscalaProntaService
     {
-        private readonly DefesaCivilMaricaContext _context;
+        private readonly IEscalaProntaRepository _escalaProntaRepository;
         private readonly IMapper _mapper;
-        public EscalaProntaService(DefesaCivilMaricaContext context, IMapper mapper)
+
+        public EscalaProntaService(IEscalaProntaRepository escalaProntaRepository, IMapper mapper)
         {
-            _context = context;
+            _escalaProntaRepository = escalaProntaRepository;
             _mapper = mapper;
         }
+
         public async Task<EscalaProntaDTO> Incluir(EscalaProntaDTO escalaProntaDTO)
         {
-            try
-            {
-                if (escalaProntaDTO is null)
-                {
-                    return new EscalaProntaDTO { valido = false, mensagem = "Objeto não preenchido." };
-                }
-                else
-                {
-                    var escalaPronta = _mapper.Map<DepInfra.EscalaPronta>(escalaProntaDTO);
+            if (escalaProntaDTO is null)
+                return new EscalaProntaDTO { valido = false, mensagem = "Objeto não preenchido." };
 
-                    _context.EscalaPronta.Add(escalaPronta);
-                    await _context.SaveChangesAsync();
-                    return _mapper.Map<EscalaProntaDTO>(escalaPronta);
-                }
-            }
-            catch (Exception e)
-            {
-                return new EscalaProntaDTO { valido = false, mensagem = $"Erro ao receber o Objeto: {e.Message}" };
-            }
+            var escalaPronta = _mapper.Map<DepInfra.EscalaPronta>(escalaProntaDTO);
+            var novaEscalaPronta = await _escalaProntaRepository.AdicionarAsync(escalaPronta);
+            return _mapper.Map<EscalaProntaDTO>(novaEscalaPronta);
         }
+
         public async Task<EscalaProntaDTO> Alterar(Guid id, EscalaProntaDTO escalaProntaDTO)
         {
-            try
-            {
-                if (id == Guid.Empty)
-                {
-                    return new EscalaProntaDTO { valido = false, mensagem = "Id fora do Range." };
-                }
-                else
-                {
-                    var escalaProntaExistente = await _context.EscalaPronta.FindAsync(id);
-                    if (escalaProntaExistente == null)
-                    {
-                        return new EscalaProntaDTO { valido = false, mensagem = "escala não encontrado." };
-                    }
+            if (id == Guid.Empty)
+                return new EscalaProntaDTO { valido = false, mensagem = "Id fora do Range." };
 
-                    // Mapeia os dados do DTO para o modelo existente (apenas as propriedades que você deseja atualizar)
-                    _mapper.Map(escalaProntaDTO, escalaProntaExistente);
+            var escalaProntaExistente = await _escalaProntaRepository.ObterPorIdAsync(id);
+            if (escalaProntaExistente == null)
+                return new EscalaProntaDTO { valido = false, mensagem = "Escala não encontrada." };
 
-                    // O EF Core rastreará que o objeto foi modificado
-                    _context.EscalaPronta.Update(escalaProntaExistente);
-
-                    // Salva as alterações no banco de dados
-                    await _context.SaveChangesAsync();
-
-                    // Retorna o DTO atualizado (opcionalmente, você pode mapear de volta se quiser devolver os dados atualizados)
-                    return _mapper.Map<EscalaProntaDTO>(escalaProntaExistente);
-                }
-            }
-            catch (Exception e)
-            {
-                // Considerar usar um logger para registrar a exceção
-                throw new Exception($"Erro ao alterar o objeto: {e.Message}");
-            }
+            _mapper.Map(escalaProntaDTO, escalaProntaExistente);
+            await _escalaProntaRepository.AtualizarAsync(escalaProntaExistente);
+            return _mapper.Map<EscalaProntaDTO>(escalaProntaExistente);
         }
-        public Task<List<EscalaProntaDTO>> BuscarTodos()
+
+        public async Task<List<EscalaProntaDTO>> BuscarTodos()
         {
-            throw new NotImplementedException();
+            var escalasProntas = await _escalaProntaRepository.ObterTodosAsync();
+            return _mapper.Map<List<EscalaProntaDTO>>(escalasProntas);
         }
+
         public async Task<List<EscalaProntaDTO>> BuscarPorId(Guid idEscalaPronta)
         {
-            try
-            {
-                if (idEscalaPronta == Guid.Empty)
-                {
-                    return new List<EscalaProntaDTO>
-                    {
-                        new EscalaProntaDTO
-                        {
-                            valido = false,
-                            mensagem = "Id fora do Range."
-                        }
-                    };
-                }
-                else
-                {
-                    var escalaProntaExistente = await _context.EscalaPronta
-                        .Where(x => x.IdEscala == idEscalaPronta)
-                        .OrderBy(x => x.DtDataServico.Date)
-                        .ToListAsync();
-                    if (escalaProntaExistente == null)
-                    {
-                        return new List<EscalaProntaDTO>
-                    {
-                        new EscalaProntaDTO
-                        {
-                            valido = false,
-                            mensagem = "Escala Não encontrada."
-                        }
-                    }; 
-                    }
-                    return _mapper.Map<List<EscalaProntaDTO>>(escalaProntaExistente);
+            if (idEscalaPronta == Guid.Empty)
+                return new List<EscalaProntaDTO> { new EscalaProntaDTO { valido = false, mensagem = "Id fora do Range." } };
 
-                }
-            }
-            catch (Exception e)
-            {
-                throw new Exception($"Erro ao receber o Objeto: {e.Message}");
-            }
+            var escalasProntas = await _escalaProntaRepository.ObterPorEscalaIdAsync(idEscalaPronta);
+            if (!escalasProntas.Any())
+                return new List<EscalaProntaDTO> { new EscalaProntaDTO { valido = false, mensagem = "Escala Não encontrada." } };
+
+            return _mapper.Map<List<EscalaProntaDTO>>(escalasProntas);
         }
+
         public async Task<EscalaProntaDTO> Deletar(Guid id)
         {
-            try
-            {
-                if (id == Guid.Empty)
-                {
-                    return new EscalaProntaDTO { valido = false, mensagem = "Id fora do Range." };
-                }
-                else
-                {
-                    var escalaProntaExistente = await _context.EscalaPronta.FindAsync(id);
-                    if (escalaProntaExistente == null)
-                    {
-                        return new EscalaProntaDTO { valido = false, mensagem = "Escala não encontrado." };
-                    }
+            if (id == Guid.Empty)
+                return new EscalaProntaDTO { valido = false, mensagem = "Id fora do Range." };
 
-
-                    // O EF Core rastreará que o objeto foi modificado
-                    _context.EscalaPronta.Remove(escalaProntaExistente);
-
-                    // Salva as alterações no banco de dados
-                    await _context.SaveChangesAsync();
-
-                    //retornar avido de deletado
-                    return new EscalaProntaDTO { valido = true, mensagem = "Escala deletado com sucesso." };
-                }
-            }
-            catch (Exception e)
-            {
-                throw new Exception($"Erro ao receber o Objeto: {e.Message}");
-            }
+            await _escalaProntaRepository.RemoverAsync(id);
+            return new EscalaProntaDTO { valido = true, mensagem = "Escala deletada com sucesso." };
         }
 
         public async Task<EscalaProntaDTO[]> IncluirLista(EscalaProntaDTO[] escalaProntaDTOs)
         {
-            try
-            {
+            if (escalaProntaDTOs is null || escalaProntaDTOs.Length == 0)
+                return new EscalaProntaDTO[] { new() { valido = false, mensagem = "Lista de escala vazia." } };
 
-                if (escalaProntaDTOs is null)
-                {
-                    return new EscalaProntaDTO[] {
-                        new EscalaProntaDTO {
-                            valido = false, mensagem = "Lista de escala vazia."
-                        }
-                    };
-                }
-                else
-                {
-                    var escalaPronta = _mapper.Map<DepInfra.EscalaPronta[]>(escalaProntaDTOs);
-
-                    _context.EscalaPronta.AddRange(escalaPronta);
-                    await _context.SaveChangesAsync();
-
-                    return _mapper.Map<EscalaProntaDTO[]>(escalaPronta);
-                }
-            }
-            catch (Exception e)
-            {
-                return new EscalaProntaDTO[] { new EscalaProntaDTO { valido = false, mensagem = $"Erro ao incluir a lista de Escala: {e.Message}" } };
-            }
+            var escalasProntas = _mapper.Map<DepInfra.EscalaPronta[]>(escalaProntaDTOs);
+            var novasEscalas = await _escalaProntaRepository.AdicionarListaAsync(escalasProntas);
+            return _mapper.Map<EscalaProntaDTO[]>(novasEscalas);
         }
 
         public async Task<EscalaProntaDTO[]> AlterarEscalaPronta(Guid idEscala, EscalaProntaDTO[] escalaProntaDTOs)
         {
-            try
-            {
-                // Validação básica
-                if (escalaProntaDTOs == null || escalaProntaDTOs.Length == 0)
-                {
-                    return new EscalaProntaDTO[]
-                    {
-                        new EscalaProntaDTO
-                        {
-                            valido = false,
-                            mensagem = "Lista de Escala vazia."
-                        }
-                    };
-                }
+            if (escalaProntaDTOs == null || escalaProntaDTOs.Length == 0)
+                return new EscalaProntaDTO[] { new() { valido = false, mensagem = "Lista de Escala vazia." } };
 
-                // Inicia a transação no banco de dados
-                using var transaction = await _context.Database.BeginTransactionAsync();
-
-                // Remove os registros antigos de EscalaPronta com o idEscala fornecido
-                var registrosExistentes = _context.EscalaPronta.Where(e => e.IdEscala == idEscala);
-                _context.EscalaPronta.RemoveRange(registrosExistentes);
-
-                // Mapeia os novos dados de EscalaProntaDTO para as entidades do banco
-                var novasEscalas = _mapper.Map<DepInfra.EscalaPronta[]>(escalaProntaDTOs);
-
-                // Insere os novos registros
-                await _context.EscalaPronta.AddRangeAsync(novasEscalas);
-
-                // Salva as alterações no banco
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                // Retorna os registros salvos como DTO
-                return _mapper.Map<EscalaProntaDTO[]>(novasEscalas);
-            }
-            catch (Exception e)
-            {
-                return new EscalaProntaDTO[]
-                {
-                    new EscalaProntaDTO
-                    {
-                        valido = false,
-                        mensagem = $"Erro ao salvar a escala alterada: {e.Message}"
-                    }
-                };
-            }
+            await _escalaProntaRepository.RemoverListaPorEscalaAsync(idEscala);
+            var novasEscalas = _mapper.Map<DepInfra.EscalaPronta[]>(escalaProntaDTOs);
+            await _escalaProntaRepository.AdicionarListaAsync(novasEscalas);
+            return _mapper.Map<EscalaProntaDTO[]>(novasEscalas);
         }
 
+        public async Task<RetornoDTO> RecriarEscalaProximoMes(Guid idEscala)
+        {
+            if (idEscala == Guid.Empty)
+                return new RetornoDTO { valido = false, mensagem = "Id fora do Range." };
+
+            var escalasProntas = await _escalaProntaRepository.ObterPorEscalaIdAsync(idEscala);
+            if (!escalasProntas.Any())
+                return new RetornoDTO { valido = false, mensagem = "Nenhuma escala encontrada para recriação." };
+
+            var novasEscalas = escalasProntas
+                .Select(e => new DepInfra.EscalaPronta
+                {
+                    IdEscalaPronta = Guid.NewGuid(),
+                    IdEscala = idEscala,
+                    IdPostoTrabalho = e.IdPostoTrabalho,
+                    IdFuncionario = e.IdFuncionario,
+                    DtDataServico = e.DtDataServico.AddMonths(1),
+                    DtCriacao = DateTime.UtcNow
+                }).ToList();
+
+            await _escalaProntaRepository.AdicionarListaAsync(novasEscalas.ToArray());
+            return new RetornoDTO { valido = true, mensagem = "Escala recriada com sucesso para o próximo mês." };
+        }
+
+        public async Task<EscalaProntaDTO> DeletarOcorrenciaFuncionario(Guid idFuncionario, Guid idEscala)
+        {
+            if (idFuncionario == Guid.Empty || idEscala == Guid.Empty)
+                return new EscalaProntaDTO { valido = false, mensagem = "Id inválido!" };
+
+            var ocorrencias = await _escalaProntaRepository.ObterPorEscalaIdAsync(idEscala);
+            ocorrencias = ocorrencias.Where(ep => ep.IdFuncionario == idFuncionario).ToList();
+
+            if (!ocorrencias.Any())
+                return new EscalaProntaDTO { valido = false, mensagem = "Nenhuma ocorrência encontrada para o funcionário." };
+
+            foreach (var ocorrencia in ocorrencias)
+            {
+                ocorrencia.IdFuncionario = Guid.Empty;
+                await _escalaProntaRepository.AtualizarAsync(ocorrencia);
+            }
+
+            return new EscalaProntaDTO { valido = true, mensagem = "Ocorrências do funcionário atualizadas com sucesso." };
+        }
+
+        public async Task<EscalaProntaDTO> IncluirFuncionarioEscala(EscalaProntaDTO incluiFuncEscalaProntaDTO)
+        {
+            if (incluiFuncEscalaProntaDTO is null)
+                return new EscalaProntaDTO { valido = false, mensagem = "Dados não preenchidos." };
+
+            var escalas = await _escalaProntaRepository.ObterPorEscalaIdAsync(incluiFuncEscalaProntaDTO.IdEscala);
+            if (escalas == null || !escalas.Any())
+                return new EscalaProntaDTO { valido = false, mensagem = "Escala não encontrada." };
+
+            var funcionarioJaExiste = escalas.Any(x => x.IdFuncionario == incluiFuncEscalaProntaDTO.IdFuncionario);
+            if (funcionarioJaExiste)
+                return new EscalaProntaDTO { valido = false, mensagem = "Funcionário já existe na Escala." };
+
+            var funcionarioSemVaga = escalas
+                .Where(e => e.IdPostoTrabalho == incluiFuncEscalaProntaDTO.IdPostoTrabalho)
+                .FirstOrDefault(e => e.IdFuncionario == Guid.Empty);
+
+            if (funcionarioSemVaga != null)
+            {
+                funcionarioSemVaga.IdFuncionario = incluiFuncEscalaProntaDTO.IdFuncionario;
+                await _escalaProntaRepository.AtualizarAsync(funcionarioSemVaga);
+                return new EscalaProntaDTO { valido = true, mensagem = "Funcionário incluído na escala com sucesso!" };
+            }
+
+            return new EscalaProntaDTO { valido = false, mensagem = "Nenhuma vaga disponível na escala." };
+        }
     }
 }

@@ -5,7 +5,7 @@
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 0.5rem;
-    margin-right: 0.5rem; /* Adicione esta linha para o espaçamento */
+    margin-right: 0.5rem; /* Adicione esta linha para o espaï¿½amento */
 }
 
     .nav-item:hover {
@@ -17,6 +17,6 @@
     }
 
 .logo-image {
-    width: 100px; /* Ajuste a largura conforme necessário */
-    height: auto; /* A altura será ajustada automaticamente */
+    width: 100px; /* Ajuste a largura conforme necessï¿½rio */
+    height: auto; /* A altura serï¿½ ajustada automaticamente */
 }
