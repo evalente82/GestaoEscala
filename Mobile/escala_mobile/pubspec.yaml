@@ -15,6 +15,8 @@ dependencies:
   json_annotation: ^4.8.1 # Para trabalhar com JSON
   equatable: ^2.0.5 # Para comparação de objetos
   cupertino_icons: ^1.0.8
+  intl: ^0.20.2
+  
   
 
 

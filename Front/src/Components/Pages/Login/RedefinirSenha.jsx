@@ -5,6 +5,7 @@ import "./RedefinirSenha.css"; // Arquivo de estilos correspondente
 
 function RedefinirSenha() {
     const [novaSenha, setNovaSenha] = useState("");
+    const [confirmarSenha, setConfirmarSenha] = useState("");
     const [alertMessage, setAlertMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
     const navigate = useNavigate();
@@ -13,6 +14,12 @@ function RedefinirSenha() {
 
     const handleRedefinirSenha = async (e) => {
         e.preventDefault();
+
+        if (novaSenha !== confirmarSenha) {
+            setAlertMessage("As senhas não coincidem.");
+            setSuccessMessage("");
+            return;
+        }
 
         try {
             const response = await axios.post("https://localhost:7207/login/redefinir-senha", {
@@ -50,13 +57,14 @@ function RedefinirSenha() {
                 </div>
                 <h2 className="text-center mt-3">Redefinir Senha</h2>
                 <p className="text-center text-muted">
-                    Insira sua nova senha para redefinir o acesso à sua conta.
+                    Insira sua nova senha e confirme para redefinir o acesso à sua conta.
                 </p>
                 {alertMessage && <div className="alert alert-danger">{alertMessage}</div>}
                 {successMessage && (
                     <div className="alert alert-success">{successMessage}</div>
                 )}
                 <form onSubmit={handleRedefinirSenha}>
+                    {/* Campo Nova Senha */}
                     <div className="mb-3">
                         <label htmlFor="novaSenha" className="form-label">
                             Nova Senha
@@ -71,6 +79,23 @@ function RedefinirSenha() {
                             required
                         />
                     </div>
+
+                    {/* Campo Confirmar Senha */}
+                    <div className="mb-3">
+                        <label htmlFor="confirmarSenha" className="form-label">
+                            Confirmar Senha
+                        </label>
+                        <input
+                            type="password"
+                            className="form-control"
+                            id="confirmarSenha"
+                            placeholder="Confirme sua nova senha"
+                            value={confirmarSenha}
+                            onChange={(e) => setConfirmarSenha(e.target.value)}
+                            required
+                        />
+                    </div>
+
                     <button type="submit" className="btn btn-primary w-100">
                         Redefinir Senha
                     </button>
@@ -87,7 +112,6 @@ function RedefinirSenha() {
                     </a>
                 </div>
             </div>
-
             {/* Rodapé */}
             <footer>
                 <div className="container p-3 mt-5 border-top">
