@@ -7,6 +7,7 @@ import AlertPopup from "../AlertPopup/AlertPopup";
 
 function PerfisFuncionalidadesList(props) {
     const [searchText, setSearchText] = useState("");
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     const [perfisFuncionalidades, setPerfisFuncionalidades] = useState([]);
     const [alertProps, setAlertProps] = useState({
         show: false,
@@ -17,7 +18,7 @@ function PerfisFuncionalidadesList(props) {
         onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
     });
 
-    const API_URL = "https://localhost:7207/perfisFuncionalidades";
+    const API_URL = `${API_BASE_URL}/perfisFuncionalidades`;
 
     function BuscarPerfisFuncionalidades() {
         axios
@@ -171,6 +172,7 @@ function PerfisFuncionalidadesForm(props) {
 
     const [perfis, setPerfis] = useState([]);
     const [funcionalidades, setFuncionalidades] = useState([]);
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     const [perfilSelecionado, setPerfilSelecionado] = useState("");
     const [funcionalidadeSelecionada, setFuncionalidadeSelecionada] = useState("");
     const [alertProps, setAlertProps] = useState({
@@ -182,10 +184,10 @@ function PerfisFuncionalidadesForm(props) {
     });
 
     useEffect(() => {
-        axios.get("https://localhost:7207/perfil/buscarTodos").then((response) => {
+        axios.get(`${API_BASE_URL}/perfil/buscarTodos`).then((response) => {
             setPerfis(response.data);
         });
-        axios.get("https://localhost:7207/funcionalidade/buscarTodas").then((response) => {
+        axios.get(`${API_BASE_URL}/funcionalidade/buscarTodas`).then((response) => {
             setFuncionalidades(response.data);
         });
     }, []);
@@ -207,7 +209,7 @@ function PerfisFuncionalidadesForm(props) {
         console.log("Funcionalidade Selecionada (Nome):", funcionalidadeSelecionadaNome);
 
         try {
-            await axios.post("https://localhost:7207/perfisFuncionalidades/incluir", {
+            await axios.post(`${API_BASE_URL}/perfisFuncionalidades/incluir`, {
                 idPerfil: perfilSelecionado,
                 idFuncionalidade: funcionalidadeSelecionada,
                 nomePerfil: perfilSelecionadoNome,

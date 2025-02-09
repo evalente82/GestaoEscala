@@ -8,12 +8,13 @@ function EsqueciSenha() {
     const [alertMessage, setAlertMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
     const navigate = useNavigate();
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
 
     const handleResetPassword = async (e) => {
         e.preventDefault();
     
         try {
-            const response = await axios.post("https://localhost:7207/login/esqueci-senha", { email }, {
+            const response = await axios.post(`${API_BASE_URL}/login/esqueci-senha`, { email }, {
                 headers: { "Content-Type": "application/json" }
             });
     

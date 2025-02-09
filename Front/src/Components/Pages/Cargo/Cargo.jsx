@@ -8,10 +8,11 @@ function CargoList(props) {
     CargoList.propTypes = {
         ShowForm: PropTypes.func.isRequired, // Indica que ShowForm é uma função obrigatória
     };
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
    
     const [searchText, setSearchText] = useState("");
     const [cargo, setCargo] = useState([]);
-    const API_URL = "https://localhost:7207/cargo";
+    const API_URL = `${API_BASE_URL}/cargo`;
     const [alertProps, setAlertProps] = useState({
         show: false, // Exibe ou esconde o AlertPopup
         type: "info", // Tipo de mensagem (success, error, confirm, info)
@@ -63,7 +64,7 @@ function CargoList(props) {
 
     function DeleteCargo(idCargo) {
         axios
-            .delete(`https://localhost:7207/cargo/Deletar/${idCargo}`)
+            .delete(`${API_BASE_URL}/cargo/Deletar/${idCargo}`)
             .then((response) => {
                 console.log(response);
                 setCargo(
@@ -218,6 +219,7 @@ function CargoForm(props) {
     const [nome, setNome] = useState(props.cargo.nmNome || '');
     const [descricao, setDescricao] = useState(props.cargo.nmDescricao || '');
     const [ativo, setAtivo] = useState(props.cargo.isAtivo || false);
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     const [alertProps, setAlertProps] = useState({
         show: false, // Define se o AlertPopup deve ser exibido
         type: "info", // Tipo da mensagem (success, error, info, confirm)
@@ -241,7 +243,7 @@ function CargoForm(props) {
             };
             axios
                 .patch(
-                    "https://localhost:7207/cargo/Atualizar/" +
+                `${API_BASE_URL}/cargo/Atualizar/` +
                     props.cargo.idCargo,
                     data
                 )
@@ -274,7 +276,7 @@ function CargoForm(props) {
                 isAtivo: ativo,
             };
             axios
-                .post("https://localhost:7207/cargo/Incluir", data)
+                .post(`${API_BASE_URL}/cargo/Incluir`, data)
                 .then(() => {
                     setAlertProps({
                         show: true,

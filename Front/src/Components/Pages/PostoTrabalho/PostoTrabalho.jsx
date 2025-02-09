@@ -9,6 +9,7 @@ function PostoTrabalhoList(props) {
     const [posto, setPosto] = useState([]);
     const [setor, setSetor] = useState([]);
     const [departamentos, setDepartamentos] = useState([]);
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     const [alertProps, setAlertProps] = useState({
         show: false, // Exibe ou esconde o AlertPopup
         type: "info", // Tipo de mensagem (success, error, confirm, info)
@@ -17,12 +18,12 @@ function PostoTrabalhoList(props) {
         onConfirm: null, // Callback para ações de confirmação (opcional)
         onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
     });
-    const API_URL = "https://localhost:7207/postoTrabalho";
+    const API_URL = `${API_BASE_URL}/postoTrabalho`;
 
     function BuscarTodos() {
         const fetchData = async () => {
             try {
-                const response = await axios.get("https://localhost:7207/departamento/buscarTodos");
+                const response = await axios.get(`${API_BASE_URL}/departamento/buscarTodos`);
                 setDepartamentos(response.data);
             } catch (error) {
                 console.log(error);
@@ -52,7 +53,7 @@ function PostoTrabalhoList(props) {
     };   
     
     function BuscarSetor() {
-        axios.get("https://localhost:7207/setor/buscarTodos")
+        axios.get(`${API_BASE_URL}/setor/buscarTodos`)
             .then((response) => {
                 console.log(response.data);
                 setSetor(response.data);
@@ -252,6 +253,7 @@ function PostoTrabalhoForm(props) {
     const [departamentoSelecionado, setDepartamentoSelecionado] = useState('');
     const [setor, setSetor] = useState([]);
     const [setorSelecionado, setSetorSelecionado] = useState('');
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     const [alertProps, setAlertProps] = useState({
         show: false, // Define se o AlertPopup deve ser exibido
         type: "info", // Tipo da mensagem (success, error, info, confirm)
@@ -263,7 +265,7 @@ function PostoTrabalhoForm(props) {
     useEffect(() => {
         BuscarTodos();
     }, []);
-    const API_URL = "https://localhost:7207/departamento";
+    const API_URL = `${API_BASE_URL}/departamento`;
     function BuscarTodos() {
         axios.get(`${API_URL}/buscarTodos`)
             .then((response) => {
@@ -278,7 +280,7 @@ function PostoTrabalhoForm(props) {
     useEffect(() => {
         BuscarSetor();
     }, []);
-    const API_URL_Setor = "https://localhost:7207/setor";
+    const API_URL_Setor = `${API_BASE_URL}/setor`;
     function BuscarSetor() {
         axios.get(`${API_URL_Setor}/buscarTodos`)
             .then((response) => {
@@ -320,7 +322,7 @@ function PostoTrabalhoForm(props) {
             };
             axios
                 .patch(
-                    "https://localhost:7207/postoTrabalho/Atualizar/" +
+                    `${API_BASE_URL}/postoTrabalho/Atualizar/` +
                     props.posto.idPostoTrabalho,
                     data
                 )
@@ -355,7 +357,7 @@ function PostoTrabalhoForm(props) {
                 isAtivo: ativo,
             };
             axios
-                .post("https://localhost:7207/postoTrabalho/Incluir", data)
+                .post(`${API_BASE_URL}/postoTrabalho/Incluir`, data)
                 .then(() => {
                     setAlertProps({
                         show: true,

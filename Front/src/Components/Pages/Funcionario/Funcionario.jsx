@@ -9,6 +9,7 @@ function FuncionarioList(props) {
     const [searchText, setSearchText] = useState("");
     const [funcionario, setFuncionario] = useState([]);
     const [cargos, setCargos] = useState([]);
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     const [alertProps, setAlertProps] = useState({
         show: false, // Exibe ou esconde o AlertPopup
         type: "info", // Tipo de mensagem (success, error, confirm, info)
@@ -17,13 +18,13 @@ function FuncionarioList(props) {
         onConfirm: null, // Callback para ações de confirmação (opcional)
         onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
     });
-    const API_URL = "https://localhost:7207/funcionario";
+    const API_URL = `${API_BASE_URL}/funcionario`;
 
     // Definindo a função BuscarTodos dentro do componente FuncionarioList
     function BuscarTodos() {
         const fetchData = async () => {
             try {
-                const response = await axios.get("https://localhost:7207/cargo/buscarTodos");
+                const response = await axios.get(`${API_BASE_URL}/cargo/buscarTodos`);
                 setCargos(response.data);
             } catch (error) {
                 console.log(error);
@@ -246,6 +247,7 @@ function FuncionarioForm(props) {
     const [endereco, setEndereco] = useState(props.funcionario.nmEndereco || '');
     const [cargos, setCargos] = useState([]);
     const [cargoSelecionado, setCargoSelecionado] = useState('');
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     const [alertProps, setAlertProps] = useState({
         show: false, // Define se o AlertPopup deve ser exibido
         type: "info", // Tipo da mensagem (success, error, info, confirm)
@@ -257,7 +259,7 @@ function FuncionarioForm(props) {
     useEffect(() => {
         BuscarTodos();
     }, []);
-    const API_URL = "https://localhost:7207/cargo";
+    const API_URL = `${API_BASE_URL}/cargo`;
     function BuscarTodos() {
         axios.get(`${API_URL}/buscarTodos`)
             .then((response) => {
@@ -294,8 +296,8 @@ function FuncionarioForm(props) {
         };
     
         const url = props.funcionario.idFuncionario
-            ? `https://localhost:7207/funcionario/Atualizar/${props.funcionario.idFuncionario}`
-            : "https://localhost:7207/funcionario/Incluir";
+            ? `${API_BASE_URL}/funcionario/Atualizar/${props.funcionario.idFuncionario}`
+            : `${API_BASE_URL}/funcionario/Incluir`;
     
         const request = props.funcionario.idFuncionario
             ? axios.patch(url, data)

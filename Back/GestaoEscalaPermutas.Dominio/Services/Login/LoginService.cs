@@ -115,7 +115,10 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
                 }
 
                 var funcionario = await _loginRepository.ObterFuncionarioPorEmailAsync(loginDTO.Usuario);
-
+                var idPerfis = funcionario.Cargo.CargoPerfis
+                        .Where(x => x.IdPerfil != null)
+                        .Select(x => x.IdPerfil)
+                        .ToList();
                 if (funcionario == null)
                 {
                     return new LoginResponseDTO { Valido = false, Mensagem = "Funcionário não encontrado para este e-mail." };
@@ -126,8 +129,13 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
                     : throw new Exception("Senha não pode ser nula.");
 
                 var usuario = _mapper.Map<DepInfra.Usuarios>(loginDTO);
+                usuario.Nome = funcionario.NmNome;
                 usuario.IdUsuario = Guid.NewGuid();
                 usuario.IdFuncionario = funcionario.IdFuncionario;
+                usuario.Email = funcionario.NmEmail;
+                usuario.Ativo = funcionario.IsAtivo;
+                usuario.IdPerfil = idPerfis.FirstOrDefault();
+
 
                 await _loginRepository.CriarUsuarioAsync(usuario);
 

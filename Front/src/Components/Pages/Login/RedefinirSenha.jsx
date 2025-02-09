@@ -11,6 +11,7 @@ function RedefinirSenha() {
     const navigate = useNavigate();
     const location = useLocation();
     const token = new URLSearchParams(location.search).get("token");
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
 
     const handleRedefinirSenha = async (e) => {
         e.preventDefault();
@@ -22,7 +23,7 @@ function RedefinirSenha() {
         }
 
         try {
-            const response = await axios.post("https://localhost:7207/login/redefinir-senha", {
+            const response = await axios.post(`${API_BASE_URL}/login/redefinir-senha`, {
                 token,
                 novaSenha
             }, {

@@ -11,6 +11,7 @@ function TipoEscalaList(props) {
     };
     const [searchText, setSearchText] = useState("");
     const [tipoEscala, setTipoEscala] = useState([]);
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     const [alertProps, setAlertProps] = useState({
         show: false, // Exibe ou esconde o AlertPopup
         type: "info", // Tipo de mensagem (success, error, confirm, info)
@@ -19,7 +20,7 @@ function TipoEscalaList(props) {
         onConfirm: null, // Callback para ações de confirmação (opcional)
         onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
     });
-    const API_URL = "https://localhost:7207/tipoEscala";
+    const API_URL = `${API_BASE_URL}/tipoEscala`;
 
     function BuscarTodos() {
         axios.get(`${API_URL}/buscarTodos`)
@@ -218,6 +219,7 @@ function TipoEscalaForm(props) {
     const [descricao, setDescricao] = useState(props.tipoEscala.nmDescricao || '');
     const [horasTrabalhada, setHorasTrabalhada] = useState(props.tipoEscala.nrHorasTrabalhada || '');
     const [horasFolga, setHorasFolga] = useState(props.tipoEscala.nrHorasFolga || '');
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     
     const [alertProps, setAlertProps] = useState({
         show: false, // Define se o AlertPopup deve ser exibido
@@ -248,7 +250,7 @@ function TipoEscalaForm(props) {
             };
             axios
                 .patch(
-                    "https://localhost:7207/tipoEscala/Atualizar/" +
+                    `${API_BASE_URL}/tipoEscala/Atualizar/` +
                     props.tipoEscala.idTipoEscala,
                     data
                 )
@@ -284,7 +286,7 @@ function TipoEscalaForm(props) {
                 isAtivo: ativo,
             };
             axios
-                .post("https://localhost:7207/tipoEscala/Incluir", data)
+                .post(`${API_BASE_URL}/tipoEscala/Incluir`, data)
                 .then(() => {
                     setAlertProps({
                         show: true,

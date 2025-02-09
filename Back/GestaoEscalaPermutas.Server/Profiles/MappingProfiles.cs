@@ -81,7 +81,18 @@ namespace GestaoEscalaPermutas.Server.Profiles
              .ReverseMap();
 
             // ======= USUÁRIOS E LOGIN =======
-            CreateMap<LoginResponseDTO, LoginModel>();
+            // 🔹 Mapeamento correto de LoginDTO para Usuarios
+            CreateMap<LoginDTO, Usuarios>()
+                .ForMember(dest => dest.Nome, opt => opt.Ignore()) // Nome pode vir do funcionário associado
+                .ForMember(dest => dest.SenhaHash, opt => opt.MapFrom(src => src.SenhaHash)) // SenhaHash já está processada
+                .ForMember(dest => dest.Perfil, opt => opt.Ignore()); // Perfil pode ser tratado separadamente
+
+            CreateMap<Usuarios, LoginDTO>()
+                .ForMember(dest => dest.Senha, opt => opt.Ignore()) // Senha não deve ser retornada
+                .ForMember(dest => dest.SenhaHash, opt => opt.MapFrom(src => src.SenhaHash))
+                .ForMember(dest => dest.Perfil, opt => opt.MapFrom(src => src.Perfil.Nome ?? "Sem Perfil"));
+
+
             CreateMap<LoginResponseDTO, LoginModel>()
             .ForMember(dest => dest.Usuario, opt => opt.MapFrom(src => src.NomeUsuario));
 

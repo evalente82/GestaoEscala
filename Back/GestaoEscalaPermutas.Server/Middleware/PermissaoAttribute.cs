@@ -1,9 +1,6 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using System;
-using System.Linq;
-using System.Security.Claims;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public class PermissaoAttribute : Attribute, IAuthorizationFilter

@@ -11,7 +11,8 @@ function SetorList(props) {
 
     const [searchText, setSearchText] = useState("");
     const [setores, setSetores] = useState([]);
-    const API_URL = "https://localhost:7207/setor";
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
+    const API_URL = `${API_BASE_URL}/setor`;
 
     const [alertProps, setAlertProps] = useState({
         show: false,
@@ -169,6 +170,7 @@ function SetorForm(props) {
     const setorInicial = props.setor || { idSetor: "", nmNome: "", nmDescricao: "", isAtivo: false };
 
     const [nome, setNome] = useState(setorInicial.nmNome);
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     const [descricao, setDescricao] = useState(setorInicial.nmDescricao);
     const [ativo, setAtivo] = useState(setorInicial.isAtivo);
     const [alertProps, setAlertProps] = useState({
@@ -191,7 +193,7 @@ function SetorForm(props) {
     
         try {
             if (setorInicial.idSetor) {
-                await axios.patch(`https://localhost:7207/setor/Atualizar/${setorInicial.idSetor}`, data);
+                await axios.patch(`${API_BASE_URL}/setor/Atualizar/${setorInicial.idSetor}`, data);
                 console.log("[LOG] Setor atualizado com sucesso.");
     
                 setAlertProps({
@@ -206,7 +208,7 @@ function SetorForm(props) {
                 });
     
             } else {
-                await axios.post("https://localhost:7207/setor/Incluir", data);
+                await axios.post(`${API_BASE_URL}/setor/Incluir`, data);
                 console.log("[LOG] Novo setor cadastrado com sucesso.");
     
                 setAlertProps({

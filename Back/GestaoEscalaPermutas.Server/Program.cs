@@ -111,10 +111,17 @@ builder.Services.AddHostedService<UsuarioMessageConsumer>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins", policy =>
-        policy.AllowAnyOrigin() // Permite qualquer origem
-              .AllowAnyMethod() // Permite qualquer método HTTP (GET, POST, PUT, DELETE, etc.)
-              .AllowAnyHeader()); // Permite qualquer cabeçalho
+        policy.WithOrigins(
+                "http://192.168.0.8:7207", // Backend
+
+                "http://10.0.2.2:7207",   // Emulador Android
+                "http://localhost:5173"   // Frontend
+            )
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
 });
+
 
 builder.Services.AddAuthentication(options =>
 {
@@ -167,7 +174,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<PermissaoMiddleware>();
-app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseCors("AllowAllOrigins");

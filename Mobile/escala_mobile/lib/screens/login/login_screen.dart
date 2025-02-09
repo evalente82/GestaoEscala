@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:escala_mobile/services/auth_service.dart'; // Importe o AuthService
 import 'package:escala_mobile/screens/home/home_screen.dart';
 import 'package:escala_mobile/screens/login/primeiro_acesso_screen.dart';
 import 'package:escala_mobile/screens/login/esqueci_senha_screen.dart';
-import 'package:escala_mobile/screens/login/redefinir_senha.dart'; // Importe a tela de Redefinir Senha
+import 'package:escala_mobile/screens/login/redefinir_senha.dart';
 import 'package:escala_mobile/components/footer_component.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -29,16 +30,31 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    // Simula autenticação bem-sucedida
-    setState(() {
-      _alertMessage = null; // Limpa mensagens de erro
-    });
+    try {
+      // Chama o serviço de autenticação
+      final response = await AuthService.login(usuario, senha);
 
-    // Navega para a tela inicial (HomeScreen)
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
-    );
+      if (response["success"]) {
+        // Salva o token JWT localmente
+        await AuthService.saveToken(response["token"]);
+
+        // Navega para a tela inicial (HomeScreen)
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      } else {
+        // Exibe mensagem de erro
+        setState(() {
+          _alertMessage = response["message"];
+        });
+      }
+    } catch (e) {
+      // Trata erros de conexão ou outros problemas
+      setState(() {
+        _alertMessage = "Erro ao conectar com o servidor.";
+      });
+    }
   }
 
   @override
@@ -54,11 +70,11 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 50),
               Text(
                 "Prefeitura Municipal de Maricá",
-                textAlign: TextAlign.center, // Centraliza o texto
+                textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 28, // Tamanho maior
+                  fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF003580), // Azul forte
+                  color: const Color(0xFF003580),
                 ),
               ),
               const SizedBox(height: 20),
@@ -70,9 +86,9 @@ class _LoginScreenState extends State<LoginScreen> {
               Text(
                 "Login",
                 style: TextStyle(
-                  fontSize: 22, // Tamanho maior
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF003580), // Azul forte
+                  color: const Color(0xFF003580),
                 ),
               ),
               const SizedBox(height: 20),
@@ -81,7 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 decoration: InputDecoration(
                   labelText: "Usuário",
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10), // Bordas arredondadas
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),
@@ -92,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 decoration: InputDecoration(
                   labelText: "Senha",
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10), // Bordas arredondadas
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),
@@ -101,9 +117,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: _handleSubmit,
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
-                  backgroundColor: const Color(0xFF003580), // Azul forte
+                  backgroundColor: const Color(0xFF003580),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10), // Bordas arredondadas
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 child: const Text(
@@ -111,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white, // Define a cor do texto como branco
+                    color: Colors.white,
                   ),
                 ),
               ),
@@ -164,18 +180,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ],
               ),
-              // Link temporário para Redefinir Senha
               Padding(
                 padding: const EdgeInsets.only(top: 16),
                 child: Align(
                   alignment: Alignment.center,
                   child: TextButton(
                     onPressed: () {
-                      // Navega para a tela de Redefinir Senha
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => RedefinirSenhaScreen(token: "temp_token"), // Token temporário
+                          builder: (context) => RedefinirSenhaScreen(token: "temp_token"),
                         ),
                       );
                     },
@@ -184,13 +198,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.blue,
-                        decoration: TextDecoration.underline, // Sublinha o texto
+                        decoration: TextDecoration.underline,
                       ),
                     ),
                   ),
                 ),
               ),
-              // Rodapé
               const FooterComponent(),
             ],
           ),
