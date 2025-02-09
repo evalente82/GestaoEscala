@@ -637,29 +637,36 @@ function PermutaForm(props) {
 
                         <div className="row mb-3">
                             <label className="col-sm-4 col-form-label">Data da troca</label>
-                            <div className="col-sm-8">
-                                <select
-                                    className="form-control"
-                                    value={dtDataSolicitadaTroca}
-                                    onChange={(e) => setDtDataSolicitadaTroca(e.target.value)}
-                                >
-                                    <option value="" disabled>
-                                        Selecione uma data
-                                    </option>
-                                    {datasTrabalhoSolicitante.length > 0 ? (
-                                        datasTrabalhoSolicitante.map((dia, index) => (
-                                            <option key={`${index}-${dia}`} value={dia}>
-                                                {dia}
-                                            </option>
-                                        ))
-                                    ) : (
-                                        <option disabled>Sem datas disponíveis</option>
-                                    )}
-                                </select>
+                                <div className="col-sm-8">
+                                    <select
+                                        className="form-control"
+                                        value={dtDataSolicitadaTroca}
+                                        onChange={(e) => setDtDataSolicitadaTroca(e.target.value)}
+                                    >
+                                        <option value="" disabled>
+                                            Selecione uma data
+                                        </option>
+                                        {datasTrabalhoSolicitante.length > 0 ? (
+                                            datasTrabalhoSolicitante.map((dia, index) => {
+                                                // Converte a string de data para o formato correto
+                                                const dataFormatada = new Intl.DateTimeFormat("pt-BR", {
+                                                    day: "2-digit",
+                                                    month: "2-digit",
+                                                    year: "numeric",
+                                                }).format(new Date(dia));
+
+                                                return (
+                                                    <option key={`${index}-${dia}`} value={dia}>
+                                                        {dataFormatada}
+                                                    </option>
+                                                );
+                                            })
+                                        ) : (
+                                            <option disabled>Sem datas disponíveis</option>
+                                        )}
+                                    </select>
+                                </div>
                             </div>
-                        </div>
-
-
 
                         <div className="row">
                             <div className="offset-sm-4 col-sm-4 d-grid">

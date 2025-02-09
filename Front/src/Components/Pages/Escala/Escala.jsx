@@ -90,7 +90,6 @@ function EscalaList(props) {
         ShowForm: PropTypes.func.isRequired,
         ShowMontaEscala: PropTypes.func.isRequired,// Indica que ShowForm é uma função obrigatória
     };
-
     
     // Chame BuscarTodos() no início do componente para carregar os cargos
     useEffect(() => {
@@ -229,8 +228,7 @@ function EscalaList(props) {
                     console.error(error);
                 });
         }
-    };
-    
+    };    
 
     return (
         <>
@@ -338,7 +336,7 @@ function EscalaList(props) {
                                             onClick={() => props.ShowForm(escala)}
                                             type="button"
                                             className="btn btn-primary btn-sm me-2"
-                                            disabled={escala.isGerada == true}
+                                            disabled={escala.isAtivo == true}
                                         >
                                             Editar
                                         </button>)}

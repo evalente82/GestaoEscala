@@ -106,6 +106,17 @@ function Login() {
                     <button type="submit" className="btn btn-primary w-100">Entrar</button>
                 </form>
             </div>
+            {/* Rodapé */}
+            <footer>
+                <div className="container p-3 mt-5 border-top">
+                    <small className="d-block text-muted text-center">
+                        &copy; 2023 - DEFESA CIVIL MARICÁ CONTROLE DE ESCALAS
+                    </small>
+                    <small className="d-block text-muted text-center">
+                        &copy; Todos os direitos reservados à VCORP Sistem
+                    </small>
+                </div>
+            </footer>
         </div>
     );
 }
