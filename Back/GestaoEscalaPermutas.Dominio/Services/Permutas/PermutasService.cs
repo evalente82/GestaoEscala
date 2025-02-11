@@ -108,5 +108,23 @@ namespace GestaoEscalaPermutas.Dominio.Services.Permutas
                 throw new Exception($"Erro ao deletar permuta: {e.Message}");
             }
         }
+
+        public async Task<PermutasDTO> BuscarFuncPorId(Guid idFuncionario)
+        {
+            try
+            {
+                if (idFuncionario == Guid.Empty)
+                    return new PermutasDTO { valido = false, mensagem = "Id fora do Range." };
+
+                var permuta = await _permutasRepository.BuscarFuncPorIdAsync(idFuncionario);
+                return permuta == null
+                    ? new PermutasDTO { valido = false, mensagem = "Permutas não encontradas." }
+                    : _mapper.Map<PermutasDTO>(permuta);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Erro ao buscar permutas: {e.Message}");
+            }
+        }
     }
 }

@@ -1,4 +1,6 @@
+import 'package:escala_mobile/models/user_model.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // Importe o Provider
 import 'package:escala_mobile/services/auth_service.dart'; // Importe o AuthService
 import 'package:escala_mobile/screens/home/home_screen.dart';
 import 'package:escala_mobile/screens/login/primeiro_acesso_screen.dart';
@@ -18,44 +20,48 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _senhaController = TextEditingController();
   String? _alertMessage;
 
-  Future<void> _handleSubmit() async {
-    final String usuario = _usuarioController.text.trim();
-    final String senha = _senhaController.text.trim();
+Future<void> _handleSubmit() async {
+  final String usuario = _usuarioController.text.trim();
+  final String senha = _senhaController.text.trim();
 
-    // Verifica se os campos estão preenchidos
-    if (usuario.isEmpty || senha.isEmpty) {
-      setState(() {
-        _alertMessage = "Preencha todos os campos!";
-      });
-      return;
-    }
-
-    try {
-      // Chama o serviço de autenticação
-      final response = await AuthService.login(usuario, senha);
-
-      if (response["success"]) {
-        // Salva o token JWT localmente
-        await AuthService.saveToken(response["token"]);
-
-        // Navega para a tela inicial (HomeScreen)
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
-      } else {
-        // Exibe mensagem de erro
-        setState(() {
-          _alertMessage = response["message"];
-        });
-      }
-    } catch (e) {
-      // Trata erros de conexão ou outros problemas
-      setState(() {
-        _alertMessage = "Erro ao conectar com o servidor.";
-      });
-    }
+  if (usuario.isEmpty || senha.isEmpty) {
+    setState(() {
+      _alertMessage = "Preencha todos os campos!";
+    });
+    return;
   }
+
+  try {
+    final response = await AuthService.login(usuario, senha);
+
+    if (response["success"]) {
+      await AuthService.saveToken(response["token"]);
+
+      // 🛠️ Converte `matricula` para String para evitar erros
+      final String nomeUsuario = response["nomeUsuario"] ?? "Desconhecido";
+      final String matricula = response["matricula"].toString(); // Converte para string
+      final String idFuncionario = response["idFuncionario"] ?? ""; // Garantir string
+
+      // Atualiza o UserModel corretamente
+      final userModel = Provider.of<UserModel>(context, listen: false);
+      userModel.setUser(nomeUsuario, matricula, idFuncionario);
+
+      // Verifique se a HomeScreen está carregando corretamente
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    } else {
+      setState(() {
+        _alertMessage = response["message"];
+      });
+    }
+  } catch (e) {
+    setState(() {
+      _alertMessage = "Erro ao conectar com o servidor_pagina_login.";
+    });
+  }
+}
 
   @override
   Widget build(BuildContext context) {

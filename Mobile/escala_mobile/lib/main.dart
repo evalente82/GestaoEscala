@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:escala_mobile/models/user_model.dart';
 import 'package:escala_mobile/screens/login/login_screen.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final userModel = UserModel();
+  await userModel.loadUserFromToken(); // 🔹 Carrega os dados do usuário ao iniciar o app
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => userModel,
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -11,12 +21,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Escala Permutas',
+      title: 'Escala Mobile',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+        primarySwatch: Colors.blue,
       ),
-      home: const LoginScreen(), // Substitua MyHomePage pela tela de login
+      home: const LoginScreen(),
     );
   }
 }

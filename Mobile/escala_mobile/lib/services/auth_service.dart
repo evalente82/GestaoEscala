@@ -7,27 +7,53 @@ class AuthService {
 
   // Método para login
   static Future<Map<String, dynamic>> login(String usuario, String senha) async {
+  try {
+    final url = Uri.parse("$baseUrl/login/autenticar");
+    print("📡 Enviando requisição para: $url");
+    
     final response = await http.post(
-      Uri.parse("$baseUrl/login/autenticar"),
+      url,
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({"usuario": usuario, "senha": senha}),
     );
 
+    print("🔹 Status Code: ${response.statusCode}");
+    print("🔹 Resposta: ${response.body}");
+
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
-      return {
-        "success": true,
-        "token": responseData["token"],
-        "nomeUsuario": responseData["nomeUsuario"],
-        "permissoes": responseData["permissoes"],
-      };
+      
+      if (responseData.containsKey("token")) {
+        return {
+          "success": true,
+          "token": responseData["token"],
+          "nomeUsuario": responseData["nomeUsuario"],
+          "matricula": responseData["matricula"] ?? "",
+          "idFuncionario": responseData["idFuncionario"] ?? "",
+        };
+      } else {
+        return {
+          "success": false,
+          "message": "Resposta inválida do servidor.",
+        };
+      }
     } else {
       return {
         "success": false,
-        "message": jsonDecode(response.body)["mensagem"] ?? "Erro ao fazer login.",
+        "message": response.body.isNotEmpty
+            ? jsonDecode(response.body)["mensagem"] ?? "Erro desconhecido."
+            : "Erro ao conectar ao servidor__LOGIN.",
       };
     }
+  } catch (e) {
+    print("❌ Erro durante a requisição: $e");
+    return {
+      "success": false,
+      "message": "Erro de conexão com o servidor__LOGIN: $e",
+    };
   }
+}
+
 
   // Método para salvar o token JWT localmente
   static Future<void> saveToken(String token) async {
@@ -49,66 +75,87 @@ class AuthService {
 
   // Método para solicitar redefinição de senha (enviar e-mail)
   static Future<Map<String, dynamic>> resetPassword(String email) async {
-    final response = await http.post(
-      Uri.parse("$baseUrl/login/esqueci-senha"), // Endpoint para solicitar redefinição de senha
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"email": email}),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse("$baseUrl/login/esqueci-senha"), // Endpoint para solicitar redefinição de senha
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"email": email}),
+      );
 
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      return {
-        "success": true,
-        "message": responseData["mensagem"], // Mensagem de sucesso do backend
-      };
-    } else {
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        return {
+          "success": true,
+          "message": responseData["mensagem"], // Mensagem de sucesso do backend
+        };
+      } else {
+        return {
+          "success": false,
+          "message": jsonDecode(response.body)["mensagem"] ?? "Erro ao solicitar redefinição.",
+        };
+      }
+    } catch (e) {
       return {
         "success": false,
-        "message": jsonDecode(response.body)["mensagem"] ?? "Erro ao solicitar redefinição.",
+        "message": "Erro de conexão com o servidor.",
       };
     }
   }
 
   // Método para redefinir senha com token
   static Future<Map<String, dynamic>> resetPasswordWithToken(String token, String novaSenha) async {
-    final response = await http.post(
-      Uri.parse("$baseUrl/login/redefinir-senha"),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"token": token, "novaSenha": novaSenha}),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse("$baseUrl/login/redefinir-senha"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"token": token, "novaSenha": novaSenha}),
+      );
 
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      return {
-        "success": true,
-        "message": responseData["mensagem"],
-      };
-    } else {
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        return {
+          "success": true,
+          "message": responseData["mensagem"],
+        };
+      } else {
+        return {
+          "success": false,
+          "message": jsonDecode(response.body)["mensagem"] ?? "Erro ao redefinir senha.",
+        };
+      }
+    } catch (e) {
       return {
         "success": false,
-        "message": jsonDecode(response.body)["mensagem"] ?? "Erro ao redefinir senha.",
+        "message": "Erro de conexão com o servidor.",
       };
     }
   }
 
   // Método para registrar um novo usuário
   static Future<Map<String, dynamic>> register(String usuario, String senha) async {
-    final response = await http.post(
-      Uri.parse("$baseUrl/login/Incluir"), // Endpoint para registro de novo usuário
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"usuario": usuario, "senha": senha}),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse("$baseUrl/login/Incluir"), // Endpoint para registro de novo usuário
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"usuario": usuario, "senha": senha}),
+      );
 
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      return {
-        "success": true,
-        "message": responseData["mensagem"], // Mensagem de sucesso do backend
-      };
-    } else {
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        return {
+          "success": true,
+          "message": responseData["mensagem"], // Mensagem de sucesso do backend
+        };
+      } else {
+        return {
+          "success": false,
+          "message": jsonDecode(response.body)["mensagem"] ?? "Erro ao criar acesso.",
+        };
+      }
+    } catch (e) {
       return {
         "success": false,
-        "message": jsonDecode(response.body)["mensagem"] ?? "Erro ao criar acesso.",
+        "message": "Erro de conexão com o servidor.",
       };
     }
   }

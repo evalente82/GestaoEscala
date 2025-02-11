@@ -1,7 +1,9 @@
+import 'package:escala_mobile/models/user_model.dart';
 import 'package:escala_mobile/screens/escalas/escala_screen.dart';
 import 'package:escala_mobile/screens/permutas/permuta_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Para usar SystemNavigator
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart'; // Importe o Provider
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,6 +15,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
+    // Acesse o UserModel via Provider
+    final userModel = Provider.of<UserModel>(context);
+
     return Scaffold(
       body: Column(
         children: [
@@ -43,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "Endrigo Moura Valente Mat. 1234",
+                        "${userModel.userName} Mat. ${userModel.userMatricula}", // Exibe os dados do usuário dinamicamente
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.normal,
@@ -81,14 +86,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   // Logo da Defesa Civil
                   Expanded(
-                        child: Align(
-                          alignment: Alignment(0, -0.5), // Ajuste o valor de Y (-0.2, -0.3, etc.)
-                          child: Image.asset(
-                            "assets/images/LogoDefesaCivil.png",
-                            height: 350,
-                          ),
-                        ),
+                    child: Align(
+                      alignment: Alignment(0, -0.5), // Ajuste o valor de Y (-0.2, -0.3, etc.)
+                      child: Image.asset(
+                        "assets/images/LogoDefesaCivil.png",
+                        height: 350,
                       ),
+                    ),
+                  ),
                   // Botões de Navegação
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),

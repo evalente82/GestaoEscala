@@ -57,7 +57,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
                     .Distinct()
                     .ToList() ?? new List<string>();
 
-                var token = GerarTokenJWT(usuario, permissoes);
+                var token = GerarTokenJWT(usuario, funcionario, permissoes);
 
                 return new LoginResponseDTO
                 {
@@ -65,6 +65,8 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
                     Mensagem = "Autenticado com sucesso.",
                     Token = token,
                     NomeUsuario = usuario.Nome ?? string.Empty,
+                    Matricula = funcionario.NrMatricula,
+                    IdFuncionario = funcionario.IdFuncionario,
                     Permissoes = permissoes
                 };
             }
@@ -77,15 +79,18 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
         /// <summary>
         /// Gera um token JWT com permissões.
         /// </summary>
-        private string GerarTokenJWT(DepInfra.Usuarios usuario, List<string> permissoes)
+        private string GerarTokenJWT(DepInfra.Usuarios usuario, DepInfra.Funcionario funcionario, List<string> permissoes)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes("ChaveSeguraSuperLongaParaTokenJWT123!");
+
 
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, usuario.IdUsuario.ToString()),
                 new Claim(ClaimTypes.Name, usuario.Nome),
+                new Claim(ClaimTypes.SerialNumber, funcionario.NrMatricula.ToString()),
+                new Claim("IdFuncionario", usuario.IdFuncionario.ToString() ?? "SemIdFuncionario"),
                 new Claim(ClaimTypes.Role, usuario.Perfil?.Nome ?? "SemPerfil")
             };
 
@@ -140,7 +145,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
                 await _loginRepository.CriarUsuarioAsync(usuario);
 
                 var permissoes = new List<string> { usuario.Perfil?.Nome ?? "SemPerfil" };
-                var token = GerarTokenJWT(usuario, permissoes);
+                var token = GerarTokenJWT(usuario, funcionario, permissoes);
 
                 return new LoginResponseDTO
                 {

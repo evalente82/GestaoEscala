@@ -56,7 +56,6 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaPronta
             return CreatedAtAction(nameof(IncluirFuncionarioEscala), new { mensagem = "Funcionário adicionado com sucesso!", dados = resultado });
         }
 
-
         [HttpPatch]
         [Route("Atualizar/{id:Guid}")]
         public async Task<ActionResult> AtualizarEscalaPronta(Guid id, [FromBody] EscalaProntaDTO escalaPronta)
@@ -85,7 +84,6 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaPronta
             return Ok(new { mensagem = "Ocorrências do funcionário atualizadas com sucesso!" });
         }
 
-
         [HttpGet("buscarPorId/{id}")]
         public async Task<ActionResult<List<EscalaProntaDTO>>> BuscarEscalaProntaPorId(Guid id)
         {
@@ -97,6 +95,24 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaPronta
             }
 
             return escala;
+        }
+
+        [HttpGet("BuscarPorFuncionario/{idFuncionario}")]
+        public async Task<ActionResult<List<EscalaProntaDTO>>> BuscarPorFuncionario(Guid idFuncionario)
+        {
+            try
+            {
+                var resultado = await _escalaProntaService.BuscarPorIdFuncionario(idFuncionario);
+
+                if (resultado.Count == 0 || !resultado[0].valido)
+                    return NotFound(resultado);
+
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro ao buscar dados.", error = ex.Message });
+            }
         }
     }
 }

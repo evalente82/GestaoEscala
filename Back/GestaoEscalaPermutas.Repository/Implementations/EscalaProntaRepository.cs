@@ -74,5 +74,17 @@ namespace GestaoEscalaPermutas.Repository.Implementations
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<List<EscalaPronta>> BuscarPorIdFuncionario(Guid idFuncionario)
+        {
+            if (idFuncionario == Guid.Empty)
+                return new List<EscalaPronta>(); // Retorna uma lista vazia se o ID for inválido
+
+            return await _context.EscalaPronta
+                .Where(ep => ep.IdFuncionario == idFuncionario)
+                .Include(ep => ep.Escala) // Inclui os dados da escala associada
+                .ToListAsync();
+        }
+
     }
 }

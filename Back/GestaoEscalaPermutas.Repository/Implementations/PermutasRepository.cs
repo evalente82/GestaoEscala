@@ -48,5 +48,15 @@ namespace GestaoEscalaPermutas.Repository.Implementations
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<List<Permuta>> BuscarFuncPorIdAsync(Guid idFuncionario)
+        {
+            if (idFuncionario == Guid.Empty)
+                return new List<Permuta>(); // Retorna uma lista vazia se o ID for inválido
+
+            return await _context.Permuta
+                .Where(f => f.IdFuncionarioSolicitante == idFuncionario)
+                .ToListAsync();
+        }
     }
 }

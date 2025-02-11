@@ -12,5 +12,6 @@ namespace GestaoEscalaPermutas.Repository.Interfaces
         Task AtualizarAsync(EscalaPronta escalaPronta);
         Task RemoverAsync(Guid id);
         Task RemoverListaPorEscalaAsync(Guid idEscala);
+        Task<List<EscalaPronta>> BuscarPorIdFuncionario(Guid idFuncionario);
     }
 }

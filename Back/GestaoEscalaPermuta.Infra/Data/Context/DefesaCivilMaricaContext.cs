@@ -133,6 +133,12 @@ public partial class DefesaCivilMaricaContext : DbContext
         #endregion
 
         #region EscalaPronta
+        modelBuilder.Entity<EscalaPronta>()
+            .HasOne(ep => ep.Escala)
+            .WithMany()
+            .HasForeignKey(ep => ep.IdEscala)
+            .OnDelete(DeleteBehavior.Restrict);
+
         modelBuilder.Entity<EscalaPronta>(entity =>
         {
             entity.HasKey(e => e.IdEscalaPronta);

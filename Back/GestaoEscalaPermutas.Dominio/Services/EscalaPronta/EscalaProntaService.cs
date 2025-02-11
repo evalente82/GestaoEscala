@@ -1,15 +1,8 @@
 ﻿using AutoMapper;
 using GestaoEscalaPermutas.Dominio.DTO;
-using GestaoEscalaPermutas.Dominio.DTO.Escala;
 using GestaoEscalaPermutas.Dominio.DTO.EscalaPronta;
-using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
-using GestaoEscalaPermutas.Infra.Data.Context;
-using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using GestaoEscalaPermutas.Repository.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using System.Globalization;
-using System.Text.RegularExpressions;
 using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 
 namespace GestaoEscalaPermutas.Dominio.Services.EscalaPronta
@@ -141,7 +134,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaPronta
             return new EscalaProntaDTO { valido = true, mensagem = "Ocorrências do funcionário atualizadas com sucesso." };
         }
 
-        public async Task<EscalaProntaDTO> IncluirFuncionarioEscala(EscalaProntaDTO incluiFuncEscalaProntaDTO)
+        public async Task<EscalaProntaDTO> IncluirFuncionarioEcala(EscalaProntaDTO incluiFuncEscalaProntaDTO)
         {
             if (incluiFuncEscalaProntaDTO is null)
                 return new EscalaProntaDTO { valido = false, mensagem = "Dados não preenchidos." };
@@ -166,6 +159,29 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaPronta
             }
 
             return new EscalaProntaDTO { valido = false, mensagem = "Nenhuma vaga disponível na escala." };
+        }
+
+        public async Task<List<EscalaProntaDTO>> BuscarPorIdFuncionario(Guid idFuncionario)
+        {
+            if (idFuncionario == Guid.Empty)
+                return new List<EscalaProntaDTO> { new EscalaProntaDTO { valido = false, mensagem = "IdFuncionario inválido." } };
+
+            var escalasProntas = await _escalaProntaRepository.BuscarPorIdFuncionario(idFuncionario);
+
+            if (!escalasProntas.Any())
+                return new List<EscalaProntaDTO> { new EscalaProntaDTO { valido = false, mensagem = "Nenhum dado encontrado para o funcionário." } };
+
+            return escalasProntas.Select(ep => new EscalaProntaDTO
+            {
+                DtDataServico = ep.DtDataServico,
+                IdEscala = ep.IdEscala,
+                NmNomeEscala = ep.Escala?.NmNomeEscala ?? "Sem Nome" // Evita erro caso Escala seja null
+            }).ToList();
+        }
+
+        public Task<EscalaProntaDTO> IncluirFuncionarioEscala(EscalaProntaDTO escalaProntaDTO)
+        {
+            throw new NotImplementedException();
         }
     }
 }

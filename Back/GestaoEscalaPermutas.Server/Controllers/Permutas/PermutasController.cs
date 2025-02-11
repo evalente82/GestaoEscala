@@ -82,5 +82,17 @@ namespace GestaoEscalaPermutas.Server.Controllers.Permutas
             }
             return Ok(pemutas);
         }
+
+        [HttpGet]
+        [Route("PermutaFuncionarioPorId/{id:Guid}")]
+        public async Task<ActionResult<PermutasDTO>> BuscarPermFuncPorId(Guid id)
+        {
+            var pemutas = await _permutasService.BuscarFuncPorId(id);
+            if (!pemutas.valido)
+            {
+                return BadRequest(new RetornoModel { Valido = false, Mensagem = pemutas.mensagem });
+            }
+            return Ok(pemutas);
+        }
     }
 }
