@@ -1,4 +1,14 @@
+import 'dart:convert';
+import 'package:escala_mobile/services/api_service.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'package:escala_mobile/models/user_model.dart';
+import 'package:logger/logger.dart';
+import 'package:intl/intl.dart';
+
+// 🔹 Instância do Logger
+final logger = Logger();
 
 class EscalaScreen extends StatefulWidget {
   const EscalaScreen({super.key});
@@ -8,156 +18,234 @@ class EscalaScreen extends StatefulWidget {
 }
 
 class _EscalaScreenState extends State<EscalaScreen> {
-  // Variáveis para armazenar os dados da escala
-  String? _escalaSelecionada;
-  final List<String> _escalas = ["Abril", "Maio"]; // Escalas fictícias
+  String? _idEscalaSelecionada;
+  List<Map<String, dynamic>> _escalas = [];
+  Map<String, String> _postos = {};
+  List<String> _postosFiltrados = [];
+  List<Map<String, dynamic>> _escalaPronta = [];
+  Map<String, String> _funcionarios = {};
 
-  // Dados fictícios das escalas
-  final Map<String, List<Map<String, dynamic>>> _dadosEscalas = {
-    "Abril": [
-    {"dia": "01", "A": "João", "B": "Maria", "C": "Carlos", "D": "Ana", "E": "Pedro", "F": "Lucas", "G": "Sofia", "H": "Miguel"},
-    {"dia": "02", "A": "Maria", "B": "Carlos", "C": "Ana", "D": "Pedro", "E": "Lucas", "F": "João", "G": "Isabela", "H": "Enzo"},
-    {"dia": "03", "A": "Carlos", "B": "Ana", "C": "Pedro", "D": "Lucas", "E": "João", "F": "Maria", "G": "Valentina", "H": "Arthur"},
-    {"dia": "04", "A": "Ana", "B": "Pedro", "C": "Lucas", "D": "João", "E": "Maria", "F": "Carlos", "G": "Helena", "H": "Bernardo"},
-    {"dia": "05", "A": "Pedro", "B": "Lucas", "C": "João", "D": "Maria", "E": "Carlos", "F": "Ana", "G": "Laura", "H": "Davi"},
-    {"dia": "06", "A": "Lucas", "B": "João", "C": "Maria", "D": "Carlos", "E": "Ana", "F": "Pedro", "G": "Beatriz", "H": "Felipe"},
-    {"dia": "07", "A": "João", "B": "Maria", "C": "Carlos", "D": "Ana", "E": "Pedro", "F": "Lucas", "G": "Alice", "H": "Gabriel"},
-    {"dia": "08", "A": "Maria", "B": "Carlos", "C": "Ana", "D": "Pedro", "E": "Lucas", "F": "João", "G": "Maria Eduarda", "H": "Matheus"},
-    {"dia": "09", "A": "Carlos", "B": "Ana", "C": "Pedro", "D": "Lucas", "E": "João", "F": "Maria", "G": "Julia", "H": "Pedro Henrique"},
-    {"dia": "10", "A": "Ana", "B": "Pedro", "C": "Lucas", "D": "João", "E": "Maria", "F": "Carlos", "G": "Yasmin", "H": "Lucas Gabriel"},
-    {"dia": "11", "A": "Pedro", "B": "Lucas", "C": "João", "D": "Maria", "E": "Carlos", "F": "Ana", "G": "Isabelle", "H": "Guilherme"},
-    {"dia": "12", "A": "Lucas", "B": "João", "C": "Maria", "D": "Carlos", "E": "Ana", "F": "Pedro", "G": "Sophia", "H": "Samuel"},
-    {"dia": "13", "A": "João", "B": "Maria", "C": "Carlos", "D": "Ana", "E": "Pedro", "F": "Lucas", "G": "Manuela", "H": "Rafael"},
-    {"dia": "14", "A": "Maria", "B": "Carlos", "C": "Ana", "D": "Pedro", "E": "Lucas", "F": "João", "G": "Giovanna", "H": "Enzo Gabriel"},
-    {"dia": "15", "A": "Carlos", "B": "Ana", "C": "Pedro", "D": "Lucas", "E": "João", "F": "Maria", "G": "Luiza", "H": "João Vitor"},
-    {"dia": "16", "A": "Ana", "B": "Pedro", "C": "Lucas", "D": "João", "E": "Maria", "F": "Carlos", "G": "Gabriela", "H": "João Paulo"},
-    {"dia": "17", "A": "Pedro", "B": "Lucas", "C": "João", "D": "Maria", "E": "Carlos", "F": "Ana", "G": "Fernanda", "H": "Thiago"},
-    {"dia": "18", "A": "Lucas", "B": "João", "C": "Maria", "D": "Carlos", "E": "Ana", "F": "Pedro", "G": "Amanda", "H": "Eduardo"},
-    {"dia": "19", "A": "João", "B": "Maria", "C": "Carlos", "D": "Ana", "E": "Pedro", "F": "Lucas", "G": "Juliana", "H": "Vitor"},
-    {"dia": "20", "A": "Maria", "B": "Carlos", "C": "Ana", "D": "Pedro", "E": "Lucas", "F": "João", "G": "Carolina", "H": "Leonardo"},
-    {"dia": "21", "A": "Carlos", "B": "Ana", "C": "Pedro", "D": "Lucas", "E": "João", "F": "Maria", "G": "Larissa", "H": "Rodrigo"},
-    {"dia": "22", "A": "Ana", "B": "Pedro", "C": "Lucas", "D": "João", "E": "Maria", "F": "Carlos", "G": "Camila", "H": "Bruno"},
-    {"dia": "23", "A": "Pedro", "B": "Lucas", "C": "João", "D": "Maria", "E": "Carlos", "F": "Ana", "G": "Letícia", "H": "Vinicius"},
-    {"dia": "24", "A": "Lucas", "B": "João", "C": "Maria", "D": "Carlos", "E": "Ana", "F": "Pedro", "G": "Patricia", "H": "Gustavo"},
-    {"dia": "25", "A": "João", "B": "Maria", "C": "Carlos", "D": "Ana", "E": "Pedro", "F": "Lucas", "G": "Renata", "H": "Daniel"},
-    {"dia": "26", "A": "Maria", "B": "Carlos", "C": "Ana", "D": "Pedro", "E": "Lucas", "F": "João", "G": "Aline", "H": "Marcelo"},
-    {"dia": "27", "A": "Carlos", "B": "Ana", "C": "Pedro", "D": "Lucas", "E": "João", "F": "Maria", "G": "Sandra", "H": "Fábio"},
-    {"dia": "28", "A": "Ana", "B": "Pedro", "C": "Lucas", "D": "João", "E": "Maria", "F": "Carlos", "G": "Marcia", "H": "André"},
-    {"dia": "29", "A": "Pedro", "B": "Lucas", "C": "João", "D": "Maria", "E": "Carlos", "F": "Ana", "G": "Silvia", "H": "Roberto"},
-    {"dia": "30", "A": "Lucas", "B": "João", "C": "Maria", "D": "Carlos", "E": "Ana", "F": "Pedro", "G": "Adriana", "H": "Paulo"}
-  ],
-    "Maio": [
-      {"dia": "01", "A": "Lucas", "B": "João", "C": "Maria", "D": "Carlos", "E": "Ana", "F": "Pedro"},
-      {"dia": "02", "A": "João", "B": "Maria", "C": "Carlos", "D": "Ana", "E": "Pedro", "F": "Lucas"},
-      {"dia": "03", "A": "Maria", "B": "Carlos", "C": "Ana", "D": "Pedro", "E": "Lucas", "F": "João"},
-      {"dia": "04", "A": "Carlos", "B": "Ana", "C": "Pedro", "D": "Lucas", "E": "João", "F": "Maria"},
-      {"dia": "05", "A": "Ana", "B": "Pedro", "C": "Lucas", "D": "João", "E": "Maria", "F": "Carlos"},
-      // Adicione mais dias conforme necessário
-    ],
-  };
+  @override
+  void initState() {
+    super.initState();
+    _carregarEscalasUsuarioLogado();
+    _carregarPostos();
+    _carregarFuncionarios();
+  }
+
+  Future<void> _carregarEscalasUsuarioLogado() async {
+    try {
+      final userModel = Provider.of<UserModel>(context, listen: false);
+      final String url = "${ApiService.baseUrl}/escalaPronta/BuscarPorFuncionario/${userModel.idFuncionario}";
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        Set<String> escalasUnicas = {};
+        final List<Map<String, dynamic>> escalas = data
+            .map((e) {
+              String escalaNome = "${e["nmNomeEscala"] ?? "Sem Nome"}";
+              if (escalasUnicas.contains(escalaNome)) return null;
+              escalasUnicas.add(escalaNome);
+              return {
+                "id": e["idEscala"]?.toString() ?? "",
+                "nome": escalaNome,
+              };
+            })
+            .where((element) => element != null)
+            .cast<Map<String, dynamic>>()
+            .toList();
+
+        setState(() {
+          _escalas = escalas;
+        });
+      }
+    } catch (e) {
+      logger.e("Erro ao carregar escalas: $e");
+    }
+  }
+
+  Future<void> _carregarPostos() async {
+    try {
+      final String url = "${ApiService.baseUrl}/PostoTrabalho/buscarTodos";
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          _postos = {for (var posto in data) posto["idPostoTrabalho"].toString(): posto["nmNome"].toString()};
+        });
+      }
+    } catch (e) {
+      logger.e("Erro ao carregar postos: $e");
+    }
+  }
+
+  Future<void> _carregarFuncionarios() async {
+    try {
+      final String url = "${ApiService.baseUrl}/Funcionario/buscarTodos";
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          _funcionarios = {for (var func in data) func["idFuncionario"].toString(): func["nmNome"].toString()};
+        });
+      }
+    } catch (e) {
+      logger.e("Erro ao carregar funcionários: $e");
+    }
+  }
+
+  Future<void> _filtrarPostosPorEscala(String idEscala) async {
+    try {
+      final String url = "${ApiService.baseUrl}/escalaPronta/buscarPorId/$idEscala";
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+
+        List<Map<String, dynamic>> escalaFiltrada = data.map((e) {
+          return {
+            "dtDataServico": e["dtDataServico"] ?? "",
+            "idPostoTrabalho": e["idPostoTrabalho"]?.toString() ?? "",
+            "idFuncionario": e["idFuncionario"]?.toString() ?? ""
+          };
+        }).toList();
+
+        Set<String> idsPostosNaEscala = escalaFiltrada.map((e) => e["idPostoTrabalho"].toString()).toSet();
+        List<String> postosFiltrados = idsPostosNaEscala.map((id) => _postos[id] ?? "Posto Desconhecido").toList();
+
+        setState(() {
+          _escalaPronta = escalaFiltrada;
+          _postosFiltrados = postosFiltrados;
+        });
+      }
+    } catch (e) {
+      logger.e("Erro ao carregar postos da escala: $e");
+    }
+  }
+
+  /// 🔹 **Agrupa a escala por Dia e Posto**
+  Map<String, Map<String, List<String>>> _agruparEscala() {
+    Map<String, Map<String, List<String>>> escalaAgrupada = {};
+
+    for (var item in _escalaPronta) {
+      String diaCompleto = item["dtDataServico"];
+      String diaFormatado = DateFormat("MM-dd").format(DateTime.parse(diaCompleto));
+      String posto = _postos[item["idPostoTrabalho"]] ?? "Posto Desconhecido";
+      String funcionario = item["idFuncionario"] == "00000000-0000-0000-0000-000000000000"
+          ? "Sem Funcionário"
+          : _funcionarios[item["idFuncionario"]] ?? "Funcionário Desconhecido";
+
+      if (!escalaAgrupada.containsKey(diaFormatado)) {
+        escalaAgrupada[diaFormatado] = {};
+      }
+
+      if (!escalaAgrupada[diaFormatado]!.containsKey(posto)) {
+        escalaAgrupada[diaFormatado]![posto] = [];
+      }
+
+      escalaAgrupada[diaFormatado]![posto]!.add(funcionario);
+    }
+
+    return escalaAgrupada;
+  }
 
   @override
   Widget build(BuildContext context) {
+    Map<String, Map<String, List<String>>> escalaAgrupada = _agruparEscala();
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Escala",
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Text("Escala", style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF003580),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Dropdown de Escalas
-            Text(
-              "Selecione a Escala",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              value: _escalaSelecionada,
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: DropdownButtonFormField<String>(
+              value: _idEscalaSelecionada,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
               items: _escalas.map((escala) {
                 return DropdownMenuItem<String>(
-                  value: escala,
-                  child: Text(escala),
+                  value: escala["id"],
+                  child: Text(escala["nome"]),
                 );
               }).toList(),
               onChanged: (value) {
                 setState(() {
-                  _escalaSelecionada = value;
+                  _idEscalaSelecionada = value;
+                  _filtrarPostosPorEscala(value!);
                 });
               },
               hint: const Text("Selecione uma escala"),
             ),
+          ),
 
-            // Botão Gerar PDF
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                // Função para gerar PDF (ainda não implementada)
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Função Gerar PDF ainda não implementada.")),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF003580),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+         Align(
+            alignment: Alignment.centerLeft, // 🔹 Mantém o botão alinhado à esquerda
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16), // 🔹 Ajuste o valor para espaçamento da esquerda
+              child: ElevatedButton(
+                onPressed: () {
+                  // Implementação futura do PDF
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF003580),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-              ),
-              child: const Text(
-                "Gerar PDF",
-                style: TextStyle(fontSize: 16, color: Colors.white),
+                child: const Text(
+                  "Gerar PDF",
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
               ),
             ),
+          ),
 
-            // Título da Escala Selecionada
-            if (_escalaSelecionada != null) ...[
-              const SizedBox(height: 16),
-              Text(
-                "Escala de $_escalaSelecionada",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal, // Scroll horizontal
-                child: DataTable(
-                  dataRowHeight: 40, // Altura reduzida para melhorar a visualização
-                  columnSpacing: 10, // Espaçamento reduzido entre colunas
-                  columns: [
-                    DataColumn(label: Text("Dia")),
-                    DataColumn(label: Text("Posto A")),
-                    DataColumn(label: Text("Posto B")),
-                    DataColumn(label: Text("Posto C")),
-                    DataColumn(label: Text("Posto D")),
-                    DataColumn(label: Text("Posto E")),
-                    DataColumn(label: Text("Posto F")),
+
+
+          if (_escalaPronta.isNotEmpty) ...[
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    DataTable(
+                      columns: [const DataColumn(label: Text("Dia"))],
+                      rows: escalaAgrupada.keys.map((dia) => DataRow(cells: [DataCell(Text(dia))])).toList(),
+                    ),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: DataTable(
+                          columns: _postosFiltrados.isNotEmpty
+                              ? _postosFiltrados.map((posto) => DataColumn(label: Text(posto))).toList()
+                              : [],
+                          rows: escalaAgrupada.keys.map((dia) => DataRow(
+                            cells: _postosFiltrados.map((posto) {
+                              List<String> funcionarios = escalaAgrupada[dia]?[posto] ?? ["-"];
+                              return DataCell(Column(children: funcionarios.map((func) => Text(func)).toList()));
+                            }).toList(),
+                          )).toList(),
+                        ),
+                      ),
+                    ),
                   ],
-                  rows: _dadosEscalas[_escalaSelecionada]!.map((linha) {
-                    return DataRow(cells: [
-                      DataCell(Text(linha["dia"])), // Renderiza o valor da chave "dia"
-                      DataCell(Text(linha["A"])),
-                      DataCell(Text(linha["B"])),
-                      DataCell(Text(linha["C"])),
-                      DataCell(Text(linha["D"])),
-                      DataCell(Text(linha["E"])),
-                      DataCell(Text(linha["F"])),
-                    ]);
-                  }).toList(),
                 ),
               ),
-            ],
+            ),
           ],
-        ),
+        ],
       ),
     );
   }

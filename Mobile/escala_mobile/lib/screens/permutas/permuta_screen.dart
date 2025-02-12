@@ -178,8 +178,6 @@ void _filtrarFuncionariosDisponiveis() {
   print("✅ Funcionários disponíveis filtrados: ${_funcionariosEscala.length}");
 }
 
-
-
 Future<void> _enviarSolicitacaoPermuta() async {
   try {
     if (_idEscalaSelecionada == null ||
