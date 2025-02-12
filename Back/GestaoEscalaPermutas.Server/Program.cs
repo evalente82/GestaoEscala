@@ -141,6 +141,11 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenAnyIP(7207); // Isso permite conexões de qualquer IP
+});
+
 var app = builder.Build();
 
 app.Use(async (context, next) =>

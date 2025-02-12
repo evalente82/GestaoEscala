@@ -136,7 +136,7 @@ export function Exibicao() {
                     show: true,
                     type: "error",
                     title: "Erro",
-                    message: "Não foi possível carregar os Cargos.",
+                    message: "Não foi possível carregar as Escalas.",
                 onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
             });
         });

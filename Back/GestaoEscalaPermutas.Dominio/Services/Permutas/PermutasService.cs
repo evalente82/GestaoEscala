@@ -109,22 +109,27 @@ namespace GestaoEscalaPermutas.Dominio.Services.Permutas
             }
         }
 
-        public async Task<PermutasDTO> BuscarFuncPorId(Guid idFuncionario)
+        public async Task<List<PermutasDTO>> BuscarFuncPorId(Guid idFuncionario)
         {
             try
             {
                 if (idFuncionario == Guid.Empty)
-                    return new PermutasDTO { valido = false, mensagem = "Id fora do Range." };
+                    return new List<PermutasDTO> { new PermutasDTO { valido = false, mensagem = "Id fora do Range." } };
 
-                var permuta = await _permutasRepository.BuscarFuncPorIdAsync(idFuncionario);
-                return permuta == null
-                    ? new PermutasDTO { valido = false, mensagem = "Permutas não encontradas." }
-                    : _mapper.Map<PermutasDTO>(permuta);
+                var permutas = await _permutasRepository.BuscarFuncPorIdAsync(idFuncionario);
+
+                if (permutas == null || !permutas.Any())
+                {
+                    return new List<PermutasDTO> { new PermutasDTO { valido = false, mensagem = "Permutas não encontradas." } };
+                }
+
+                return _mapper.Map<List<PermutasDTO>>(permutas);
             }
             catch (Exception e)
             {
                 throw new Exception($"Erro ao buscar permutas: {e.Message}");
             }
         }
+
     }
 }

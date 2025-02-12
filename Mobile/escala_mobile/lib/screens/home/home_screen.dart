@@ -38,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        "Bem vindo",
+                        "Bem vindo(a)",
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

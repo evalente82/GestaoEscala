@@ -55,8 +55,9 @@ namespace GestaoEscalaPermutas.Repository.Implementations
                 return new List<Permuta>(); // Retorna uma lista vazia se o ID for inválido
 
             return await _context.Permuta
-                .Where(f => f.IdFuncionarioSolicitante == idFuncionario)
+                .Where(p => p.IdFuncionarioSolicitante == idFuncionario)
                 .ToListAsync();
         }
+
     }
 }
