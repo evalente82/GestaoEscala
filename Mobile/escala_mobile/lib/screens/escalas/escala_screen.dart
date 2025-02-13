@@ -188,30 +188,22 @@ class _EscalaScreenState extends State<EscalaScreen> {
             ),
           ),
 
-         Align(
-            alignment: Alignment.centerLeft, // 🔹 Mantém o botão alinhado à esquerda
-            child: Padding(
-              padding: const EdgeInsets.only(left: 16), // 🔹 Ajuste o valor para espaçamento da esquerda
-              child: ElevatedButton(
-                onPressed: () {
-                  // Implementação futura do PDF
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF003580),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+          ElevatedButton(
+                  onPressed: () {
+                // Implementação futura do PDF
+              },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF003580),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    "Gerar PDF",
+                    style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),
-                child: const Text(
-                  "Gerar PDF",
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
-              ),
-            ),
-          ),
-
-
 
           if (_escalaPronta.isNotEmpty) ...[
             Expanded(
