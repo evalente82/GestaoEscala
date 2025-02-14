@@ -1,0 +1,40 @@
+name: Deploy React + .NET to Azure
+
+on:
+  push:
+    branches:
+      - main  # Altere para a branch correta
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 🚀 Checkout do código
+      uses: actions/checkout@v2
+
+    - name: 📦 Configurar .NET Core
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x' # Ajuste para sua versão do .NET
+
+    - name: 🔨 Build do Backend
+      run: |
+        cd GestaoEscala/Back/
+        dotnet restore
+        dotnet build --configuration Release
+        dotnet publish -c Release -o ./publish
+
+    - name: ⚛️ Build do Frontend (React)
+      run: |
+        cd front
+        npm install
+        npm run build
+        mv build ../backend/publish/wwwroot # Move o build do React para o .NET
+
+    - name: 🚀 Deploy para a Azure
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: "GestaoEscala" # Nome do App Service na Azure
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: ./backend/publish
