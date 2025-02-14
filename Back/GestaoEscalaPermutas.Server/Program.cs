@@ -41,10 +41,6 @@ using GestaoEscalaPermutas.Dominio.Services.Funcionario.GestaoEscalaPermutas.Dom
 using GestaoEscalaPermutas.Dominio.Services.TipoEscala.GestaoEscalaPermutas.Dominio.Services;
 using GestaoEscalaPermutas.Dominio.Services.Funcionalidade;
 
-
-
-
-
 var builder = WebApplication.CreateBuilder(args);
 var connString = builder.Configuration.GetConnectionString("EmUso");
 
@@ -75,13 +71,12 @@ builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddDbContext<DefesaCivilMaricaContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("EmUso")));
 
-
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
 builder.Services.AddResponseCompression();
 
 builder.Services.AddScoped<IDepartamentoService, DepartamentoService>();
-builder.Services.AddScoped<GestaoEscalaPermutas.Dominio.Interfaces.Cargos.ICargoService, CargoService>();
+builder.Services.AddScoped<ICargoService, CargoService>();
 builder.Services.AddScoped<IFuncionarioService, FuncionarioService>();
 builder.Services.AddScoped<IEscalaService, EscalaService>();
 builder.Services.AddScoped<IPostoTrabalhoService, PostoTrabalhoService>();
@@ -98,24 +93,23 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISetorService, SetorService>();
 builder.Services.AddRepositoryServices();
 
-
-
-builder.Services.AddSingleton<IMessageBus>(sp =>
-{
-    var configuration = sp.GetRequiredService<IConfiguration>();
-    var hostName = configuration["RabbitMQ:HostName"];
-    return new RabbitMqMessageBus(hostName);
-});
-builder.Services.AddHostedService<UsuarioMessageConsumer>();
+//builder.Services.AddSingleton<IMessageBus>(sp =>
+//{
+//    var configuration = sp.GetRequiredService<IConfiguration>();
+//    var hostName = configuration["RabbitMQ:HostName"];
+//    return new RabbitMqMessageBus(hostName);
+//});
+//builder.Services.AddHostedService<UsuarioMessageConsumer>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAllOrigins", policy =>
+    options.AddPolicy("AllowSpecificOrigin", policy =>
         policy.WithOrigins(
-                "http://192.168.0.8:7207", // Backend
+                "https://frontgestaoescala-hecgdtefgwcgd9dv.canadacentral-01.azurewebsites.net"
+                //"http://192.168.0.8:7207", // Backend
 
-                "http://10.0.2.2:7207",   // Emulador Android
-                "http://localhost:5173"   // Frontend
+                //"http://10.0.2.2:7207",   // Emulador Android
+                //"http://localhost:5173"   // Frontend
             )
             .AllowAnyMethod()
             .AllowAnyHeader()
@@ -181,7 +175,7 @@ if (app.Environment.IsDevelopment())
 app.UseMiddleware<PermissaoMiddleware>();
 app.UseRouting();
 
-app.UseCors("AllowAllOrigins");
+app.UseCors("AllowSpecificOrigin");
 
 app.UseAuthorization();
 app.UseAuthentication();
