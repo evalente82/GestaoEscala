@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Debug - Listar arquivos no workspace
-        run: ls -la
+        run: Get-ChildItem -Path . -Recurse
 
       - name: Configurar .NET Core
         uses: actions/setup-dotnet@v4
