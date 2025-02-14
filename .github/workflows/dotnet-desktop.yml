@@ -16,19 +16,22 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v4
 
+      - name: Debug - Listar arquivos no workspace
+        run: ls -la
+
       - name: Configurar .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
 
       - name: Restaurar dependências
-        run: dotnet restore
+        run: dotnet restore ./Back/GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.sln
 
       - name: Compilar aplicação
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build --configuration Release --no-restore ./Back/GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.sln
 
       - name: Publicar aplicação
-        run: dotnet publish -c Release -o ${{ github.workspace }}/publish
+        run: dotnet publish -c Release -o ${{ github.workspace }}/publish ./Back/GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.sln
 
       - name: Upload dos artefatos para o job de deploy
         uses: actions/upload-artifact@v4
