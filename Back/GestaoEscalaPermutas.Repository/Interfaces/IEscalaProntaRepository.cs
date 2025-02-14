@@ -1,4 +1,5 @@
 ﻿using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
+using System.Security.Cryptography;
 
 namespace GestaoEscalaPermutas.Repository.Interfaces
 {
@@ -10,8 +11,10 @@ namespace GestaoEscalaPermutas.Repository.Interfaces
         Task<List<EscalaPronta>> ObterPorEscalaIdAsync(Guid idEscalaPronta);
         Task<List<EscalaPronta>> ObterTodosAsync();
         Task AtualizarAsync(EscalaPronta escalaPronta);
+        Task AtualizarEscalaProntaAsync(EscalaPronta escalaPronta);
         Task RemoverAsync(Guid id);
         Task RemoverListaPorEscalaAsync(Guid idEscala);
         Task<List<EscalaPronta>> BuscarPorIdFuncionario(Guid idFuncionario);
+        Task<EscalaPronta> ObterPorDataEPostoAsync(DateTime dia, Guid idPostoTrabalho);
     }
 }
