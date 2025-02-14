@@ -53,11 +53,6 @@ jobs:
           name: .net-app
           path: ${{ github.workspace }}/publish
 
-      - name: Login_na_Azure  # 🔹 Novo passo para autenticar antes do deploy
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AzureAppService_PublishProfile }}
-
       - name: Deploy para o Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
@@ -65,3 +60,4 @@ jobs:
           app-name: 'BackGestaoEscala'
           slot-name: 'Production'
           package: ${{ github.workspace }}/publish
+          publish-profile: ${{ secrets.AzureAppService_PublishProfile }}
