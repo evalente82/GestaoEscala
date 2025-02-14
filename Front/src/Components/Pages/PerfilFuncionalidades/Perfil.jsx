@@ -8,6 +8,7 @@ import AlertPopup from "../AlertPopup/AlertPopup";
 function PerfilList(props) {
     const [searchText, setSearchText] = useState("");
     const [perfis, setPerfis] = useState([]);
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     const [alertProps, setAlertProps] = useState({
         show: false,
         type: "info",
@@ -16,7 +17,7 @@ function PerfilList(props) {
         onConfirm: null,
         onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
     });
-    const API_URL = "https://localhost:7207/perfil";
+    const API_URL = `${API_BASE_URL}/perfil`;
 
     // Função para buscar todos os perfis
     function BuscarPerfis() {
@@ -171,6 +172,7 @@ function PerfilForm(props) {
     };
 
     const [nome, setNome] = useState(props.perfil.nome || "");
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     const [descricao, setDescricao] = useState(props.perfil.descricao || "");
     const [alertProps, setAlertProps] = useState({
         show: false,
@@ -188,7 +190,7 @@ function PerfilForm(props) {
         if (props.perfil.idPerfil) {
             axios
             .put(
-                    `https://localhost:7207/perfil/atualizar/${props.perfil.idPerfil}`,
+                    `${API_BASE_URL}/perfil/atualizar/${props.perfil.idPerfil}`,
                     data
                 )
                 .then(() => {
@@ -214,7 +216,7 @@ function PerfilForm(props) {
                 });
         } else {
             axios
-                .post("https://localhost:7207/perfil/incluir", data)
+                .post(`${API_BASE_URL}/perfil/incluir`, data)
                 .then(() => {
                     setAlertProps({
                         show: true,

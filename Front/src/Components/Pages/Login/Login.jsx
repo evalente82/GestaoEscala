@@ -11,11 +11,13 @@ function Login() {
     const navigate = useNavigate();
     const { login } = useAuth(); // 🔹 Obtém o método `login` do contexto
 
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
         try {
-            const response = await axios.post("https://localhost:7207/login/autenticar", { 
+            const response = await axios.post(`${API_BASE_URL}/login/autenticar`, { 
                 usuario, 
                 senha 
             }, {

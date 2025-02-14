@@ -10,6 +10,7 @@ import Select from 'react-select';
 function CargoPerfisList(props) {
     const [searchText, setSearchText] = useState("");
     const [cargoPerfis, setCargoPerfis] = useState([]);
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     const [alertProps, setAlertProps] = useState({
         show: false,
         type: "info",
@@ -19,7 +20,7 @@ function CargoPerfisList(props) {
         onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
     });
 
-    const API_URL = "https://localhost:7207/cargoPerfis";
+    const API_URL = `${API_BASE_URL}/cargoPerfis`;
 
     function BuscarCargoPerfis() {
         console.log("Buscando Cargo e perfis...");
@@ -187,6 +188,7 @@ function CargoPerfisForm(props) {
     const [perfis, setPerfis] = useState([]);
     const [cargoSelecionado, setCargoSelecionado] = useState("");
     const [perfilSelecionado, setPerfilSelecionado] = useState("");
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     const [alertProps, setAlertProps] = useState({
         show: false,
         type: "info",
@@ -196,14 +198,14 @@ function CargoPerfisForm(props) {
     });
 
     useEffect(() => {
-        axios.get("https://localhost:7207/cargo/buscarTodos")
+        axios.get(`${API_BASE_URL}/cargo/buscarTodos`)
             .then((response) => {
                 console.log("Dados de Cargos recebidossssss:", response.data);
                 setCargos(response.data);
             })
             .catch((error) => console.error("Erro ao buscar Cargos:", error));
 
-        axios.get("https://localhost:7207/perfil/buscarTodos")
+        axios.get(`${API_BASE_URL}/perfil/buscarTodos`)
             .then((response) => {
                 console.log("Dados de perfis recebidos:", response.data);
                 setPerfis(response.data);
@@ -272,7 +274,7 @@ const handleSubmit = async (e) => {
     }
 
     try {
-        const response = await axios.post("https://localhost:7207/cargoPerfis/incluir", {
+        const response = await axios.post(`${API_BASE_URL}/cargoPerfis/incluir`, {
             idCargo: cargoSelecionado,
             nomeCargo: cargoSelecionadoNome,
             idPerfil: perfilSelecionado,

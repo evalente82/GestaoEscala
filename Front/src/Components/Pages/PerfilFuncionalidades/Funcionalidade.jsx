@@ -7,6 +7,7 @@ import AlertPopup from "../AlertPopup/AlertPopup";
 
 function FuncionalidadeList(props) {
     const [searchText, setSearchText] = useState("");
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     const [funcionalidades, setFuncionalidades] = useState([]);
     const [alertProps, setAlertProps] = useState({
         show: false,
@@ -16,7 +17,7 @@ function FuncionalidadeList(props) {
         onConfirm: null,
         onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
     });
-    const API_URL = "https://localhost:7207/funcionalidade";
+    const API_URL = `${API_BASE_URL}/funcionalidade`;
 
     // Função para buscar todas as funcionalidades
     function BuscarFuncionalidades() {
@@ -173,6 +174,7 @@ function FuncionalidadeForm(props) {
     };
 
     const [nome, setNome] = useState(props.funcionalidade.nome || "");
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     const [descricao, setDescricao] = useState(props.funcionalidade.descricao || "");
     const [alertProps, setAlertProps] = useState({
         show: false,
@@ -190,7 +192,7 @@ function FuncionalidadeForm(props) {
         if (props.funcionalidade.idFuncionalidade) {
             axios
                 .put(
-                    `https://localhost:7207/funcionalidade/atualizar/${props.funcionalidade.idFuncionalidade}`,
+                    `${API_BASE_URL}/funcionalidade/atualizar/${props.funcionalidade.idFuncionalidade}`,
                     data
                 )
                 .then(() => {
@@ -216,7 +218,7 @@ function FuncionalidadeForm(props) {
                 });
         } else {
             axios
-                .post("https://localhost:7207/funcionalidade/incluir", data)
+                .post(`${API_BASE_URL}/funcionalidade/incluir`, data)
                 .then(() => {
                     setAlertProps({
                         show: true,
