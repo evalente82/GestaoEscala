@@ -16,7 +16,6 @@
           "Microsoft.EntityFrameworkCore.Design": "9.0.1",
           "Newtonsoft.Json": "13.0.3",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.2",
-          "RabbitMQ.Client": "6.0.0",
           "Swashbuckle.AspNetCore": "7.2.0"
         },
         "runtime": {
@@ -1602,8 +1601,7 @@
           "GestaoEscalaPermutas.Infra": "1.0.0",
           "GestaoEscalaPermutas.Repository": "1.0.0",
           "Newtonsoft.Json": "13.0.3",
-          "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.2",
-          "RabbitMQ.Client": "6.0.0"
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "9.0.2"
         },
         "runtime": {
           "GestaoEscalaPermutas.Dominio.dll": {

@@ -1,8 +1,7 @@
-﻿using GestaoEscalaPermutas.Dominio.Interfaces.Mensageria;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
-namespace GestaoEscalaPermutas.Server.Controllers.Mensageria
-{
+//namespace GestaoEscalaPermutas.Server.Controllers.Mensageria
+//{
     //[ApiController]
     //[Route("api/[controller]")]
     //public class RecebimentoMensagemController : ControllerBase
@@ -40,4 +39,4 @@ namespace GestaoEscalaPermutas.Server.Controllers.Mensageria
     //        Console.WriteLine($"Mensagem recebida: {mensagem}");
     //    }
     //}
-}
+//}
