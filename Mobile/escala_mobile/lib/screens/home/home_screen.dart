@@ -16,7 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     // Acesse o UserModel via Provider
-    final userModel = Provider.of<UserModel>(context);
+    final userModel = Provider.of<UserModel>(context, listen: false);
 
     return Scaffold(
       body: Column(
@@ -48,15 +48,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "${userModel.userName} Mat. ${userModel.userMatricula}", // Exibe os dados do usuário dinamicamente
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.normal,
-                          color: Colors.black,
-                        ),
-                        textAlign: TextAlign.center,
-                        overflow: TextOverflow.visible,
+                      "${userModel.userName} Mat. ${userModel.userMatricula}",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal,
+                        color: Colors.black,
                       ),
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.visible,
+                    ),
+
                     ],
                   ),
                 ),

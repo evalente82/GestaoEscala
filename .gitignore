@@ -8,3 +8,7 @@ Sistemas
 /Back/package.json
 *.sqlite
 /Front/node_modules/.vite/deps
+/Back/GestaoEscalaPermutas.Repository/bin/Debug/net8.0/GestaoEscalaPermutas.Infra.dll
+/Back/GestaoEscalaPermutas.Repository/bin/Debug/net8.0/GestaoEscalaPermutas.Infra.pdb
+/Back/GestaoEscalaPermutas.Repository/bin/Debug/net8.0/GestaoEscalaPermutas.Repository.dll
+/Back/GestaoEscalaPermutas.Repository/bin/Debug/net8.0/GestaoEscalaPermutas.Repository.pdb
