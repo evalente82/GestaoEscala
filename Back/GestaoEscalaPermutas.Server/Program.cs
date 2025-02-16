@@ -40,6 +40,7 @@ using GestaoEscalaPermutas.Repository.DependencyInjection;
 using GestaoEscalaPermutas.Dominio.Services.Funcionario.GestaoEscalaPermutas.Dominio.Services.Funcionario;
 using GestaoEscalaPermutas.Dominio.Services.TipoEscala.GestaoEscalaPermutas.Dominio.Services;
 using GestaoEscalaPermutas.Dominio.Services.Funcionalidade;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 var connString = builder.Configuration.GetConnectionString("EmUso");
@@ -100,6 +101,22 @@ builder.Services.AddRepositoryServices();
 //    return new RabbitMqMessageBus(hostName);
 //});
 //builder.Services.AddHostedService<UsuarioMessageConsumer>();
+
+
+// Definir ambiente de produção
+var environment = builder.Environment.EnvironmentName;
+var configuracoes = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{environment}.json", optional: true)
+    .AddEnvironmentVariables()
+    .Build();
+
+builder.Services.Configure<KestrelServerOptions>(options =>
+{
+    options.AllowSynchronousIO = true;
+});
+
 
 builder.Services.AddCors(options =>
 {
