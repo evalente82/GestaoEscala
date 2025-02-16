@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy ASP.Net Core app to Azure Web App - GestaoEscalaBack
 
 on:
@@ -13,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -23,17 +20,20 @@ jobs:
         with:
           dotnet-version: '8.x'
 
-      - name: Build with dotnet
-        run: dotnet build --configuration Release
+      - name: Restaurar dependências
+        run: dotnet restore Back/GestaoEscalaPermutas.sln
 
-      - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/Back
+      - name: Compilar aplicação
+        run: dotnet build --configuration Release --no-restore Back/GestaoEscalaPermutas.sln
+
+      - name: Publicar aplicação
+        run: dotnet publish -c Release -r linux-x64 --self-contained false -p:PublishReadyToRun=true -o ${{ github.workspace }}/Back Back/GestaoEscalaPermutas.sln
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/Back
+          path: ${{ github.workspace }}/Back
 
   deploy:
     runs-on: ubuntu-latest
@@ -42,21 +42,22 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-      
+          path: ${{ github.workspace }}/Back
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_02DEE97DCA46436F850C66AED9B1B316 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_40BE4123F7D34091B4BF345797D41932 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_62819F710665455C9580FE4DFEA7A9FC }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -64,4 +65,4 @@ jobs:
         with:
           app-name: 'GestaoEscalaBack'
           slot-name: 'Production'
-          package: .
+          package: ${{ github.workspace }}/Back
