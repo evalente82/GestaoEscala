@@ -22,6 +22,7 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta
         Task<RetornoDTO> RecriarEscalaProximoMes(Guid idEscala);
         Task<EscalaProntaDTO> DeletarOcorrenciaFuncionario(Guid idFuncionario, Guid idEscala);
         Task<EscalaProntaDTO> IncluirFuncionarioEscala(EscalaProntaDTO escalaProntaDTO);
+        Task<List<EscalaProntaDTO>> BuscarPorIdFuncionario(Guid idFuncionario);
 
     }
 }

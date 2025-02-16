@@ -1,0 +1,39 @@
+name: escala_mobile
+description: "Aplicativo de Escalas e Permutas para Defesa Civil Maricá."
+publish_to: 'none' 
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.2
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.3.0 # Para fazer requisições HTTP
+  shared_preferences: ^2.2.0 # Para armazenar o token JWT localmente
+  provider: ^6.0.5 # Versão estável e compatível
+  json_annotation: ^4.8.1 # Para trabalhar com JSON
+  equatable: ^2.0.5 # Para comparação de objetos
+  cupertino_icons: ^1.0.8
+  intl: ^0.20.2
+  logger: ^2.0.2
+  
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  build_runner: ^2.4.6 # Para gerar código automaticamente
+  json_serializable: ^6.7.1 # Para serialização/desserialização de JSON
+  flutter_launcher_icons: ^0.13.1
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/SalvamentoMaritimo.png"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/ # Pasta para imagens ou outros assets

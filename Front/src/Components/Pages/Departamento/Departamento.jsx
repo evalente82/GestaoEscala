@@ -7,6 +7,7 @@ function DepartamentoList(props) {
     DepartamentoList.propTypes = {
         ShowForm: PropTypes.func.isRequired, // Indica que ShowForm é uma função obrigatória
     };
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     const [searchText, setSearchText] = useState("");
     const [departamento, setDepartamento] = useState([]);
     const [alertProps, setAlertProps] = useState({
@@ -18,7 +19,7 @@ function DepartamentoList(props) {
         onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
     });
 
-    const API_URL = "https://localhost:7207/departamento";
+    const API_URL = `${API_BASE_URL}/departamento`;
     function BuscarTodos() {
         axios.get(`${API_URL}/buscarTodos`)
             .then((response) => {
@@ -189,6 +190,7 @@ function DepartamentoForm(props) {
         }).isRequired,
     };
     // const [errorMessage, setErrorMessage] = useState('');
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     const [nome, setNome] = useState(props.departamento.nmNome || '');
     const [descricao, setDescricao] = useState(props.departamento.nmDescricao || '');    
     const [ativo, setAtivo] = useState(props.departamento.isAtivo || false);
@@ -215,7 +217,7 @@ function DepartamentoForm(props) {
             };
             axios
                 .patch(
-                    "https://localhost:7207/departamento/Atualizar/" +
+                    `${API_BASE_URL}/departamento/Atualizar/` +
                     props.departamento.idDepartamento,
                     data
                 )
@@ -246,7 +248,7 @@ function DepartamentoForm(props) {
                 isAtivo: ativo,
             };
             axios
-                .post("https://localhost:7207/departamento/Incluir", data)
+                .post(`${API_BASE_URL}/departamento/Incluir`, data)
                 .then(() => {
                     setAlertProps({
                         show: true,

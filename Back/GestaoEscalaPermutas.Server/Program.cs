@@ -16,8 +16,6 @@ using GestaoEscalaPermutas.Dominio.Interfaces.Escala;
 using GestaoEscalaPermutas.Dominio.Interfaces.TipoEscala;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.Services.EscalaPronta;
-using GestaoEscalaPermutas.Dominio.Interfaces.Mensageria;
-using GestaoEscalaPermutas.Dominio.Services.Mensageria;
 using GestaoEscalaPermutas.Dominio.Interfaces.Permutas;
 using GestaoEscalaPermutas.Dominio.Services.Permutas;
 using GestaoEscalaPermutas.Dominio.Interfaces.Login;
@@ -40,10 +38,7 @@ using GestaoEscalaPermutas.Repository.DependencyInjection;
 using GestaoEscalaPermutas.Dominio.Services.Funcionario.GestaoEscalaPermutas.Dominio.Services.Funcionario;
 using GestaoEscalaPermutas.Dominio.Services.TipoEscala.GestaoEscalaPermutas.Dominio.Services;
 using GestaoEscalaPermutas.Dominio.Services.Funcionalidade;
-
-
-
-
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 var connString = builder.Configuration.GetConnectionString("EmUso");
@@ -75,13 +70,12 @@ builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddDbContext<DefesaCivilMaricaContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("EmUso")));
 
-
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
 builder.Services.AddResponseCompression();
 
 builder.Services.AddScoped<IDepartamentoService, DepartamentoService>();
-builder.Services.AddScoped<GestaoEscalaPermutas.Dominio.Interfaces.Cargos.ICargoService, CargoService>();
+builder.Services.AddScoped<ICargoService, CargoService>();
 builder.Services.AddScoped<IFuncionarioService, FuncionarioService>();
 builder.Services.AddScoped<IEscalaService, EscalaService>();
 builder.Services.AddScoped<IPostoTrabalhoService, PostoTrabalhoService>();
@@ -98,23 +92,45 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISetorService, SetorService>();
 builder.Services.AddRepositoryServices();
 
+//builder.Services.AddSingleton<IMessageBus>(sp =>
+//{
+//    var configuration = sp.GetRequiredService<IConfiguration>();
+//    var hostName = configuration["RabbitMQ:HostName"];
+//    return new RabbitMqMessageBus(hostName);
+//});
+//builder.Services.AddHostedService<UsuarioMessageConsumer>();
 
 
-builder.Services.AddSingleton<IMessageBus>(sp =>
+// Definir ambiente de produção
+var environment = builder.Environment.EnvironmentName;
+var configuracoes = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{environment}.json", optional: true)
+    .AddEnvironmentVariables()
+    .Build();
+
+builder.Services.Configure<KestrelServerOptions>(options =>
 {
-    var configuration = sp.GetRequiredService<IConfiguration>();
-    var hostName = configuration["RabbitMQ:HostName"];
-    return new RabbitMqMessageBus(hostName);
+    options.AllowSynchronousIO = true;
 });
-builder.Services.AddHostedService<UsuarioMessageConsumer>();
+
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAllOrigins", policy =>
-        policy.AllowAnyOrigin() // Permite qualquer origem
-              .AllowAnyMethod() // Permite qualquer método HTTP (GET, POST, PUT, DELETE, etc.)
-              .AllowAnyHeader()); // Permite qualquer cabeçalho
+    options.AddPolicy("AllowSpecificOrigin", policy =>
+        policy.WithOrigins(
+                "https://frontgestaoescala-hecgdtefgwcgd9dv.canadacentral-01.azurewebsites.net"
+            //"http://192.168.0.2:7207", // Backend
+
+            //"http://10.0.2.2:7207",   // Emulador Android
+            //"http://localhost:5173"   // Frontend
+            )
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
 });
+
 
 builder.Services.AddAuthentication(options =>
 {
@@ -134,47 +150,60 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-var app = builder.Build();
-
-app.Use(async (context, next) =>
+builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    try
-    {
-        if (context.Request.Path.StartsWithSegments("/swagger"))
-        {
-            await next();
-            return;
-        }
-        await next();
-    }
-    catch (Exception)
-    {
-        await context.Response.WriteAsync(JsonConvert.SerializeObject("teste."));
-    }
+    serverOptions.ListenAnyIP(7207); // Isso permite conexões de qualquer IP
 });
 
-app.UseDefaultFiles();
-app.UseStaticFiles();
-app.UseDeveloperExceptionPage();
 
-if (app.Environment.IsDevelopment())
+try
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
+    var app = builder.Build();
+
+    app.Use(async (context, next) =>
     {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+        try
+        {
+            if (context.Request.Path.StartsWithSegments("/swagger"))
+            {
+                await next();
+                return;
+            }
+            await next();
+        }
+        catch (Exception)
+        {
+            await context.Response.WriteAsync(JsonConvert.SerializeObject("teste."));
+        }
     });
+
+    app.UseDefaultFiles();
+    app.UseStaticFiles();
+    app.UseDeveloperExceptionPage();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI(options =>
+        {
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+        });
+    }
+
+    app.UseMiddleware<PermissaoMiddleware>();
+    app.UseRouting();
+
+    app.UseCors("AllowSpecificOrigin");
+
+    app.UseAuthorization();
+    app.UseAuthentication();
+
+    app.MapControllers();
+
+    app.Run();
 }
-
-app.UseMiddleware<PermissaoMiddleware>();
-app.UseHttpsRedirection();
-app.UseRouting();
-
-app.UseCors("AllowAllOrigins");
-
-app.UseAuthorization();
-app.UseAuthentication();
-
-app.MapControllers();
-
-app.Run();
+catch (Exception ex)
+{
+    Console.WriteLine($"Erro crítico na inicialização: {ex.Message}");
+    throw;
+}

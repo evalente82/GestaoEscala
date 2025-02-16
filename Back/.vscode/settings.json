@@ -1,0 +1,5 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/87a3d4b9-d412-44f9-bd8d-4aa6f5fa71de/resourceGroups/VcorpInfra/providers/Microsoft.Web/sites/BackGestaoEscala",
+    "appService.deploySubpath": ".",
+    "appService.showBuildDuringDeployPrompt": false
+}

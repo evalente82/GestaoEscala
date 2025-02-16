@@ -19,6 +19,7 @@ function EscalaList(props) {
     const [tipoEscalas, setTipoEscalas] = useState([]);
     const { permissoes } = useAuth();
     const possuiPermissao = (permissao) => permissoes.includes(permissao);
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
 
     const [alertProps, setAlertProps] = useState({
         show: false, // Exibe ou esconde o AlertPopup
@@ -49,7 +50,7 @@ function EscalaList(props) {
     function BuscarDepartamentos() {
         const fetchData = async () => {
             try {
-                const response = await axios.get("https://localhost:7207/departamento/buscarTodos");
+                const response = await axios.get(`${API_BASE_URL}/departamento/buscarTodos`);
                 setDepartamentos(response.data);
                 console.log('Departamentos');
                 console.log(response.data);
@@ -63,7 +64,7 @@ function EscalaList(props) {
     function Buscarcargos() {
         const fetchData = async () => {
             try {
-                const response = await axios.get("https://localhost:7207/cargo/buscarTodos");
+                const response = await axios.get(`${API_BASE_URL}/cargo/buscarTodos`);
                 setCargos(response.data);
                 console.log('Cargos');
                 console.log(response.data);
@@ -77,7 +78,7 @@ function EscalaList(props) {
     function BuscarTipoEscalas() {
         const fetchData = async () => {
             try {
-                const response = await axios.get("https://localhost:7207/tipoEscala/buscarTodos");
+                const response = await axios.get(`${API_BASE_URL}/tipoEscala/buscarTodos`);
                 setTipoEscalas(response.data);
             } catch (error) {
                 console.log(error);
@@ -90,7 +91,6 @@ function EscalaList(props) {
         ShowForm: PropTypes.func.isRequired,
         ShowMontaEscala: PropTypes.func.isRequired,// Indica que ShowForm é uma função obrigatória
     };
-
     
     // Chame BuscarTodos() no início do componente para carregar os cargos
     useEffect(() => {
@@ -105,7 +105,7 @@ function EscalaList(props) {
         BuscarTipoEscalas(setTipoEscalas);
     }, []); // Passando um array vazio, o efeito será executado apenas uma vez no carregamento do componente
 
-    const API_URL = "https://localhost:7207/escala";
+    const API_URL = `${API_BASE_URL}/escala`;
     useEffect(() => {
         const fetchData = async () => {
             const response = await axios.get(`${API_URL}/buscarTodos`);
@@ -229,8 +229,7 @@ function EscalaList(props) {
                     console.error(error);
                 });
         }
-    };
-    
+    };    
 
     return (
         <>
@@ -338,7 +337,7 @@ function EscalaList(props) {
                                             onClick={() => props.ShowForm(escala)}
                                             type="button"
                                             className="btn btn-primary btn-sm me-2"
-                                            disabled={escala.isGerada == true}
+                                            disabled={escala.isAtivo == true}
                                         >
                                             Editar
                                         </button>)}
@@ -407,6 +406,7 @@ function EscalaForm(props) {
     const [tipoEscalaSelecionado, setTipoEscalaSelecionado] = useState('');
     const [ativo, setAtivo] = useState(props.escala.isAtivo || false);
     const [gerada, setGerada] = useState(props.escala.isGerada || false);
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     const [alertProps, setAlertProps] = useState({
         show: false, // Define se o AlertPopup deve ser exibido
         type: "info", // Tipo da mensagem (success, error, info, confirm)
@@ -418,7 +418,7 @@ function EscalaForm(props) {
     useEffect(() => {
         BuscarDepartametos();
     }, []);
-    const API_URL = "https://localhost:7207/departamento";
+    const API_URL = `${API_BASE_URL}/departamento`;
     function BuscarDepartametos() {
         axios.get(`${API_URL}/buscarTodos`)
             .then((response) => {
@@ -433,7 +433,7 @@ function EscalaForm(props) {
     useEffect(() => {
         BuscarCargos();
     }, []);
-    const API_URL_Carcos = "https://localhost:7207/cargo";
+    const API_URL_Carcos = `${API_BASE_URL}/cargo`;
     function BuscarCargos() {
         axios.get(`${API_URL_Carcos}/buscarTodos`)
             .then((response) => {
@@ -448,7 +448,7 @@ function EscalaForm(props) {
     useEffect(() => {
         BuscarTipoEscala();
     }, []);
-    const API_URL_TipoEscala = "https://localhost:7207/tipoEscala";
+    const API_URL_TipoEscala = `${API_BASE_URL}/tipoEscala`;
     function BuscarTipoEscala() {
         axios.get(`${API_URL_TipoEscala}/buscarTodos`)
             .then((response) => {
@@ -501,7 +501,7 @@ function EscalaForm(props) {
             console.log("Dados enviados alterar:", data);
             axios
                 .patch(
-                    "https://localhost:7207/escala/Atualizar/" +
+                    `${API_BASE_URL}/escala/Atualizar/` +
                     props.escala.idEscala,
                     data
                 )
@@ -540,7 +540,7 @@ function EscalaForm(props) {
             };
             console.log("Dados enviados:", data);
             axios
-                .post("https://localhost:7207/escala/Incluir", data)
+                .post(`${API_BASE_URL}/escala/Incluir`, data)
                 .then(() => {
                     setAlertProps({
                         show: true,
@@ -761,6 +761,7 @@ function MontaEscala(props) {
     const [ativo, setAtivo] = useState(props.escala.isAtivo || false);
     const [isLoading, setIsLoading] = useState(false);
     const [erro, setError] = useState(false);
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
 
     const [alertProps, setAlertProps] = useState({
         show: false, // Define se o AlertPopup deve ser exibido
@@ -783,7 +784,7 @@ function MontaEscala(props) {
     useEffect(() => {
         BuscarDepartametos();
     }, []);
-    const API_URL = "https://localhost:7207/departamento";
+    const API_URL = `${API_BASE_URL}/departamento`;
     function BuscarDepartametos() {
         axios.get(`${API_URL}/buscarTodos`)
             .then((response) => {
@@ -797,7 +798,7 @@ function MontaEscala(props) {
     useEffect(() => {
         BuscarCargos();
     }, []);
-    const API_URL_Cargo = "https://localhost:7207/cargo";
+    const API_URL_Cargo = `${API_BASE_URL}/cargo`;
     function BuscarCargos() {
         axios.get(`${API_URL_Cargo}/buscarTodos`)
             .then((response) => {
@@ -811,7 +812,7 @@ function MontaEscala(props) {
     useEffect(() => {
         BuscarTipoEscala();
     }, []);
-    const API_URL_TipoEscala = "https://localhost:7207/tipoEscala";
+    const API_URL_TipoEscala = `${API_BASE_URL}/tipoEscala`;
     function BuscarTipoEscala() {
         axios.get(`${API_URL_TipoEscala}/buscarTodos`)
             .then((response) => {
@@ -846,7 +847,7 @@ function MontaEscala(props) {
             var idEscala = props.escala.idEscala
             axios
                 .post(
-                    "https://localhost:7207/escala/montarEscala",
+                    `${API_BASE_URL}/escala/montarEscala`,
                     idEscala,
                     {
                         headers: {

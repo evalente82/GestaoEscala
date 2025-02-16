@@ -9,6 +9,7 @@ import { useAuth } from "../AuthContext";
 
 function PermutaList(props) {
     const [searchText, setSearchText] = useState("");
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     const [permuta, setPermuta] = useState([]);
     const [escalas, setEscalas] = useState([]);
     const { permissoes } = useAuth();
@@ -22,7 +23,7 @@ function PermutaList(props) {
         onConfirm: null, // Callback para ações de confirmação (opcional)
         onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
     });
-    const API_URL = "https://localhost:7207/permutas";
+    const API_URL = `${API_BASE_URL}/permutas`;
 
     function BuscarTodos() {
         axios.get(`${API_URL}/buscarTodos`)
@@ -41,7 +42,7 @@ function PermutaList(props) {
             });
     }
     function BuscarEscalas() {
-        axios.get("https://localhost:7207/escala/buscarTodos")
+        axios.get(`${API_BASE_URL}/escala/buscarTodos`)
             .then((response) => {
                 console.log("Escalas carregadas:", response.data);
                 setEscalas(response.data); // Armazena as escalas no estado
@@ -78,7 +79,7 @@ function PermutaList(props) {
 
     function DeletePermuta(idPermuta) {
         axios
-        .delete(`https://localhost:7207/permutas/Deletar/${idPermuta}`)
+        .delete(`${API_BASE_URL}/permutas/Deletar/${idPermuta}`)
             .then((response) => {
                 console.log(response);
                 setPermuta(
@@ -260,6 +261,7 @@ function PermutaForm(props) {
     const [dtSolicitacao, setDtSolicitacao] = useState(props.permuta.dtSolicitacao || '');
     const [dtDataSolicitadaTroca, setDtDataSolicitadaTroca] = useState(props.permuta.dtDataSolicitadaTroca || '');
     const [dtAprovacao, setDtAprovacao] = useState(props.permuta.dtAprovacao || '');
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     const [alertProps, setAlertProps] = useState({
         show: false, // Define se o AlertPopup deve ser exibido
         type: "info", // Tipo da mensagem (success, error, info, confirm)
@@ -288,7 +290,7 @@ function PermutaForm(props) {
     }, [idDaEscala, idFuncionarioSolicitante, idFuncionarioSolicitado]);
    
     function BuscarFuncionarios() {
-        axios.get("https://localhost:7207/funcionario/buscarTodos")
+        axios.get(`${API_BASE_URL}/funcionario/buscarTodos`)
             .then((response) => {
                 console.log(response.data);
                 setFuncionarios(response.data);
@@ -306,7 +308,7 @@ function PermutaForm(props) {
 
     function BuscaEscala() {
         axios
-            .get("https://localhost:7207/escala/buscarTodos")
+            .get(`${API_BASE_URL}/escala/buscarTodos`)
             .then((response) => {
                 const escalasAtivas = response.data.filter(e =>e.isAtivo === true && e.isGerada === true);
                 setEscala(escalasAtivas);
@@ -320,7 +322,7 @@ function PermutaForm(props) {
 
     function BuscaEscalaPronta(idEscala) {
         axios
-            .get(`https://localhost:7207/escalaPronta/buscarPorId/${idEscala}`)
+            .get(`${API_BASE_URL}/escalaPronta/buscarPorId/${idEscala}`)
             .then((response) => {
                 const escala = response.data;
                 console.log("Dados recebidos de escalaPronta:", escala);
@@ -425,7 +427,7 @@ function PermutaForm(props) {
             // Atualização
             axios
                 .patch(
-                    `https://localhost:7207/permutas/Atualizar/${props.permuta.idPermuta}`,
+                    `${API_BASE_URL}/permutas/Atualizar/${props.permuta.idPermuta}`,
                     data
                 )
                 .then(() => {
@@ -453,7 +455,7 @@ function PermutaForm(props) {
         } else {
             // Inclusão
             axios
-                .post("https://localhost:7207/permutas/Incluir", data)
+                .post(`${API_BASE_URL}/permutas/Incluir`, data)
                 .then(() => {
                     setAlertProps({
                         show: true,
@@ -637,29 +639,36 @@ function PermutaForm(props) {
 
                         <div className="row mb-3">
                             <label className="col-sm-4 col-form-label">Data da troca</label>
-                            <div className="col-sm-8">
-                                <select
-                                    className="form-control"
-                                    value={dtDataSolicitadaTroca}
-                                    onChange={(e) => setDtDataSolicitadaTroca(e.target.value)}
-                                >
-                                    <option value="" disabled>
-                                        Selecione uma data
-                                    </option>
-                                    {datasTrabalhoSolicitante.length > 0 ? (
-                                        datasTrabalhoSolicitante.map((dia, index) => (
-                                            <option key={`${index}-${dia}`} value={dia}>
-                                                {dia}
-                                            </option>
-                                        ))
-                                    ) : (
-                                        <option disabled>Sem datas disponíveis</option>
-                                    )}
-                                </select>
+                                <div className="col-sm-8">
+                                    <select
+                                        className="form-control"
+                                        value={dtDataSolicitadaTroca}
+                                        onChange={(e) => setDtDataSolicitadaTroca(e.target.value)}
+                                    >
+                                        <option value="" disabled>
+                                            Selecione uma data
+                                        </option>
+                                        {datasTrabalhoSolicitante.length > 0 ? (
+                                            datasTrabalhoSolicitante.map((dia, index) => {
+                                                // Converte a string de data para o formato correto
+                                                const dataFormatada = new Intl.DateTimeFormat("pt-BR", {
+                                                    day: "2-digit",
+                                                    month: "2-digit",
+                                                    year: "numeric",
+                                                }).format(new Date(dia));
+
+                                                return (
+                                                    <option key={`${index}-${dia}`} value={dia}>
+                                                        {dataFormatada}
+                                                    </option>
+                                                );
+                                            })
+                                        ) : (
+                                            <option disabled>Sem datas disponíveis</option>
+                                        )}
+                                    </select>
+                                </div>
                             </div>
-                        </div>
-
-
 
                         <div className="row">
                             <div className="offset-sm-4 col-sm-4 d-grid">

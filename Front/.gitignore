@@ -1,50 +1,70 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-# Node modules
-node_modules
+# Flutter/Dart related
+*.dart_tool/
+*.packages
+.buildlog/
+.flutter-plugins
+.flutter-plugins-dependencies
+.flutter-versions
+pubspec.lock
+*.generated.dart
 
 # Build output
-dist
-dist-ssr
-.cache
-.next
-.nuxt
-out
+build/
+android/app/build/
+android/.gradle/
+android/.idea/
+android/local.properties
+android/key.properties
 
-# Local environment variables
-*.local
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# iOS/macOS specific
+ios/.symlinks/
+ios/Pods/
+ios/.generated/
+ios/Flutter/Flutter.podspec
+macos/.symlinks/
+macos/Pods/
+macos/.generated/
 
-# Editor directories and files
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-.idea
-.DS_Store
+# Web specific
+web/.dart_tool/
+web/.firebase/
+web/firebase.json
+web/.firebase-tools/
+
+# Windows/Linux specific
+windows/.flutter-plugins
+linux/.flutter-plugins
+windows/flutter/ephemeral/
+linux/flutter/ephemeral/
+
+# Firebase/Env
+firebase.json
+*.flutter-plugins
+*.flutter-plugins-dependencies
+*.env
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
+
+# IDE & Editor
+.vscode/
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.iml
+*.log
 
 # OS-specific files
+.DS_Store
 Thumbs.db
 ehthumbs.db
 
 # Package manager lock files
+pubspec.lock
 package-lock.json
 yarn.lock
 pnpm-lock.yaml

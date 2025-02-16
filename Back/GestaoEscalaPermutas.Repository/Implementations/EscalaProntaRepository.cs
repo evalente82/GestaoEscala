@@ -3,6 +3,7 @@ using GestaoEscalaPermutas.Infra.Data.Context;
 using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using GestaoEscalaPermutas.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 
 namespace GestaoEscalaPermutas.Repository.Implementations
 {
@@ -55,6 +56,20 @@ namespace GestaoEscalaPermutas.Repository.Implementations
             await _context.SaveChangesAsync();
         }
 
+        public async Task AtualizarEscalaProntaAsync(EscalaPronta escalaPronta)
+        {
+            var entidadeExistente = await _context.EscalaPronta
+                .FirstOrDefaultAsync(x => x.IdEscalaPronta == escalaPronta.IdEscalaPronta);
+
+            if (entidadeExistente != null)
+            {
+                entidadeExistente.IdFuncionario = escalaPronta.IdFuncionario; // Atualiza apenas o ID do funcionário
+                entidadeExistente.DtDataServico = escalaPronta.DtDataServico; // Atualiza a data (se necessário)
+
+                _context.Entry(entidadeExistente).State = EntityState.Modified; // 🚀 Marca como modificado
+                await _context.SaveChangesAsync(); // ✅ Salva no banco
+            }
+        }
         public async Task RemoverAsync(Guid id)
         {
             var escalaPronta = await _context.EscalaPronta.FindAsync(id);
@@ -74,5 +89,27 @@ namespace GestaoEscalaPermutas.Repository.Implementations
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<List<EscalaPronta>> BuscarPorIdFuncionario(Guid idFuncionario)
+        {
+            if (idFuncionario == Guid.Empty)
+                return new List<EscalaPronta>(); // Retorna uma lista vazia se o ID for inválido
+
+            return await _context.EscalaPronta
+                .Where(ep => ep.IdFuncionario == idFuncionario)
+                .Include(ep => ep.Escala) // Inclui os dados da escala associada
+            .ToListAsync();
+        }
+
+        public async Task<EscalaPronta> ObterPorDataEPostoAsync(DateTime dia, Guid idPostoTrabalho)
+        {
+            if (idPostoTrabalho == Guid.Empty)
+                return null; // Retorna null se o ID for inválido
+
+            return await _context.EscalaPronta
+                .Where(ep => ep.DtDataServico.Date == dia.Date && ep.IdPostoTrabalho == idPostoTrabalho)
+                .FirstOrDefaultAsync();
+        }
+
     }
 }

@@ -11,11 +11,13 @@ function Login() {
     const navigate = useNavigate();
     const { login } = useAuth(); // 🔹 Obtém o método `login` do contexto
 
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
         try {
-            const response = await axios.post("https://localhost:7207/login/autenticar", { 
+            const response = await axios.post(`${API_BASE_URL}/login/autenticar`, { 
                 usuario, 
                 senha 
             }, {
@@ -106,6 +108,17 @@ function Login() {
                     <button type="submit" className="btn btn-primary w-100">Entrar</button>
                 </form>
             </div>
+            {/* Rodapé */}
+            <footer>
+                <div className="container p-3 mt-5 border-top">
+                    <small className="d-block text-muted text-center">
+                        &copy; 2023 - DEFESA CIVIL MARICÁ CONTROLE DE ESCALAS
+                    </small>
+                    <small className="d-block text-muted text-center">
+                        &copy; Todos os direitos reservados à VCORP Sistem
+                    </small>
+                </div>
+            </footer>
         </div>
     );
 }

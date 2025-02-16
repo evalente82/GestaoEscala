@@ -30,6 +30,7 @@ export function Exibicao() {
     const possuiPermissao = (permissao) => permissoes.includes(permissao);
     const [showIncluirPopup, setShowIncluirPopup] = useState(false);
     const numDias = escala ? obterQuantidadeDiasNoMes(2025, escala.nrMesReferencia) : 0;
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     
     //console.log("📢 Estado atual do showIncluirPopup:", showIncluirPopup);
     const [alertProps, setAlertProps] = useState({
@@ -109,7 +110,7 @@ export function Exibicao() {
     
     function BuscaSetores() {
         axios
-            .get("https://localhost:7207/setor/buscarTodos")
+            .get(`${API_BASE_URL}/setor/buscarTodos`)
             .then((response) => {
                 setSetores(response.data);
                 console.log("Setores carregados:", response.data);
@@ -125,7 +126,7 @@ export function Exibicao() {
     }
 
     function BuscarTipoEscalaPorId(idTipoEscala) {
-        axios.get(`https://localhost:7207/tipoEscala/buscarPorId/${idTipoEscala}`)
+        axios.get(`${API_BASE_URL}/tipoEscala/buscarPorId/${idTipoEscala}`)
             .then((response) => {
                 console.log(response.data);
                 setTipoEscala(response.data);
@@ -135,7 +136,7 @@ export function Exibicao() {
                     show: true,
                     type: "error",
                     title: "Erro",
-                    message: "Não foi possível carregar os Cargos.",
+                    message: "Não foi possível carregar as Escalas.",
                 onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
             });
         });
@@ -143,7 +144,7 @@ export function Exibicao() {
 
     function BuscaEscala(id) {
         axios
-            .get(`https://localhost:7207/escala/buscarPorId/${id}`)
+            .get(`${API_BASE_URL}/escala/buscarPorId/${id}`)
             .then((response) => {
                 setEscala(response.data);
                 console.log('buscando escala !');
@@ -157,7 +158,7 @@ export function Exibicao() {
     function BuscarDepartamentos() {
         const fetchData = async () => {
             try {
-                const response = await axios.get("https://localhost:7207/departamento/buscarTodos");
+                const response = await axios.get(`${API_BASE_URL}/departamento/buscarTodos`);
                 setDepartamentos(response.data);
                 console.log('Departamentos');
                 console.log(response.data);
@@ -170,7 +171,7 @@ export function Exibicao() {
 
     function BuscaPostos(idDepartamento) {
         axios
-            .get(`https://localhost:7207/PostoTrabalho/buscarTodos`)
+            .get(`${API_BASE_URL}/PostoTrabalho/buscarTodos`)
             .then((response) => {
                 // Verifique se buscaEscalaPronta está disponível, caso contrário use um Set vazio
                 const postosNaEscala = buscaEscalaPronta
@@ -192,7 +193,7 @@ export function Exibicao() {
 
     function BuscaFuncionarios() {
         axios
-            .get(`https://localhost:7207/funcionario/buscarTodos`)
+            .get(`${API_BASE_URL}/funcionario/buscarTodos`)
             .then((response) => {
                 setFuncionarios(response.data);
                 console.log('Funcionarios');
@@ -205,7 +206,7 @@ export function Exibicao() {
 
     function BuscaEscalaPronta(id) {
         axios
-            .get(`https://localhost:7207/escalaPronta/buscarPorId/${id}`)
+            .get(`${API_BASE_URL}/escalaPronta/buscarPorId/${id}`)
             .then((response) => {
                 setBuscaEscalaPronta(response.data);
                 console.log('buscaEscalaPronta');
@@ -280,7 +281,7 @@ export function Exibicao() {
         }
     
         try {
-            const response = await axios.put("https://localhost:7207/escala/SalvarEscalaAlterada", escalaAlterada);
+            const response = await axios.put(`${API_BASE_URL}/escala/SalvarEscalaAlterada`, escalaAlterada);
     
             if (response.status === 200) {
                 // 🔹 Atualiza os dados antes de exibir o alerta
@@ -573,7 +574,7 @@ export function Exibicao() {
         };
     
         try {
-            const response = await axios.post("https://localhost:7207/escalaPronta/IncluirFuncionario", dadosInclusao);
+            const response = await axios.post(`${API_BASE_URL}/escalaPronta/IncluirFuncionario`, dadosInclusao);
             if (response.status === 201) {
                 setShowIncluirPopup(false); // Fecha o popup primeiro
                 
@@ -623,7 +624,7 @@ export function Exibicao() {
                 };
     
                 try {
-                    const response = await axios.delete("https://localhost:7207/escalaPronta/DeletarOcorrenciaFuncionario", { data: payload });
+                    const response = await axios.delete(`${API_BASE_URL}/escalaPronta/DeletarOcorrenciaFuncionario`, { data: payload });
     
                     if (response.status === 200) {
                         // 🔹 Atualiza a escala ANTES de fechar a modal de sucesso
@@ -804,74 +805,72 @@ export function Exibicao() {
                             </tr>
                         </thead>
                         <tbody>
-    {Array.from({ length: numDias }, (_, index) => (
-        <tr key={index + 1}>
-            <td className="border">{index + 1}</td>
-            {postos && postos.map((posto) => {
-                const funcionariosNoPosto = escalaAlterada.filter(item =>
-                    new Date(item.dtDataServico).getDate() === index + 1 &&
-                    item.idPostoTrabalho === posto.idPostoTrabalho
-                );
+                            {Array.from({ length: numDias }, (_, index) => (
+                                <tr key={index + 1}>
+                                    <td className="border">{index + 1}</td>
+                                    {postos && postos.map((posto) => {
+                                        const funcionariosNoPosto = escalaAlterada.filter(item =>
+                                            new Date(item.dtDataServico).getDate() === index + 1 &&
+                                            item.idPostoTrabalho === posto.idPostoTrabalho
+                                        );
 
-                return (
-                    <td key={posto.idPostoTrabalho} className="position-relative">
-                        {funcionariosNoPosto.length > 0 ? (
-                            funcionariosNoPosto.map(item => {
-                                const isFuncionarioDesconhecido = item.idFuncionario === "00000000-0000-0000-0000-000000000000" ||
-                                obterNomeFuncionario(item.idFuncionario) === "Desconhecido";
-                                    return (
-                                        <div key={item.idEscalaPronta} className="d-flex justify-content-start align-items-center">
-                                            {possuiPermissao("EditarEscalas") && (
-                                                <div className="btn-container">
-                                                    {isFuncionarioDesconhecido ? (
-                                                        <button
-                                                            className="btn btn-xs btn-outline-success small-btn"
-                                                            onClick={() => handleAbrirIncluirFuncionario(posto.idPostoTrabalho, index + 1)}
-                                                            title="Adicionar funcionário"
-                                                        >
-                                                            ➕
-                                                        </button>
-                                                    ) : (
-                                                        <button
-                                                            className="btn btn-xs btn-outline-danger small-btn"
-                                                            onClick={() => handleRemoverFuncionario(item)}
-                                                            title="Remover funcionário"
-                                                        >
-                                                            ❌
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            )}
-                                            <span className={`nome-funcionario ${highlightedIds.includes(item.idFuncionario) ? 'highlight' : ''}`}>
-                                                {isFuncionarioDesconhecido ? "Desconhecido" : obterNomeFuncionario(item.idFuncionario)}
-                                            </span>
-                                        </div>
-                                    );
-                            })
-                        ) : (
-                            <div className="d-flex justify-content-start align-items-center">
-                                {possuiPermissao("EditarEscalas") && (
-                                    <div className="btn-container">
-                                        <button
-                                            className="btn btn-xs btn-outline-success small-btn"
-                                            onClick={() => handleAbrirIncluirFuncionario(posto.idPostoTrabalho, index + 1)}
-                                            title="Adicionar funcionário"
-                                            >
-                                            ➕
-                                        </button>
-                                    </div>
-                                )}
-                                <span className="text-muted">Desconhecido</span>
-                            </div>
-                        )}
-                    </td>
-                );
-            })}
-        </tr>
-    ))}
-</tbody>
-
-
+                                        return (
+                                            <td key={posto.idPostoTrabalho} className="position-relative">
+                                                {funcionariosNoPosto.length > 0 ? (
+                                                    funcionariosNoPosto.map(item => {
+                                                        const isFuncionarioDesconhecido = item.idFuncionario === "00000000-0000-0000-0000-000000000000" ||
+                                                        obterNomeFuncionario(item.idFuncionario) === "Desconhecido";
+                                                            return (
+                                                                <div key={item.idEscalaPronta} className="d-flex justify-content-start align-items-center">
+                                                                    {possuiPermissao("EditarEscalas") && (
+                                                                        <div className="btn-container">
+                                                                            {isFuncionarioDesconhecido ? (
+                                                                                <button
+                                                                                    className="btn btn-xs btn-outline-success small-btn"
+                                                                                    onClick={() => handleAbrirIncluirFuncionario(posto.idPostoTrabalho, index + 1)}
+                                                                                    title="Adicionar funcionário"
+                                                                                >
+                                                                                    ➕
+                                                                                </button>
+                                                                            ) : (
+                                                                                <button
+                                                                                    className="btn btn-xs btn-outline-danger small-btn"
+                                                                                    onClick={() => handleRemoverFuncionario(item)}
+                                                                                    title="Remover funcionário"
+                                                                                >
+                                                                                    ❌
+                                                                                </button>
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+                                                                    <span className={`nome-funcionario ${highlightedIds.includes(item.idFuncionario) ? 'highlight' : ''}`}>
+                                                                        {isFuncionarioDesconhecido ? "Desconhecido" : obterNomeFuncionario(item.idFuncionario)}
+                                                                    </span>
+                                                                </div>
+                                                            );
+                                                    })
+                                                ) : (
+                                                    <div className="d-flex justify-content-start align-items-center">
+                                                        {possuiPermissao("EditarEscalas") && (
+                                                            <div className="btn-container">
+                                                                <button
+                                                                    className="btn btn-xs btn-outline-success small-btn"
+                                                                    onClick={() => handleAbrirIncluirFuncionario(posto.idPostoTrabalho, index + 1)}
+                                                                    title="Adicionar funcionário"
+                                                                    >
+                                                                    ➕
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                        <span className="text-muted">Desconhecido</span>
+                                                    </div>
+                                                )}
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            ))}
+                        </tbody>
                     </table>
                     <AlertPopup
                         type={alertProps.type}

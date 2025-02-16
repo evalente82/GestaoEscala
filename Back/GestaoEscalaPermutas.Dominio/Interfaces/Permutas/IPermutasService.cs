@@ -15,5 +15,6 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.Permutas
         Task<PermutasDTO> Deletar(Guid id);
         Task<List<PermutasDTO>> BuscarTodos();
         Task<PermutasDTO> BuscarPorId(Guid idPermuta);
+        Task<List<PermutasDTO>> BuscarFuncPorId(Guid idFuncionario);
     }
 }

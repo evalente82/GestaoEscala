@@ -10,6 +10,7 @@ function PrimeiroAcesso() {
     const [alertMessage, setAlertMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
     const navigate = useNavigate();
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -20,7 +21,7 @@ function PrimeiroAcesso() {
         }
 
         try {
-            const response = await axios.post("https://localhost:7207/login/Incluir", {
+            const response = await axios.post(`${API_BASE_URL}/login/Incluir`, {
                 usuario,
                 senha
             }, {
