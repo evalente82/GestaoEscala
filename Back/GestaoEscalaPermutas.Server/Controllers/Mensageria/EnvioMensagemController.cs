@@ -1,12 +1,11 @@
-﻿using GestaoEscalaPermutas.Dominio.Interfaces.Mensageria;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
-namespace GestaoEscalaPermutas.Server.Controllers.Mensageria
-{
-    [ApiController]
-    [Route("api/[controller]")]
-    public class EnvioMensagemController : ControllerBase
-    {
+//namespace GestaoEscalaPermutas.Server.Controllers.Mensageria
+//{
+    //[ApiController]
+    //[Route("api/[controller]")]
+    //public class EnvioMensagemController : ControllerBase
+    //{
         //private readonly IMessageBus _messageBus;
 
         //public EnvioMensagemController(IMessageBus messageBus)
@@ -23,5 +22,5 @@ namespace GestaoEscalaPermutas.Server.Controllers.Mensageria
 
         //    return Ok("Mensagem enviada com sucesso!");
         //}
-    }
-}
+//    }
+//}
