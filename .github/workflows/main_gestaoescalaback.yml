@@ -1,3 +1,4 @@
+#EMV
 name: Build and deploy ASP.Net Core app to Azure Web App - GestaoEscalaBack
 
 on:
@@ -10,59 +11,67 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: read 
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout do código
+        uses: actions/checkout@v4
 
-      - name: Set up .NET Core
+      - name: Debug - Listar arquivos e diretórios
+        run: ls -la
+
+      - name: Configurar .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
 
       - name: Restaurar dependências
-        run: dotnet restore Back/GestaoEscalaPermutas.sln
+        run: dotnet restore Back/GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj
+
+      - name: Limpar diretórios `obj` e `bin`
+        run: |
+          rm -rf Back/GestaoEscalaPermutas.Server/obj
+          rm -rf Back/GestaoEscalaPermutas.Server/bin
 
       - name: Compilar aplicação
-        run: dotnet build --configuration Release --no-restore Back/GestaoEscalaPermutas.sln
+        run: dotnet build --configuration Release --no-restore Back/GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj
 
       - name: Publicar aplicação
-        run: dotnet publish -c Release -r linux-x64 --self-contained false -p:PublishReadyToRun=true -o ${{ github.workspace }}/Back Back/GestaoEscalaPermutas.sln
+        run: dotnet publish -c Release -r linux-x64 --self-contained false -p:PublishReadyToRun=true -o ${{ github.workspace }}/publish Back/GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj
 
-      - name: Upload artifact for deployment job
+      - name: Upload dos artefatos para o job de deploy
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{ github.workspace }}/Back
+          path: ${{ github.workspace }}/publish
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
     environment:
       name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+      url: 'https://gestaoescalaback.azurewebsites.net'  # Ajuste conforme necessário
     permissions:
       id-token: write
       contents: read
 
     steps:
-      - name: Download artifact from build job
+      - name: Baixar os artefatos do job de build
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-          path: ${{ github.workspace }}/Back
+          path: ${{ github.workspace }}/publish
 
-      - name: Login to Azure
+      - name: Login no Azure
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
 
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
+      - name: Deploy para o Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'GestaoEscalaBack'
           slot-name: 'Production'
-          package: ${{ github.workspace }}/Back
+          package: ${{ github.workspace }}/publish
