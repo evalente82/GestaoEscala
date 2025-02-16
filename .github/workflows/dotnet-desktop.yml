@@ -16,9 +16,6 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v4
 
-      - name: Debug - Listar arquivos e diretórios
-        run: Get-ChildItem -Path . -Recurse
-
       - name: Configurar .NET Core
         uses: actions/setup-dotnet@v4
         with:
@@ -31,7 +28,7 @@ jobs:
         run: dotnet build --configuration Release --no-restore Back/GestaoEscalaPermutas.sln
 
       - name: Publicar aplicação
-        run: dotnet publish -c Release -o ${{ github.workspace }}/publish Back/GestaoEscalaPermutas.sln
+        run: dotnet publish -c Release -r win-x64 --self-contained false -p:PublishReadyToRun=true -o ${{ github.workspace }}/publish Back/GestaoEscalaPermutas.sln
 
       - name: Upload dos artefatos para o job de deploy
         uses: actions/upload-artifact@v4
@@ -61,3 +58,7 @@ jobs:
           slot-name: 'Production'
           package: ${{ github.workspace }}/publish
           publish-profile: ${{ secrets.AzureAppService_PublishProfile }}
+
+      - name: Verificar disponibilidade do Swagger
+        run: |
+          echo "Acesse a API em: https://backgestaoescala-a0hhfvg0f4h2d5hw.canadacentral-01.azurewebsites.net/swagger"
