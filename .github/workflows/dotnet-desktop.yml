@@ -1,3 +1,6 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
 name: Build and deploy ASP.Net Core app to Azure Web App - BackGestaoEscala
 
 on:
@@ -10,27 +13,26 @@ jobs:
   build:
     runs-on: windows-latest
     permissions:
-      contents: read
+      contents: read # This is required for actions/checkout
 
     steps:
-      - name: Checkout do código
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Configurar .NET Core
+      - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
 
-      - name: Restaurar dependências
-        run: dotnet restore Back/GestaoEscalaPermutas.sln
+      - name: Restore dependencies
+        run: dotnet restore
 
-      - name: Compilar aplicação
-        run: dotnet build --configuration Release --no-restore Back/GestaoEscalaPermutas.sln
+      - name: Build with dotnet
+        run: dotnet build --configuration Release --no-restore
 
-      - name: Publicar aplicação
-        run: dotnet publish -c Release -r win-x64 --self-contained false -p:PublishReadyToRun=true -o ${{ github.workspace }}/publish Back/GestaoEscalaPermutas.sln
+      - name: Publish with dotnet
+        run: dotnet publish -c Release -o ${{ github.workspace }}/publish
 
-      - name: Upload dos artefatos para o job de deploy
+      - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
@@ -41,24 +43,20 @@ jobs:
     needs: build
     environment:
       name: 'Production'
-      url: 'https://backgestaoescala-a0hhfvg0f4h2d5hw.canadacentral-01.azurewebsites.net'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     
     steps:
-      - name: Baixar os artefatos do job de build
+      - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: .net-app
           path: ${{ github.workspace }}/publish
 
-      - name: Deploy para o Azure Web App
+      - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'BackGestaoEscala'
           slot-name: 'Production'
           package: ${{ github.workspace }}/publish
-          publish-profile: ${{ secrets.AzureAppService_PublishProfile }}
-
-      - name: Verificar disponibilidade do Swagger
-        run: |
-          echo "Acesse a API em: https://backgestaoescala-a0hhfvg0f4h2d5hw.canadacentral-01.azurewebsites.net/swagger"
+          publish-profile: ${{ secrets.AzureAppService_PublishProfile_f20d5e28da4849a5817547b7ea38bd91 }}
