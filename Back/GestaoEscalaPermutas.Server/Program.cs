@@ -106,7 +106,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigin", policy =>
         policy.WithOrigins(
                 //"https://frontgestaoescala-hecgdtefgwcgd9dv.canadacentral-01.azurewebsites.net"
-                "http://192.168.0.8:7207", // Backend
+                "http://192.168.0.2:7207", // Backend
 
                 "http://10.0.2.2:7207",   // Emulador Android
                 "http://localhost:5173"   // Frontend
