@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = "http://192.168.0.8:7207"; // Substitua pelo seu backend
+  static const String baseUrl = "http://192.168.0.2:7207"; // Substitua pelo seu backend
 
   // Busca as escalas ativas
   Future<List<Map<String, dynamic>>> buscarEscalasAtivas() async {
