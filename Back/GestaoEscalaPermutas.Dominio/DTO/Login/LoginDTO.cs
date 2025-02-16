@@ -11,8 +11,8 @@ namespace GestaoEscalaPermutas.Dominio.DTO.Login
     {
         [JsonIgnore]
         public Guid Id { get; set; }
-        public string Usuario { get; set; }
-        public string Senha { get; set; } // A senha enviada pelo cliente
+        public string Usuario { get; set; } = string.Empty;
+        public string Senha { get; set; } = string.Empty; // A senha enviada pelo cliente
         [JsonIgnore]
         public string SenhaHash { get; set; } = string.Empty;
         [JsonIgnore]

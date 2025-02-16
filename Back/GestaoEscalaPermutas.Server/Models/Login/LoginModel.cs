@@ -9,7 +9,7 @@ namespace GestaoEscalaPermutas.Server.Models.Login
         [JsonIgnore]
         public Guid Id { get; set; }
 
-        public string Usuario { get; set; }
+        public string Usuario { get; set; } = string.Empty;
         [JsonIgnore]
         public string SenhaHash { get; set; } = string.Empty;
         [JsonIgnore]

@@ -12,7 +12,7 @@ namespace GestaoEscalaPermutas.Dominio.DTO.Usuario
         public string Nome { get; set; }
         public string Email { get; set; }
         public string Senha { get; set; } // Senha em texto simples (não armazenada)
-        public string SenhaHash { get; set; } // Para hash
+        public string SenhaHash { get; set; } = string.Empty;// Para hash
         public bool Ativo { get; set; }
         public Guid? IdFuncionario { get; set; } // FK para Funcionarios
         public Guid IdPerfil { get; set; } // FK para Perfis

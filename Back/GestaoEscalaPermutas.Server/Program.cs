@@ -155,46 +155,55 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
     serverOptions.ListenAnyIP(7207); // Isso permite conexões de qualquer IP
 });
 
-var app = builder.Build();
 
-app.Use(async (context, next) =>
+try
 {
-    try
+    var app = builder.Build();
+
+    app.Use(async (context, next) =>
     {
-        if (context.Request.Path.StartsWithSegments("/swagger"))
+        try
         {
+            if (context.Request.Path.StartsWithSegments("/swagger"))
+            {
+                await next();
+                return;
+            }
             await next();
-            return;
         }
-        await next();
-    }
-    catch (Exception)
-    {
-        await context.Response.WriteAsync(JsonConvert.SerializeObject("teste."));
-    }
-});
-
-app.UseDefaultFiles();
-app.UseStaticFiles();
-app.UseDeveloperExceptionPage();
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+        catch (Exception)
+        {
+            await context.Response.WriteAsync(JsonConvert.SerializeObject("teste."));
+        }
     });
+
+    app.UseDefaultFiles();
+    app.UseStaticFiles();
+    app.UseDeveloperExceptionPage();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI(options =>
+        {
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+        });
+    }
+
+    app.UseMiddleware<PermissaoMiddleware>();
+    app.UseRouting();
+
+    app.UseCors("AllowSpecificOrigin");
+
+    app.UseAuthorization();
+    app.UseAuthentication();
+
+    app.MapControllers();
+
+    app.Run();
 }
-
-app.UseMiddleware<PermissaoMiddleware>();
-app.UseRouting();
-
-app.UseCors("AllowSpecificOrigin");
-
-app.UseAuthorization();
-app.UseAuthentication();
-
-app.MapControllers();
-
-app.Run();
+catch (Exception ex)
+{
+    Console.WriteLine($"Erro crítico na inicialização: {ex.Message}");
+    throw;
+}
