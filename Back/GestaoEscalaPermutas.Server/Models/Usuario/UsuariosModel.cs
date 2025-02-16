@@ -7,18 +7,18 @@ namespace GestaoEscalaPermutas.Server.Models.Usuario
     {
         public Guid IdUsuario { get; set; }
 
-        public string Nome { get; set; }
+        public string Nome { get; set; } = string.Empty;
 
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
-        public string SenhaHash { get; set; }
+        public string SenhaHash { get; set; } = string.Empty;
 
         public bool Ativo { get; set; } = true;
 
         public Guid? IdFuncionario { get; set; }
 
         public DateTime DataCriacao { get; set; } = DateTime.UtcNow;
-        public string Perfil { get; set; } // Ex.: "Administrador", "Guarda Vidas"
+        public string Perfil { get; set; } = string.Empty; // Ex.: "Administrador", "Guarda Vidas"
         public string? TokenRecuperacaoSenha { get; set; }
         public DateTime? TokenExpiracao { get; set; } = DateTime.UtcNow;
     }
