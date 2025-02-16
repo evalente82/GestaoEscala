@@ -39,6 +39,7 @@ class _PermutaScreenState extends State<PermutaScreen> {
  Future<void> _carregarEscalasUsuarioLogado() async {
   try {
     final userModel = Provider.of<UserModel>(context, listen: false);
+
     final String url = "${ApiService.baseUrl}/escalaPronta/BuscarPorFuncionario/${userModel.idFuncionario}";
 
     print("📡 Fazendo requisição para: $url");
@@ -122,16 +123,17 @@ class _PermutaScreenState extends State<PermutaScreen> {
           .map<String>((f) => f["idFuncionario"].toString())
           .toSet();
 
-      // Filtramos apenas os funcionários que pertencem à escala selecionada
-      final List<Map<String, dynamic>> funcionarios = dataFuncionarios
-          .where((funcionario) =>
-              idsFuncionariosEscala.contains(funcionario["idFuncionario"].toString()))
-          .map((f) => {
-                "idFuncionario": f["idFuncionario"].toString(),
-                "nmNome": f["nmNome"],
-                "nrMatricula": f["nrMatricula"]?.toString() ?? "Sem Matrícula",
-              })
-          .toList();
+    // Filtramos apenas os funcionários que pertencem à escala selecionada
+    final List<Map<String, dynamic>> funcionarios = dataFuncionarios
+        .where((funcionario) =>
+            idsFuncionariosEscala.contains(funcionario["idFuncionario"]?.toString() ?? ""))
+        .map((f) => {
+              "idFuncionario": f["idFuncionario"]?.toString() ?? "", // ✅ Garante que não seja null
+              "nmNome": f["nmNome"] ?? "Nome Desconhecido", // ✅ Substitui null por um valor padrão
+              "nrMatricula": f["nrMatricula"]?.toString() ?? "Sem Matrícula",
+            })
+        .toList();
+
 
       setState(() {
         _funcionariosEscala = funcionarios;
@@ -192,6 +194,7 @@ Future<void> _enviarSolicitacaoPermuta() async {
     final userModel = Provider.of<UserModel>(context, listen: false);
     final String url = "${ApiService.baseUrl}/permutas/Incluir";
 
+
     final Map<String, dynamic> permutaData = {
       "dtDataSolicitadaTroca": DateFormat("yyyy-MM-dd'T'00:00:00.000'Z'").format(
           DateFormat("dd-MM-yyyy").parse(_dataSelecionada!)), // 🔹 Ajuste de formato
@@ -217,6 +220,7 @@ Future<void> _enviarSolicitacaoPermuta() async {
       print("✅ Permuta cadastrada com sucesso!");
 
       // 🟢 Exibir modal de sucesso e limpar os selects
+      _buscarPermutasSolicitadas();
       _mostrarDialogoSucesso();
     } else {
       throw Exception("Erro ao cadastrar permuta. Código: ${response.statusCode}");
@@ -242,7 +246,7 @@ void _mostrarDialogoSucesso() {
             onPressed: () {
               Navigator.of(context).pop(); // Fecha o modal
               _limparCampos(); // Limpa os selects
-              _buscarPermutasSolicitadas();//recarrega a grid
+              // _buscarPermutasSolicitadas();//recarrega a grid
             },
             child: const Text("OK"),
           ),
@@ -520,8 +524,6 @@ Future<void> _buscarPermutasSolicitadas() async {
                   ),
                 )
               : const Text("Nenhuma permuta encontrada."),
-
-
           ],
         ),
         

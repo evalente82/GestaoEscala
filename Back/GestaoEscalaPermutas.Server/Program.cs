@@ -40,6 +40,7 @@ using GestaoEscalaPermutas.Repository.DependencyInjection;
 using GestaoEscalaPermutas.Dominio.Services.Funcionario.GestaoEscalaPermutas.Dominio.Services.Funcionario;
 using GestaoEscalaPermutas.Dominio.Services.TipoEscala.GestaoEscalaPermutas.Dominio.Services;
 using GestaoEscalaPermutas.Dominio.Services.Funcionalidade;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 var builder = WebApplication.CreateBuilder(args);
 var connString = builder.Configuration.GetConnectionString("EmUso");
@@ -101,12 +102,28 @@ builder.Services.AddRepositoryServices();
 //});
 //builder.Services.AddHostedService<UsuarioMessageConsumer>();
 
+
+// Definir ambiente de produção
+var environment = builder.Environment.EnvironmentName;
+var configuracoes = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{environment}.json", optional: true)
+    .AddEnvironmentVariables()
+    .Build();
+
+builder.Services.Configure<KestrelServerOptions>(options =>
+{
+    options.AllowSynchronousIO = true;
+});
+
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>
         policy.WithOrigins(
                 //"https://frontgestaoescala-hecgdtefgwcgd9dv.canadacentral-01.azurewebsites.net"
-                "http://192.168.0.8:7207", // Backend
+                "http://192.168.0.2:7207", // Backend
 
                 "http://10.0.2.2:7207",   // Emulador Android
                 "http://localhost:5173"   // Frontend
