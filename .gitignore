@@ -7,3 +7,4 @@ Sistemas
 /Back/package-lock.json
 /Back/package.json
 *.sqlite
+/Front/node_modules/.vite/deps
