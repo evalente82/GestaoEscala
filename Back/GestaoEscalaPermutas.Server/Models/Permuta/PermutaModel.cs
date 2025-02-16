@@ -5,9 +5,9 @@
         public Guid IdPermuta { get; set; }
         public Guid IdEscala { get; set; }
         public Guid IdFuncionarioSolicitante { get; set; }
-        public string NmNomeSolicitante { get; set; }
+        public string NmNomeSolicitante { get; set; } = string.Empty;
         public Guid IdFuncionarioSolicitado { get; set; }
-        public string NmNomeSolicitado { get; set; }
+        public string NmNomeSolicitado { get; set; } = string.Empty;
         public Guid? IdFuncionarioAprovador { get; set; }
         public string? NmNomeAprovador { get; set; }
         public DateTime DtSolicitacao { get; set; }
