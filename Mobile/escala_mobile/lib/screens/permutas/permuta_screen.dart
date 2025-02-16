@@ -246,7 +246,7 @@ void _mostrarDialogoSucesso() {
             onPressed: () {
               Navigator.of(context).pop(); // Fecha o modal
               _limparCampos(); // Limpa os selects
-              // _buscarPermutasSolicitadas();//recarrega a grid
+              _buscarPermutasSolicitadas();//recarrega a grid
             },
             child: const Text("OK"),
           ),
@@ -279,13 +279,18 @@ Future<void> _buscarPermutasSolicitadas() async {
       final List<dynamic> data = jsonDecode(response.body);
 
       setState(() {
-        _permutasSolicitadas = data.map((p) => {
-          "solicitante": p["nmNomeSolicitante"],
-          "solicitado": p["nmNomeSolicitado"],
-          "dataSolicitadaTroca": _formatarData(p["dtDataSolicitadaTroca"]),
-          "aprovado": p["nmAprovador"] != null, // Se `nmAprovador` for null, será `false`
-        }).toList();
-      });
+      _permutasSolicitadas = data.where((p) =>
+          p["nmNomeSolicitante"] != null &&
+          p["nmNomeSolicitado"] != null &&
+          p["dtDataSolicitadaTroca"] != null).map((p) => {
+            "solicitante": p["nmNomeSolicitante"] ?? "",
+            "solicitado": p["nmNomeSolicitado"] ?? "",
+            "dataSolicitadaTroca": p["dtDataSolicitadaTroca"] != null
+                ? _formatarData(p["dtDataSolicitadaTroca"])
+                : "",
+            "aprovado": p["nmAprovador"] != null,
+          }).toList();
+    });
 
       print("✅ Permutas carregadas: ${_permutasSolicitadas.length}");
     } else {
@@ -472,58 +477,29 @@ Future<void> _buscarPermutasSolicitadas() async {
             const SizedBox(height: 8),
 
             _permutasSolicitadas.isNotEmpty
-              ? SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: DataTable(
-                    columnSpacing: 12.0, // 🔹 Reduzimos um pouco para melhor distribuição
-                    columns: const [
-                      DataColumn(
-                        label: Text(
-                          "Solicitante",
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14), // 🔹 Fonte menor
-                        ),
+            ? SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  columns: const [
+                    DataColumn(label: Text("Solicitante")),
+                    DataColumn(label: Text("Solicitado")),
+                    DataColumn(label: Text("Data")),
+                    DataColumn(label: Text("Autorizado")),
+                  ],
+                  rows: _permutasSolicitadas.map((p) {
+                    return DataRow(cells: [
+                      DataCell(Text(p["solicitante"] ?? "", style: TextStyle(fontSize: 13))),
+                      DataCell(Text(p["solicitado"] ?? "", style: TextStyle(fontSize: 13))),
+                      DataCell(Text(p["dataSolicitadaTroca"] ?? "", style: TextStyle(fontSize: 13))),
+                      DataCell(
+                        Checkbox(value: p["aprovado"], onChanged: null),
                       ),
-                      DataColumn(
-                        label: Text(
-                          "Solicitado",
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14), // 🔹 Fonte menor
-                        ),
-                      ),
-                      DataColumn(
-                        label: Text(
-                          "Data",
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14), // 🔹 Fonte menor
-                        ),
-                      ),
-                      DataColumn(
-                        label: Align(
-                          alignment: Alignment.centerLeft, // 🔹 Puxa um pouco para a esquerda
-                          child: Text(
-                            "Autorizado",
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14), // 🔹 Fonte menor
-                          ),
-                        ),
-                      ),
-                    ],
-                    rows: _permutasSolicitadas.map((p) {
-                      return DataRow(cells: [
-                        DataCell(Text(p["solicitante"], style: TextStyle(fontSize: 13))),
-                        DataCell(Text(p["solicitado"], style: TextStyle(fontSize: 13))),
-                        DataCell(Text(p["dataSolicitadaTroca"], style: TextStyle(fontSize: 13))),
-                        DataCell(
-                          Align(
-                            alignment: Alignment.centerLeft, // 🔹 Alinha o checkbox à esquerda
-                            child: Checkbox(
-                              value: p["aprovado"],
-                              onChanged: null, // 🔹 Checkbox readonly
-                            ),
-                          ),
-                        ),
-                      ]);
-                    }).toList(),
-                  ),
-                )
-              : const Text("Nenhuma permuta encontrada."),
+                    ]);
+                  }).toList(),
+                ),
+              )
+            : const SizedBox.shrink(),
+
           ],
         ),
         
