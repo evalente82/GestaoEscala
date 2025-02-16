@@ -16,8 +16,6 @@ using GestaoEscalaPermutas.Dominio.Interfaces.Escala;
 using GestaoEscalaPermutas.Dominio.Interfaces.TipoEscala;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.Services.EscalaPronta;
-using GestaoEscalaPermutas.Dominio.Interfaces.Mensageria;
-using GestaoEscalaPermutas.Dominio.Services.Mensageria;
 using GestaoEscalaPermutas.Dominio.Interfaces.Permutas;
 using GestaoEscalaPermutas.Dominio.Services.Permutas;
 using GestaoEscalaPermutas.Dominio.Interfaces.Login;
