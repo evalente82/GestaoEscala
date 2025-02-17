@@ -1,6 +1,6 @@
 
 #ENDRIGO
-name: Build and deploy ASP.Net Core app to Azure Web App - GestaoEscalaBack
+name: Build and deploy ASP.Net Core app to Azure Web App - BackendGestaoEscala 
 
 on:
   push:
@@ -48,7 +48,7 @@ jobs:
     needs: build
     environment:
       name: 'Production'
-      url: 'https://gestaoescalaback.azurewebsites.net'
+      url: 'https://BackendGestaoEscala.azurewebsites.net'
     permissions:
       id-token: write
       contents: read
@@ -70,6 +70,6 @@ jobs:
       - name: Deploy para o Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'GestaoEscalaBack'
+          app-name: 'BackendGestaoEscala'
           slot-name: 'Production'
           package: ${{ github.workspace }}/publish
