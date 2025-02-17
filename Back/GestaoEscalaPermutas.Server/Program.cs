@@ -159,36 +159,18 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
 try
 {
     var app = builder.Build();
-
-    app.Use(async (context, next) =>
-    {
-        try
-        {
-            if (context.Request.Path.StartsWithSegments("/swagger"))
-            {
-                await next();
-                return;
-            }
-            await next();
-        }
-        catch (Exception)
-        {
-            await context.Response.WriteAsync(JsonConvert.SerializeObject("teste."));
-        }
-    });
-
     app.UseDefaultFiles();
     app.UseStaticFiles();
     app.UseDeveloperExceptionPage();
 
-    if (app.Environment.IsDevelopment())
-    {
+    //if (app.Environment.IsDevelopment())
+    //{
         app.UseSwagger();
         app.UseSwaggerUI(options =>
         {
             options.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
         });
-    }
+    //}
 
     app.UseMiddleware<PermissaoMiddleware>();
     app.UseRouting();
