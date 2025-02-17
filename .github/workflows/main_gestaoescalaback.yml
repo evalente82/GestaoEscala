@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Debug - Listar arquivos e diretórios
-        run: ls -la
+        run: ls -R  # 🔹 Adicionado para verificar onde está o `.sln`
 
       - name: Configurar .NET Core
         uses: actions/setup-dotnet@v4
@@ -25,7 +25,7 @@ jobs:
           dotnet-version: '8.x'
 
       - name: Restaurar dependências
-        run: dotnet restore Back/GestaoEscalaPermutas.Server.sln  # 🔹 Ajustado para restaurar a solução inteira
+        run: dotnet restore Back/GestaoEscalaPermutas.sln  # 🔹 Ajuste o caminho se necessário
 
       - name: Limpar diretórios `obj` e `bin`
         run: |
@@ -33,7 +33,7 @@ jobs:
           rm -rf Back/GestaoEscalaPermutas.Server/bin
 
       - name: Compilar aplicação
-        run: dotnet build --configuration Release --no-restore Back/GestaoEscalaPermutas.Server.sln  # 🔹 Agora sem precisar restaurar novamente
+        run: dotnet build --configuration Release --no-restore Back/GestaoEscalaPermutas.sln
 
       - name: Publicar aplicação
         run: dotnet publish -c Release -r linux-x64 --self-contained false -p:PublishReadyToRun=true -o ${{ github.workspace }}/publish Back/GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj
@@ -49,7 +49,7 @@ jobs:
     needs: build
     environment:
       name: 'Production'
-      url: 'https://gestaoescalaback.azurewebsites.net'  # Ajuste conforme necessário
+      url: 'https://gestaoescalaback.azurewebsites.net'
     permissions:
       id-token: write
       contents: read
