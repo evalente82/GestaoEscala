@@ -1,3 +1,5 @@
+
+#ENDRIGO
 name: Build and deploy ASP.Net Core app to Azure Web App - GestaoEscalaBack
 
 on:
