@@ -1,0 +1,26 @@
+# Etapa 1: Construir o frontend
+FROM node:18 AS build
+WORKDIR /app
+
+# Copiar os arquivos do projeto
+COPY package.json .
+COPY package-lock.json .
+
+# Instalar dependências
+RUN npm install
+
+# Copiar o restante dos arquivos
+COPY . .
+
+# Build do projeto
+RUN npm run build
+
+# Etapa 2: Criar a imagem final
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Expor a porta padrão do Nginx
+EXPOSE 80
+
+# Iniciar o servidor Nginx
+CMD ["nginx", "-g", "daemon off;"]
