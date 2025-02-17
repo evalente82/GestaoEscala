@@ -120,7 +120,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>
         policy.WithOrigins(
-                "https://frontgestaoescala-hecgdtefgwcgd9dv.canadacentral-01.azurewebsites.net"
+            "https://frontgestaoescala-hecgdtefgwcgd9dv.canadacentral-01.azurewebsites.net"
             //"http://192.168.0.2:7207", // Backend
 
             //"http://10.0.2.2:7207",   // Emulador Android
@@ -152,58 +152,42 @@ builder.Services.AddAuthentication(options =>
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    serverOptions.ListenAnyIP(7207); // Isso permite conexões de qualquer IP
+    serverOptions.ListenAnyIP(8080); // Isso permite conexões de qualquer IP
+});
+
+var app = builder.Build();
+
+// Middleware para servir arquivos estáticos (se necessário)
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
+// Middleware para exibir páginas de erro em desenvolvimento
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+
+// Configurar o Swagger
+app.UseSwagger();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+    options.RoutePrefix = "swagger"; // Define a rota base do Swagger
 });
 
 
-try
-{
-    var app = builder.Build();
+// Middleware de roteamento
+app.UseRouting();
 
-    app.Use(async (context, next) =>
-    {
-        try
-        {
-            if (context.Request.Path.StartsWithSegments("/swagger"))
-            {
-                await next();
-                return;
-            }
-            await next();
-        }
-        catch (Exception)
-        {
-            await context.Response.WriteAsync(JsonConvert.SerializeObject("teste."));
-        }
-    });
+// Middleware de CORS
+app.UseCors("AllowSpecificOrigin");
 
-    app.UseDefaultFiles();
-    app.UseStaticFiles();
-    app.UseDeveloperExceptionPage();
+// Middleware de autenticação e autorização
+app.UseAuthentication();
+app.UseAuthorization();
 
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI(options =>
-        {
-            options.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
-        });
-    }
+// Mapear os controladores
+app.MapControllers();
 
-    app.UseMiddleware<PermissaoMiddleware>();
-    app.UseRouting();
-
-    app.UseCors("AllowSpecificOrigin");
-
-    app.UseAuthorization();
-    app.UseAuthentication();
-
-    app.MapControllers();
-
-    app.Run();
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"Erro crítico na inicialização: {ex.Message}");
-    throw;
-}
+// Iniciar a aplicação
+app.Run();
