@@ -1,5 +1,3 @@
-#EMV
-#Valente
 name: Build and deploy ASP.Net Core app to Azure Web App - GestaoEscalaBack
 
 on:
@@ -27,7 +25,7 @@ jobs:
           dotnet-version: '8.x'
 
       - name: Restaurar dependências
-        run: dotnet restore Back/GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj
+        run: dotnet restore Back/GestaoEscalaPermutas.Server.sln  # 🔹 Ajustado para restaurar a solução inteira
 
       - name: Limpar diretórios `obj` e `bin`
         run: |
@@ -35,7 +33,7 @@ jobs:
           rm -rf Back/GestaoEscalaPermutas.Server/bin
 
       - name: Compilar aplicação
-        run: dotnet build --configuration Release --no-restore Back/GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj
+        run: dotnet build --configuration Release --no-restore Back/GestaoEscalaPermutas.Server.sln  # 🔹 Agora sem precisar restaurar novamente
 
       - name: Publicar aplicação
         run: dotnet publish -c Release -r linux-x64 --self-contained false -p:PublishReadyToRun=true -o ${{ github.workspace }}/publish Back/GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj
