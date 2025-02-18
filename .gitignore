@@ -12,4 +12,8 @@ Sistemas
 /Back/GestaoEscalaPermutas.Repository/bin/Debug/net8.0/GestaoEscalaPermutas.Infra.pdb
 /Back/GestaoEscalaPermutas.Repository/bin/Debug/net8.0/GestaoEscalaPermutas.Repository.dll
 /Back/GestaoEscalaPermutas.Repository/bin/Debug/net8.0/GestaoEscalaPermutas.Repository.pdb
+
+/Front/node_modules/vite/dist/node/chunks
+
 /Back/GestaoEscalaPermutas.Repository/bin/Debug/net8.0/GestaoEscalaPermutas.Repository.deps.json
+

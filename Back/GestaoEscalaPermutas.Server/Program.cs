@@ -57,12 +57,12 @@ builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
-        Title = "Gest„o Escala Permutas",
-        Description = "WebAPI com JWT. \n\n# IntroduÁ„o\nEsta API est· documentada no formato **OpenAPI format** e È baseada na " +
-        "\nIntegraÁ„o Swagger tambÈm fornecida pela equipe da [VCorp Sistem]. " +
-        "\n\n# EspecificaÁ„o da IntegraÁ„o\nA seguinte imagem ilustra o funcionamento da AplicaÁ„o." +
-        "\n\n# Cross-Origin Resource Sharing\nEsta API utiliza Cross-Origin Resource Sharing (CORS) implementado em conformidade com as especificaÁıes W3C." +
-        "\nE isso permite que recursos restritos em uma p·gina da web sejam recuperados por outro domÌnio fora do domÌnio ao qual pertence o recurso que ser· recuperado."
+        Title = "Gest√£o Escala Permutas",
+        Description = "WebAPI com JWT. \n\n# Introdu√ß√£o\nEsta API est√° documentada no formato **OpenAPI format** e √© baseada na " +
+        "\nIntegra√ß√£o Swagger tamb√©m fornecida pela equipe da [VCorp Sistem]. " +
+        "\n\n# Especifica√ß√£o da Integra√ß√£o\nA seguinte imagem ilustra o funcionamento da Aplica√ß√£o." +
+        "\n\n# Cross-Origin Resource Sharing\nEsta API utiliza Cross-Origin Resource Sharing (CORS) implementado em conformidade com as especifica√ß√µes W3C." +
+        "\nE isso permite que recursos restritos em uma p√°gina da web sejam recuperados por outro dom√≠nio fora do dom√≠nio ao qual pertence o recurso que ser√° recuperado."
     });
 });
 
@@ -102,7 +102,7 @@ builder.Services.AddRepositoryServices();
 //builder.Services.AddHostedService<UsuarioMessageConsumer>();
 
 
-// Definir ambiente de produÁ„o
+// Definir ambiente de produ√ß√£o
 var environment = builder.Environment.EnvironmentName;
 var configuracoes = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
@@ -132,8 +132,7 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
-
-// Configurar autenticaÁ„o JWT
+// Configurar autentica√ß√£o JWT
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -152,7 +151,8 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Configurar autorizaÁ„o global (protegendo todas as rotas por padr„o)
+// Configurar autoriza√ß√£o global (protegendo todas as rotas por padr√£o)
+
 //builder.Services.AddAuthorization(options =>
 //{
 //    options.FallbackPolicy = new AuthorizationPolicyBuilder()
@@ -162,42 +162,39 @@ builder.Services.AddAuthentication(options =>
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    serverOptions.ListenAnyIP(8080); // Isso permite conexıes de qualquer IP
+    serverOptions.ListenAnyIP(8080); // Isso permite conex√µes de qualquer IP
 });
 
-var app = builder.Build();
-
-// Middleware para servir arquivos est·ticos (se necess·rio)
-app.UseDefaultFiles();
-app.UseStaticFiles();
-
-// Middleware para exibir p·ginas de erro em desenvolvimento
-if (app.Environment.IsDevelopment())
+try
 {
+    var app = builder.Build();
+    app.UseDefaultFiles();
+    app.UseStaticFiles();
     app.UseDeveloperExceptionPage();
+
+    //if (app.Environment.IsDevelopment())
+    //{
+        app.UseSwagger();
+        app.UseSwaggerUI(options =>
+        {
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+        });
+    //}
+
+    app.UseMiddleware<PermissaoMiddleware>();
+    app.UseRouting();
+
+    app.UseCors("AllowSpecificOrigin");
+
+    app.UseAuthorization();
+    app.UseAuthentication();
+
+    app.MapControllers();
+
+    app.Run();
 }
-
-// Configurar o Swagger
-app.UseSwagger();
-app.UseSwaggerUI(options =>
+catch (Exception ex)
 {
-    options.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
-    options.RoutePrefix = "swagger"; // Define a rota base do Swagger
-});
-
-
-// Middleware de roteamento
-app.UseRouting();
-
-// Middleware de CORS
-app.UseCors("AllowSpecificOrigin");
-
-// Middleware de autenticaÁ„o e autorizaÁ„o
-app.UseAuthentication();
-app.UseAuthorization();
-
-// Mapear os controladores
-app.MapControllers();
-
-// Iniciar a aplicaÁ„o
-app.Run();
+    Console.WriteLine($"Erro cr√≠tico na inicializa√ß√£o: {ex.Message}");
+    throw;
+}
