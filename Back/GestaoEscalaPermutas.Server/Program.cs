@@ -39,6 +39,7 @@ using GestaoEscalaPermutas.Dominio.Services.Funcionario.GestaoEscalaPermutas.Dom
 using GestaoEscalaPermutas.Dominio.Services.TipoEscala.GestaoEscalaPermutas.Dominio.Services;
 using GestaoEscalaPermutas.Dominio.Services.Funcionalidade;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 var connString = builder.Configuration.GetConnectionString("EmUso");
@@ -131,7 +132,7 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
-
+// Configurar autenticação JWT
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -148,6 +149,14 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = "sua-aplicacao",
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("sua-chave-secreta-aqui"))
     };
+});
+
+// Configurar autorização global (protegendo todas as rotas por padrão)
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
 });
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
