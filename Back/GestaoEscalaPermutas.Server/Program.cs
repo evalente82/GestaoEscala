@@ -39,6 +39,7 @@ using GestaoEscalaPermutas.Dominio.Services.Funcionario.GestaoEscalaPermutas.Dom
 using GestaoEscalaPermutas.Dominio.Services.TipoEscala.GestaoEscalaPermutas.Dominio.Services;
 using GestaoEscalaPermutas.Dominio.Services.Funcionalidade;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 var connString = builder.Configuration.GetConnectionString("EmUso");
@@ -120,18 +121,18 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>
         policy.WithOrigins(
-            //"https://frontgestaoescala-hecgdtefgwcgd9dv.canadacentral-01.azurewebsites.net"
-            "http://192.168.0.2:7207", // Backend
-
-            "http://10.0.2.2:7207",   // Emulador Android
-            "http://localhost:5173"   // Frontend
+            "https://front-gestao-175014489605.southamerica-east1.run.app",
+            "https://gestao-escala-back-175014489605.southamerica-east1.run.app"
+            //"http://192.168.0.2:7207", // Backend local
+            //"http://10.0.2.2:7207",   // Emulador Android
+            //"http://localhost:5173"   // Frontend
             )
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
 });
 
-
+// Configurar autenticação JWT
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -150,6 +151,14 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// Configurar autorização global (protegendo todas as rotas por padrão)
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
     serverOptions.ListenAnyIP(7207); // Isso permite conexões de qualquer IP
@@ -159,36 +168,18 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
 try
 {
     var app = builder.Build();
-
-    app.Use(async (context, next) =>
-    {
-        try
-        {
-            if (context.Request.Path.StartsWithSegments("/swagger"))
-            {
-                await next();
-                return;
-            }
-            await next();
-        }
-        catch (Exception)
-        {
-            await context.Response.WriteAsync(JsonConvert.SerializeObject("teste."));
-        }
-    });
-
     app.UseDefaultFiles();
     app.UseStaticFiles();
     app.UseDeveloperExceptionPage();
 
-    if (app.Environment.IsDevelopment())
-    {
+    //if (app.Environment.IsDevelopment())
+    //{
         app.UseSwagger();
         app.UseSwaggerUI(options =>
         {
             options.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
         });
-    }
+    //}
 
     app.UseMiddleware<PermissaoMiddleware>();
     app.UseRouting();

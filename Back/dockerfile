@@ -1,0 +1,35 @@
+# Etapa 1: Construir a aplicação
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /app
+
+# Copiar os arquivos do projeto
+COPY GestaoEscalaPermutas.sln ./
+COPY GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj ./GestaoEscalaPermutas.Server/
+COPY GestaoEscalaPermutas.Dominio/GestaoEscalaPermutas.Dominio.csproj ./GestaoEscalaPermutas.Dominio/
+COPY GestaoEscalaPermuta.Infra/GestaoEscalaPermutas.Infra.csproj ./GestaoEscalaPermuta.Infra/
+COPY GestaoEscalaPermutas.Repository/GestaoEscalaPermutas.Repository.csproj ./GestaoEscalaPermutas.Repository/
+
+# Restaurar as dependências
+RUN dotnet restore
+
+# Copiar o restante dos arquivos
+COPY GestaoEscalaPermutas.Server/ ./GestaoEscalaPermutas.Server/
+COPY GestaoEscalaPermutas.Dominio/ ./GestaoEscalaPermutas.Dominio/
+COPY GestaoEscalaPermuta.Infra/ ./GestaoEscalaPermuta.Infra/
+COPY GestaoEscalaPermutas.Repository/ ./GestaoEscalaPermutas.Repository/
+
+# Publicar a aplicação
+WORKDIR /app/GestaoEscalaPermutas.Server
+RUN dotnet publish -c Release -o out
+
+# Etapa 2: Criar a imagem final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
+COPY --from=build /app/GestaoEscalaPermutas.Server/out .
+
+# Definir a porta dinâmica
+ENV PORT=8080
+EXPOSE $PORT
+
+# Iniciar a aplicação
+ENTRYPOINT ["dotnet", "GestaoEscalaPermutas.Server.dll"]
