@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import PropTypes from 'prop-types';
 import AlertPopup from '../AlertPopup/AlertPopup';
+import api from "./axiosConfig";
 
 function SetorList(props) {
     SetorList.propTypes = {
@@ -25,7 +26,7 @@ function SetorList(props) {
 
     function BuscarTodos() {
         console.log("[LOG] Buscando todos os setores...");
-        axios.get(`${API_URL}/buscarTodos`)
+        api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
                 console.log("[LOG] Setores recebidos do backend:", response.data);
                 setSetores(response.data);
@@ -63,7 +64,7 @@ function SetorList(props) {
 
     function DeleteSetor(idSetor) {
         console.log("[LOG] Enviando requisição para deletar setor:", idSetor);
-        axios
+        api
             .delete(`${API_URL}/Deletar/${idSetor}`)
             .then(() => {
                 console.log("[LOG] Setor deletado com sucesso.");
@@ -193,7 +194,7 @@ function SetorForm(props) {
     
         try {
             if (setorInicial.idSetor) {
-                await axios.patch(`${API_BASE_URL}/setor/Atualizar/${setorInicial.idSetor}`, data);
+                await api.patch(`${API_BASE_URL}/setor/Atualizar/${setorInicial.idSetor}`, data);
                 console.log("[LOG] Setor atualizado com sucesso.");
     
                 setAlertProps({
@@ -208,7 +209,7 @@ function SetorForm(props) {
                 });
     
             } else {
-                await axios.post(`${API_BASE_URL}/setor/Incluir`, data);
+                await api.post(`${API_BASE_URL}/setor/Incluir`, data);
                 console.log("[LOG] Novo setor cadastrado com sucesso.");
     
                 setAlertProps({

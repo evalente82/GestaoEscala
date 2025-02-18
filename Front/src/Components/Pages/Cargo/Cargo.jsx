@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import PropTypes from 'prop-types';
 import AlertPopup from '../AlertPopup/AlertPopup';
+import api from "./axiosConfig";
 
 function CargoList(props) {
     CargoList.propTypes = {
@@ -23,7 +24,7 @@ function CargoList(props) {
     });
 
     function BuscarTodos() {
-        axios.get(`${API_URL}/buscarTodos`)
+        api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
                 console.log(response.data);
                 setCargo(response.data);
@@ -41,7 +42,7 @@ function CargoList(props) {
 
     useEffect(() => {
         const fetchData = async () => {
-            const response = await axios.get(`${API_URL}/buscarTodos`);
+            const response = await api.get(`${API_URL}/buscarTodos`);
             console.log(response.data);
             setCargo(response.data);
         };
@@ -63,7 +64,7 @@ function CargoList(props) {
     }
 
     function DeleteCargo(idCargo) {
-        axios
+        api
             .delete(`${API_BASE_URL}/cargo/Deletar/${idCargo}`)
             .then((response) => {
                 console.log(response);
@@ -241,7 +242,7 @@ function CargoForm(props) {
                 nmDescricao: descricao,
                 isAtivo: ativo,
             };
-            axios
+            api
                 .patch(
                 `${API_BASE_URL}/cargo/Atualizar/` +
                     props.cargo.idCargo,
@@ -275,7 +276,7 @@ function CargoForm(props) {
                 nmDescricao: descricao,
                 isAtivo: ativo,
             };
-            axios
+            api
                 .post(`${API_BASE_URL}/cargo/Incluir`, data)
                 .then(() => {
                     setAlertProps({

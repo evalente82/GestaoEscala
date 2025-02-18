@@ -4,6 +4,7 @@ import axios from "axios";
 import PropTypes from 'prop-types';
 import './TipoEscala.css'
 import AlertPopup from '../AlertPopup/AlertPopup';
+import api from "./axiosConfig";
 
 function TipoEscalaList(props) {
     TipoEscalaList.propTypes = {
@@ -23,7 +24,7 @@ function TipoEscalaList(props) {
     const API_URL = `${API_BASE_URL}/tipoEscala`;
 
     function BuscarTodos() {
-        axios.get(`${API_URL}/buscarTodos`)
+        api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
                 console.log(response.data);
                 setTipoEscala(response.data);
@@ -41,7 +42,7 @@ function TipoEscalaList(props) {
 
     useEffect(() => {
         const fetchData = async () => {
-            const response = await axios.get(`${API_URL}/buscarTodos`);
+            const response = await api.get(`${API_URL}/buscarTodos`);
             console.log(response.data);
             setTipoEscala(response.data);
         };
@@ -63,7 +64,7 @@ function TipoEscalaList(props) {
     }
     
     function DeleteTipoEscala(idTipoEscala) {
-        axios
+        api
             .delete(`${API_URL}/Deletar/${idTipoEscala}`)
             .then((response) => {
                 console.log(response);
@@ -248,7 +249,7 @@ function TipoEscalaForm(props) {
                 isExpediente: expediente,
                 isAtivo: ativo,
             };
-            axios
+            api
                 .patch(
                     `${API_BASE_URL}/tipoEscala/Atualizar/` +
                     props.tipoEscala.idTipoEscala,
@@ -285,7 +286,7 @@ function TipoEscalaForm(props) {
                 isExpediente: expediente,
                 isAtivo: ativo,
             };
-            axios
+            api
                 .post(`${API_BASE_URL}/tipoEscala/Incluir`, data)
                 .then(() => {
                     setAlertProps({

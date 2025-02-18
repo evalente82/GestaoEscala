@@ -5,6 +5,7 @@ import axios from "axios";
 import PropTypes from "prop-types";
 import AlertPopup from "../AlertPopup/AlertPopup";
 import Select from 'react-select';
+import api from "./axiosConfig";
 
 
 function CargoPerfisList(props) {
@@ -24,7 +25,7 @@ function CargoPerfisList(props) {
 
     function BuscarCargoPerfis() {
         console.log("Buscando Cargo e perfis...");
-        axios
+        api
             .get(`${API_URL}/buscarTodos`)
             .then((response) => {
                 console.log("Dados recebidos da API:", response.data);
@@ -75,7 +76,7 @@ function CargoPerfisList(props) {
         console.log("ID Cargo:", idCargo);
         console.log("ID Perfil:", idPerfil);
 
-        axios
+        api
             .delete(`${API_URL}/deletar`, {
                 data: {
                     idFuncionario: idCargo,
@@ -198,14 +199,14 @@ function CargoPerfisForm(props) {
     });
 
     useEffect(() => {
-        axios.get(`${API_BASE_URL}/cargo/buscarTodos`)
+        api.get(`${API_BASE_URL}/cargo/buscarTodos`)
             .then((response) => {
                 console.log("Dados de Cargos recebidossssss:", response.data);
                 setCargos(response.data);
             })
             .catch((error) => console.error("Erro ao buscar Cargos:", error));
 
-        axios.get(`${API_BASE_URL}/perfil/buscarTodos`)
+        api.get(`${API_BASE_URL}/perfil/buscarTodos`)
             .then((response) => {
                 console.log("Dados de perfis recebidos:", response.data);
                 setPerfis(response.data);
@@ -274,7 +275,7 @@ const handleSubmit = async (e) => {
     }
 
     try {
-        const response = await axios.post(`${API_BASE_URL}/cargoPerfis/incluir`, {
+        const response = await api.post(`${API_BASE_URL}/cargoPerfis/incluir`, {
             idCargo: cargoSelecionado,
             nomeCargo: cargoSelecionadoNome,
             idPerfil: perfilSelecionado,

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import PropTypes from "prop-types";
 import AlertPopup from "../AlertPopup/AlertPopup";
+import api from "./axiosConfig";
 
 function FuncionalidadeList(props) {
     const [searchText, setSearchText] = useState("");
@@ -21,8 +22,7 @@ function FuncionalidadeList(props) {
 
     // Função para buscar todas as funcionalidades
     function BuscarFuncionalidades() {
-        axios
-            .get(`${API_URL}/buscarTodas`)
+        api.get(`${API_URL}/buscarTodas`)
             .then((response) => {
                 setFuncionalidades(response.data);
             })
@@ -60,8 +60,7 @@ function FuncionalidadeList(props) {
     }
 
     function DeleteFuncionalidade(idFuncionalidade) {
-        axios
-            .delete(`${API_URL}/deletar/${idFuncionalidade}`)
+        api.delete(`${API_URL}/deletar/${idFuncionalidade}`)
             .then(() => {
                 setFuncionalidades(
                     funcionalidades.filter((f) => f.idFuncionalidade !== idFuncionalidade)
@@ -190,7 +189,7 @@ function FuncionalidadeForm(props) {
         const data = { nome, descricao };
 
         if (props.funcionalidade.idFuncionalidade) {
-            axios
+            api
                 .put(
                     `${API_BASE_URL}/funcionalidade/atualizar/${props.funcionalidade.idFuncionalidade}`,
                     data
@@ -217,7 +216,7 @@ function FuncionalidadeForm(props) {
                     });
                 });
         } else {
-            axios
+            api
                 .post(`${API_BASE_URL}/funcionalidade/incluir`, data)
                 .then(() => {
                     setAlertProps({

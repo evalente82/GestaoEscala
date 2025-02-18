@@ -38,6 +38,8 @@ function Login() {
             console.log("✅ Nome recebido:", nomeUsuario);
             console.log("✅ Permissões recebidas:", permissoes);
 
+            // 🔹 Armazena o token no localStorage para manter a sessão ativa
+            localStorage.setItem("token", token);
             login(token, nomeUsuario, permissoes); // 🔹 Atualiza o estado global com o novo usuário
 
             navigate("/Home"); // Redireciona para a home

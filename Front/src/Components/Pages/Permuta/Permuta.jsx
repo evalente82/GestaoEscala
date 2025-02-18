@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import AlertPopup from '../AlertPopup/AlertPopup';
 import Select from 'react-select';
 import { useAuth } from "../AuthContext";
+import api from "./axiosConfig";
 
 function PermutaList(props) {
     const [searchText, setSearchText] = useState("");
@@ -26,7 +27,7 @@ function PermutaList(props) {
     const API_URL = `${API_BASE_URL}/permutas`;
 
     function BuscarTodos() {
-        axios.get(`${API_URL}/buscarTodos`)
+        api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
                 console.log(response.data);
                 setPermuta(response.data);
@@ -42,7 +43,7 @@ function PermutaList(props) {
             });
     }
     function BuscarEscalas() {
-        axios.get(`${API_BASE_URL}/escala/buscarTodos`)
+        api.get(`${API_BASE_URL}/escala/buscarTodos`)
             .then((response) => {
                 console.log("Escalas carregadas:", response.data);
                 setEscalas(response.data); // Armazena as escalas no estado
@@ -78,7 +79,7 @@ function PermutaList(props) {
     }
 
     function DeletePermuta(idPermuta) {
-        axios
+        api
         .delete(`${API_BASE_URL}/permutas/Deletar/${idPermuta}`)
             .then((response) => {
                 console.log(response);
@@ -290,7 +291,7 @@ function PermutaForm(props) {
     }, [idDaEscala, idFuncionarioSolicitante, idFuncionarioSolicitado]);
    
     function BuscarFuncionarios() {
-        axios.get(`${API_BASE_URL}/funcionario/buscarTodos`)
+        api.get(`${API_BASE_URL}/funcionario/buscarTodos`)
             .then((response) => {
                 console.log(response.data);
                 setFuncionarios(response.data);
@@ -307,7 +308,7 @@ function PermutaForm(props) {
     }
 
     function BuscaEscala() {
-        axios
+        api
             .get(`${API_BASE_URL}/escala/buscarTodos`)
             .then((response) => {
                 const escalasAtivas = response.data.filter(e =>e.isAtivo === true && e.isGerada === true);
@@ -321,7 +322,7 @@ function PermutaForm(props) {
     }
 
     function BuscaEscalaPronta(idEscala) {
-        axios
+        api
             .get(`${API_BASE_URL}/escalaPronta/buscarPorId/${idEscala}`)
             .then((response) => {
                 const escala = response.data;
@@ -425,7 +426,7 @@ function PermutaForm(props) {
         // Verifica se é atualização ou inclusão
         if (props.permuta.idPermuta) {
             // Atualização
-            axios
+            api
                 .patch(
                     `${API_BASE_URL}/permutas/Atualizar/${props.permuta.idPermuta}`,
                     data
@@ -454,7 +455,7 @@ function PermutaForm(props) {
                 });
         } else {
             // Inclusão
-            axios
+            api
                 .post(`${API_BASE_URL}/permutas/Incluir`, data)
                 .then(() => {
                     setAlertProps({

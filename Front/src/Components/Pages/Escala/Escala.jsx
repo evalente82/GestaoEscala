@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import AlertPopup from '../AlertPopup/AlertPopup'
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../AuthContext";
+import api from "./axiosConfig";
 import "./Escala.css";
 
 
@@ -31,7 +32,7 @@ function EscalaList(props) {
     });
 
     function BuscarTodos() {
-        axios.get(`${API_URL}/buscarTodos`)
+        api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
                 console.log(response.data);
                 setEscala(response.data);
@@ -50,7 +51,7 @@ function EscalaList(props) {
     function BuscarDepartamentos() {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/departamento/buscarTodos`);
+                const response = await api.get(`${API_BASE_URL}/departamento/buscarTodos`);
                 setDepartamentos(response.data);
                 console.log('Departamentos');
                 console.log(response.data);
@@ -64,7 +65,7 @@ function EscalaList(props) {
     function Buscarcargos() {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/cargo/buscarTodos`);
+                const response = await api.get(`${API_BASE_URL}/cargo/buscarTodos`);
                 setCargos(response.data);
                 console.log('Cargos');
                 console.log(response.data);
@@ -78,7 +79,7 @@ function EscalaList(props) {
     function BuscarTipoEscalas() {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/tipoEscala/buscarTodos`);
+                const response = await api.get(`${API_BASE_URL}/tipoEscala/buscarTodos`);
                 setTipoEscalas(response.data);
             } catch (error) {
                 console.log(error);
@@ -108,7 +109,7 @@ function EscalaList(props) {
     const API_URL = `${API_BASE_URL}/escala`;
     useEffect(() => {
         const fetchData = async () => {
-            const response = await axios.get(`${API_URL}/buscarTodos`);
+            const response = await api.get(`${API_URL}/buscarTodos`);
             console.log(response.data);
             setEscala(response.data);
         };
@@ -130,7 +131,7 @@ function EscalaList(props) {
     }
 
     function DeleteEscala(idEscala) {
-        axios
+        api
             .delete(`${API_URL}/Deletar/${idEscala}`)
             .then((response) => {
                 console.log(response);
@@ -196,7 +197,7 @@ function EscalaList(props) {
 
     const GeraMesSeguinte = (idEscala) => {
         if (idEscala) {
-            axios
+            api
                 .post(
                     `https://localhost:7207/escalaPronta/RecriarEscalaProximoMes/${idEscala}`, // 🔹 Corrigido para passar o ID na URL
                     {}, // 🔹 O corpo da requisição deve ser um objeto vazio, pois não estamos enviando dados no corpo
@@ -420,7 +421,7 @@ function EscalaForm(props) {
     }, []);
     const API_URL = `${API_BASE_URL}/departamento`;
     function BuscarDepartametos() {
-        axios.get(`${API_URL}/buscarTodos`)
+        api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
                 console.log(`DEPARTAMENTO `);
                 console.log(response.data)
@@ -435,7 +436,7 @@ function EscalaForm(props) {
     }, []);
     const API_URL_Carcos = `${API_BASE_URL}/cargo`;
     function BuscarCargos() {
-        axios.get(`${API_URL_Carcos}/buscarTodos`)
+        api.get(`${API_URL_Carcos}/buscarTodos`)
             .then((response) => {
                 console.log(`CARGOS`);
                 console.log(response.data)
@@ -450,7 +451,7 @@ function EscalaForm(props) {
     }, []);
     const API_URL_TipoEscala = `${API_BASE_URL}/tipoEscala`;
     function BuscarTipoEscala() {
-        axios.get(`${API_URL_TipoEscala}/buscarTodos`)
+        api.get(`${API_URL_TipoEscala}/buscarTodos`)
             .then((response) => {
                 console.log(`TIPOESCALA`);
                 console.log(response.data);
@@ -499,7 +500,7 @@ function EscalaForm(props) {
                 isGerada: gerada,
             };
             console.log("Dados enviados alterar:", data);
-            axios
+            api
                 .patch(
                     `${API_BASE_URL}/escala/Atualizar/` +
                     props.escala.idEscala,
@@ -539,7 +540,7 @@ function EscalaForm(props) {
                 isGerada: gerada,
             };
             console.log("Dados enviados:", data);
-            axios
+            api
                 .post(`${API_BASE_URL}/escala/Incluir`, data)
                 .then(() => {
                     setAlertProps({
@@ -786,7 +787,7 @@ function MontaEscala(props) {
     }, []);
     const API_URL = `${API_BASE_URL}/departamento`;
     function BuscarDepartametos() {
-        axios.get(`${API_URL}/buscarTodos`)
+        api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
                 console.log(response.data);
                 setDepartamentos(response.data);
@@ -800,7 +801,7 @@ function MontaEscala(props) {
     }, []);
     const API_URL_Cargo = `${API_BASE_URL}/cargo`;
     function BuscarCargos() {
-        axios.get(`${API_URL_Cargo}/buscarTodos`)
+        api.get(`${API_URL_Cargo}/buscarTodos`)
             .then((response) => {
                 console.log(response.data);
                 setCargos(response.data);
@@ -814,7 +815,7 @@ function MontaEscala(props) {
     }, []);
     const API_URL_TipoEscala = `${API_BASE_URL}/tipoEscala`;
     function BuscarTipoEscala() {
-        axios.get(`${API_URL_TipoEscala}/buscarTodos`)
+        api.get(`${API_URL_TipoEscala}/buscarTodos`)
             .then((response) => {
                 console.log(response.data);
                 setTipoEscalas(response.data);
@@ -845,7 +846,7 @@ function MontaEscala(props) {
         e.preventDefault();
         if (props.escala.idEscala) {
             var idEscala = props.escala.idEscala
-            axios
+            api
                 .post(
                     `${API_BASE_URL}/escala/montarEscala`,
                     idEscala,
