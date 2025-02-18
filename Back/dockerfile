@@ -2,10 +2,8 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# Copiar o arquivo .sln
+# Copiar os arquivos do projeto
 COPY GestaoEscalaPermutas.sln ./
-
-# Copiar os arquivos .csproj de cada projeto
 COPY GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj ./GestaoEscalaPermutas.Server/
 COPY GestaoEscalaPermutas.Dominio/GestaoEscalaPermutas.Dominio.csproj ./GestaoEscalaPermutas.Dominio/
 COPY GestaoEscalaPermuta.Infra/GestaoEscalaPermutas.Infra.csproj ./GestaoEscalaPermuta.Infra/
@@ -14,14 +12,11 @@ COPY GestaoEscalaPermutas.Repository/GestaoEscalaPermutas.Repository.csproj ./Ge
 # Restaurar as dependências
 RUN dotnet restore
 
-# Copiar o restante dos arquivos de cada projeto
+# Copiar o restante dos arquivos
 COPY GestaoEscalaPermutas.Server/ ./GestaoEscalaPermutas.Server/
 COPY GestaoEscalaPermutas.Dominio/ ./GestaoEscalaPermutas.Dominio/
 COPY GestaoEscalaPermuta.Infra/ ./GestaoEscalaPermuta.Infra/
 COPY GestaoEscalaPermutas.Repository/ ./GestaoEscalaPermutas.Repository/
-
-# Copiar o certificado para o container
-COPY GestaoEscalaPermutas.Server/certificado.pfx /app/certificado.pfx
 
 # Publicar a aplicação
 WORKDIR /app/GestaoEscalaPermutas.Server
@@ -32,9 +27,9 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/GestaoEscalaPermutas.Server/out .
 
-# Copiar o certificado para a imagem final
-COPY --from=build /app/certificado.pfx /app/certificado.pfx
+# Definir a porta dinâmica
+ENV PORT=8080
+EXPOSE $PORT
 
-# Definir a porta e o comando de execução
-EXPOSE 80
+# Iniciar a aplicação
 ENTRYPOINT ["dotnet", "GestaoEscalaPermutas.Server.dll"]
