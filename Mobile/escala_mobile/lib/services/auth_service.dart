@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  static const String baseUrl = "backgestaoescala-a0hhfvg0f4h2d5hw.canadacentral-01.azurewebsites.net"; // Substitua pelo seu backend
+  static const String baseUrl = "https://gestao-escala-back-175014489605.southamerica-east1.run.app"; // Substitua pelo seu backend
 
   // Método para login
   static Future<Map<String, dynamic>> login(String usuario, String senha) async {
