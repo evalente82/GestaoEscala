@@ -39,6 +39,7 @@ using GestaoEscalaPermutas.Dominio.Services.Funcionario.GestaoEscalaPermutas.Dom
 using GestaoEscalaPermutas.Dominio.Services.TipoEscala.GestaoEscalaPermutas.Dominio.Services;
 using GestaoEscalaPermutas.Dominio.Services.Funcionalidade;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 var connString = builder.Configuration.GetConnectionString("EmUso");
@@ -120,7 +121,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>
         policy.WithOrigins(
-            "https://frontgestaoescala-hecgdtefgwcgd9dv.canadacentral-01.azurewebsites.net"
+            "https://front-gestao-175014489605.southamerica-east1.run.app"
             //"http://192.168.0.2:7207", // Backend
 
             //"http://10.0.2.2:7207",   // Emulador Android
@@ -132,6 +133,7 @@ builder.Services.AddCors(options =>
 });
 
 
+// Configurar autenticação JWT
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -148,6 +150,14 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = "sua-aplicacao",
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("sua-chave-secreta-aqui"))
     };
+});
+
+// Configurar autorização global (protegendo todas as rotas por padrão)
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
 });
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
