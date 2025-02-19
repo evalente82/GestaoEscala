@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import PropTypes from "prop-types";
 import AlertPopup from "../AlertPopup/AlertPopup";
-import api from "./axiosConfig";
+import api from "./../axiosConfig";
 
 function PerfisFuncionalidadesList(props) {
     const [searchText, setSearchText] = useState("");
