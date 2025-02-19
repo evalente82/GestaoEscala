@@ -19,7 +19,7 @@ COPY GestaoEscalaPermuta.Infra/ ./GestaoEscalaPermuta.Infra/
 COPY GestaoEscalaPermutas.Repository/ ./GestaoEscalaPermutas.Repository/
 
 # Copiar o certificado para dentro da imagem
-COPY GestaoEscalaPermutas.Server/certificado/certificado.pfx /app/certificado.pfx
+COPY GestaoEscalaPermutas.Server/certificado.pfx /app/certificado.pfx
 
 # Publicar a aplicação
 WORKDIR /app/GestaoEscalaPermutas.Server
