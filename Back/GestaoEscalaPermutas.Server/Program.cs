@@ -64,8 +64,35 @@ builder.Services.AddSwaggerGen(options =>
         "\n\n# Cross-Origin Resource Sharing\nEsta API utiliza Cross-Origin Resource Sharing (CORS) implementado em conformidade com as especificações W3C." +
         "\nE isso permite que recursos restritos em uma página da web sejam recuperados por outro domínio fora do domínio ao qual pertence o recurso que será recuperado."
     });
+
+    //  Configuração para permitir autenticação via JWT no Swagger
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Digite 'Bearer' + espaço + seu token JWT."
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new List<string>()
+        }
+    });
 });
 
+#region Ijeção de dependencias
 builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddDbContext<DefesaCivilMaricaContext>(options =>
@@ -92,6 +119,8 @@ builder.Services.AddScoped<ICargoPerfisService, CargoPerfisService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISetorService, SetorService>();
 builder.Services.AddRepositoryServices();
+#endregion
+
 
 //builder.Services.AddSingleton<IMessageBus>(sp =>
 //{
@@ -133,6 +162,9 @@ builder.Services.AddCors(options =>
 });
 
 // Configurar autenticação JWT
+var chaveSecreta = "g9h0N7quw2S8mJAF8LKxUF0Os3leG+NDJoypOcWohOEa"; // Mesma chave usada no LoginService
+
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -145,9 +177,9 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = "sua-aplicacao",
-        ValidAudience = "sua-aplicacao",
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("sua-chave-secreta-aqui"))
+        ValidIssuer = "gestao-escala-backend",  // Mesmo valor usado no token JWT
+        ValidAudience = "gestao-escala-frontend",  // Mesmo valor usado no token JWT
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(chaveSecreta))
     };
 });
 
@@ -164,7 +196,8 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
     serverOptions.ListenAnyIP(7207); // Isso permite conexões de qualquer IP
 });
 
-
+//gerarChave teste = new();
+//teste.teste();
 try
 {
     var app = builder.Build();
@@ -174,11 +207,11 @@ try
 
     //if (app.Environment.IsDevelopment())
     //{
-        app.UseSwagger();
-        app.UseSwaggerUI(options =>
-        {
-            options.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
-        });
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+    });
     //}
 
     app.UseMiddleware<PermissaoMiddleware>();
@@ -186,8 +219,8 @@ try
 
     app.UseCors("AllowSpecificOrigin");
 
-    app.UseAuthorization();
     app.UseAuthentication();
+    app.UseAuthorization();
 
     app.MapControllers();
 
