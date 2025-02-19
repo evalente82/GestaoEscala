@@ -33,9 +33,8 @@ COPY --from=build /app/GestaoEscalaPermutas.Server/out .
 # Copiar o certificado para a imagem final
 COPY --from=build /app/certificado.pfx /app/certificado.pfx
 
-# Definir a porta dinâmica
-ENV PORT=8080
-EXPOSE $PORT
+# Expor a porta corretamente
+EXPOSE 8080
 
 # Configurar permissões para o certificado (opcional, mas recomendado)
 RUN chmod 644 /app/certificado.pfx

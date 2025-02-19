@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import AlertPopup from '../AlertPopup/AlertPopup'
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../AuthContext";
-import api from "./axiosConfig";
+import api from "./../axiosConfig";
 import "./Escala.css";
 
 

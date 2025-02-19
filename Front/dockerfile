@@ -2,15 +2,17 @@
 FROM node:18 AS build
 WORKDIR /app
 
-# Copiar os arquivos do projeto
-COPY package.json .
-COPY package-lock.json .
+# Copiar arquivos do projeto
+COPY package.json package-lock.json ./
 
-# Instalar dependências
-RUN npm install
+# Garantir que as versões corretas sejam instaladas
+RUN npm install --legacy-peer-deps
 
-# Copiar o restante dos arquivos
+# Copiar todos os arquivos restantes
 COPY . .
+
+# Verificar se o Vite está instalado
+RUN npx vite --version
 
 # Build do projeto
 RUN npm run build

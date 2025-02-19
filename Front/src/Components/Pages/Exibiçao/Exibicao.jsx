@@ -7,7 +7,7 @@ import jsPDF from 'jspdf';
 import { useAuth } from "../AuthContext";
 import AlertPopup from '../AlertPopup/AlertPopup';
 import FormPopup from "../AlertPopup/FormPopup";
-import api from "./axiosConfig";
+import api from "./../axiosConfig";
 
 
 export function Exibicao() {
