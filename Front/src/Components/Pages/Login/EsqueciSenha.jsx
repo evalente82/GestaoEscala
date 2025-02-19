@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import logo1 from "../../Imagens/LogoDefesaCivil.png";
 import "./EsqueciSenha.css";
 
 function EsqueciSenha() {
@@ -35,7 +36,7 @@ function EsqueciSenha() {
                 <div className="text-center">
                     <h1 className="esqueci-senha-title">Defesa Civil de Maricá</h1>
                     <img
-                        src="/src/Components/Imagens/LogoDefesaCivil.png"
+                        src={logo1}
                         alt="Logo Defesa Civil"
                         className="logo-defesa-civil"
                     />

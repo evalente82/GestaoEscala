@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext"; // 🔹 Importa o contexto
 import axios from "axios";
+import logo1 from "../../Imagens/LogoDefesaCivil.png";
 import "./Login.css";
 
 function Login() {
@@ -56,7 +57,7 @@ function Login() {
                 <div className="text-center">
                     <h1 className="login-title">Defesa Civil de Maricá</h1>
                     <img
-                        src="/src/Components/Imagens/LogoDefesaCivil.png"
+                        src={logo1}
                         alt="Logo Defesa Civil"
                         className="login-logo"
                     />

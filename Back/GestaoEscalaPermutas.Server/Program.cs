@@ -149,12 +149,12 @@ builder.Services.Configure<KestrelServerOptions>(options =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>
-        policy.WithOrigins(
-            "https://front-gestao-175014489605.southamerica-east1.run.app",
-            "https://gestao-escala-back-175014489605.southamerica-east1.run.app"
-            //"http://192.168.0.2:7207", // Backend local
-            //"http://10.0.2.2:7207",   // Emulador Android
-            //"http://localhost:5173"   // Frontend
+            policy.WithOrigins(
+            //    "https://front-gestao-175014489605.southamerica-east1.run.app",
+            //    "https://gestao-escala-back-175014489605.southamerica-east1.run.app"
+            "http://192.168.0.2:7207", // Backend local
+            "http://10.0.2.2:7207",   // Emulador Android
+            "http://localhost:5173"   // Frontend
             )
             .AllowAnyMethod()
             .AllowAnyHeader()
