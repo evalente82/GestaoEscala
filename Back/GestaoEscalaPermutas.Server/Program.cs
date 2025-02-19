@@ -38,6 +38,13 @@ using GestaoEscalaPermutas.Dominio.Services.TipoEscala.GestaoEscalaPermutas.Domi
 using GestaoEscalaPermutas.Dominio.Services.Funcionalidade;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Authorization;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
+
+
+var cultureInfo = new CultureInfo("pt-BR");
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 var builder = WebApplication.CreateBuilder(args);
 var connString = builder.Configuration.GetConnectionString("EmUso");
@@ -148,8 +155,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>
             policy.WithOrigins(
-                "https://front-gestao-175014489605.southamerica-east1.run.app",
-                "https://gestao-escala-back-175014489605.southamerica-east1.run.app"
+            "https://front-gestao-175014489605.southamerica-east1.run.app",
+            "https://gestao-escala-back-175014489605.southamerica-east1.run.app"
             //"http://192.168.0.2:7207", // Backend local
             //"http://10.0.2.2:7207",   // Emulador Android
             //"http://localhost:5173"   // Frontend
