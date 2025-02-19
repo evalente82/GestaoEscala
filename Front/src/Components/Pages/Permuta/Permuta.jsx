@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import AlertPopup from '../AlertPopup/AlertPopup';
 import Select from 'react-select';
 import { useAuth } from "../AuthContext";
-import api from "./axiosConfig";
+import api from "./../axiosConfig";
 
 
 function PermutaList(props) {
