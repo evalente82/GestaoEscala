@@ -275,11 +275,16 @@ export function Exibicao() {
             return;
         }
     
-        console.log("📤 Enviando para API:", JSON.stringify(escalaAlterada, null, 2));
-        
+        // 🔹 Garante que nmNomeEscala tenha um valor padrão
+        const escalaAlteradaCorrigida = escalaAlterada.map(escala => ({
+            ...escala,
+            nmNomeEscala: escala.nmNomeEscala ?? "Nome Escala Padrão" // Define um nome padrão se for null/undefined
+        }));
+    
+        console.log("📤 Enviando para API (corrigido):", JSON.stringify(escalaAlteradaCorrigida, null, 2));
     
         try {
-            const response = await api.put(`${API_BASE_URL}/escala/SalvarEscalaAlterada`, escalaAlterada, {
+            const response = await api.put(`${API_BASE_URL}/escala/SalvarEscalaAlterada`, escalaAlteradaCorrigida, {
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -300,6 +305,7 @@ export function Exibicao() {
             console.error("❌ Erro na requisição:", error.response?.data || error.message);
         }
     };
+    
     
     function obterNomeMes(numeroMes) {
         const meses = [

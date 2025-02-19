@@ -22,7 +22,6 @@ namespace GestaoEscalaPermutas.Dominio.DTO.EscalaPronta
         public Guid IdFuncionario { get; set; }
         public DateTime DtDataServico { get; set; }
         public DateTime DtCriacao { get; set; }
-        //[JsonIgnore]
-        //public string NmNomeEscala { get; set; }
+        public string NmNomeEscala { get; set; }
     }
 }

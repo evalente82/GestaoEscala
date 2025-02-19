@@ -343,8 +343,8 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaPronta
             return escalasProntas.Select(ep => new EscalaProntaDTO
             {
                 DtDataServico = ep.DtDataServico,
-                IdEscala = ep.IdEscala
-                //NmNomeEscala = ep.Escala?.NmNomeEscala ?? "Sem Nome" // Evita erro caso Escala seja null
+                IdEscala = ep.IdEscala,
+                NmNomeEscala = ep.Escala?.NmNomeEscala ?? "Sem Nome" // Evita erro caso Escala seja null
             }).ToList();
         }
 
