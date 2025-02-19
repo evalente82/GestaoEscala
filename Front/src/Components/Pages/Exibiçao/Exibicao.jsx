@@ -271,51 +271,36 @@ export function Exibicao() {
 
     const handleSalvarEscalaAlterada = async () => {
         if (!escalaAlterada || escalaAlterada.length === 0) {
-            setAlertProps({
-                show: true,
-                type: "info",
-                title: "Aviso",
-                message: "Não há dados para salvar!",
-                onClose: () => setAlertProps((prev) => ({ ...prev, show: false }))
-            });
+            console.warn("⚠️ Nenhuma escala foi enviada!");
             return;
         }
     
+        console.log("📤 Enviando para API:", JSON.stringify(escalaAlterada, null, 2));
+        
+    
         try {
-            const response = await api.put(`${API_BASE_URL}/escala/SalvarEscalaAlterada`, escalaAlterada);
+            const response = await api.put(`${API_BASE_URL}/escala/SalvarEscalaAlterada`, escalaAlterada, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+    
+            console.log("✅ Resposta da API:", response);
     
             if (response.status === 200) {
-                // 🔹 Atualiza os dados antes de exibir o alerta
                 await BuscaEscalaPronta(idEscala);
-    
                 setAlertProps({
                     show: true,
                     type: "success",
                     title: "Sucesso!",
                     message: "Escala salva com sucesso!",
-                    onClose: () => {
-                        setAlertProps((prev) => ({ ...prev, show: false }));
-                    }
-                });
-            } else {
-                setAlertProps({
-                    show: true,
-                    type: "error",
-                    title: "Erro",
-                    message: "Erro ao salvar a escala.",
                 });
             }
         } catch (error) {
-            console.error("Erro ao salvar a escala:", error);
-            setAlertProps({
-                show: true,
-                type: "error",
-                title: "Erro",
-                message: "Erro ao salvar a escala.",
-            });
+            console.error("❌ Erro na requisição:", error.response?.data || error.message);
         }
     };
-
+    
     function obterNomeMes(numeroMes) {
         const meses = [
             "JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO",
