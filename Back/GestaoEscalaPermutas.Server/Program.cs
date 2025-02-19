@@ -4,14 +4,12 @@ using GestaoEscalaPermutas.Dominio.Interfaces.Departamento;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
 using GestaoEscalaPermutas.Dominio.Services.Cargos;
 using GestaoEscalaPermutas.Dominio.Interfaces.Cargos;
 using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
 using GestaoEscalaPermutas.Dominio.Services.Funcionario;
 using GestaoEscalaPermutas.Dominio.Services.Escala;
 using GestaoEscalaPermutas.Dominio.Services.PostoTrabalho;
-using GestaoEscalaPermutas.Dominio.Services.TipoEscala;
 using GestaoEscalaPermutas.Dominio.Interfaces.Escala;
 using GestaoEscalaPermutas.Dominio.Interfaces.TipoEscala;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
@@ -149,9 +147,9 @@ builder.Services.Configure<KestrelServerOptions>(options =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>
-        policy.WithOrigins(
-            "https://front-gestao-175014489605.southamerica-east1.run.app",
-            "https://gestao-escala-back-175014489605.southamerica-east1.run.app"
+            policy.WithOrigins(
+                "https://front-gestao-175014489605.southamerica-east1.run.app",
+                "https://gestao-escala-back-175014489605.southamerica-east1.run.app"
             //"http://192.168.0.2:7207", // Backend local
             //"http://10.0.2.2:7207",   // Emulador Android
             //"http://localhost:5173"   // Frontend
