@@ -1,4 +1,6 @@
 ﻿using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace GestaoEscalaPermutas.Repository.Interfaces
 {
@@ -11,5 +13,6 @@ namespace GestaoEscalaPermutas.Repository.Interfaces
         Task RemoverAsync(Guid id);
         Task<List<EscalaPronta>> ObterEscalasProntasPorEscalaId(Guid idEscala);
         Task RemoverEscalasProntasPorEscalaId(Guid idEscala);
+        Task<IDbContextTransaction> IniciarTransacaoAsync();
     }
 }

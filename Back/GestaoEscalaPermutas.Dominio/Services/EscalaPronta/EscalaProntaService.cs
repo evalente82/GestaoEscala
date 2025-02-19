@@ -3,8 +3,12 @@ using GestaoEscalaPermutas.Dominio.DTO;
 using GestaoEscalaPermutas.Dominio.DTO.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
 using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
+using GestaoEscalaPermutas.Repository.Implementations;
 using GestaoEscalaPermutas.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 
 namespace GestaoEscalaPermutas.Dominio.Services.EscalaPronta
@@ -14,14 +18,16 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaPronta
         private readonly IEscalaProntaRepository _escalaProntaRepository;
         private readonly IFuncionarioRepository _funcionarioRepository;
         private readonly IEscalaRepository _escalaRepository;
+        private readonly ITipoEscalaRepository _tipoEscalaRepository;
         private readonly IMapper _mapper;
 
-        public EscalaProntaService(IEscalaProntaRepository escalaProntaRepository, IMapper mapper, IFuncionarioRepository funcionarioRepository, IEscalaRepository escalaRepository, ICargoRepository cargoRepository)
+        public EscalaProntaService(IEscalaProntaRepository escalaProntaRepository, IMapper mapper, IFuncionarioRepository funcionarioRepository, IEscalaRepository escalaRepository, ICargoRepository cargoRepository, ITipoEscalaRepository tipoEscalaRepository)
         {
             _escalaProntaRepository = escalaProntaRepository;
             _mapper = mapper;
             _funcionarioRepository = funcionarioRepository;
             _escalaRepository = escalaRepository;
+            _tipoEscalaRepository = tipoEscalaRepository;
         }
 
         public async Task<EscalaProntaDTO> Incluir(EscalaProntaDTO escalaProntaDTO)
@@ -98,27 +104,184 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaPronta
 
         public async Task<RetornoDTO> RecriarEscalaProximoMes(Guid idEscala)
         {
-            if (idEscala == Guid.Empty)
-                return new RetornoDTO { valido = false, mensagem = "Id fora do Range." };
+            using var transaction = await _escalaRepository.IniciarTransacaoAsync(); // 🔹 Inicia a transação no repository
 
-            var escalasProntas = await _escalaProntaRepository.ObterPorEscalaIdAsync(idEscala);
-            if (!escalasProntas.Any())
-                return new RetornoDTO { valido = false, mensagem = "Nenhuma escala encontrada para recriação." };
-
-            var novasEscalas = escalasProntas
-                .Select(e => new DepInfra.EscalaPronta
+            try
+            {
+                var escalaAtual = await _escalaRepository.ObterPorIdAsync(idEscala);
+                if (escalaAtual == null)
                 {
-                    IdEscalaPronta = Guid.NewGuid(),
-                    IdEscala = idEscala,
-                    IdPostoTrabalho = e.IdPostoTrabalho,
-                    IdFuncionario = e.IdFuncionario,
-                    DtDataServico = e.DtDataServico.AddMonths(1),
-                    DtCriacao = DateTime.UtcNow
-                }).ToList();
+                    return new RetornoDTO { valido = false, mensagem = "Escala não encontrada!" };
+                }
 
-            await _escalaProntaRepository.AdicionarListaAsync(novasEscalas.ToArray());
-            return new RetornoDTO { valido = true, mensagem = "Escala recriada com sucesso para o próximo mês." };
+                var tipoEscalaAtual = await _tipoEscalaRepository.BuscarPorIdAsync(escalaAtual.IdTipoEscala);
+                if (tipoEscalaAtual == null)
+                {
+                    throw new Exception("Tipo de escala não encontrado!");
+                }
+
+                var escalaProntaAntiga = await _escalaProntaRepository.ObterPorEscalaIdAsync(idEscala);
+                if (!escalaProntaAntiga.Any())
+                {
+                    throw new Exception("Nenhuma escala pronta encontrada para replicação.");
+                }
+
+                var listaPostos = escalaProntaAntiga
+                    .Select(e => e.IdPostoTrabalho)
+                    .Distinct()
+                    .ToList();
+
+                var dataPostosFuncionarios = escalaProntaAntiga
+                    .GroupBy(e => new { e.DtDataServico, e.IdPostoTrabalho })
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.OrderBy(e => e.DtDataServico)
+                              .Select(e => e.IdFuncionario)
+                              .ToList()
+                    );
+
+                var listIndiceFunc = new Dictionary<Guid, Dictionary<int, List<Guid>>>();
+
+                foreach (var posto in listaPostos)
+                {
+                    var gruposUnicos = new Dictionary<string, int>();
+                    var indiceAtual = 1;
+                    var ordemFuncionarios = new Dictionary<int, List<Guid>>();
+
+                    foreach (var (dataPosto, listaFuncionarios) in dataPostosFuncionarios.Where(d => d.Key.IdPostoTrabalho == posto))
+                    {
+                        var chaveGrupo = string.Join("-", listaFuncionarios.OrderBy(f => f));
+
+                        if (!gruposUnicos.ContainsKey(chaveGrupo))
+                        {
+                            gruposUnicos[chaveGrupo] = indiceAtual++;
+                        }
+
+                        var indiceGrupo = gruposUnicos[chaveGrupo];
+                        if (!ordemFuncionarios.ContainsKey(indiceGrupo))
+                        {
+                            ordemFuncionarios[indiceGrupo] = new List<Guid>(listaFuncionarios);
+                        }
+                    }
+
+                    listIndiceFunc[posto] = ordemFuncionarios;
+                }
+
+                var ultimosFuncionarios = listaPostos.ToDictionary(
+                    posto => posto,
+                    posto =>
+                    {
+                        var ultimoDia = escalaProntaAntiga
+                            .Where(e => e.IdPostoTrabalho == posto)
+                            .OrderByDescending(e => e.DtDataServico)
+                            .FirstOrDefault()?.DtDataServico;
+
+                        if (ultimoDia == null)
+                            return (indice: 1, funcionarios: new List<Guid>());
+
+                        var funcionariosUltimoDia = escalaProntaAntiga
+                            .Where(e => e.IdPostoTrabalho == posto && e.DtDataServico == ultimoDia)
+                            .Select(e => e.IdFuncionario)
+                            .OrderBy(f => f)
+                            .ToList();
+
+                        var indiceGrupo = listIndiceFunc[posto]
+                            .FirstOrDefault(kv => kv.Value.OrderBy(f => f).SequenceEqual(funcionariosUltimoDia))
+                            .Key;
+
+                        if (indiceGrupo == 0)
+                            indiceGrupo = 1;
+
+                        return (indice: indiceGrupo, funcionarios: listIndiceFunc[posto][indiceGrupo]);
+                    }
+                );
+
+                var novaEscala = new DepInfra.Escala
+                {
+                    IdEscala = Guid.NewGuid(),
+                    IdDepartamento = escalaAtual.IdDepartamento,
+                    IdTipoEscala = escalaAtual.IdTipoEscala,
+                    IdCargo = escalaAtual.IdCargo,
+                    NmNomeEscala = $"{escalaAtual.NmNomeEscala} - {CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName((escalaAtual.NrMesReferencia % 12) + 1).ToUpper()}",
+                    DtCriacao = DateTime.UtcNow,
+                    NrMesReferencia = (escalaAtual.NrMesReferencia % 12) + 1,
+                    IsAtivo = true,
+                    IsGerada = true,
+                    NrPessoaPorPosto = escalaAtual.NrPessoaPorPosto,
+                };
+
+                novaEscala.NmNomeEscala = AtualizarNomeEscala(novaEscala.NmNomeEscala);
+
+                await _escalaRepository.AdicionarAsync(novaEscala);
+
+                int ano = novaEscala.NrMesReferencia == 1 ? DateTime.UtcNow.Year + 1 : DateTime.UtcNow.Year;
+                int mes = novaEscala.NrMesReferencia;
+                int totalDias = DateTime.DaysInMonth(ano, mes);
+
+                var novaEscalaPronta = new List<EscalaProntaDTO>();
+
+                foreach (var idPosto in listaPostos)
+                {
+                    if (!ultimosFuncionarios.ContainsKey(idPosto)) continue;
+
+                    var (indiceAtual, listaFuncionarios) = ultimosFuncionarios[idPosto];
+
+                    for (int dia = 1; dia <= totalDias; dia++)
+                    {
+                        var novaDataServico = new DateTime(ano, mes, dia);
+                        var listaOrdenada = listaFuncionarios.OrderBy(f => f).ToList();
+
+                        foreach (var funcionario in listaOrdenada)
+                        {
+                            novaEscalaPronta.Add(new EscalaProntaDTO
+                            {
+                                IdEscalaPronta = Guid.NewGuid(),
+                                IdEscala = novaEscala.IdEscala,
+                                IdPostoTrabalho = idPosto,
+                                IdFuncionario = funcionario,
+                                DtDataServico = novaDataServico,
+                                DtCriacao = DateTime.UtcNow
+                            });
+                        }
+
+                        indiceAtual = indiceAtual % listIndiceFunc[idPosto].Count + 1;
+                        listaFuncionarios = new List<Guid>(listIndiceFunc[idPosto][indiceAtual]);
+                    }
+                }
+
+                var escalaPronta = _mapper.Map<List<DepInfra.EscalaPronta>>(novaEscalaPronta);
+                await _escalaProntaRepository.AdicionarEmLoteAsync(escalaPronta);
+
+                await transaction.CommitAsync();
+
+                return new RetornoDTO { valido = true, mensagem = "Escala recriada com sucesso!" };
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return new RetornoDTO { valido = false, mensagem = $"Erro ao recriar escala: {ex.Message}" };
+            }
         }
+        private string AtualizarNomeEscala(string nomeEscala)
+        {
+            string[] meses = CultureInfo.CurrentCulture.DateTimeFormat.MonthNames
+                .Where(m => !string.IsNullOrEmpty(m))
+                .Select(m => m.ToUpper())
+                .ToArray();
+
+            string padraoMeses = string.Join("|", meses);
+            var matches = Regex.Matches(nomeEscala, padraoMeses);
+
+            if (matches.Count > 1)
+            {
+                string ultimoMes = matches[^1].Value;
+                nomeEscala = Regex.Replace(nomeEscala, $@"\s*-\s*({padraoMeses})", "").Trim();
+                nomeEscala += " - " + ultimoMes;
+            }
+
+            return nomeEscala;
+        }
+
 
         public async Task<EscalaProntaDTO> DeletarOcorrenciaFuncionario(Guid idFuncionario, Guid idEscala)
         {
