@@ -62,15 +62,15 @@ builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
-        Title = "Gestão Escala Permutas",
-        Description = "WebAPI com JWT. \n\n# Introdução\nEsta API está documentada no formato **OpenAPI format** e é baseada na " +
-        "\nIntegração Swagger também fornecida pela equipe da [VCorp Sistem]. " +
-        "\n\n# Especificação da Integração\nA seguinte imagem ilustra o funcionamento da Aplicação." +
-        "\n\n# Cross-Origin Resource Sharing\nEsta API utiliza Cross-Origin Resource Sharing (CORS) implementado em conformidade com as especificações W3C." +
-        "\nE isso permite que recursos restritos em uma página da web sejam recuperados por outro domínio fora do domínio ao qual pertence o recurso que será recuperado."
+        Title = "GestÃ£o Escala Permutas",
+        Description = "WebAPI com JWT. \n\n# IntroduÃ§Ã£o\nEsta API estÃ¡ documentada no formato **OpenAPI format** e Ã© baseada na " +
+        "\nIntegraÃ§Ã£o Swagger tambÃ©m fornecida pela equipe da [VCorp Sistem]. " +
+        "\n\n# EspecificaÃ§Ã£o da IntegraÃ§Ã£o\nA seguinte imagem ilustra o funcionamento da AplicaÃ§Ã£o." +
+        "\n\n# Cross-Origin Resource Sharing\nEsta API utiliza Cross-Origin Resource Sharing (CORS) implementado em conformidade com as especificaÃ§Ãµes W3C." +
+        "\nE isso permite que recursos restritos em uma pÃ¡gina da web sejam recuperados por outro domÃ­nio fora do domÃ­nio ao qual pertence o recurso que serÃ¡ recuperado."
     });
 
-    //  Configuração para permitir autenticação via JWT no Swagger
+    //  Configuraï¿½ï¿½o para permitir autenticaï¿½ï¿½o via JWT no Swagger
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -78,7 +78,7 @@ builder.Services.AddSwaggerGen(options =>
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Digite 'Bearer' + espaço + seu token JWT."
+        Description = "Digite 'Bearer' + espaï¿½o + seu token JWT."
     });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -97,7 +97,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-#region Ijeção de dependencias
+#region Ijeï¿½ï¿½o de dependencias
 builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddDbContext<DefesaCivilMaricaContext>(options =>
@@ -136,7 +136,7 @@ builder.Services.AddRepositoryServices();
 //builder.Services.AddHostedService<UsuarioMessageConsumer>();
 
 
-// Definir ambiente de produção
+// Definir ambiente de produÃ§Ã£o
 var environment = builder.Environment.EnvironmentName;
 var configuracoes = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
@@ -166,9 +166,8 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
-// Configurar autenticação JWT
+// Configurar autenticaï¿½ï¿½o JWT
 var chaveSecreta = "g9h0N7quw2S8mJAF8LKxUF0Os3leG+NDJoypOcWohOEa"; // Mesma chave usada no LoginService
-
 
 builder.Services.AddAuthentication(options =>
 {
@@ -188,17 +187,18 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Configurar autorização global (protegendo todas as rotas por padrão)
-builder.Services.AddAuthorization(options =>
-{
-    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-});
+// Configurar autorizaÃ§Ã£o global (protegendo todas as rotas por padrÃ£o)
+
+//builder.Services.AddAuthorization(options =>
+//{
+//    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+//        .RequireAuthenticatedUser()
+//        .Build();
+//});
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    serverOptions.ListenAnyIP(7207); // Isso permite conexões de qualquer IP
+    serverOptions.ListenAnyIP(8080); // Isso permite conexÃµes de qualquer IP
 });
 
 //gerarChave teste = new();
@@ -233,6 +233,6 @@ try
 }
 catch (Exception ex)
 {
-    Console.WriteLine($"Erro crítico na inicialização: {ex.Message}");
+    Console.WriteLine($"Erro crÃ­tico na inicializaÃ§Ã£o: {ex.Message}");
     throw;
 }

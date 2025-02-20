@@ -19,7 +19,9 @@ COPY GestaoEscalaPermuta.Infra/ ./GestaoEscalaPermuta.Infra/
 COPY GestaoEscalaPermutas.Repository/ ./GestaoEscalaPermutas.Repository/
 
 # Copiar o certificado para dentro da imagem
+
 COPY GestaoEscalaPermutas.Server/certificado.pfx /app/certificado.pfx
+
 
 # Publicar a aplicação
 WORKDIR /app/GestaoEscalaPermutas.Server
@@ -33,8 +35,13 @@ COPY --from=build /app/GestaoEscalaPermutas.Server/out .
 # Copiar o certificado para a imagem final
 COPY --from=build /app/certificado.pfx /app/certificado.pfx
 
+
 # Expor a porta corretamente
 EXPOSE 8080
+
+# Configurar permissões para o certificado (opcional, mas recomendado)
+RUN chmod 644 /app/certificado.pfx
+
 
 # Configurar permissões para o certificado (opcional, mas recomendado)
 RUN chmod 644 /app/certificado.pfx
