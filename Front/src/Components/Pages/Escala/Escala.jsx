@@ -21,6 +21,8 @@ function EscalaList(props) {
     const { permissoes } = useAuth();
     const possuiPermissao = (permissao) => permissoes.includes(permissao);
     const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
+    const API_URL = `${API_BASE_URL}/escala`;
+    const currentRecords = filterRecords(escala)
 
     const [alertProps, setAlertProps] = useState({
         show: false, // Exibe ou esconde o AlertPopup
@@ -106,7 +108,7 @@ function EscalaList(props) {
         BuscarTipoEscalas(setTipoEscalas);
     }, []); // Passando um array vazio, o efeito será executado apenas uma vez no carregamento do componente
 
-    const API_URL = `${API_BASE_URL}/escala`;
+    
     useEffect(() => {
         const fetchData = async () => {
             const response = await api.get(`${API_URL}/buscarTodos`);
@@ -158,7 +160,7 @@ function EscalaList(props) {
                 console.error(error);
             });
     }
-    const currentRecords = filterRecords(escala)
+    
 
     // Função para filtrar os registros com base no texto de busca
     function filterRecords(records) {
@@ -198,8 +200,7 @@ function EscalaList(props) {
     const GeraMesSeguinte = (idEscala) => {
         if (idEscala) {
             api
-                .post(
-                    `https://localhost:7207/escalaPronta/RecriarEscalaProximoMes/${idEscala}`, // 🔹 Corrigido para passar o ID na URL
+                .post(`${API_BASE_URL}/escalaPronta/RecriarEscalaProximoMes/${idEscala}`, // 🔹 Corrigido para passar o ID na URL
                     {}, // 🔹 O corpo da requisição deve ser um objeto vazio, pois não estamos enviando dados no corpo
                     {
                         headers: {
