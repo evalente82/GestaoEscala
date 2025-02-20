@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
+
   static const String baseUrl = "https://gestao-escala-back-175014489605.southamerica-east1.run.app"; // Substitua pelo seu backend
 
   // Busca as escalas ativas
