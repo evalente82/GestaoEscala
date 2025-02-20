@@ -82,8 +82,10 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
         private string GerarTokenJWT(DepInfra.Usuarios usuario, DepInfra.Funcionario funcionario, List<string> permissoes)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes("ChaveSeguraSuperLongaParaTokenJWT123!");
+            var chaveSecreta = "g9h0N7quw2S8mJAF8LKxUF0Os3leG+NDJoypOcWohOEa"; // 🔑 Deve ser idêntica à do `Program.cs`
+            var key = Encoding.UTF8.GetBytes(chaveSecreta); // 🔹 UTF-8 corretamente aplicado
 
+            var utcNow = DateTime.UtcNow;
 
             var claims = new List<Claim>
             {
@@ -91,7 +93,9 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
                 new Claim(ClaimTypes.Name, usuario.Nome),
                 new Claim(ClaimTypes.SerialNumber, funcionario.NrMatricula.ToString()),
                 new Claim("IdFuncionario", usuario.IdFuncionario.ToString() ?? "SemIdFuncionario"),
-                new Claim(ClaimTypes.Role, usuario.Perfil?.Nome ?? "SemPerfil")
+                new Claim(ClaimTypes.Role, usuario.Perfil?.Nome ?? "SemPerfil"),
+                new Claim(JwtRegisteredClaimNames.Nbf, new DateTimeOffset(utcNow).ToUnixTimeSeconds().ToString()), // Not Before
+                new Claim(JwtRegisteredClaimNames.Iat, new DateTimeOffset(utcNow).ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64) // Issued At
             };
 
             claims.AddRange(permissoes.Select(p => new Claim("Permissao", p)));
@@ -99,13 +103,16 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(8),
+                Expires = utcNow.AddHours(8), // 🔹 Expiração correta
+                Issuer = "gestao-escala-backend",
+                Audience = "gestao-escala-frontend",
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+
 
         /// <summary>
         /// Cria um novo usuário no sistema.

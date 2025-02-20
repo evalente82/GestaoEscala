@@ -5,7 +5,6 @@ class ApiService {
 
   static const String baseUrl = "https://gestao-escala-back-175014489605.southamerica-east1.run.app"; // Substitua pelo seu backend
 
-
   // Busca as escalas ativas
   Future<List<Map<String, dynamic>>> buscarEscalasAtivas() async {
     final response = await http.get(Uri.parse("$baseUrl/escala/buscarTodos"));

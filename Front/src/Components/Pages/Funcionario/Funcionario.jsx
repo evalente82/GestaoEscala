@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import PropTypes from 'prop-types';
 import AlertPopup from '../AlertPopup/AlertPopup';
+import api from "./../axiosConfig";
 
 function FuncionarioList(props) {
     const [searchText, setSearchText] = useState("");
@@ -24,7 +25,7 @@ function FuncionarioList(props) {
     function BuscarTodos() {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/cargo/buscarTodos`);
+                const response = await api.get(`${API_BASE_URL}/cargo/buscarTodos`);
                 setCargos(response.data);
             } catch (error) {
                 console.log(error);
@@ -34,7 +35,7 @@ function FuncionarioList(props) {
     }
 
     function BuscarFuncionarios() {
-        axios.get(`${API_URL}/buscarTodos`)
+        api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
                 console.log(response.data);
                 setFuncionario(response.data);
@@ -67,7 +68,7 @@ function FuncionarioList(props) {
 
     useEffect(() => {
         const fetchData = async () => {
-            const response = await axios.get(`${API_URL}/buscarTodos`);
+            const response = await api.get(`${API_URL}/buscarTodos`);
             console.log(response.data);
             setFuncionario(response.data);
         };
@@ -89,7 +90,7 @@ function FuncionarioList(props) {
     }
 
     function DeleteFuncionario(idFuncionario) {
-        axios
+        api
         .delete(`https://localhost:7207/funcionario/Deletar/${idFuncionario}`)
             .then((response) => {
                 console.log(response);
@@ -261,7 +262,7 @@ function FuncionarioForm(props) {
     }, []);
     const API_URL = `${API_BASE_URL}/cargo`;
     function BuscarTodos() {
-        axios.get(`${API_URL}/buscarTodos`)
+        api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
                 console.log(response.data);
                 setCargos(response.data);
@@ -300,8 +301,8 @@ function FuncionarioForm(props) {
             : `${API_BASE_URL}/funcionario/Incluir`;
     
         const request = props.funcionario.idFuncionario
-            ? axios.patch(url, data)
-            : axios.post(url, data);
+            ? api.patch(url, data)
+            : api.post(url, data);
     
         request
             .then(() => {

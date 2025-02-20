@@ -7,6 +7,7 @@ import jsPDF from 'jspdf';
 import { useAuth } from "../AuthContext";
 import AlertPopup from '../AlertPopup/AlertPopup';
 import FormPopup from "../AlertPopup/FormPopup";
+import api from "./../axiosConfig";
 
 
 export function Exibicao() {
@@ -109,7 +110,7 @@ export function Exibicao() {
     }, [showIncluirPopup]);    
     
     function BuscaSetores() {
-        axios
+        api
             .get(`${API_BASE_URL}/setor/buscarTodos`)
             .then((response) => {
                 setSetores(response.data);
@@ -126,7 +127,7 @@ export function Exibicao() {
     }
 
     function BuscarTipoEscalaPorId(idTipoEscala) {
-        axios.get(`${API_BASE_URL}/tipoEscala/buscarPorId/${idTipoEscala}`)
+        api.get(`${API_BASE_URL}/tipoEscala/buscarPorId/${idTipoEscala}`)
             .then((response) => {
                 console.log(response.data);
                 setTipoEscala(response.data);
@@ -143,7 +144,7 @@ export function Exibicao() {
     }
 
     function BuscaEscala(id) {
-        axios
+        api
             .get(`${API_BASE_URL}/escala/buscarPorId/${id}`)
             .then((response) => {
                 setEscala(response.data);
@@ -158,7 +159,7 @@ export function Exibicao() {
     function BuscarDepartamentos() {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/departamento/buscarTodos`);
+                const response = await api.get(`${API_BASE_URL}/departamento/buscarTodos`);
                 setDepartamentos(response.data);
                 console.log('Departamentos');
                 console.log(response.data);
@@ -170,7 +171,7 @@ export function Exibicao() {
     }
 
     function BuscaPostos(idDepartamento) {
-        axios
+        api
             .get(`${API_BASE_URL}/PostoTrabalho/buscarTodos`)
             .then((response) => {
                 // Verifique se buscaEscalaPronta está disponível, caso contrário use um Set vazio
@@ -192,7 +193,7 @@ export function Exibicao() {
     }
 
     function BuscaFuncionarios() {
-        axios
+        api
             .get(`${API_BASE_URL}/funcionario/buscarTodos`)
             .then((response) => {
                 setFuncionarios(response.data);
@@ -205,7 +206,7 @@ export function Exibicao() {
     }
 
     function BuscaEscalaPronta(id) {
-        axios
+        api
             .get(`${API_BASE_URL}/escalaPronta/buscarPorId/${id}`)
             .then((response) => {
                 setBuscaEscalaPronta(response.data);
@@ -270,51 +271,42 @@ export function Exibicao() {
 
     const handleSalvarEscalaAlterada = async () => {
         if (!escalaAlterada || escalaAlterada.length === 0) {
-            setAlertProps({
-                show: true,
-                type: "info",
-                title: "Aviso",
-                message: "Não há dados para salvar!",
-                onClose: () => setAlertProps((prev) => ({ ...prev, show: false }))
-            });
+            console.warn("⚠️ Nenhuma escala foi enviada!");
             return;
         }
     
+        // 🔹 Garante que nmNomeEscala tenha um valor padrão
+        const escalaAlteradaCorrigida = escalaAlterada.map(escala => ({
+            ...escala,
+            nmNomeEscala: escala.nmNomeEscala ?? "Nome Escala Padrão" // Define um nome padrão se for null/undefined
+        }));
+    
+        console.log("📤 Enviando para API (corrigido):", JSON.stringify(escalaAlteradaCorrigida, null, 2));
+    
         try {
-            const response = await axios.put(`${API_BASE_URL}/escala/SalvarEscalaAlterada`, escalaAlterada);
+            const response = await api.put(`${API_BASE_URL}/escala/SalvarEscalaAlterada`, escalaAlteradaCorrigida, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+    
+            console.log("✅ Resposta da API:", response);
     
             if (response.status === 200) {
-                // 🔹 Atualiza os dados antes de exibir o alerta
                 await BuscaEscalaPronta(idEscala);
-    
                 setAlertProps({
                     show: true,
                     type: "success",
                     title: "Sucesso!",
                     message: "Escala salva com sucesso!",
-                    onClose: () => {
-                        setAlertProps((prev) => ({ ...prev, show: false }));
-                    }
-                });
-            } else {
-                setAlertProps({
-                    show: true,
-                    type: "error",
-                    title: "Erro",
-                    message: "Erro ao salvar a escala.",
                 });
             }
         } catch (error) {
-            console.error("Erro ao salvar a escala:", error);
-            setAlertProps({
-                show: true,
-                type: "error",
-                title: "Erro",
-                message: "Erro ao salvar a escala.",
-            });
+            console.error("❌ Erro na requisição:", error.response?.data || error.message);
         }
     };
-
+    
+    
     function obterNomeMes(numeroMes) {
         const meses = [
             "JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO",
@@ -574,7 +566,7 @@ export function Exibicao() {
         };
     
         try {
-            const response = await axios.post(`${API_BASE_URL}/escalaPronta/IncluirFuncionario`, dadosInclusao);
+            const response = await api.post(`${API_BASE_URL}/escalaPronta/IncluirFuncionario`, dadosInclusao);
             if (response.status === 201) {
                 setShowIncluirPopup(false); // Fecha o popup primeiro
                 
@@ -624,7 +616,7 @@ export function Exibicao() {
                 };
     
                 try {
-                    const response = await axios.delete(`${API_BASE_URL}/escalaPronta/DeletarOcorrenciaFuncionario`, { data: payload });
+                    const response = await api.delete(`${API_BASE_URL}/escalaPronta/DeletarOcorrenciaFuncionario`, { data: payload });
     
                     if (response.status === 200) {
                         // 🔹 Atualiza a escala ANTES de fechar a modal de sucesso

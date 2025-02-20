@@ -16,5 +16,6 @@ namespace GestaoEscalaPermutas.Repository.Interfaces
         Task RemoverListaPorEscalaAsync(Guid idEscala);
         Task<List<EscalaPronta>> BuscarPorIdFuncionario(Guid idFuncionario);
         Task<EscalaPronta> ObterPorDataEPostoAsync(DateTime dia, Guid idPostoTrabalho);
+        Task AdicionarEmLoteAsync(IEnumerable<EscalaPronta> escalasProntas);
     }
 }

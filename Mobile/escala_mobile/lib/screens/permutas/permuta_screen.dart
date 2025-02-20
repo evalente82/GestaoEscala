@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:escala_mobile/models/user_model.dart';
+import 'package:escala_mobile/services/HttpInterceptor%20.dart';
 import 'package:escala_mobile/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -44,7 +45,7 @@ class _PermutaScreenState extends State<PermutaScreen> {
 
     print("📡 Fazendo requisição para: $url");
 
-    final response = await http.get(Uri.parse(url));
+    final response = await ApiClient.get(url);
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
@@ -111,8 +112,8 @@ class _PermutaScreenState extends State<PermutaScreen> {
     print("📡 Buscando funcionários da escala: $urlEscala");
     print("📡 Buscando lista completa de funcionários: $urlFuncionarios");
 
-    final responseEscala = await http.get(Uri.parse(urlEscala));
-    final responseFuncionarios = await http.get(Uri.parse(urlFuncionarios));
+    final responseEscala = await ApiClient.get(urlEscala);
+    final responseFuncionarios = await ApiClient.get(urlFuncionarios);
 
     if (responseEscala.statusCode == 200 && responseFuncionarios.statusCode == 200) {
       final List<dynamic> dataEscala = jsonDecode(responseEscala.body);
@@ -210,11 +211,7 @@ Future<void> _enviarSolicitacaoPermuta() async {
     print("📡 Enviando requisição para: $url");
     print("📤 Dados enviados: $permutaData");
 
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(permutaData),
-    );
+    final response = await ApiClient.post(url,permutaData);
 
     if (response.statusCode == 200) {
       print("✅ Permuta cadastrada com sucesso!");
@@ -273,7 +270,7 @@ Future<void> _buscarPermutasSolicitadas() async {
 
     print("📡 Buscando permutas solicitadas: $url");
 
-    final response = await http.get(Uri.parse(url));
+    final response = await ApiClient.get(url);
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);

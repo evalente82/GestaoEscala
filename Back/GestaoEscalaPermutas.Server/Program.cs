@@ -4,14 +4,12 @@ using GestaoEscalaPermutas.Dominio.Interfaces.Departamento;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json;
 using GestaoEscalaPermutas.Dominio.Services.Cargos;
 using GestaoEscalaPermutas.Dominio.Interfaces.Cargos;
 using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
 using GestaoEscalaPermutas.Dominio.Services.Funcionario;
 using GestaoEscalaPermutas.Dominio.Services.Escala;
 using GestaoEscalaPermutas.Dominio.Services.PostoTrabalho;
-using GestaoEscalaPermutas.Dominio.Services.TipoEscala;
 using GestaoEscalaPermutas.Dominio.Interfaces.Escala;
 using GestaoEscalaPermutas.Dominio.Interfaces.TipoEscala;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
@@ -40,6 +38,13 @@ using GestaoEscalaPermutas.Dominio.Services.TipoEscala.GestaoEscalaPermutas.Domi
 using GestaoEscalaPermutas.Dominio.Services.Funcionalidade;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Authorization;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
+
+
+var cultureInfo = new CultureInfo("pt-BR");
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 var builder = WebApplication.CreateBuilder(args);
 var connString = builder.Configuration.GetConnectionString("EmUso");
@@ -64,8 +69,35 @@ builder.Services.AddSwaggerGen(options =>
         "\n\n# Cross-Origin Resource Sharing\nEsta API utiliza Cross-Origin Resource Sharing (CORS) implementado em conformidade com as especificações W3C." +
         "\nE isso permite que recursos restritos em uma página da web sejam recuperados por outro domínio fora do domínio ao qual pertence o recurso que será recuperado."
     });
+
+    //  Configura��o para permitir autentica��o via JWT no Swagger
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Digite 'Bearer' + espa�o + seu token JWT."
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new List<string>()
+        }
+    });
 });
 
+#region Ije��o de dependencias
 builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddDbContext<DefesaCivilMaricaContext>(options =>
@@ -92,6 +124,8 @@ builder.Services.AddScoped<ICargoPerfisService, CargoPerfisService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISetorService, SetorService>();
 builder.Services.AddRepositoryServices();
+#endregion
+
 
 //builder.Services.AddSingleton<IMessageBus>(sp =>
 //{
@@ -120,7 +154,7 @@ builder.Services.Configure<KestrelServerOptions>(options =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>
-        policy.WithOrigins(
+            policy.WithOrigins(
             "https://front-gestao-175014489605.southamerica-east1.run.app",
             "https://gestao-escala-back-175014489605.southamerica-east1.run.app"
             //"http://192.168.0.2:7207", // Backend local
@@ -132,7 +166,9 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
-// Configurar autenticação JWT
+// Configurar autentica��o JWT
+var chaveSecreta = "g9h0N7quw2S8mJAF8LKxUF0Os3leG+NDJoypOcWohOEa"; // Mesma chave usada no LoginService
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -145,9 +181,9 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = "sua-aplicacao",
-        ValidAudience = "sua-aplicacao",
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("sua-chave-secreta-aqui"))
+        ValidIssuer = "gestao-escala-backend",  // Mesmo valor usado no token JWT
+        ValidAudience = "gestao-escala-frontend",  // Mesmo valor usado no token JWT
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(chaveSecreta))
     };
 });
 
@@ -165,6 +201,8 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
     serverOptions.ListenAnyIP(8080); // Isso permite conexões de qualquer IP
 });
 
+//gerarChave teste = new();
+//teste.teste();
 try
 {
     var app = builder.Build();
@@ -174,11 +212,11 @@ try
 
     //if (app.Environment.IsDevelopment())
     //{
-        app.UseSwagger();
-        app.UseSwaggerUI(options =>
-        {
-            options.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
-        });
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+    });
     //}
 
     app.UseMiddleware<PermissaoMiddleware>();
@@ -186,8 +224,8 @@ try
 
     app.UseCors("AllowSpecificOrigin");
 
-    app.UseAuthorization();
     app.UseAuthentication();
+    app.UseAuthorization();
 
     app.MapControllers();
 
