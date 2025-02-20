@@ -9,6 +9,7 @@ using GestaoEscalaPermutas.Dominio.Interfaces.TipoEscala;
 using GestaoEscalaPermutas.Dominio.DTO.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
 using GestaoEscalaPermutas.Server.Models.EscalaPronta;
+using System.Globalization;
 
 namespace GestaoEscalaPermutas.Server.Controllers.Escala
 {
@@ -187,6 +188,13 @@ namespace GestaoEscalaPermutas.Server.Controllers.Escala
                         string nomeFunc = "";
                         int ano = DateTime.Now.Year;
                         string dataStr = $"{dia}-{mesReferencia}-{ano}";
+
+                        // Conversão segura da data
+                        //if (!DateTime.TryParseExact(dataStr, "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dataServico))
+                        //{
+                        //    Console.WriteLine($"Erro ao converter data: {dataStr}");
+                        //    continue; // Pula esta iteração se a conversão falhar
+                        //}
 
                         if (countTpEscala == ppp_X_TipoEscala) // verifico se chegou a qtd de pessoas
                                                                // para cobrir o posto e zero

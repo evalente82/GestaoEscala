@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import PropTypes from "prop-types";
 import AlertPopup from "../AlertPopup/AlertPopup";
+import api from "./../axiosConfig";
 
 function PerfilList(props) {
     const [searchText, setSearchText] = useState("");
@@ -21,7 +22,7 @@ function PerfilList(props) {
 
     // Função para buscar todos os perfis
     function BuscarPerfis() {
-        axios
+        api
             .get(`${API_URL}/buscarTodos`)
             .then((response) => {
                 setPerfis(response.data);
@@ -60,7 +61,7 @@ function PerfilList(props) {
     }
 
     function DeletePerfil(idPerfil) {
-        axios
+        api
             .delete(`${API_URL}/deletar/${idPerfil}`)
             .then(() => {
                 setPerfis(perfis.filter((perfil) => perfil.idPerfil !== idPerfil));
@@ -188,7 +189,7 @@ function PerfilForm(props) {
         const data = { nome, descricao };
 
         if (props.perfil.idPerfil) {
-            axios
+            api
             .put(
                     `${API_BASE_URL}/perfil/atualizar/${props.perfil.idPerfil}`,
                     data
@@ -215,7 +216,7 @@ function PerfilForm(props) {
                     });
                 });
         } else {
-            axios
+            api
                 .post(`${API_BASE_URL}/perfil/incluir`, data)
                 .then(() => {
                     setAlertProps({

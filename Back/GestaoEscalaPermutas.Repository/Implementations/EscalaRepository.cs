@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using GestaoEscalaPermutas.Infra.Data.Context;
 using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace GestaoEscalaPermutas.Repository.Implementations
 {
@@ -60,6 +61,10 @@ namespace GestaoEscalaPermutas.Repository.Implementations
                 _context.EscalaPronta.RemoveRange(escalasProntas);
                 await _context.SaveChangesAsync();
             }
+        }
+        public async Task<IDbContextTransaction> IniciarTransacaoAsync()
+        {
+            return await _context.Database.BeginTransactionAsync();
         }
     }
 }

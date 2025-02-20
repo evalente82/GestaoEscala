@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import logo1 from "../../Imagens/LogoDefesaCivil.png";
 import "./RedefinirSenha.css"; // Arquivo de estilos correspondente
 
 function RedefinirSenha() {
@@ -51,7 +52,7 @@ function RedefinirSenha() {
                 <div className="text-center">
                     <h1 className="redefinir-senha-title">Defesa Civil de Maricá</h1>
                     <img
-                        src="/src/Components/Imagens/LogoDefesaCivil.png"
+                        src={logo1}
                         alt="Logo Defesa Civil"
                         className="logo-defesa-civil"
                     />

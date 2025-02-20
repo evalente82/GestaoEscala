@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import PropTypes from "prop-types";
 import AlertPopup from "../AlertPopup/AlertPopup";
+import api from "./../axiosConfig";
 
 function PerfisFuncionalidadesList(props) {
     const [searchText, setSearchText] = useState("");
@@ -21,7 +22,7 @@ function PerfisFuncionalidadesList(props) {
     const API_URL = `${API_BASE_URL}/perfisFuncionalidades`;
 
     function BuscarPerfisFuncionalidades() {
-        axios
+        api
             .get(`${API_URL}/buscarTodas`)
             .then((response) => {
                 // console.log("Perfis e Funcionalidades:", response.data);
@@ -64,7 +65,7 @@ function PerfisFuncionalidadesList(props) {
         console.log("perfil2", idPerfil);
         console.log("funcionalidade2", idFuncionalidade);
     
-        axios
+        api
             .delete(`${API_URL}/deletar`, {
                 data: {
                     idPerfil: idPerfil,
@@ -184,10 +185,10 @@ function PerfisFuncionalidadesForm(props) {
     });
 
     useEffect(() => {
-        axios.get(`${API_BASE_URL}/perfil/buscarTodos`).then((response) => {
+        api.get(`${API_BASE_URL}/perfil/buscarTodos`).then((response) => {
             setPerfis(response.data);
         });
-        axios.get(`${API_BASE_URL}/funcionalidade/buscarTodas`).then((response) => {
+        api.get(`${API_BASE_URL}/funcionalidade/buscarTodas`).then((response) => {
             setFuncionalidades(response.data);
         });
     }, []);
@@ -209,7 +210,7 @@ function PerfisFuncionalidadesForm(props) {
         console.log("Funcionalidade Selecionada (Nome):", funcionalidadeSelecionadaNome);
 
         try {
-            await axios.post(`${API_BASE_URL}/perfisFuncionalidades/incluir`, {
+            await api.post(`${API_BASE_URL}/perfisFuncionalidades/incluir`, {
                 idPerfil: perfilSelecionado,
                 idFuncionalidade: funcionalidadeSelecionada,
                 nomePerfil: perfilSelecionadoNome,

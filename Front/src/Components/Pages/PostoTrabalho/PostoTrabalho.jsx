@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import PropTypes from 'prop-types';
 import AlertPopup from '../AlertPopup/AlertPopup';
+import api from "./../axiosConfig";
+
 
 function PostoTrabalhoList(props) {
     const [searchText, setSearchText] = useState("");
@@ -23,7 +25,7 @@ function PostoTrabalhoList(props) {
     function BuscarTodos() {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/departamento/buscarTodos`);
+                const response = await api.get(`${API_BASE_URL}/departamento/buscarTodos`);
                 setDepartamentos(response.data);
             } catch (error) {
                 console.log(error);
@@ -32,7 +34,7 @@ function PostoTrabalhoList(props) {
         fetchData();
     }
     function BuscarPostos() {
-        axios.get(`${API_URL}/buscarTodos`)
+        api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
                 console.log(response.data);
                 setPosto(response.data);
@@ -53,7 +55,7 @@ function PostoTrabalhoList(props) {
     };   
     
     function BuscarSetor() {
-        axios.get(`${API_BASE_URL}/setor/buscarTodos`)
+        api.get(`${API_BASE_URL}/setor/buscarTodos`)
             .then((response) => {
                 console.log(response.data);
                 setSetor(response.data);
@@ -83,7 +85,7 @@ function PostoTrabalhoList(props) {
     
     useEffect(() => {
         const fetchData = async () => {
-            const response = await axios.get(`${API_URL}/buscarTodos`);
+            const response = await api.get(`${API_URL}/buscarTodos`);
             console.log(response.data);
             setPosto(response.data);
         };
@@ -106,7 +108,7 @@ function PostoTrabalhoList(props) {
     }
 
     function DeletePostoTrabalho(idPostoTrabalho) {
-        axios
+        api
             .delete(`${API_URL}/Deletar/${idPostoTrabalho}`)
             .then((response) => {
                 console.log(response);
@@ -267,7 +269,7 @@ function PostoTrabalhoForm(props) {
     }, []);
     const API_URL = `${API_BASE_URL}/departamento`;
     function BuscarTodos() {
-        axios.get(`${API_URL}/buscarTodos`)
+        api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
                 console.log(response.data);
                 setDepartamentos(response.data);
@@ -282,7 +284,7 @@ function PostoTrabalhoForm(props) {
     }, []);
     const API_URL_Setor = `${API_BASE_URL}/setor`;
     function BuscarSetor() {
-        axios.get(`${API_URL_Setor}/buscarTodos`)
+        api.get(`${API_URL_Setor}/buscarTodos`)
             .then((response) => {
                 console.log(response.data);
                 setSetor(response.data);
@@ -320,7 +322,7 @@ function PostoTrabalhoForm(props) {
                 idSetor: setorSelecionado,
                 isAtivo: ativo,
             };
-            axios
+            api
                 .patch(
                     `${API_BASE_URL}/postoTrabalho/Atualizar/` +
                     props.posto.idPostoTrabalho,
@@ -356,7 +358,7 @@ function PostoTrabalhoForm(props) {
                 idSetor: setorSelecionado,
                 isAtivo: ativo,
             };
-            axios
+            api
                 .post(`${API_BASE_URL}/postoTrabalho/Incluir`, data)
                 .then(() => {
                     setAlertProps({

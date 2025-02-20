@@ -3,6 +3,7 @@ using GestaoEscalaPermutas.Infra.Data.Context;
 using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using GestaoEscalaPermutas.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using System.Security.Cryptography;
 
 namespace GestaoEscalaPermutas.Repository.Implementations
@@ -110,6 +111,11 @@ namespace GestaoEscalaPermutas.Repository.Implementations
                 .Where(ep => ep.DtDataServico.Date == dia.Date && ep.IdPostoTrabalho == idPostoTrabalho)
                 .FirstOrDefaultAsync();
         }
-
+                
+        public async Task AdicionarEmLoteAsync(IEnumerable<EscalaPronta> escalasProntas)
+        {
+            await _context.EscalaPronta.AddRangeAsync(escalasProntas);
+            await _context.SaveChangesAsync();
+        }
     }
 }
