@@ -190,12 +190,12 @@ builder.Services.AddAuthentication(options =>
 
 // Configurar autorização global (protegendo todas as rotas por padrão)
 
-//builder.Services.AddAuthorization(options =>
-//{
-//    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-//        .RequireAuthenticatedUser()
-//        .Build();
-//});
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
