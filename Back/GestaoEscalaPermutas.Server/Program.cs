@@ -40,6 +40,8 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Authorization;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
+using GestaoEscalaPermutas.Dominio.Services.Mensageria;
+using GestaoEscalaPermutas.Dominio.Interfaces.Mensageria;
 
 
 var cultureInfo = new CultureInfo("pt-BR");
@@ -97,7 +99,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-#region Ije��o de dependencias
+#region Injecao de dependencias
 builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddDbContext<DefesaCivilMaricaContext>(options =>
@@ -124,16 +126,28 @@ builder.Services.AddScoped<ICargoPerfisService, CargoPerfisService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISetorService, SetorService>();
 builder.Services.AddRepositoryServices();
+builder.Services.AddHostedService<PermutasMessageConsumer>();
 #endregion
 
 
-//builder.Services.AddSingleton<IMessageBus>(sp =>
-//{
-//    var configuration = sp.GetRequiredService<IConfiguration>();
-//    var hostName = configuration["RabbitMQ:HostName"];
-//    return new RabbitMqMessageBus(hostName);
-//});
-//builder.Services.AddHostedService<UsuarioMessageConsumer>();
+builder.Services.AddSingleton<IMessageBus>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var hostName = configuration["RabbitMQ:HostName"] ?? "localhost";
+
+    Console.WriteLine($"Tentando conectar ao RabbitMQ no host: {hostName}");
+
+    try
+    {
+        return new RabbitMqMessageBus(hostName);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Erro ao conectar ao RabbitMQ: {ex.Message}");
+        throw; // Relança para que o erro seja visível no startup
+    }
+});
+builder.Services.AddHostedService<UsuarioMessageConsumer>();
 
 
 // Definir ambiente de produção
@@ -190,12 +204,12 @@ builder.Services.AddAuthentication(options =>
 
 // Configurar autorização global (protegendo todas as rotas por padrão)
 
-builder.Services.AddAuthorization(options =>
-{
-    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-});
+//builder.Services.AddAuthorization(options =>
+//{
+//    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+//        .RequireAuthenticatedUser()
+//        .Build();
+//});
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {

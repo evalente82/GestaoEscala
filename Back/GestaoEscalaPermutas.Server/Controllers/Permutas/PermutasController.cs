@@ -10,6 +10,7 @@ using GestaoEscalaPermutas.Dominio.DTO.Permutas;
 using GestaoEscalaPermutas.Server.Models.Permuta;
 using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
 using GestaoEscalaPermutas.Server.Models.Funcionarios;
+using GestaoEscalaPermutas.Dominio.Interfaces.Mensageria;
 
 namespace GestaoEscalaPermutas.Server.Controllers.Permutas
 {
@@ -19,10 +20,12 @@ namespace GestaoEscalaPermutas.Server.Controllers.Permutas
     {
         private readonly IPermutasService _permutasService;
         private readonly IMapper _mapper;
-        public PermutasController(IPermutasService permutasService, IMapper mapper) 
+        private readonly IMessageBus _messageBus;
+        public PermutasController(IPermutasService permutasService, IMapper mapper, IMessageBus messageBus)
         {
             _permutasService = permutasService;
             _mapper = mapper;
+            _messageBus = messageBus;
         }
 
         [HttpPost]
@@ -32,7 +35,24 @@ namespace GestaoEscalaPermutas.Server.Controllers.Permutas
             var permutasDTO = await _permutasService.Incluir(_mapper.Map<PermutasDTO>(escala));
             var permutaModel = _mapper.Map<PermutaModel>(permutasDTO);
 
-            return (permutaModel.Valido) ? Ok(permutaModel) : BadRequest(new RetornoModel { Valido = false, Mensagem = permutaModel.Mensagem });
+            if (permutaModel.Valido)
+            {
+                // Publicar mensagem para o funcionário solicitado
+                var mensagem = new PermutaMensagemDTO
+                {
+                    IdPermuta = permutasDTO.IdPermuta,
+                    IdFuncionarioSolicitante = permutasDTO.IdFuncionarioSolicitante,
+                    NmNomeSolicitante = permutasDTO.NmNomeSolicitante,
+                    IdFuncionarioSolicitado = permutasDTO.IdFuncionarioSolicitado,
+                    NmNomeSolicitado = permutasDTO.NmNomeSolicitado,
+                    DtDataSolicitadaTroca = permutasDTO.DtDataSolicitadaTroca,
+                    NmStatus = "Solicitada"
+                };
+                await _messageBus.PublishAsync("permutas.solicitadas", mensagem);
+
+                return Ok(permutaModel);
+            }
+            return BadRequest(new RetornoModel { Valido = false, Mensagem = permutaModel.Mensagem });
         }
 
         [HttpPatch]
@@ -97,5 +117,106 @@ namespace GestaoEscalaPermutas.Server.Controllers.Permutas
             return Ok(permutas);
         }
 
+        [HttpPut]
+        [Route("AprovarSolicitado/{idPermuta:Guid}")]
+        public async Task<ActionResult> AprovarSolicitado(Guid idPermuta)
+        {
+            var permuta = await _permutasService.BuscarPorId(idPermuta);
+            if (!permuta.valido)
+            {
+                return BadRequest(new RetornoModel { Valido = false, Mensagem = permuta.mensagem });
+            }
+
+            // Lógica para marcar como aprovada pelo solicitado (ajuste conforme seu modelo)
+            permuta.NmStatus = "AprovadaSolicitado"; // Supondo que você adicione esse campo no DTO
+            var permutaAtualizada = await _permutasService.Alterar(idPermuta, permuta);
+
+            if (permutaAtualizada.valido)
+            {
+                // Publicar mensagem na fila pendentes para o administrador
+                var mensagem = _mapper.Map<PermutaMensagemDTO>(permutaAtualizada);
+                mensagem.NmStatus = "AprovadaSolicitado";
+                await _messageBus.PublishAsync("permutas.pendentes", mensagem);
+
+                return Ok(_mapper.Map<PermutaModel>(permutaAtualizada));
+            }
+            return BadRequest(new RetornoModel { Valido = false, Mensagem = permutaAtualizada.mensagem });
+        }
+
+        [HttpPut]
+        [Route("RecusarSolicitado/{idPermuta:Guid}")]
+        public async Task<ActionResult> RecusarSolicitado(Guid idPermuta)
+        {
+            var permuta = await _permutasService.BuscarPorId(idPermuta);
+            if (!permuta.valido)
+            {
+                return BadRequest(new RetornoModel { Valido = false, Mensagem = permuta.mensagem });
+            }
+
+            // Lógica para marcar como recusada pelo solicitado
+            permuta.NmStatus = "Recusada"; // Supondo que você adicione esse campo no DTO
+            var permutaAtualizada = await _permutasService.Alterar(idPermuta, permuta);
+
+            if (permutaAtualizada.valido)
+            {
+                // Publicar mensagem para ambos os funcionários
+                var mensagem = _mapper.Map<PermutaMensagemDTO>(permutaAtualizada);
+                mensagem.NmStatus = "Recusada";
+                await _messageBus.PublishAsync("permutas.resultado", mensagem);
+
+                return Ok(_mapper.Map<PermutaModel>(permutaAtualizada));
+            }
+            return BadRequest(new RetornoModel { Valido = false, Mensagem = permutaAtualizada.mensagem });
+        }
+
+        [HttpPut] // Substituímos PATCH por PUT para consistência
+        [Route("Aprovar/{idPermuta:Guid}")]
+        public async Task<ActionResult> AprovarPermuta(Guid idPermuta)
+        {
+            var permuta = await _permutasService.BuscarPorId(idPermuta);
+            if (!permuta.valido)
+            {
+                return BadRequest(new RetornoModel { Valido = false, Mensagem = permuta.mensagem });
+            }
+
+            permuta.NmNomeAprovador = User.Identity.Name; // Supondo que o aprovador vem do JWT
+            permuta.DtAprovacao = DateTime.UtcNow;
+            var permutaAtualizada = await _permutasService.Alterar(idPermuta, permuta);
+
+            if (permutaAtualizada.valido)
+            {
+                var mensagem = _mapper.Map<PermutaMensagemDTO>(permutaAtualizada);
+                mensagem.NmStatus = "Aprovada";
+                await _messageBus.PublishAsync("permutas.resultado", mensagem);
+
+                return Ok(_mapper.Map<PermutaModel>(permutaAtualizada));
+            }
+            return BadRequest(new RetornoModel { Valido = false, Mensagem = permutaAtualizada.mensagem });
+        }
+
+        [HttpPut]
+        [Route("Recusar/{idPermuta:Guid}")]
+        public async Task<ActionResult> RecusarPermuta(Guid idPermuta)
+        {
+            var permuta = await _permutasService.BuscarPorId(idPermuta);
+            if (!permuta.valido)
+            {
+                return BadRequest(new RetornoModel { Valido = false, Mensagem = permuta.mensagem });
+            }
+
+            permuta.NmNomeAprovador = User.Identity.Name; // Pode ser usado como "quem recusou"
+            permuta.DtReprovacao = DateTime.UtcNow;
+            var permutaAtualizada = await _permutasService.Alterar(idPermuta, permuta);
+
+            if (permutaAtualizada.valido)
+            {
+                var mensagem = _mapper.Map<PermutaMensagemDTO>(permutaAtualizada);
+                mensagem.NmStatus = "Recusada";
+                await _messageBus.PublishAsync("permutas.resultado", mensagem);
+
+                return Ok(_mapper.Map<PermutaModel>(permutaAtualizada));
+            }
+            return BadRequest(new RetornoModel { Valido = false, Mensagem = permutaAtualizada.mensagem });
+        }
     }
 }

@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:escala_mobile/services/HttpInterceptor%20.dart';
 import 'package:escala_mobile/services/api_service.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:escala_mobile/models/user_model.dart';
 import 'package:logger/logger.dart';
@@ -189,22 +188,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
             ),
           ),
 
-          ElevatedButton(
-                  onPressed: () {
-                // Implementação futura do PDF
-              },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF003580),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    "Gerar PDF",
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
-                ),
+          
 
           if (_escalaPronta.isNotEmpty) ...[
             Expanded(

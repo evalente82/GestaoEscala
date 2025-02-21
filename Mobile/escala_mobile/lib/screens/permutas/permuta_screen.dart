@@ -4,8 +4,8 @@ import 'package:escala_mobile/services/HttpInterceptor%20.dart';
 import 'package:escala_mobile/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:escala_mobile/screens/permutas/Solicitacoes_Permuta_Screen.dart';
 
 class PermutaScreen extends StatefulWidget {
   const PermutaScreen({super.key});
@@ -330,21 +330,65 @@ Future<void> _buscarPermutasSolicitadas() async {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Nome do Solicitante
-            Text(
-              "Solicitante",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(8),
+            // Nome do Solicitante com Botão
+          Text(
+            "Solicitante",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          // No build da PermutaScreen
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(userModel.userName),
+                ),
               ),
-              child: Text(userModel.userName),
-            ),
-            const SizedBox(height: 16),
+              const SizedBox(width: 16),
+              Stack(
+                alignment: Alignment.topRight,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SolicitacoesPermutasScreen()),
+                      );
+                      userModel.clearNotificationCount(); // Limpa ao entrar
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF003580),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    ),
+                    child: const Text("Solicitações", style: TextStyle(fontSize: 14, color: Colors.white)),
+                  ),
+                  if (userModel.notificationCount > 0)
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          userModel.notificationCount > 9 ? "!" : userModel.notificationCount.toString(),
+                          style: const TextStyle(color: Colors.white, fontSize: 12),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
 
             // Dropdown de Escalas
             Text(
