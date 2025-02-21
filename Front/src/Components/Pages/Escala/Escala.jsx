@@ -338,8 +338,7 @@ function EscalaList(props) {
                                         <button
                                             onClick={() => props.ShowForm(escala)}
                                             type="button"
-                                            className="btn btn-primary btn-sm me-2"
-                                            disabled={escala.isAtivo == true}
+                                            className="btn btn-primary btn-sm me-2"                                            
                                         >
                                             Editar
                                         </button>)}
@@ -462,7 +461,6 @@ function EscalaForm(props) {
                 console.log(error);
             });
     }
-
 
     var nomesMeses = [
         "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -615,6 +613,7 @@ function EscalaForm(props) {
                                     value={props.escala.idDepartamento}
                                     onChange={(e) => setDepartamentoSelecionado(e.target.value)}
                                     required
+                                    disabled={ativo == true}
                                 >
                                     <option value="">Selecione um departamento</option>
                                     {departamentos.map(departamento => (
@@ -633,11 +632,13 @@ function EscalaForm(props) {
                             value={cargoSelecionado}
                             onChange={handleSelectChange}
                             required
+                            disabled={ativo == true}
                         >
                             <option value="">Selecione um Cargo</option>                           
                             {cargos.map(cargo => (
                                         <option key={cargo.idCargo} value={cargo.idCargo}>{cargo.nmNome}</option>
                                     ))}
+                                    disabled={ativo == true}
                         </select>
                             </div>
                         </div>
@@ -651,6 +652,7 @@ function EscalaForm(props) {
                                     value={props.escala.idTipoEscala} // Troque isso para props.escala.idTipoEscala
                                     onChange={(e) => setTipoEscalaSelecionado(e.target.value)}
                                     required
+                                    disabled={ativo == true}
                                 >
                                     <option value="">Selecione um Tipo de Escala</option>
                                     {tipoEscalas.map(tipoEscala => (
@@ -670,6 +672,7 @@ function EscalaForm(props) {
                                     value={mesReferencia}
                                     onChange={(e) => setMesReferencia(e.target.value)}
                                     required
+                                    disabled={ativo == true}
                                 >
                                     {nomesMeses.map((nome, i) => (
                                         <option key={i} value={i + 1}>{nome}</option>
@@ -687,6 +690,7 @@ function EscalaForm(props) {
                                     name="pessoaPorPosto"
                                     defaultValue={props.escala.nrPessoaPorPosto}
                                     required
+                                    disabled={ativo == true}
                                     onChange={(e) => setPessoaPorPosto(e.target.value)}
                                 ></input>
                             </div>

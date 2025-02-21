@@ -53,8 +53,7 @@ class _PermutaScreenState extends State<PermutaScreen> {
       // Remover duplicatas das escalas
       Set<String> escalasUnicas = {};
       final List<Map<String, dynamic>> escalas = data.map((e) {
-        String escalaNome = "${e["nmNomeEscala"]} - ${DateFormat("MMMM").format(DateTime.parse(e["dtDataServico"]))}";
-        
+        String escalaNome = "${e["nmNomeEscala"]} - ${DateFormat("MMMM", "pt_BR").format(DateTime.parse(e["dtDataServico"]))}";
         if (escalasUnicas.contains(escalaNome)) {
           return null;
         }
@@ -96,9 +95,15 @@ class _PermutaScreenState extends State<PermutaScreen> {
   void _filtrarDatasPorEscala(String idEscala) {
   setState(() {
     _datasFiltradasPorEscala = _datasTrabalhoUsuario
-        .where((e) => e["idEscala"].toString() == idEscala) // 🔹 Comparação correta
-        .map((e) => e["data"].toString()) // 🔹 Garante que seja String
-        .toList();
+        .where((e) => e["idEscala"].toString() == idEscala) // Filtra por idEscala
+        .map((e) => e["data"].toString()) // Extrai a string da data
+        .toList()
+        ..sort((a, b) {
+          // Converte as strings "dd-MM-yyyy" de volta para DateTime para comparação
+          final DateTime dataA = DateFormat("dd-MM-yyyy").parse(a);
+          final DateTime dataB = DateFormat("dd-MM-yyyy").parse(b);
+          return dataA.compareTo(dataB); // Ordena em ordem crescente
+        });
 
     print("📅 Datas filtradas para a escala $idEscala: $_datasFiltradasPorEscala");
   });
@@ -302,12 +307,11 @@ Future<void> _buscarPermutasSolicitadas() async {
 }
 
 
-  String _formatarData(String? dataISO) {
-    if (dataISO == null || dataISO.isEmpty) return "N/A";
-    final DateTime data = DateTime.parse(dataISO);
-    return DateFormat("dd-MM-yyyy").format(data); // Formata a data como "dia-mês-ano"
-  }
-
+ String _formatarData(String? dataISO) {
+  if (dataISO == null || dataISO.isEmpty) return "N/A";
+  final DateTime data = DateTime.parse(dataISO);
+  return DateFormat("dd-MM-yyyy").format(data); // Formata a data como "dia-mês-ano"
+}
   @override
   Widget build(BuildContext context) {
     final userModel = Provider.of<UserModel>(context);

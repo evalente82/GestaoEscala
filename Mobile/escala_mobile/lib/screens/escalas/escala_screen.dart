@@ -45,7 +45,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
         Set<String> escalasUnicas = {};
         final List<Map<String, dynamic>> escalas = data
             .map((e) {
-              String escalaNome = "${e["nmNomeEscala"] ?? "Sem Nome"}";
+              String escalaNome = "${e["nmNomeEscala"]} - ${DateFormat("MMMM", "pt_BR").format(DateTime.parse(e["dtDataServico"]))}";
               if (escalasUnicas.contains(escalaNome)) return null;
               escalasUnicas.add(escalaNome);
               return {

@@ -155,11 +155,12 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>
             policy.WithOrigins(
-            "https://front-gestao-175014489605.southamerica-east1.run.app",
-            "https://gestao-escala-back-175014489605.southamerica-east1.run.app"
-            //"http://192.168.0.2:7207", // Backend local
-            //"http://10.0.2.2:7207",   // Emulador Android
-            //"http://localhost:5173"   // Frontend
+            //"https://front-gestao-175014489605.southamerica-east1.run.app",
+            //"https://gestao-escala-back-175014489605.southamerica-east1.run.app"
+            "http://192.168.0.2:7207", // Backend local
+            "http://10.0.2.2:7207",   // Emulador Android
+            "http://localhost:5173",   // Frontend
+            "http://localhost:8080"   // Swagger local
             )
             .AllowAnyMethod()
             .AllowAnyHeader()
@@ -198,7 +199,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    serverOptions.ListenAnyIP(8080); // Isso permite conexões de qualquer IP
+    serverOptions.ListenAnyIP(7207); // Isso permite conexões de qualquer IP
 });
 
 //gerarChave teste = new();
