@@ -18,7 +18,6 @@ using GestaoEscalaPermutas.Dominio.Interfaces.Permutas;
 using GestaoEscalaPermutas.Dominio.Services.Permutas;
 using GestaoEscalaPermutas.Dominio.Interfaces.Login;
 using GestaoEscalaPermutas.Dominio.Services.Login;
-using GestaoEscalaPermutas.Server.Profiles;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -42,6 +41,9 @@ using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using GestaoEscalaPermutas.Dominio.Services.Mensageria;
 using GestaoEscalaPermutas.Dominio.Interfaces.Mensageria;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
+using GestaoEscalaPermutas.Dominio.Mapping;
 
 
 var cultureInfo = new CultureInfo("pt-BR");
@@ -97,6 +99,12 @@ builder.Services.AddSwaggerGen(options =>
             new List<string>()
         }
     });
+});
+
+// Configurar Firebase Admin SDK
+FirebaseApp.Create(new AppOptions()
+{
+    Credential = GoogleCredential.FromFile(Path.Combine(Directory.GetCurrentDirectory(), "firebase-adminsdk.json"))
 });
 
 #region Injecao de dependencias

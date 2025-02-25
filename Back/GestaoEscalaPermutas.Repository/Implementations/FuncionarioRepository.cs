@@ -1,4 +1,5 @@
-﻿using GestaoEscalaPermutas.Infra.Data.Context;
+﻿using GestaoEscalaPermutas.Dominio.Entities;
+using GestaoEscalaPermutas.Infra.Data.Context;
 using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using GestaoEscalaPermutas.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -68,6 +69,42 @@ namespace GestaoEscalaPermutas.Repository.Implementations
         public async Task<bool> EmailExisteAsync(string email)
         {
             return await _context.Funcionarios.AnyAsync(f => f.NmEmail == email);
+        }
+
+        public async Task<string> GetFcmTokenAsync(Guid idFuncionario)
+        {
+            var token = await _context.FuncionarioFcmTokens //esta vindo null por que
+                .Where(f => f.IdFuncionario == idFuncionario)
+                .OrderByDescending(f => f.DataAtualizacao ?? f.DataRegistro)
+                .Select(f => f.FcmToken)
+                .FirstOrDefaultAsync();
+
+            return token ?? throw new Exception($"Nenhum FCM Token encontrado para o funcionário {idFuncionario}");
+        }
+
+        public async Task SaveFcmTokenAsync(Guid idFuncionario, string fcmToken)
+        {
+            var existingToken = await _context.FuncionarioFcmTokens
+                .FirstOrDefaultAsync(f => f.IdFuncionario == idFuncionario && f.FcmToken == fcmToken);
+
+            if (existingToken == null)
+            {
+                var newToken = new FuncionarioFcmToken
+                {
+                    Id = Guid.NewGuid(),
+                    IdFuncionario = idFuncionario,
+                    FcmToken = fcmToken,
+                    DataRegistro = DateTime.UtcNow,
+                    DataAtualizacao = null
+                };
+                _context.FuncionarioFcmTokens.Add(newToken);
+            }
+            else
+            {
+                existingToken.DataAtualizacao = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
         }
     }
 }

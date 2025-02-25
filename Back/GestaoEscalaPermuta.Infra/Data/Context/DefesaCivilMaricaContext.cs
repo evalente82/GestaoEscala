@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using GestaoEscalaPermutas.Dominio.Entities;
 using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -35,6 +36,7 @@ public partial class DefesaCivilMaricaContext : DbContext
     public DbSet<PerfisFuncionalidades> PerfisFuncionalidades { get; set; }
     public DbSet<CargoPerfis> CargoPerfis { get; set; }
     public DbSet<Setor> Setor { get; set; }
+    public DbSet<FuncionarioFcmToken> FuncionarioFcmTokens { get; set; }
 
 
 

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
 using GestaoEscalaPermutas.Dominio.DTO.PostoTrabalho;
+using GestaoEscalaPermutas.Dominio.Entities;
 using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
 using GestaoEscalaPermutas.Infra.Data.Context;
 using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
@@ -91,6 +92,19 @@ namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
                 var funcionarios = _mapper.Map<DepInfra.Funcionario[]>(funcionarioDTOs);
                 var novosFuncionarios = await _funcionarioRepository.AdicionarListaAsync(funcionarios);
                 return _mapper.Map<FuncionarioDTO[]>(novosFuncionarios);
+            }
+
+            public async Task<string> GetFcmTokenAsync(Guid idFuncionario)
+            {
+                return await _funcionarioRepository.GetFcmTokenAsync(idFuncionario);
+            }
+
+            public async Task SaveFcmTokenAsync(Guid idFuncionario, string fcmToken)
+            {
+                if (string.IsNullOrEmpty(fcmToken))
+                    throw new ArgumentException("O FCM Token não pode ser vazio.");
+
+                await _funcionarioRepository.SaveFcmTokenAsync(idFuncionario, fcmToken);
             }
         }
     }

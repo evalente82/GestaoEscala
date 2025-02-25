@@ -1,57 +1,92 @@
 import 'package:flutter/material.dart';
-import 'package:escala_mobile/utils/jwt_utils.dart'; // Decodificação do JWT
+import 'package:escala_mobile/utils/jwt_utils.dart';
 import 'package:escala_mobile/services/auth_service.dart';
 
 class UserModel with ChangeNotifier {
-  String _userName = ""; // Nome do usuário
-  String _userMatricula = ""; // Matrícula do usuário
-  String _idFuncionario = ""; // GUID do funcionário
-  int _notificationCount = 0; // Contador de notificações
+  String _userName = "";
+  String _userMatricula = "";
+  String _idFuncionario = "";
+  String _token = "";
+  String _refreshToken = "";
+  int _notificationCount = 0;
 
-  // Getters
   String get userName => _userName;
   String get userMatricula => _userMatricula;
   String get idFuncionario => _idFuncionario;
-  int get notificationCount => _notificationCount; // Getter para o contador
+  String get token => _token;
+  String get refreshToken => _refreshToken;
+  int get notificationCount => _notificationCount;
 
-  // Método para atualizar os dados do usuário
-  void setUser(String name, String matricula, String idFuncionario) {
+  void setUser(String name, String matricula, String idFuncionario, {String? token, String? refreshToken}) {
     _userName = name;
     _userMatricula = matricula;
     _idFuncionario = idFuncionario;
+    _token = token ?? _token;
+    _refreshToken = refreshToken ?? _refreshToken;
     notifyListeners();
   }
 
-  // Método para carregar os dados do usuário a partir do JWT salvo
-  Future<void> loadUserFromToken() async {
+  Future<bool> loadUserFromToken() async {
     String? token = await AuthService.getToken();
-    if (token != null && token.isNotEmpty) {
+    String? refreshToken = await AuthService.getRefreshToken();
+    if (token != null && token.isNotEmpty && refreshToken != null && refreshToken.isNotEmpty) {
       final decodedToken = decodeJwt(token);
       if (decodedToken.isNotEmpty) {
+        final exp = decodedToken['exp'] as int?;
+        if (exp != null && DateTime.now().millisecondsSinceEpoch ~/ 1000 < exp) {
+          _userName = decodedToken["unique_name"] ?? "";
+          _userMatricula = decodedToken["Matricula"] ?? "";
+          _idFuncionario = decodedToken["IdFuncionario"] ?? "";
+          _token = token;
+          _refreshToken = refreshToken;
+          notifyListeners();
+          return true;
+        } else {
+          return await _refreshUserToken();
+        }
+      }
+    }
+    return false;
+  }
+
+  Future<bool> _refreshUserToken() async {
+    try {
+      final response = await AuthService.refreshToken(_refreshToken);
+      if (response["success"]) {
+        final newToken = response["token"];
+        final newRefreshToken = response["refreshToken"];
+        await AuthService.saveToken(newToken);
+        await AuthService.saveRefreshToken(newRefreshToken);
+        final decodedToken = decodeJwt(newToken);
         _userName = decodedToken["unique_name"] ?? "";
         _userMatricula = decodedToken["Matricula"] ?? "";
         _idFuncionario = decodedToken["IdFuncionario"] ?? "";
+        _token = newToken;
+        _refreshToken = newRefreshToken;
         notifyListeners();
+        return true;
       }
+    } catch (e) {
+      print("Erro ao renovar token: $e");
     }
+    return false;
   }
 
-  // Método para limpar os dados do usuário (logout)
   void clearUser() {
     _userName = "";
     _userMatricula = "";
     _idFuncionario = "";
-    _notificationCount = 0; // Zera o contador ao fazer logout
+    _token = "";
+    _refreshToken = "";
+    _notificationCount = 0;
     notifyListeners();
   }
 
-  // Método para incrementar o contador de notificações
   void incrementNotificationCount() {
     _notificationCount++;
     notifyListeners();
   }
 
-  // Método para limpar o contador de notificações
   void clearNotificationCount() {
     _notificationCount = 0;
     notifyListeners();

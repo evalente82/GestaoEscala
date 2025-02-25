@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:escala_mobile/models/user_model.dart';
-import 'package:escala_mobile/services/HttpInterceptor%20.dart';
-import 'package:escala_mobile/services/api_service.dart';
+import 'package:escala_mobile/services/HttpInterceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
 
 class SolicitacoesPermutasScreen extends StatefulWidget {
   const SolicitacoesPermutasScreen({super.key});
@@ -14,55 +14,56 @@ class SolicitacoesPermutasScreen extends StatefulWidget {
 }
 
 class _SolicitacoesPermutasScreenState extends State<SolicitacoesPermutasScreen> {
-  List<Map<String, dynamic>> _permutasSolicitadas = [];
+  List<Map<String, dynamic>> _solicitadas = [];
 
   @override
   void initState() {
     super.initState();
-    _buscarPermutasSolicitadas();
+    _buscarSolicitacoes();
   }
 
-  Future<void> _buscarPermutasSolicitadas() async {
-  try {
-    final userModel = Provider.of<UserModel>(context, listen: false);
-    final String url = "${ApiService.baseUrl}/permutas/PermutaFuncionarioPorId/${userModel.idFuncionario}";
-    final response = await ApiClient.get(url);
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      setState(() {
-        _permutasSolicitadas = data
-            .where((p) =>
-                p["nmNomeSolicitante"] != null &&
-                p["dtDataSolicitadaTroca"] != null &&
-                (p["idFuncionarioSolicitante"] == userModel.idFuncionario ||
-                 p["idFuncionarioSolicitado"] == userModel.idFuncionario))
-            .map((p) => {
-                  "idPermuta": p["idPermuta"]?.toString() ?? "",
-                  "solicitante": p["nmNomeSolicitante"] ?? "",
-                  "dataSolicitadaTroca": p["dtDataSolicitadaTroca"] != null
-                      ? _formatarData(p["dtDataSolicitadaTroca"])
-                      : "",
-                  "aprovado": p["nmAprovador"] != null,
-                  "isSolicitante": p["idFuncionarioSolicitante"] == userModel.idFuncionario,
-                })
-            .toList();
-      });
-      if (_permutasSolicitadas.isNotEmpty) {
-        userModel.incrementNotificationCount(); // Incrementa contador
-      }
-    } else {
-      throw Exception("Erro ao buscar permutas. Código: ${response.statusCode}");
-    }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Erro ao buscar permutas: $e")),
-    );
-  }
-}
-  Future<void> _aprovarPermuta(String idPermuta, String data) async {
+  Future<void> _buscarSolicitacoes() async {
     try {
-      final String url = "${ApiService.baseUrl}/permutas/Aprovar/$idPermuta";
+      final userModel = Provider.of<UserModel>(context, listen: false);
+      final String url = "/permutas/SolicitacoesPorId/${userModel.idFuncionario}";
+      final response = await ApiClient.get(url);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          _solicitadas = data
+              .where((p) =>
+                  p["nmNomeSolicitante"] != null &&
+                  p["dtDataSolicitadaTroca"] != null &&
+                  (p["idFuncionarioSolicitante"] == userModel.idFuncionario ||
+                      p["idFuncionarioSolicitado"] == userModel.idFuncionario))
+              .map((p) => {
+                    "idPermuta": p["idPermuta"]?.toString() ?? "",
+                    "solicitante": p["nmNomeSolicitante"] ?? "",
+                    "dataSolicitadaTroca": p["dtDataSolicitadaTroca"] != null
+                        ? _formatarData(p["dtDataSolicitadaTroca"])
+                        : "",
+                    "aprovado": p["nmAprovador"] != null,
+                    "isSolicitante": p["idFuncionarioSolicitante"] == userModel.idFuncionario,
+                  })
+              .toList();
+        });
+        if (_solicitadas.isNotEmpty) {
+          userModel.incrementNotificationCount(); // Incrementa contador
+        }
+      } else {
+        throw Exception("Erro ao buscar permutas. Código: ${response.statusCode}");
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Erro ao buscar permutas: $e")),
+      );
+    }
+  }
+
+  Future<void> _aprovarPermuta(String idPermuta) async {
+    try {
+      final String url = "/permutas/Aprovar/$idPermuta";
       final userModel = Provider.of<UserModel>(context, listen: false);
 
       final Map<String, dynamic> aprovacaoData = {
@@ -81,7 +82,7 @@ class _SolicitacoesPermutasScreenState extends State<SolicitacoesPermutasScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Permuta aprovada com sucesso!")),
         );
-        _buscarPermutasSolicitadas();
+        _buscarSolicitacoes();
       } else {
         throw Exception("Erro ao aprovar permuta. Código: ${response.statusCode}");
       }
@@ -93,9 +94,9 @@ class _SolicitacoesPermutasScreenState extends State<SolicitacoesPermutasScreen>
     }
   }
 
-  Future<void> _recusarPermuta(String idPermuta, String data) async {
+  Future<void> _recusarPermuta(String idPermuta) async {
     try {
-      final String url = "${ApiService.baseUrl}/permutas/Recusar/$idPermuta";
+      final String url = "/permutas/Recusar/$idPermuta";
       final userModel = Provider.of<UserModel>(context, listen: false);
 
       final Map<String, dynamic> recusaData = {
@@ -114,7 +115,7 @@ class _SolicitacoesPermutasScreenState extends State<SolicitacoesPermutasScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Permuta recusada com sucesso!")),
         );
-        _buscarPermutasSolicitadas();
+        _buscarSolicitacoes();
       } else {
         throw Exception("Erro ao recusar permuta. Código: ${response.statusCode}");
       }
@@ -126,13 +127,53 @@ class _SolicitacoesPermutasScreenState extends State<SolicitacoesPermutasScreen>
     }
   }
 
+  Future<void> _aprovarPermutaSolicitado(String idPermuta) async {
+    try {
+      final String url = "/permutas/AprovarSolicitado/$idPermuta";
+      final response = await ApiClient.put(url, {});
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Permuta aprovada pelo solicitado!")),
+        );
+        _buscarSolicitacoes();
+      } else {
+        throw Exception("Erro ao aprovar permuta. Código: ${response.statusCode}");
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Erro ao aprovar permuta: $e")),
+      );
+    }
+  }
+
+  Future<void> _recusarPermutaSolicitado(String idPermuta) async {
+    try {
+      final String url = "/permutas/RecusarSolicitado/$idPermuta";
+      final response = await ApiClient.put(url, {});
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Permuta recusada pelo solicitado!")),
+        );
+        _buscarSolicitacoes();
+      } else {
+        throw Exception("Erro ao recusar permuta. Código: ${response.statusCode}");
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Erro ao recusar permuta: $e")),
+      );
+    }
+  }
+
   String _formatarData(String? dataISO) {
     if (dataISO == null || dataISO.isEmpty) return "N/A";
     final DateTime data = DateTime.parse(dataISO);
-    return DateFormat("dd/MM/yyyy").format(data); // Ajustei para dd/MM/aaaa
+    return DateFormat("dd/MM/yyyy").format(data);
   }
 
-  void _mostrarConfirmacaoAprovar(String idPermuta, String data) {
+  void _mostrarConfirmacaoAprovar(String idPermuta, String data, bool isSolicitado) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -141,19 +182,19 @@ class _SolicitacoesPermutasScreenState extends State<SolicitacoesPermutasScreen>
           content: Text("Tem certeza que deseja aceitar a permuta na data $data?"),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Fecha o pop-up sem ação
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: const Text("Cancelar"),
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Fecha o pop-up
-                _aprovarPermuta(idPermuta, data); // Dispara o evento
+                Navigator.of(context).pop();
+                if (isSolicitado) {
+                  _aprovarPermutaSolicitado(idPermuta);
+                } else {
+                  _aprovarPermuta(idPermuta);
+                }
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF003580),
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF003580)),
               child: const Text("OK"),
             ),
           ],
@@ -162,7 +203,7 @@ class _SolicitacoesPermutasScreenState extends State<SolicitacoesPermutasScreen>
     );
   }
 
-  void _mostrarConfirmacaoRecusar(String idPermuta, String data) {
+  void _mostrarConfirmacaoRecusar(String idPermuta, String data, bool isSolicitado) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -171,19 +212,19 @@ class _SolicitacoesPermutasScreenState extends State<SolicitacoesPermutasScreen>
           content: Text("Tem certeza que deseja recusar a permuta na data $data?"),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Fecha o pop-up sem ação
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: const Text("Cancelar"),
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Fecha o pop-up
-                _recusarPermuta(idPermuta, data); // Dispara o evento
+                Navigator.of(context).pop();
+                if (isSolicitado) {
+                  _recusarPermutaSolicitado(idPermuta);
+                } else {
+                  _recusarPermuta(idPermuta);
+                }
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               child: const Text("OK"),
             ),
           ],
@@ -216,68 +257,64 @@ class _SolicitacoesPermutasScreenState extends State<SolicitacoesPermutasScreen>
               ),
             ),
             const SizedBox(height: 8),
-            _permutasSolicitadas.isNotEmpty
+            _solicitadas.isNotEmpty
                 ? Center(
                     child: DataTable(
                       columnSpacing: 15,
                       columns: const [
                         DataColumn(
-                          label: Text(
-                            "Solicitante",
-                            style: TextStyle(fontSize: 16),
-                          ),
+                          label: Text("Solicitante", style: TextStyle(fontSize: 16)),
                         ),
                         DataColumn(
-                          label: Text(
-                            "Data",
-                            style: TextStyle(fontSize: 16),
-                          ),
+                          label: Text("Data", style: TextStyle(fontSize: 16)),
                         ),
                         DataColumn(
-                          label: Text(
-                            "Aprovar",
-                            style: TextStyle(fontSize: 16),
-                          ),
+                          label: Text("Aprovar", style: TextStyle(fontSize: 16)),
                         ),
                         DataColumn(
-                          label: Text(
-                            "Recusar",
-                            style: TextStyle(fontSize: 16),
-                          ),
+                          label: Text("Recusar", style: TextStyle(fontSize: 16)),
                         ),
                       ],
-                    rows: _permutasSolicitadas.map((p) {
-  return DataRow(cells: [
-    DataCell(Text(p["solicitante"] ?? "", style: const TextStyle(fontSize: 14))),
-    DataCell(Text(p["dataSolicitadaTroca"] ?? "", style: const TextStyle(fontSize: 14))),
-    DataCell(
-      p["aprovado"] || p["isSolicitante"]
-          ? const SizedBox.shrink()
-          : ElevatedButton(
-              onPressed: () => _mostrarConfirmacaoAprovar(p["idPermuta"], p["dataSolicitadaTroca"], true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF003580),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                minimumSize: const Size(60, 30),
-              ),
-              child: const Text("Aprovar", style: TextStyle(fontSize: 12, color: Colors.white)),
-            ),
-              ),
-              DataCell(
-                p["aprovado"] || p["isSolicitante"]
-                    ? const SizedBox.shrink()
-                    : ElevatedButton(
-                        onPressed: () => _mostrarConfirmacaoRecusar(p["idPermuta"], p["dataSolicitadaTroca"], true),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          minimumSize: const Size(60, 30),
-                        ),
-                        child: const Text("Recusar", style: TextStyle(fontSize: 12, color: Colors.white)),
-                      ),
-              ),
-            ]);
-          }).toList(),
+                      rows: _solicitadas.map((p) {
+                        return DataRow(cells: [
+                          DataCell(
+                            Text(p["solicitante"] ?? "", style: const TextStyle(fontSize: 14)),
+                          ),
+                          DataCell(
+                            Text(p["dataSolicitadaTroca"] ?? "", style: const TextStyle(fontSize: 14)),
+                          ),
+                          DataCell(
+                            p["aprovado"] || p["isSolicitante"]
+                                ? const SizedBox.shrink()
+                                : ElevatedButton(
+                                    onPressed: () => _mostrarConfirmacaoAprovar(
+                                        p["idPermuta"], p["dataSolicitadaTroca"], true),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF003580),
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                      minimumSize: const Size(60, 30),
+                                    ),
+                                    child: const Text("Aprovar",
+                                        style: TextStyle(fontSize: 12, color: Colors.white)),
+                                  ),
+                          ),
+                          DataCell(
+                            p["aprovado"] || p["isSolicitante"]
+                                ? const SizedBox.shrink()
+                                : ElevatedButton(
+                                    onPressed: () => _mostrarConfirmacaoRecusar(
+                                        p["idPermuta"], p["dataSolicitadaTroca"], true),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red,
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                      minimumSize: const Size(60, 30),
+                                    ),
+                                    child: const Text("Recusar",
+                                        style: TextStyle(fontSize: 12, color: Colors.white)),
+                                  ),
+                          ),
+                        ]);
+                      }).toList(),
                     ),
                   )
                 : const Center(

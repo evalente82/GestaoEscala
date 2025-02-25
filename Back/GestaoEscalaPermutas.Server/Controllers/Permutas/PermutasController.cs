@@ -11,6 +11,8 @@ using GestaoEscalaPermutas.Server.Models.Permuta;
 using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
 using GestaoEscalaPermutas.Server.Models.Funcionarios;
 using GestaoEscalaPermutas.Dominio.Interfaces.Mensageria;
+using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
+using FirebaseAdmin.Messaging;
 
 namespace GestaoEscalaPermutas.Server.Controllers.Permutas
 {
@@ -21,9 +23,15 @@ namespace GestaoEscalaPermutas.Server.Controllers.Permutas
         private readonly IPermutasService _permutasService;
         private readonly IMapper _mapper;
         private readonly IMessageBus _messageBus;
-        public PermutasController(IPermutasService permutasService, IMapper mapper, IMessageBus messageBus)
+        private readonly IFuncionarioService _funcionarioService;
+        public PermutasController(
+         IPermutasService permutasService,
+         IFuncionarioService funcionarioService,
+         IMapper mapper,
+         IMessageBus messageBus)
         {
             _permutasService = permutasService;
+            _funcionarioService = funcionarioService;
             _mapper = mapper;
             _messageBus = messageBus;
         }
@@ -37,18 +45,24 @@ namespace GestaoEscalaPermutas.Server.Controllers.Permutas
 
             if (permutaModel.Valido)
             {
-                // Publicar mensagem para o funcionário solicitado
-                var mensagem = new PermutaMensagemDTO
-                {
-                    IdPermuta = permutasDTO.IdPermuta,
-                    IdFuncionarioSolicitante = permutasDTO.IdFuncionarioSolicitante,
-                    NmNomeSolicitante = permutasDTO.NmNomeSolicitante,
-                    IdFuncionarioSolicitado = permutasDTO.IdFuncionarioSolicitado,
-                    NmNomeSolicitado = permutasDTO.NmNomeSolicitado,
-                    DtDataSolicitadaTroca = permutasDTO.DtDataSolicitadaTroca,
-                    NmStatus = "Solicitada"
-                };
+                var mensagem = _mapper.Map<PermutaMensagemDTO>(permutasDTO);
+                mensagem.NmStatus = "Solicitada";
                 await _messageBus.PublishAsync("permutas.solicitadas", mensagem);
+
+                // Enviar notificação ao funcionário solicitado
+                try
+                {
+                    string fcmTokenSolicitado = await _funcionarioService.GetFcmTokenAsync(permutasDTO.IdFuncionarioSolicitado);
+                    await SendFcmNotification(
+                        fcmTokenSolicitado,
+                        "Nova Permuta",
+                        $"Permuta solicitada por {permutasDTO.NmNomeSolicitante} para {permutasDTO.DtDataSolicitadaTroca}"
+                    );
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Erro ao obter FCM Token ou enviar notificação: {ex.Message}");
+                }
 
                 return Ok(permutaModel);
             }
@@ -107,7 +121,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.Permutas
         [Route("PermutaFuncionarioPorId/{idFuncionario:Guid}")]
         public async Task<ActionResult<List<PermutasDTO>>> BuscarPermFuncPorId(Guid idFuncionario)
         {
-            var permutas = await _permutasService.BuscarFuncPorId(idFuncionario);
+            var permutas = await _permutasService.BuscarSolicitacoesPorId(idFuncionario);
 
             if (permutas == null) // Verifica se a lista está vazia
             {
@@ -127,16 +141,28 @@ namespace GestaoEscalaPermutas.Server.Controllers.Permutas
                 return BadRequest(new RetornoModel { Valido = false, Mensagem = permuta.mensagem });
             }
 
-            // Lógica para marcar como aprovada pelo solicitado (ajuste conforme seu modelo)
-            permuta.NmStatus = "AprovadaSolicitado"; // Supondo que você adicione esse campo no DTO
+            permuta.NmStatus = "AprovadaSolicitado";
             var permutaAtualizada = await _permutasService.Alterar(idPermuta, permuta);
 
             if (permutaAtualizada.valido)
             {
-                // Publicar mensagem na fila pendentes para o administrador
                 var mensagem = _mapper.Map<PermutaMensagemDTO>(permutaAtualizada);
                 mensagem.NmStatus = "AprovadaSolicitado";
                 await _messageBus.PublishAsync("permutas.pendentes", mensagem);
+
+                try
+                {
+                    string fcmTokenSolicitante = await _funcionarioService.GetFcmTokenAsync(permutaAtualizada.IdFuncionarioSolicitante);
+                    await SendFcmNotification(
+                        fcmTokenSolicitante,
+                        "Permuta Atualizada",
+                        "Sua permuta foi aprovada pelo solicitado."
+                    );
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Erro ao obter FCM Token ou enviar notificação: {ex.Message}");
+                }
 
                 return Ok(_mapper.Map<PermutaModel>(permutaAtualizada));
             }
@@ -153,23 +179,36 @@ namespace GestaoEscalaPermutas.Server.Controllers.Permutas
                 return BadRequest(new RetornoModel { Valido = false, Mensagem = permuta.mensagem });
             }
 
-            // Lógica para marcar como recusada pelo solicitado
-            permuta.NmStatus = "Recusada"; // Supondo que você adicione esse campo no DTO
+            permuta.NmStatus = "Recusada";
+            //permuta.DtReprovacao = DateTime.Now;
             var permutaAtualizada = await _permutasService.Alterar(idPermuta, permuta);
 
             if (permutaAtualizada.valido)
             {
-                // Publicar mensagem para ambos os funcionários
                 var mensagem = _mapper.Map<PermutaMensagemDTO>(permutaAtualizada);
                 mensagem.NmStatus = "Recusada";
                 await _messageBus.PublishAsync("permutas.resultado", mensagem);
+
+                try
+                {
+                    string fcmTokenSolicitante = await _funcionarioService.GetFcmTokenAsync(permutaAtualizada.IdFuncionarioSolicitante);
+                    await SendFcmNotification(
+                        fcmTokenSolicitante,
+                        "Permuta Recusada",
+                        "Sua permuta foi recusada pelo solicitado."
+                    );
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Erro ao obter FCM Token ou enviar notificação: {ex.Message}");
+                }
 
                 return Ok(_mapper.Map<PermutaModel>(permutaAtualizada));
             }
             return BadRequest(new RetornoModel { Valido = false, Mensagem = permutaAtualizada.mensagem });
         }
 
-        [HttpPut] // Substituímos PATCH por PUT para consistência
+        [HttpPut]
         [Route("Aprovar/{idPermuta:Guid}")]
         public async Task<ActionResult> AprovarPermuta(Guid idPermuta)
         {
@@ -179,8 +218,9 @@ namespace GestaoEscalaPermutas.Server.Controllers.Permutas
                 return BadRequest(new RetornoModel { Valido = false, Mensagem = permuta.mensagem });
             }
 
-            permuta.NmNomeAprovador = User.Identity.Name; // Supondo que o aprovador vem do JWT
+            permuta.NmNomeAprovador = User.Identity.Name;
             permuta.DtAprovacao = DateTime.UtcNow;
+            permuta.NmStatus = "Aprovada";
             var permutaAtualizada = await _permutasService.Alterar(idPermuta, permuta);
 
             if (permutaAtualizada.valido)
@@ -188,6 +228,18 @@ namespace GestaoEscalaPermutas.Server.Controllers.Permutas
                 var mensagem = _mapper.Map<PermutaMensagemDTO>(permutaAtualizada);
                 mensagem.NmStatus = "Aprovada";
                 await _messageBus.PublishAsync("permutas.resultado", mensagem);
+
+                try
+                {
+                    string fcmTokenSolicitante = await _funcionarioService.GetFcmTokenAsync(permutaAtualizada.IdFuncionarioSolicitante);
+                    string fcmTokenSolicitado = await _funcionarioService.GetFcmTokenAsync(permutaAtualizada.IdFuncionarioSolicitado);
+                    await SendFcmNotification(fcmTokenSolicitante, "Permuta Aprovada", "A permuta foi aprovada pela chefia.");
+                    await SendFcmNotification(fcmTokenSolicitado, "Permuta Aprovada", "A permuta foi aprovada pela chefia.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Erro ao obter FCM Tokens ou enviar notificações: {ex.Message}");
+                }
 
                 return Ok(_mapper.Map<PermutaModel>(permutaAtualizada));
             }
@@ -204,8 +256,9 @@ namespace GestaoEscalaPermutas.Server.Controllers.Permutas
                 return BadRequest(new RetornoModel { Valido = false, Mensagem = permuta.mensagem });
             }
 
-            permuta.NmNomeAprovador = User.Identity.Name; // Pode ser usado como "quem recusou"
+            permuta.NmNomeAprovador = User.Identity.Name;
             permuta.DtReprovacao = DateTime.UtcNow;
+            permuta.NmStatus = "Recusada";
             var permutaAtualizada = await _permutasService.Alterar(idPermuta, permuta);
 
             if (permutaAtualizada.valido)
@@ -214,9 +267,65 @@ namespace GestaoEscalaPermutas.Server.Controllers.Permutas
                 mensagem.NmStatus = "Recusada";
                 await _messageBus.PublishAsync("permutas.resultado", mensagem);
 
+                try
+                {
+                    string fcmTokenSolicitante = await _funcionarioService.GetFcmTokenAsync(permutaAtualizada.IdFuncionarioSolicitante);
+                    string fcmTokenSolicitado = await _funcionarioService.GetFcmTokenAsync(permutaAtualizada.IdFuncionarioSolicitado);
+                    await SendFcmNotification(fcmTokenSolicitante, "Permuta Recusada", "A permuta foi recusada pela chefia.");
+                    await SendFcmNotification(fcmTokenSolicitado, "Permuta Recusada", "A permuta foi recusada pela chefia.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Erro ao obter FCM Tokens ou enviar notificações: {ex.Message}");
+                }
+
                 return Ok(_mapper.Map<PermutaModel>(permutaAtualizada));
             }
             return BadRequest(new RetornoModel { Valido = false, Mensagem = permutaAtualizada.mensagem });
+        }
+
+        private async Task SendFcmNotification(string fcmToken, string title, string body)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(fcmToken))
+                {
+                    Console.WriteLine("FCM Token não fornecido. Notificação não enviada.");
+                    return;
+                }
+
+                var message = new Message
+                {
+                    Token = fcmToken,
+                    Notification = new Notification
+                    {
+                        Title = title,
+                        Body = body,
+                    },
+                };
+
+                string result = await FirebaseMessaging.DefaultInstance.SendAsync(message);
+                Console.WriteLine($"Notificação FCM enviada com sucesso: {result}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao enviar notificação FCM: {ex.Message}");
+            }
+        }
+
+        [HttpGet]
+        [Route("SolicitacoesPorId/{idFuncionario:Guid}")]
+        public async Task<ActionResult<List<PermutasDTO>>> BuscarSolicitacoesFuncPorId(Guid idFuncionario)
+        {
+            //SolicitacoesPorId
+            var permutas = await _permutasService.BuscarSolicitacoesFuncPorId(idFuncionario);
+
+            if (permutas == null) // Verifica se a lista está vazia
+            {
+                return NotFound(new RetornoModel { Valido = false, Mensagem = "Nenhuma permuta encontrada para este funcionário." });
+            }
+
+            return Ok(permutas);
         }
     }
 }

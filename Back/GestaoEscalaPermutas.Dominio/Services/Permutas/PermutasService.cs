@@ -131,5 +131,48 @@ namespace GestaoEscalaPermutas.Dominio.Services.Permutas
             }
         }
 
+        public async Task<List<PermutasDTO>> BuscarSolicitacoesPorId(Guid idFuncionario)
+        {
+            try
+            {
+                if (idFuncionario == Guid.Empty)
+                    return new List<PermutasDTO> { new PermutasDTO { valido = false, mensagem = "Id fora do Range." } };
+
+                var permutas = await _permutasRepository.BuscaSolicitacoesPorIdAsync(idFuncionario);
+
+                if (permutas == null || !permutas.Any())
+                {
+                    return new List<PermutasDTO> { new PermutasDTO { valido = false, mensagem = "Permutas não encontradas." } };
+                }
+
+                return _mapper.Map<List<PermutasDTO>>(permutas);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Erro ao buscar permutas: {e.Message}");
+            }
+        }
+
+        public async Task<List<PermutasDTO>> BuscarSolicitacoesFuncPorId(Guid idFuncionario)
+        {
+            try
+            {
+                if (idFuncionario == Guid.Empty)
+                    return new List<PermutasDTO> { new PermutasDTO { valido = false, mensagem = "Id fora do Range." } };
+
+                var permutas = await _permutasRepository.BuscarSolicitacoesFuncPorIdAsync(idFuncionario);
+
+                if (permutas == null || !permutas.Any())
+                {
+                    return new List<PermutasDTO> { new PermutasDTO { valido = false, mensagem = "Permutas não encontradas." } };
+                }
+
+                return _mapper.Map<List<PermutasDTO>>(permutas);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Erro ao buscar permutas: {e.Message}");
+            }
+        }
     }
 }

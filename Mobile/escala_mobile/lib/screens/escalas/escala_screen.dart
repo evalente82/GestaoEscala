@@ -1,6 +1,5 @@
 import 'dart:convert';
-import 'package:escala_mobile/services/HttpInterceptor%20.dart';
-import 'package:escala_mobile/services/api_service.dart';
+import 'package:escala_mobile/services/HttpInterceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:escala_mobile/models/user_model.dart';
@@ -36,7 +35,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
   Future<void> _carregarEscalasUsuarioLogado() async {
     try {
       final userModel = Provider.of<UserModel>(context, listen: false);
-      final String url = "${ApiService.baseUrl}/escalaPronta/BuscarPorFuncionario/${userModel.idFuncionario}";
+      final String url = "/escalaPronta/BuscarPorFuncionario/${userModel.idFuncionario}";
       final response = await ApiClient.get(url);
 
       if (response.statusCode == 200) {
@@ -67,7 +66,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
 
   Future<void> _carregarPostos() async {
     try {
-      final String url = "${ApiService.baseUrl}/PostoTrabalho/buscarTodos";
+      final String url = "/PostoTrabalho/buscarTodos";
       final response = await ApiClient.get(url);
 
       if (response.statusCode == 200) {
@@ -83,7 +82,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
 
   Future<void> _carregarFuncionarios() async {
     try {
-      final String url = "${ApiService.baseUrl}/Funcionario/buscarTodos";
+      final String url = "/Funcionario/buscarTodos";
       final response = await ApiClient.get(url);
 
       if (response.statusCode == 200) {
@@ -99,7 +98,7 @@ class _EscalaScreenState extends State<EscalaScreen> {
 
   Future<void> _filtrarPostosPorEscala(String idEscala) async {
     try {
-      final String url = "${ApiService.baseUrl}/escalaPronta/buscarPorId/$idEscala";
+      final String url = "/escalaPronta/buscarPorId/$idEscala";
       final response = await ApiClient.get(url);
 
       if (response.statusCode == 200) {

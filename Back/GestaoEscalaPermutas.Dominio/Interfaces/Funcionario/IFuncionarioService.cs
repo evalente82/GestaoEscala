@@ -16,5 +16,7 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios
         Task<List<FuncionarioDTO>> BuscarTodos();
         Task<FuncionarioDTO[]> IncluirLista(FuncionarioDTO[] funcionarioDTOs);
         Task<List<FuncionarioDTO>> BuscarTodosAtivos();
+        Task<string> GetFcmTokenAsync(Guid idFuncionario);
+        Task SaveFcmTokenAsync(Guid idFuncionario, string fcmToken);
     }
 }

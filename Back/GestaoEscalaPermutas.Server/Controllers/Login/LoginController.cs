@@ -6,6 +6,7 @@ using GestaoEscalaPermutas.Dominio.Interfaces.Login;
 using GestaoEscalaPermutas.Dominio.DTO.Login;
 using GestaoEscalaPermutas.Server.Models.Login;
 using Microsoft.AspNetCore.Authorization;
+using GestaoEscalaPermutas.Server.Helper;
 
 namespace GestaoEscalaPermutas.Server.Controllers.Login
 {
@@ -48,7 +49,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.Login
             var loginResponse = await _loginService.Autenticar(loginRequest);
 
             return loginResponse.Valido
-                ? Ok(loginResponse)
+                ? Ok(loginResponse) // Retorna token e refreshToken
                 : BadRequest(loginResponse);
         }
 
@@ -73,5 +74,20 @@ namespace GestaoEscalaPermutas.Server.Controllers.Login
             return resultado.Valido ? Ok(new { mensagem = resultado.Mensagem }) : BadRequest(new { mensagem = resultado.Mensagem });
         }
 
+        [AllowAnonymous]
+        [HttpPost("refresh")]
+        public async Task<ActionResult> Refresh([FromBody] RefreshTokenRequestDTO request)
+        {
+            var response = await _loginService.RefreshToken(request.RefreshToken);
+            return response.Valido ? Ok(response) : BadRequest(response);
+        }
+
+        [Authorize]
+        [HttpPost("updateFcmToken")]
+        public async Task<IActionResult> UpdateFcmToken([FromBody] UpdateFcmTokenRequestDTO request)
+        {
+            var resultado = await _loginService.UpdateFcmToken(request);
+            return resultado.Valido ? Ok(new { Mensagem = resultado.Mensagem }) : BadRequest(new { Mensagem = resultado.Mensagem });
+        }
     }
 }

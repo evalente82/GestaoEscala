@@ -5,4 +5,3 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Performance", "CA1806:Do not ignore method results", Justification = "<Pending>", Scope = "member", Target = "~M:GestaoEscalaPermutas.Server.Helper.AutenticacaoHelper.getIdByToken(System.Security.Claims.ClaimsPrincipal)~System.Int32")]

@@ -222,29 +222,57 @@ function formatarData(dataISO) {
 
     );
 }
+
+
 function PermutaForm(props) {
-    PermutaForm.propTypes = {
-        ShowList: PropTypes.func.isRequired,
-        permuta: PropTypes.shape({
-            idPermuta: PropTypes.string,
-            nmNomeSolicitante: PropTypes.string,
-            nmNomeSolicitado: PropTypes.string,
-            nmNomeAprovador: PropTypes.string,
-            idFuncionarioSolicitante: PropTypes.string,
-            idFuncionarioSolicitado: PropTypes.string,
-            idFuncionarioAprovador: PropTypes.string,
-            idEscala: PropTypes.string,
-            dtSolicitacao: PropTypes.string,
-            dtDataSolicitadaTroca: PropTypes.String,
-            dtAprovacao: PropTypes.bool,
-        }).isRequired,
-    };
-    
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
+
+    // Estados para os valores dos campos
     const [idDaEscala, setIdDaEscala] = useState(props.permuta.idEscala || '');
+    const [nomeSolicitante, setNomeSolicitante] = useState(props.permuta.nmNomeSolicitante || '');
+    const [nomeSolicitado, setNomeSolicitado] = useState(props.permuta.nmNomeSolicitado || '');
+    const [nomeAprovador, setNomeAprovador] = useState(props.permuta.nmNomeAprovador || '');
+    const [idFuncionarioSolicitante, setIdFuncionarioSolicitante] = useState(props.permuta.idFuncionarioSolicitante || '');
+    const [idFuncionarioSolicitado, setIdFuncionarioSolicitado] = useState(props.permuta.idFuncionarioSolicitado || '');
+    const [idFuncionarioAprovador, setIdFuncionarioAprovador] = useState(props.permuta.idFuncionarioAprovador || '');
+    const [dtSolicitacao, setDtSolicitacao] = useState(props.permuta.dtSolicitacao || '');
+    const [dtDataSolicitadaTroca, setDtDataSolicitadaTroca] = useState(props.permuta.dtDataSolicitadaTroca || '');
+    const [dtAprovacao, setDtAprovacao] = useState(props.permuta.dtAprovacao || '');
+
+    // Estados para as listas de opções
+    const [funcionarios, setFuncionarios] = useState([]);
+    const [escala, setEscala] = useState([]);
+    const [datasTrabalhoSolicitante, setDatasTrabalhoSolicitante] = useState([]);
+    const [datasTrabalhoSolicitado, setDatasTrabalhoSolicitado] = useState([]);
+    const [funcionariosEscala, setFuncionariosEscala] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Estado para o AlertPopup
+    const [alertProps, setAlertProps] = useState({
+        show: false,
+        type: "info",
+        title: "",
+        message: "",
+        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+    });
+
+    // Carregar dados iniciais
+    useEffect(() => {
+        const loadInitialData = async () => {
+            await Promise.all([BuscarFuncionarios(), BuscaEscala()]);
+            if (props.permuta.idEscala) {
+                await BuscaEscalaPronta(props.permuta.idEscala);
+            }
+            setIsLoading(false);
+        };
+        loadInitialData();
+    }, []);
+
+    // Atualizar os estados com base nos props ao editar
     useEffect(() => {
         setIdDaEscala(props.permuta.idEscala || '');
         setNomeSolicitante(props.permuta.nmNomeSolicitante || '');
-        setNomeSolicitado (props.permuta.nmNomeSolicitado || '');
+        setNomeSolicitado(props.permuta.nmNomeSolicitado || '');
         setNomeAprovador(props.permuta.nmNomeAprovador || '');
         setIdFuncionarioSolicitante(props.permuta.idFuncionarioSolicitante || '');
         setIdFuncionarioSolicitado(props.permuta.idFuncionarioSolicitado || '');
@@ -254,140 +282,146 @@ function PermutaForm(props) {
         setDtAprovacao(props.permuta.dtAprovacao || '');
     }, [props.permuta]);
 
-    const [nomeSolicitante, setNomeSolicitante] = useState(props.permuta.nmNomeSolicitante || '');
-    const [nomeSolicitado, setNomeSolicitado ] = useState(props.permuta.nmNomeSolicitado || '');
-    const [nomeAprovador, setNomeAprovador] = useState(props.permuta.nmNomeAprovador || '');
-    const [idFuncionarioSolicitante, setIdFuncionarioSolicitante] = useState(props.permuta.idFuncionarioSolicitante || '');
-    const [idFuncionarioSolicitado, setIdFuncionarioSolicitado] = useState(props.permuta.idFuncionarioSolicitado || '');
-    const [idFuncionarioAprovador, setIdFuncionarioAprovador] = useState(props.permuta.idFuncionarioAprovador || '');
-    const [dtSolicitacao, setDtSolicitacao] = useState(props.permuta.dtSolicitacao || '');
-    const [dtDataSolicitadaTroca, setDtDataSolicitadaTroca] = useState(props.permuta.dtDataSolicitadaTroca || '');
-    const [dtAprovacao, setDtAprovacao] = useState(props.permuta.dtAprovacao || '');
-    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
-    const [alertProps, setAlertProps] = useState({
-        show: false, // Define se o AlertPopup deve ser exibido
-        type: "info", // Tipo da mensagem (success, error, info, confirm)
-        title: "", // Título da modal
-        message: "", // Mensagem da modal
-        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
-    });
-    const [funcionarios, setFuncionarios] = useState([]); // Lista de funcionários
-    const [escala, setEscala] = useState(null);
-    const [datasTrabalhoSolicitante, setDatasTrabalhoSolicitante] = useState([]);
-    const [datasTrabalhoSolicitado, setDatasTrabalhoSolicitado] = useState([]);
-    const [funcionariosEscala, setFuncionariosEscala] = useState([]); // Lista de funcionários filtrados pela escala
-
-
-
-
+    // Buscar funcionários da escala selecionada quando idDaEscala mudar
     useEffect(() => {
-        BuscarFuncionarios();
-        BuscaEscala()
-    }, []);
-
-    useEffect(() => {
-        if (idDaEscala) {
+        if (idDaEscala && !isLoading) {
             BuscaEscalaPronta(idDaEscala);
         }
-    }, [idDaEscala, idFuncionarioSolicitante, idFuncionarioSolicitado]);
-   
-    function BuscarFuncionarios() {
-        api.get(`${API_BASE_URL}/funcionario/buscarTodos`)
-            .then((response) => {
-                console.log(response.data);
-                setFuncionarios(response.data);
-            })
-            .catch((error) => {
-                setAlertProps({
-                    show: true,
-                    type: "error",
-                    title: "Erro",
-                    message: "Não foi possível carregar a lista de funcionários.",
-                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
-                });
+    }, [idDaEscala, isLoading]);
+
+    // Funções de busca
+    async function BuscarFuncionarios() {
+        try {
+            const response = await api.get(`${API_BASE_URL}/funcionario/buscarTodos`);
+            setFuncionarios(response.data);
+        } catch (error) {
+            setAlertProps({
+                show: true,
+                type: "error",
+                title: "Erro",
+                message: "Não foi possível carregar a lista de funcionários.",
+                onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
             });
+        }
     }
 
-    function BuscaEscala() {
-        api
-            .get(`${API_BASE_URL}/escala/buscarTodos`)
-            .then((response) => {
-                const escalasAtivas = response.data.filter(e =>e.isAtivo === true && e.isGerada === true);
-                setEscala(escalasAtivas);
-                console.log('buscando escala !');
-                console.log(response.data);
-            })
-            .catch((error) => {
-                console.log(error);
-            });
+    async function BuscaEscala() {
+        try {
+            const response = await api.get(`${API_BASE_URL}/escala/buscarTodos`);
+            const escalasAtivas = response.data.filter(e => e.isAtivo === true && e.isGerada === true);
+            setEscala(escalasAtivas);
+        } catch (error) {
+            console.error(error);
+        }
     }
 
-    function BuscaEscalaPronta(idEscala) {
-        api
-            .get(`${API_BASE_URL}/escalaPronta/buscarPorId/${idEscala}`)
-            .then((response) => {
-                const escala = response.data;
-                console.log("Dados recebidos de escalaPronta:", escala);
-    
-                if (!Array.isArray(escala)) {
-                    console.error("Formato inesperado de escala:", escala);
-                    return;
-                }
-    
-                // Obter IDs únicos de funcionários da escala selecionada
-                const idsFuncionariosNaEscala = [...new Set(escala.map(dia => dia.idFuncionario))];
-    
-                // Filtrar os funcionários que pertencem à escala selecionada
-                const funcionariosNaEscala = funcionarios.filter(f =>
-                    idsFuncionariosNaEscala.includes(f.idFuncionario)
-                );
-    
-                setFuncionariosEscala(funcionariosNaEscala); // Atualiza os funcionários filtrados
-    
-                // Atualizar as datas disponíveis para cada funcionário
-                const mapDatasTrabalho = escala.reduce((acc, dia) => {
-                    if (!acc[dia.idFuncionario]) {
-                        acc[dia.idFuncionario] = [];
-                    }
-                    acc[dia.idFuncionario].push(dia.dtDataServico);
-                    return acc;
-                }, {});
-    
-                // Atualiza os dias disponíveis por funcionário
-                setDatasTrabalhoSolicitante(mapDatasTrabalho[idFuncionarioSolicitante] || []);
-                setDatasTrabalhoSolicitado(mapDatasTrabalho[idFuncionarioSolicitado] || []);
-    
-                console.log("Funcionários da escala selecionada:", funcionariosNaEscala);
-                console.log("Datas do Solicitante:", mapDatasTrabalho[idFuncionarioSolicitante] || []);
-                console.log("Datas do Solicitado:", mapDatasTrabalho[idFuncionarioSolicitado] || []);
-            })
-            .catch((error) => {
-                console.error("Erro ao buscar escala pronta:", error);
-                setAlertProps({
-                    show: true,
-                    type: "error",
-                    title: "Erro",
-                    message: "Falha ao carregar os funcionários da escala.",
-                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
-                });
+    async function BuscaEscalaPronta(idEscala) {
+        try {
+            const response = await api.get(`${API_BASE_URL}/escalaPronta/buscarPorId/${idEscala}`);
+            const escalaData = response.data;
+            if (!Array.isArray(escalaData)) {
+                console.error("Formato inesperado de escala:", escalaData);
+                return;
+            }
+
+            const idsFuncionariosNaEscala = [...new Set(escalaData.map(dia => dia.idFuncionario))];
+            const funcionariosNaEscala = funcionarios.filter(f => idsFuncionariosNaEscala.includes(f.idFuncionario));
+            setFuncionariosEscala(funcionariosNaEscala);
+
+            const mapDatasTrabalho = escalaData.reduce((acc, dia) => {
+                if (!acc[dia.idFuncionario]) acc[dia.idFuncionario] = [];
+                acc[dia.idFuncionario].push(dia.dtDataServico);
+                return acc;
+            }, {});
+
+            // Garante que dtDataSolicitadaTroca esteja incluído nas opções ao editar
+            const datasSolicitante = mapDatasTrabalho[idFuncionarioSolicitante] || [];
+            if (props.permuta.dtDataSolicitadaTroca && !datasSolicitante.includes(props.permuta.dtDataSolicitadaTroca)) {
+                datasSolicitante.push(props.permuta.dtDataSolicitadaTroca);
+            }
+            setDatasTrabalhoSolicitante(datasSolicitante);
+            setDatasTrabalhoSolicitado(mapDatasTrabalho[idFuncionarioSolicitado] || []);
+        } catch (error) {
+            setAlertProps({
+                show: true,
+                type: "error",
+                title: "Erro",
+                message: "Falha ao carregar os funcionários da escala.",
+                onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
             });
+        }
     }
-    
-    
-    
 
     function getMesPorExtenso(mes) {
-        const meses = [
-            "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-            "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-        ];
-        return meses[mes - 1] || ""; // Ajusta índice (1 para Janeiro)
+        const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+                       "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+        return meses[mes - 1] || "";
+    }
+
+    const escalaOptions = (escala || []).map(e => ({
+        value: e.idEscala,
+        label: `${e.nmNomeEscala} - ${getMesPorExtenso(e.nrMesReferencia)}`
+    }));
+
+    const funcionariosOptions = funcionariosEscala.map(f => ({
+        value: f.idFuncionario,
+        label: `${f.nmNome} - ${f.nrMatricula}`
+    }));
+
+    function SelectComFiltroSolicitante({ value, onChange }) {
+        const opcoes = funcionariosOptions;
+        return (
+            <Select
+                options={opcoes}
+                placeholder="Digite para buscar..."
+                value={opcoes.find(o => o.value === value) || null}
+                onChange={(selectedOption) => {
+                    if (selectedOption) {
+                        setIdFuncionarioSolicitante(selectedOption.value);
+                        setNomeSolicitante(selectedOption.label.split(' - ')[0]);
+                        // Atualiza as datas apenas se o solicitante mudar
+                        const novasDatas = datasTrabalhoSolicitante.filter(d => d !== dtDataSolicitadaTroca);
+                        if (props.permuta.dtDataSolicitadaTroca) novasDatas.push(props.permuta.dtDataSolicitadaTroca);
+                        setDatasTrabalhoSolicitante(novasDatas);
+                    } else {
+                        setIdFuncionarioSolicitante('');
+                        setNomeSolicitante('');
+                        setDatasTrabalhoSolicitante([]);
+                    }
+                    onChange(selectedOption ? selectedOption.value : null);
+                }}
+                isClearable
+                noOptionsMessage={() => "Nenhum funcionário disponível"}
+            />
+        );
+    }
+
+    function SelectComFiltroSolicitado({ value, onChange }) {
+        const opcoes = funcionariosOptions;
+        return (
+            <Select
+                options={opcoes}
+                placeholder="Digite para buscar..."
+                value={opcoes.find(o => o.value === value) || null}
+                onChange={(selectedOption) => {
+                    if (selectedOption) {
+                        setIdFuncionarioSolicitado(selectedOption.value);
+                        setNomeSolicitado(selectedOption.label.split(' - ')[0]);
+                    } else {
+                        setIdFuncionarioSolicitado('');
+                        setNomeSolicitado('');
+                    }
+                    onChange(selectedOption ? selectedOption.value : null);
+                }}
+                isClearable
+                noOptionsMessage={() => "Nenhum funcionário na escala"}
+            />
+        );
     }
 
     const handleSubmit = (e) => {
         e.preventDefault();
-    
-        // Validação: Solicitante e Solicitado não podem ser iguais
+
         if (idFuncionarioSolicitante === idFuncionarioSolicitado) {
             setAlertProps({
                 show: true,
@@ -398,8 +432,7 @@ function PermutaForm(props) {
             });
             return;
         }
-    
-        // Validação: Verificar se o Solicitado já trabalha na data selecionada
+
         if (datasTrabalhoSolicitado.includes(dtDataSolicitadaTroca)) {
             setAlertProps({
                 show: true,
@@ -410,28 +443,19 @@ function PermutaForm(props) {
             });
             return;
         }
-    
-        // Dados comuns para envio
+
         const data = {
             idEscala: idDaEscala,
             idFuncionarioSolicitante: idFuncionarioSolicitante,
             nmNomeSolicitante: nomeSolicitante,
             idFuncionarioSolicitado: idFuncionarioSolicitado,
             nmNomeSolicitado: nomeSolicitado,
-            dtSolicitacao: new Date().toISOString(), // Data atual em UTC
-            dtDataSolicitadaTroca: new Date(dtDataSolicitadaTroca).toISOString(), // Converte para UTC
+            dtSolicitacao: new Date().toISOString(),
+            dtDataSolicitadaTroca: new Date(dtDataSolicitadaTroca).toISOString(),
         };
-    
-        console.log("Dados para enviar:", data); // Log para depuração
-    
-        // Verifica se é atualização ou inclusão
+
         if (props.permuta.idPermuta) {
-            // Atualização
-            api
-                .patch(
-                    `${API_BASE_URL}/permutas/Atualizar/${props.permuta.idPermuta}`,
-                    data
-                )
+            api.patch(`${API_BASE_URL}/permutas/Atualizar/${props.permuta.idPermuta}`, data)
                 .then(() => {
                     setAlertProps({
                         show: true,
@@ -440,7 +464,7 @@ function PermutaForm(props) {
                         message: "Permuta atualizada com sucesso!",
                         onClose: () => {
                             setAlertProps((prev) => ({ ...prev, show: false }));
-                            props.ShowList(); // Voltar para a lista após fechar a modal
+                            props.ShowList();
                         },
                     });
                 })
@@ -455,9 +479,7 @@ function PermutaForm(props) {
                     console.error("Erro ao atualizar permuta:", error);
                 });
         } else {
-            // Inclusão
-            api
-                .post(`${API_BASE_URL}/permutas/Incluir`, data)
+            api.post(`${API_BASE_URL}/permutas/Incluir`, data)
                 .then(() => {
                     setAlertProps({
                         show: true,
@@ -466,7 +488,7 @@ function PermutaForm(props) {
                         message: "Permuta cadastrada com sucesso!",
                         onClose: () => {
                             setAlertProps((prev) => ({ ...prev, show: false }));
-                            props.ShowList(); // Voltar para a lista após fechar a modal
+                            props.ShowList();
                         },
                     });
                 })
@@ -482,78 +504,19 @@ function PermutaForm(props) {
                 });
         }
     };
-    
-    
-    const [selectedOption, setSelectedOption] = useState(null);
 
-    function SelectComFiltroSolicitante({ value, onChange }) {
-        const opcoes = funcionariosEscala.map((f) => ({
-            value: f.idFuncionario,
-            label: `${f.nmNome} - ${f.nrMatricula}`,
-        }));
-    
-        return (
-            <Select
-                options={opcoes}
-                placeholder="Digite para buscar..."
-                value={opcoes.find((o) => o.value === value) || null}
-                onChange={(selectedOption) => {
-                    if (selectedOption) {
-                        setIdFuncionarioSolicitante(selectedOption.value);
-                        setNomeSolicitante(selectedOption.label);
-                        
-                        // Atualiza as datas disponíveis para o solicitante
-                        setDatasTrabalhoSolicitante( 
-                            escala.find(e => e.idFuncionario === selectedOption.value)?.datas || []
-                        );
-                    } else {
-                        setIdFuncionarioSolicitante(null);
-                        setNomeSolicitante("");
-                        setDatasTrabalhoSolicitante([]);
-                    }
-                    onChange(selectedOption ? selectedOption.value : null);
-                }}
-                isClearable
-                noOptionsMessage={() => "Nenhum funcionário disponível"}
-            />
-        );
+    if (isLoading) {
+        return <div>Carregando...</div>;
     }
-    
-    
-    function SelectComFiltroSolicitado({ value, onChange }) {
-        const opcoes = funcionariosEscala.map((f) => ({
-            value: f.idFuncionario,
-            label: `${f.nmNome} - ${f.nrMatricula}`,
-        }));
-    
-        return (
-            <Select
-                options={opcoes}
-                placeholder="Digite para buscar..."
-                value={opcoes.find((o) => o.value === value) || null}
-                onChange={(selectedOption) => {
-                    onChange(selectedOption ? selectedOption.value : null);
-                }}
-                isClearable
-                noOptionsMessage={() => "Nenhum funcionário na escala"}
-            />
-        );
-    }
-    
-    
-
 
     return (
         <>
             <h2 className="text-center mb-3">
-                {props.permuta.idPermuta
-                    ? "Editar Permuta"
-                    : "Cadastrar Nova Permuta"}
+                {props.permuta.idPermuta ? "Editar Permuta" : "Cadastrar Nova Permuta"}
             </h2>
             <div className="row">
                 <div className="col-lg-6 mx-auto">
-                    {/* {errorMessage} */}
-                    <form onSubmit={(e) => handleSubmit(e)}>
+                    <form onSubmit={handleSubmit}>
                         {props.permuta.idPermuta && (
                             <div className="row mb-3">
                                 <label className="col-sm-4 col-form-label">ID</label>
@@ -564,8 +527,7 @@ function PermutaForm(props) {
                                         name="idPermuta"
                                         defaultValue={props.permuta.idPermuta}
                                         required
-                                        //onChange={(e) => setNome(e.target.value)}
-                                    ></input>
+                                    />
                                 </div>
                             </div>
                         )}
@@ -573,104 +535,90 @@ function PermutaForm(props) {
                         <div className="row mb-3">
                             <label className="col-sm-4 col-form-label">Escalas</label>
                             <div className="col-sm-8">
-                            <Select
-                                options={(escala || []).map((e) => ({
-                                    value: e.idEscala,
-                                    label: `${e.nmNomeEscala} - ${getMesPorExtenso(e.nrMesReferencia)}`,
-                                }))}
-                                placeholder="Selecione uma escala"
-                                onChange={(selectedOption) => {
-                                    if (selectedOption) {
-                                        setIdDaEscala(selectedOption.value);
-                                        BuscaEscalaPronta(selectedOption.value);
-                                    }
-                                }}
-                                isClearable
-                                noOptionsMessage={() => "Nenhuma escala encontrada"}
-                            />
+                                <Select
+                                    options={escalaOptions}
+                                    placeholder="Selecione uma escala"
+                                    value={escalaOptions.find(option => option.value === idDaEscala) || null}
+                                    onChange={(selectedOption) => {
+                                        if (selectedOption) {
+                                            setIdDaEscala(selectedOption.value);
+                                            BuscaEscalaPronta(selectedOption.value);
+                                        } else {
+                                            setIdDaEscala('');
+                                        }
+                                    }}
+                                    isClearable
+                                    noOptionsMessage={() => "Nenhuma escala encontrada"}
+                                />
                             </div>
                         </div>
 
                         <div className="row mb-3">
                             <label className="col-sm-4 col-form-label">Nome Solicitante</label>
                             <div className="col-sm-8">
-                            <SelectComFiltroSolicitante
-                            name="nomeSolicitante"
-                            funcionarios={funcionarios}
-                            value={idFuncionarioSolicitante} // Valor controlado pelo estado
-                            onChange={(id) => {
-                                const funcionarioSelecionado = funcionarios.find((f) => f.idFuncionario === id);
-
-                                if (funcionarioSelecionado) {
-                                    setIdFuncionarioSolicitante(funcionarioSelecionado.idFuncionario);
-                                    setNomeSolicitante(funcionarioSelecionado.nmNome);
-                                    console.log("Solicitante selecionado:", funcionarioSelecionado); // Log do funcionário selecionado
-                                } else {
-                                    setIdFuncionarioSolicitante(null);
-                                    setNomeSolicitante("");
-                                    console.log("Nenhum solicitante selecionado.");
-                                }
-                            }}
-                        />
+                                <SelectComFiltroSolicitante
+                                    value={idFuncionarioSolicitante}
+                                    onChange={(id) => {
+                                        const funcionarioSelecionado = funcionarios.find(f => f.idFuncionario === id);
+                                        if (funcionarioSelecionado) {
+                                            setIdFuncionarioSolicitante(funcionarioSelecionado.idFuncionario);
+                                            setNomeSolicitante(funcionarioSelecionado.nmNome);
+                                        } else {
+                                            setIdFuncionarioSolicitante('');
+                                            setNomeSolicitante('');
+                                        }
+                                    }}
+                                />
                             </div>
                         </div>
 
                         <div className="row mb-3">
                             <label className="col-sm-4 col-form-label">Nome Solicitado</label>
                             <div className="col-sm-8">
-                            <SelectComFiltroSolicitado
-                            name="NomeSolicitado"
-                            funcionarios={funcionarios}
-                            value={idFuncionarioSolicitado} // Valor controlado pelo estado
-                            onChange={(id) => {
-                                const funcionarioSelecionado = funcionarios.find((f) => f.idFuncionario === id);
-
-                                if (funcionarioSelecionado) {
-                                    setIdFuncionarioSolicitado(funcionarioSelecionado.idFuncionario);
-                                    setNomeSolicitado(funcionarioSelecionado.nmNome);
-                                    console.log("Solicitado selecionado:", funcionarioSelecionado); // Log do funcionário selecionado
-                                } else {
-                                    setIdFuncionarioSolicitado(null);
-                                    setNomeSolicitado("");
-                                    console.log("Nenhum solicitado selecionado.");
-                                }
-                            }}
-                        />
+                                <SelectComFiltroSolicitado
+                                    value={idFuncionarioSolicitado}
+                                    onChange={(id) => {
+                                        const funcionarioSelecionado = funcionarios.find(f => f.idFuncionario === id);
+                                        if (funcionarioSelecionado) {
+                                            setIdFuncionarioSolicitado(funcionarioSelecionado.idFuncionario);
+                                            setNomeSolicitado(funcionarioSelecionado.nmNome);
+                                        } else {
+                                            setIdFuncionarioSolicitado('');
+                                            setNomeSolicitado('');
+                                        }
+                                    }}
+                                />
                             </div>
                         </div>
 
                         <div className="row mb-3">
-                            <label className="col-sm-4 col-form-label">Data da troca</label>
-                                <div className="col-sm-8">
-                                    <select
-                                        className="form-control"
-                                        value={dtDataSolicitadaTroca}
-                                        onChange={(e) => setDtDataSolicitadaTroca(e.target.value)}
-                                    >
-                                        <option value="" disabled>
-                                            Selecione uma data
-                                        </option>
-                                        {datasTrabalhoSolicitante.length > 0 ? (
-                                            datasTrabalhoSolicitante.map((dia, index) => {
-                                                // Converte a string de data para o formato correto
-                                                const dataFormatada = new Intl.DateTimeFormat("pt-BR", {
-                                                    day: "2-digit",
-                                                    month: "2-digit",
-                                                    year: "numeric",
-                                                }).format(new Date(dia));
-
-                                                return (
-                                                    <option key={`${index}-${dia}`} value={dia}>
-                                                        {dataFormatada}
-                                                    </option>
-                                                );
-                                            })
-                                        ) : (
-                                            <option disabled>Sem datas disponíveis</option>
-                                        )}
-                                    </select>
-                                </div>
+                            <label className="col-sm-4 col-form-label">Data da Troca</label>
+                            <div className="col-sm-8">
+                                <select
+                                    className="form-control"
+                                    value={dtDataSolicitadaTroca}
+                                    onChange={(e) => setDtDataSolicitadaTroca(e.target.value)}
+                                >
+                                    <option value="" disabled>Selecione uma data</option>
+                                    {datasTrabalhoSolicitante.length > 0 ? (
+                                        datasTrabalhoSolicitante.map((dia, index) => {
+                                            const dataFormatada = new Intl.DateTimeFormat("pt-BR", {
+                                                day: "2-digit",
+                                                month: "2-digit",
+                                                year: "numeric",
+                                            }).format(new Date(dia));
+                                            return (
+                                                <option key={`${index}-${dia}`} value={dia}>
+                                                    {dataFormatada}
+                                                </option>
+                                            );
+                                        })
+                                    ) : (
+                                        <option disabled>Sem datas disponíveis</option>
+                                    )}
+                                </select>
                             </div>
+                        </div>
 
                         <div className="row">
                             <div className="offset-sm-4 col-sm-4 d-grid">
@@ -691,7 +639,7 @@ function PermutaForm(props) {
                     </form>
                 </div>
             </div>
-             <AlertPopup
+            <AlertPopup
                 type={alertProps.type}
                 title={alertProps.title}
                 message={alertProps.message}
@@ -701,19 +649,35 @@ function PermutaForm(props) {
         </>
     );
 }
+
+PermutaForm.propTypes = {
+    ShowList: PropTypes.func.isRequired,
+    permuta: PropTypes.shape({
+        idPermuta: PropTypes.string,
+        nmNomeSolicitante: PropTypes.string,
+        nmNomeSolicitado: PropTypes.string,
+        nmNomeAprovador: PropTypes.string,
+        idFuncionarioSolicitante: PropTypes.string,
+        idFuncionarioSolicitado: PropTypes.string,
+        idFuncionarioAprovador: PropTypes.string,
+        idEscala: PropTypes.string,
+        dtSolicitacao: PropTypes.string,
+        dtDataSolicitadaTroca: PropTypes.string,
+        dtAprovacao: PropTypes.string,
+    }).isRequired,
+};
+
+// Exportação do Permuta permanece igual
 export function Permuta() {
-    const [content, setContent] = useState(
-        <PermutaList ShowForm={ShowForm} />
-    );
+    const [content, setContent] = useState(<PermutaList ShowForm={ShowForm} />);
 
     function ShowList() {
         setContent(<PermutaList ShowForm={ShowForm} />);
     }
 
     function ShowForm(permuta) {
-        setContent(
-            <PermutaForm permuta={permuta} ShowList={ShowList} ShowForm={ShowForm} />
-        );
+        setContent(<PermutaForm permuta={permuta} ShowList={ShowList} ShowForm={ShowForm} />);
     }
+
     return <div className="container">{content}</div>;
 }

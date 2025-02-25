@@ -11,6 +11,7 @@ namespace GestaoEscalaPermutas.Dominio.DTO.Login
         public bool Valido { get; set; }
         public string Mensagem { get; set; } = string.Empty;
         public string Token { get; set; } = string.Empty;
+        public string RefreshToken { get; set; } = string.Empty;// Novo campo
         public string NomeUsuario { get; set; } = string.Empty;
         public int Matricula { get; set; }
         public Guid IdFuncionario { get; set; }
