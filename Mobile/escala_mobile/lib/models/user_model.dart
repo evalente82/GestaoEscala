@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:escala_mobile/utils/jwt_utils.dart';
 import 'package:escala_mobile/services/auth_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserModel with ChangeNotifier {
   String _userName = "";
@@ -85,7 +86,6 @@ class UserModel with ChangeNotifier {
     final decodedToken = decodeJwt(token);
     print("🔍 Token decodificado em _updateUserFromToken: $decodedToken");
     
-    // Só atualiza os campos se eles estiverem presentes no token; caso contrário, mantém os valores existentes
     if (decodedToken.containsKey("unique_name") || decodedToken.containsKey("nomeUsuario")) {
       _userName = decodedToken["unique_name"] ?? decodedToken["nomeUsuario"] ?? _userName;
     }
@@ -102,26 +102,40 @@ class UserModel with ChangeNotifier {
     print("🔄 Dados do token atualizados - Nome: $_userName, Matrícula: $_userMatricula, ID: $_idFuncionario");
   }
 
-  void clearUser() {
+  void clearUser() async {
     _userName = "";
     _userMatricula = "";
     _idFuncionario = "";
     _token = "";
     _refreshToken = "";
     _notificationCount = 0;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('notificationCount', 0);
     notifyListeners();
     print("🗑️ Dados do usuário limpos.");
   }
 
-  void incrementNotificationCount() {
+  void incrementNotificationCount() async {
     _notificationCount++;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('notificationCount', _notificationCount);
     notifyListeners();
     print("🔔 Contador de notificações incrementado: $_notificationCount");
   }
 
-  void clearNotificationCount() {
+  void clearNotificationCount() async {
     _notificationCount = 0;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('notificationCount', 0);
     notifyListeners();
     print("🔔 Contador de notificações limpo.");
+  }
+
+  void setInitialNotificationCount(int count) async {
+    _notificationCount = count;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('notificationCount', count);
+    notifyListeners();
+    print("🔔 Contador inicial de notificações definido: $_notificationCount");
   }
 }

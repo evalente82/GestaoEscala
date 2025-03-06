@@ -17,5 +17,6 @@ namespace GestaoEscalaPermutas.Repository.Interfaces
         // Métodos para FCM Tokens
         Task<string> GetFcmTokenAsync(Guid idFuncionario);
         Task SaveFcmTokenAsync(Guid idFuncionario, string fcmToken);
+        Task<List<Funcionario>> ObterAdministradoresAsync();
     }
 }

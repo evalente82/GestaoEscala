@@ -16,6 +16,9 @@ namespace GestaoEscalaPermutas.Repository.Implementations
 
         public async Task<Permuta> IncluirAsync(Permuta permuta)
         {
+            // Log para verificar o valor recebido
+            Console.WriteLine($"DtDataSolicitadaTroca no repositório: {permuta.DtDataSolicitadaTroca}");
+
             await _context.Permuta.AddAsync(permuta);
             await _context.SaveChangesAsync();
             return permuta;

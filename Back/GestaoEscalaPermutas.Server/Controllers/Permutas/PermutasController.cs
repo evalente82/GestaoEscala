@@ -150,14 +150,23 @@ namespace GestaoEscalaPermutas.Server.Controllers.Permutas
                 mensagem.NmStatus = "AprovadaSolicitado";
                 await _messageBus.PublishAsync("permutas.pendentes", mensagem);
 
+                // Tentar enviar notificação, mas continuar mesmo se falhar
                 try
                 {
                     string fcmTokenSolicitante = await _funcionarioService.GetFcmTokenAsync(permutaAtualizada.IdFuncionarioSolicitante);
-                    await SendFcmNotification(
-                        fcmTokenSolicitante,
-                        "Permuta Atualizada",
-                        "Sua permuta foi aprovada pelo solicitado."
-                    );
+                    if (!string.IsNullOrEmpty(fcmTokenSolicitante))
+                    {
+                        await SendFcmNotification(
+                            fcmTokenSolicitante,
+                            "Permuta Atualizada",
+                            "Sua permuta foi aprovada pelo solicitado."
+                        );
+                        Console.WriteLine($"Notificação enviada para {permutaAtualizada.IdFuncionarioSolicitante}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Nenhum FCM Token encontrado para o funcionário {permutaAtualizada.IdFuncionarioSolicitante}");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -326,6 +335,28 @@ namespace GestaoEscalaPermutas.Server.Controllers.Permutas
             }
 
             return Ok(permutas);
+        }
+
+
+        [HttpGet]
+        [Route("ContarPendentes/{idFuncionario:Guid}")]
+        public async Task<ActionResult<int>> ContarPermutasPendentes(Guid idFuncionario)
+        {
+            try
+            {
+                var permutasSolicitadas = await _permutasService.BuscarSolicitacoesPorId(idFuncionario);
+                var permutasSolicitantes = await _permutasService.BuscarSolicitacoesFuncPorId(idFuncionario);
+
+                // Contar permutas pendentes (status "Solicitada" ou "AprovadaSolicitado")
+                int count = permutasSolicitantes
+                    .Count(p => p.valido && (p.NmStatus == null));
+
+                return Ok(count);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new RetornoModel { Valido = false, Mensagem = $"Erro ao contar permutas pendentes: {ex.Message}" });
+            }
         }
     }
 }

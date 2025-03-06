@@ -1,7 +1,9 @@
+
 import 'package:escala_mobile/models/user_model.dart';
 import 'package:escala_mobile/screens/escalas/escala_screen.dart';
 import 'package:escala_mobile/screens/login/login_screen.dart';
 import 'package:escala_mobile/screens/permutas/permuta_screen.dart';
+import 'package:escala_mobile/services/ApiClient.dart';
 import 'package:escala_mobile/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,6 +17,36 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _loadPendingPermutasCount();
+  }
+
+  Future<void> _loadPendingPermutasCount() async {
+    try {
+      final userModel = Provider.of<UserModel>(context, listen: false);
+      if (userModel.idFuncionario.isEmpty) {
+        print("⚠️ ID do funcionário não disponível.");
+        return;
+      }
+
+      final String url = "/permutas/ContarPendentes/${userModel.idFuncionario}";
+      print("📡 Buscando contagem de permutas pendentes: $url");
+
+      final response = await ApiClient.get(url);
+      if (response["statusCode"] == 200) {
+        final int count = response["body"] as int;
+        userModel.setInitialNotificationCount(count);
+        print("✅ Contagem de permutas pendentes carregada: $count");
+      } else {
+        print("❌ Erro ao buscar contagem de permutas: ${response["statusCode"]} - ${response["body"]}");
+      }
+    } catch (e) {
+      print("❌ Exceção ao carregar contagem de permutas: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final userModel = Provider.of<UserModel>(context);
@@ -209,16 +241,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     if (shouldLogout == true && mounted) {
-      // Limpa os tokens e os dados do usuário
       final userModel = Provider.of<UserModel>(context, listen: false);
-      await AuthService.clearTokens(); // Limpa os tokens do SharedPreferences
-      userModel.clearUser(); // Limpa os dados do UserModel
-
-      // Redireciona para a tela de login
+      await AuthService.clearTokens();
+      userModel.clearUser();
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => const LoginScreen()),
-        (Route<dynamic> route) => false, // Remove todas as rotas anteriores
+        (Route<dynamic> route) => false,
       );
     }
   }

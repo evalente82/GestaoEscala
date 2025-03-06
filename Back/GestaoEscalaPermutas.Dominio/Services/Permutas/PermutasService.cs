@@ -29,6 +29,12 @@ namespace GestaoEscalaPermutas.Dominio.Services.Permutas
                     return new PermutasDTO { valido = false, mensagem = "Objeto não preenchido." };
 
                 var permuta = _mapper.Map<DepInfra.Permuta>(permutasDTO);
+                // Normalizar como UTC (sem .Date, pois já vem correto do mobile)
+                permuta.DtDataSolicitadaTroca = DateTime.SpecifyKind(permuta.DtDataSolicitadaTroca, DateTimeKind.Utc);
+                permuta.DtSolicitacao = DateTime.SpecifyKind(permuta.DtSolicitacao, DateTimeKind.Utc);
+
+                // Log para verificar o valor antes de gravar
+                Console.WriteLine($"DtDataSolicitadaTroca antes de gravar: {permuta.DtDataSolicitadaTroca}");
                 var permutaCriada = await _permutasRepository.IncluirAsync(permuta);
                 return _mapper.Map<PermutasDTO>(permutaCriada);
             }
@@ -37,7 +43,6 @@ namespace GestaoEscalaPermutas.Dominio.Services.Permutas
                 return new PermutasDTO { valido = false, mensagem = $"Erro ao incluir permuta: {e.Message}" };
             }
         }
-
         public async Task<PermutasDTO> Alterar(Guid id, PermutasDTO permutaDTO)
         {
             try

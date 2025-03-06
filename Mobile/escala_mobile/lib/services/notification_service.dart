@@ -10,7 +10,26 @@ class NotificationService {
     const InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
     );
-    await _notificationsPlugin.initialize(initializationSettings);
+
+    // Configurar callback para quando o usuário interage com a notificação
+    await _notificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) async {
+        print("📩 Notificação clicada: ${response.payload}");
+        // Aqui você pode adicionar lógica para navegação ao clicar na notificação
+      },
+    );
+
+    // Criar canal de notificação para Android
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'permuta_channel', // ID do canal
+      'Permutas', // Nome do canal
+      description: 'Notificações de permutas',
+      importance: Importance.max,
+    );
+    await _notificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
   }
 
   static Future<void> showNotification(String title, String body, int id) async {
@@ -28,12 +47,10 @@ class NotificationService {
   }
 
   static Future<void> updateBadge(int count) async {
-    // Para Android, o badge é gerenciado pelo launcher; aqui usamos apenas a notificação
-    // Para iOS, seria necessário integrar com flutter_app_badge
     await showNotification(
-      'Nova notificação de permuta',
+      'Permutas Pendentes',
       'Você tem $count permutas pendentes.',
-      0, // ID fixo para sobrescrever a notificação anterior
+      0, // ID fixo para sobrescrever notificações anteriores
     );
   }
 }

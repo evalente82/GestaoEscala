@@ -7,6 +7,7 @@ using GestaoEscalaPermutas.Dominio.DTO.Login;
 using GestaoEscalaPermutas.Server.Models.Login;
 using Microsoft.AspNetCore.Authorization;
 using GestaoEscalaPermutas.Server.Helper;
+using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
 
 namespace GestaoEscalaPermutas.Server.Controllers.Login
 {
@@ -17,11 +18,13 @@ namespace GestaoEscalaPermutas.Server.Controllers.Login
     {
         private readonly ILoginService _loginService;
         private readonly IMapper _mapper;
+        private readonly IFuncionarioService _funcionarioService;
 
-        public LoginController(ILoginService loginService, IMapper mapper)
+        public LoginController(ILoginService loginService, IMapper mapper, IFuncionarioService funcionarioService)
         {
             _loginService = loginService;
             _mapper = mapper;
+            _funcionarioService = funcionarioService;
         }
 
         [AllowAnonymous]
@@ -83,11 +86,24 @@ namespace GestaoEscalaPermutas.Server.Controllers.Login
         }
 
         [AllowAnonymous]
-        [HttpPost("updateFcmToken")]
+        [HttpPost]
+        [Route("updateFcmToken")]
         public async Task<IActionResult> UpdateFcmToken([FromBody] UpdateFcmTokenRequestDTO request)
         {
-            var resultado = await _loginService.UpdateFcmToken(request);
-            return resultado.Valido ? Ok(new { Mensagem = resultado.Mensagem }) : BadRequest(new { Mensagem = resultado.Mensagem });
+            try
+            {
+                if (string.IsNullOrEmpty(request.IdFuncionario) || string.IsNullOrEmpty(request.FcmToken))
+                    return BadRequest(new { Mensagem = "IdFuncionario ou FcmToken inválidos" });
+
+                Guid idFuncionario = Guid.Parse(request.IdFuncionario); // Converter string para Guid
+                await _funcionarioService.SaveFcmTokenAsync(idFuncionario, request.FcmToken);
+                return Ok(new { Mensagem = "FCM Token atualizado com sucesso" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao atualizar FCM Token: {ex.Message}");
+                return BadRequest(new { Mensagem = $"Erro ao atualizar FCM Token: {ex.Message}" });
+            }
         }
     }
 }

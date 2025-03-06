@@ -106,6 +106,24 @@ namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
 
                 await _funcionarioRepository.SaveFcmTokenAsync(idFuncionario, fcmToken);
             }
+
+            public async Task<List<FuncionarioDTO>> GetAdministradoresAsync()
+            {
+                try
+                {
+                    // Assumindo que administradores têm um cargo específico, como "Administrador"
+                    var administradores = await _funcionarioRepository.ObterAdministradoresAsync();
+                    if (administradores == null || !administradores.Any())
+                    {
+                        return new List<FuncionarioDTO> { new FuncionarioDTO { valido = false, mensagem = "Nenhum administrador encontrado." } };
+                    }
+                    return _mapper.Map<List<FuncionarioDTO>>(administradores);
+                }
+                catch (Exception ex)
+                {
+                    return new List<FuncionarioDTO> { new FuncionarioDTO { valido = false, mensagem = $"Erro ao buscar administradores: {ex.Message}" } };
+                }
+            }
         }
     }
 }

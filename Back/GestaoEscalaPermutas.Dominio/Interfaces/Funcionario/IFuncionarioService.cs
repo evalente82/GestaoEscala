@@ -18,5 +18,6 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios
         Task<List<FuncionarioDTO>> BuscarTodosAtivos();
         Task<string> GetFcmTokenAsync(Guid idFuncionario);
         Task SaveFcmTokenAsync(Guid idFuncionario, string fcmToken);
+        Task<List<FuncionarioDTO>> GetAdministradoresAsync();
     }
 }
