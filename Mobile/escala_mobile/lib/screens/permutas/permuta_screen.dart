@@ -1,11 +1,9 @@
-import 'dart:convert';
 import 'package:escala_mobile/models/user_model.dart';
-import 'package:escala_mobile/services/HttpInterceptor.dart';
+import 'package:escala_mobile/services/ApiClient.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:escala_mobile/screens/permutas/Solicitacoes_Permuta_Screen.dart';
-
+import 'package:escala_mobile/screens/permutas/solicitacoes_permuta_screen.dart'; // Corrigido o import
 
 class PermutaScreen extends StatefulWidget {
   const PermutaScreen({super.key});
@@ -22,6 +20,8 @@ class _PermutaScreenState extends State<PermutaScreen> {
   List<Map<String, dynamic>> _escalas = [];
   List<Map<String, dynamic>> _funcionariosEscala = [];
   List<Map<String, dynamic>> _permutasSolicitadas = [];
+  List<Map<String, dynamic>> _datasTrabalhoUsuario = [];
+  List<String> _datasFiltradasPorEscala = [];
 
   @override
   void initState() {
@@ -30,25 +30,25 @@ class _PermutaScreenState extends State<PermutaScreen> {
     _buscarPermutasSolicitadas();
   }
 
-  List<Map<String, dynamic>> _datasTrabalhoUsuario = [];
-  List<String> _datasFiltradasPorEscala = [];
-
   Future<void> _carregarEscalasUsuarioLogado() async {
     try {
       final userModel = Provider.of<UserModel>(context, listen: false);
+      if (userModel.idFuncionario.isEmpty) {
+        throw Exception("ID do funcionário não disponível.");
+      }
       final String url = "/escalaPronta/BuscarPorFuncionario/${userModel.idFuncionario}";
       print("📡 Fazendo requisição para: $url");
 
       final response = await ApiClient.get(url);
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+      if (response["statusCode"] == 200) { // Ajustado para o novo formato do ApiClient
+        final List<dynamic> data = response["body"];
 
         Set<String> escalasUnicas = {};
         final List<Map<String, dynamic>> escalas = data.map((e) {
           String escalaNome = "${e["nmNomeEscala"]} - ${DateFormat("MMMM", "pt_BR").format(DateTime.parse(e["dtDataServico"]))}";
           if (escalasUnicas.contains(escalaNome)) return null;
           escalasUnicas.add(escalaNome);
-          return {"id": e["idEscala"], "nome": escalaNome};
+          return {"id": e["idEscala"].toString(), "nome": escalaNome}; // Garantir que id seja string
         }).where((element) => element != null).cast<Map<String, dynamic>>().toList();
 
         final List<Map<String, dynamic>> todasAsDatas = data
@@ -67,7 +67,7 @@ class _PermutaScreenState extends State<PermutaScreen> {
         print("✅ Escalas carregadas: ${_escalas.length}");
         print("✅ Datas carregadas: ${_datasTrabalhoUsuario}");
       } else {
-        throw Exception("Erro ao carregar escalas. Código: ${response.statusCode}");
+        throw Exception("Erro ao carregar escalas. Código: ${response["statusCode"]}");
       }
     } catch (e) {
       print("❌ Exceção capturada: $e");
@@ -78,7 +78,7 @@ class _PermutaScreenState extends State<PermutaScreen> {
   void _filtrarDatasPorEscala(String idEscala) {
     setState(() {
       _datasFiltradasPorEscala = _datasTrabalhoUsuario
-          .where((e) => e["idEscala"].toString() == idEscala)
+          .where((e) => e["idEscala"] == idEscala)
           .map((e) => e["data"].toString())
           .toList()
         ..sort((a, b) {
@@ -102,9 +102,9 @@ class _PermutaScreenState extends State<PermutaScreen> {
       final responseEscala = await ApiClient.get(urlEscala);
       final responseFuncionarios = await ApiClient.get(urlFuncionarios);
 
-      if (responseEscala.statusCode == 200 && responseFuncionarios.statusCode == 200) {
-        final List<dynamic> dataEscala = jsonDecode(responseEscala.body);
-        final List<dynamic> dataFuncionarios = jsonDecode(responseFuncionarios.body);
+      if (responseEscala["statusCode"] == 200 && responseFuncionarios["statusCode"] == 200) {
+        final List<dynamic> dataEscala = responseEscala["body"];
+        final List<dynamic> dataFuncionarios = responseFuncionarios["body"];
 
         Set<String> idsFuncionariosEscala = dataEscala.map<String>((f) => f["idFuncionario"].toString()).toSet();
 
@@ -124,7 +124,7 @@ class _PermutaScreenState extends State<PermutaScreen> {
         _filtrarFuncionariosDisponiveis();
         print("✅ Funcionários carregados (${_funcionariosEscala.length} encontrados)");
       } else {
-        throw Exception("Erro ao buscar funcionários. Código: ${responseEscala.statusCode} ou ${responseFuncionarios.statusCode}");
+        throw Exception("Erro ao buscar funcionários. Código: ${responseEscala["statusCode"]} ou ${responseFuncionarios["statusCode"]}");
       }
     } catch (e) {
       print("❌ Erro ao buscar funcionários: $e");
@@ -138,7 +138,7 @@ class _PermutaScreenState extends State<PermutaScreen> {
     setState(() {
       _funcionariosEscala = _funcionariosEscala.where((funcionario) {
         final List<String> datasSolicitante = _datasTrabalhoUsuario
-            .where((e) => e["idFuncionario"] == userModel.idFuncionario && e["idEscala"] == _idEscalaSelecionada)
+            .where((e) => e["idEscala"] == _idEscalaSelecionada)
             .map((e) => e["data"].toString())
             .toList();
 
@@ -147,7 +147,7 @@ class _PermutaScreenState extends State<PermutaScreen> {
             f["idEscala"] == _idEscalaSelecionada &&
             datasSolicitante.contains(f["data"].toString()));
 
-        return !trabalhaNoMesmoDia;
+        return !trabalhaNoMesmoDia && funcionario["idFuncionario"] != userModel.idFuncionario;
       }).toList();
     });
 
@@ -171,19 +171,19 @@ class _PermutaScreenState extends State<PermutaScreen> {
         "idFuncionarioSolicitado": _idFuncionarioSolicitado,
         "idFuncionarioSolicitante": userModel.idFuncionario,
         "nmNomeSolicitado": _funcionariosEscala.firstWhere((f) => f["idFuncionario"] == _idFuncionarioSolicitado)["nmNome"],
-        "nmNomeSolicitante": userModel.userName
+        "nmNomeSolicitante": userModel.userName.isNotEmpty ? userModel.userName : "Usuário",
       };
 
       print("📡 Enviando requisição para: $url");
       print("📤 Dados enviados: $permutaData");
 
       final response = await ApiClient.post(url, permutaData);
-      if (response.statusCode == 200) {
+      if (response["statusCode"] == 200) {
         print("✅ Permuta cadastrada com sucesso!");
         _buscarPermutasSolicitadas();
         _mostrarDialogoSucesso();
       } else {
-        throw Exception("Erro ao cadastrar permuta. Código: ${response.statusCode}");
+        throw Exception("Erro ao cadastrar permuta. Código: ${response["statusCode"]}");
       }
     } catch (e) {
       print("❌ Erro ao enviar permuta: $e");
@@ -227,13 +227,16 @@ class _PermutaScreenState extends State<PermutaScreen> {
   Future<void> _buscarPermutasSolicitadas() async {
     try {
       final userModel = Provider.of<UserModel>(context, listen: false);
+      if (userModel.idFuncionario.isEmpty) {
+        throw Exception("ID do funcionário não disponível.");
+      }
       final String url = "/permutas/PermutaFuncionarioPorId/${userModel.idFuncionario}";
 
       print("📡 Buscando permutas solicitadas: $url");
 
       final response = await ApiClient.get(url);
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+      if (response["statusCode"] == 200) {
+        final List<dynamic> data = response["body"];
 
         setState(() {
           _permutasSolicitadas = data.where((p) =>
@@ -246,13 +249,13 @@ class _PermutaScreenState extends State<PermutaScreen> {
                     ? _formatarData(p["dtDataSolicitadaTroca"])
                     : "",
                 "aprovado": p["nmAprovador"] != null,
-                "nmStatus": p["nmStatus"],
+                "nmStatus": p["nmStatus"] ?? "",
               }).toList();
         });
 
         print("✅ Permutas carregadas: ${_permutasSolicitadas.length}");
       } else {
-        throw Exception("Erro ao buscar permutas. Código: ${response.statusCode}");
+        throw Exception("Erro ao buscar permutas. Código: ${response["statusCode"]}");
       }
     } catch (e) {
       print("❌ Erro ao buscar permutas: $e");
@@ -290,7 +293,7 @@ class _PermutaScreenState extends State<PermutaScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(8)),
-                    child: Text(userModel.userName),
+                    child: Text(userModel.userName.isNotEmpty ? userModel.userName : "Usuário"),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -301,7 +304,6 @@ class _PermutaScreenState extends State<PermutaScreen> {
                       onPressed: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => const SolicitacoesPermutasScreen()))
                             .then((_) {
-                              // Chama _buscarPermutasSolicitadas ao voltar
                               _buscarPermutasSolicitadas();
                             });
                         userModel.clearNotificationCount();
@@ -455,9 +457,14 @@ class _PermutaScreenState extends State<PermutaScreen> {
                               ),
                             ),
                             DataCell(
-                              Checkbox(
-                                value: p["nmStatus"] != null && (p["nmStatus"] == "AprovadaSolicitado" || p["nmStatus"] == "Aprovada"),
-                                onChanged: null,
+                              Container(
+                                alignment: Alignment.center,
+                                child: p["nmStatus"] == "Recusada"
+                                    ? Icon(Icons.close, color: Colors.red, size: 20)
+                                    : Checkbox(
+                                        value: p["nmStatus"] != null && (p["nmStatus"] == "AprovadaSolicitado" || p["nmStatus"] == "Aprovada"),
+                                        onChanged: null,
+                                      ),
                               ),
                             ),
                             DataCell(
@@ -466,7 +473,12 @@ class _PermutaScreenState extends State<PermutaScreen> {
                                 child: Text(p["dataSolicitadaTroca"] ?? "", style: TextStyle(fontSize: 11), overflow: TextOverflow.ellipsis),
                               ),
                             ),
-                            DataCell(Checkbox(value: p["aprovado"], onChanged: null)),
+                            DataCell(
+                              Container(
+                                alignment: Alignment.center,
+                                child: Checkbox(value: p["aprovado"], onChanged: null),
+                              ),
+                            ),
                           ]);
                         }).toList(),
                       ),

@@ -1,7 +1,7 @@
+
+import 'package:escala_mobile/services/ApiClient.dart';
 import 'package:flutter/material.dart';
 import 'package:escala_mobile/components/footer_component.dart';
-
-import '../../services/auth_service.dart';
 
 class EsqueciSenhaScreen extends StatefulWidget {
   const EsqueciSenhaScreen({super.key});
@@ -32,9 +32,11 @@ class _EsqueciSenhaScreenState extends State<EsqueciSenhaScreen> {
     });
 
     try {
-      final response = await AuthService.resetPassword(email);
+      // Placeholder: Substitua pela chamada correta ao seu backend
+      // Exemplo: final response = await ApiClient.post('/login/esqueci-senha', {'email': email});
+      await Future.delayed(const Duration(seconds: 1)); // Simulação de requisição
+      final response = await ApiClient.post('/login/esqueci-senha', {'email': email});
 
-      // Verifica se o widget ainda está montado antes de usar o BuildContext
       if (!mounted) return;
 
       if (response["success"]) {
@@ -49,7 +51,6 @@ class _EsqueciSenhaScreenState extends State<EsqueciSenhaScreen> {
         });
       }
     } catch (error) {
-      // Verifica se o widget ainda está montado antes de usar o BuildContext
       if (!mounted) return;
 
       setState(() {
@@ -62,7 +63,7 @@ class _EsqueciSenhaScreenState extends State<EsqueciSenhaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FC), // Cor de fundo suave
+      backgroundColor: const Color(0xFFF7F9FC),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -76,7 +77,7 @@ class _EsqueciSenhaScreenState extends State<EsqueciSenhaScreen> {
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF003580), // Azul forte
+                  color: const Color(0xFF003580),
                 ),
               ),
               const SizedBox(height: 20),
@@ -91,7 +92,7 @@ class _EsqueciSenhaScreenState extends State<EsqueciSenhaScreen> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF003580), // Azul forte
+                  color: const Color(0xFF003580),
                 ),
               ),
               const SizedBox(height: 10),
@@ -103,7 +104,7 @@ class _EsqueciSenhaScreenState extends State<EsqueciSenhaScreen> {
               const SizedBox(height: 20),
               if (_alertMessage != null)
                 Container(
-                  margin: const EdgeInsets.only(bottom: 16),
+                  margin: const EdgeInsets.only(top: 16),
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: Colors.red[100],
@@ -118,7 +119,7 @@ class _EsqueciSenhaScreenState extends State<EsqueciSenhaScreen> {
                 ),
               if (_successMessage != null)
                 Container(
-                  margin: const EdgeInsets.only(bottom: 16),
+                  margin: const EdgeInsets.only(top: 16),
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: Colors.green[100],
@@ -137,7 +138,7 @@ class _EsqueciSenhaScreenState extends State<EsqueciSenhaScreen> {
                 decoration: InputDecoration(
                   labelText: "E-mail",
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10), // Bordas arredondadas
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),
@@ -146,9 +147,9 @@ class _EsqueciSenhaScreenState extends State<EsqueciSenhaScreen> {
                 onPressed: _handleResetPassword,
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
-                  backgroundColor: const Color(0xFF003580), // Azul forte
+                  backgroundColor: const Color(0xFF003580),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10), // Bordas arredondadas
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 child: const Text(
@@ -156,14 +157,14 @@ class _EsqueciSenhaScreenState extends State<EsqueciSenhaScreen> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white, // Texto branco
+                    color: Colors.white,
                   ),
                 ),
               ),
               const SizedBox(height: 20),
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context); // Volta para a tela de login
+                  Navigator.pop(context);
                 },
                 child: const Text(
                   "Voltar para Login",
@@ -176,5 +177,11 @@ class _EsqueciSenhaScreenState extends State<EsqueciSenhaScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
   }
 }

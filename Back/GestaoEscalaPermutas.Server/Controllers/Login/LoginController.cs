@@ -82,7 +82,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.Login
             return response.Valido ? Ok(response) : BadRequest(response);
         }
 
-        [Authorize]
+        [AllowAnonymous]
         [HttpPost("updateFcmToken")]
         public async Task<IActionResult> UpdateFcmToken([FromBody] UpdateFcmTokenRequestDTO request)
         {

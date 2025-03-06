@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:escala_mobile/utils/jwt_utils.dart';
@@ -12,21 +13,22 @@ class ApiClient {
     String? token = prefs.getString('jwt_token');
     String? refreshToken = prefs.getString('refresh_token');
 
-    if (token != null && refreshToken != null) {
+    if (token != null && token.isNotEmpty) {
       final decodedToken = decodeJwt(token);
       final exp = decodedToken['exp'] as int?;
-      if (exp != null && DateTime.now().millisecondsSinceEpoch ~/ 1000 >= exp) {
+      if (exp != null && DateTime.now().millisecondsSinceEpoch ~/ 1000 >= exp && refreshToken != null) {
+        print("🔄 Token expirado, renovando...");
         final refreshResponse = await AuthService.refreshToken(refreshToken);
-        if (refreshResponse["success"]) {
+        if (refreshResponse["success"] == true) {
           token = refreshResponse["token"];
           final newRefreshToken = refreshResponse["refreshToken"];
           await prefs.setString('jwt_token', token!);
           await prefs.setString('refresh_token', newRefreshToken);
-          print("Token renovado com sucesso!");
+          print("✅ Token renovado com sucesso!");
         } else {
           await AuthService.clearTokens();
           token = null;
-          print("Falha ao renovar token, usuário deslogado.");
+          print("❌ Falha ao renovar token, usuário deslogado.");
         }
       }
       return token;
@@ -34,7 +36,7 @@ class ApiClient {
     return null;
   }
 
-  static Future<http.Response> get(String endpoint) async {
+  static Future<Map<String, dynamic>> get(String endpoint) async {
     final token = await _getToken();
     final url = Uri.parse("$baseUrl$endpoint");
 
@@ -51,10 +53,13 @@ class ApiClient {
     if (response.statusCode == 401) {
       await AuthService.clearTokens();
     }
-    return response;
+    return {
+      "statusCode": response.statusCode,
+      "body": jsonDecode(response.body),
+    };
   }
 
-  static Future<http.Response> post(String endpoint, Map<String, dynamic> body) async {
+  static Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> body) async {
     final token = await _getToken();
     final url = Uri.parse("$baseUrl$endpoint");
 
@@ -73,10 +78,13 @@ class ApiClient {
     if (response.statusCode == 401) {
       await AuthService.clearTokens();
     }
-    return response;
+    return {
+      "statusCode": response.statusCode,
+      "body": response.body.isNotEmpty ? jsonDecode(response.body) : {},
+    };
   }
 
-  static Future<http.Response> put(String endpoint, Map<String, dynamic> body) async {
+  static Future<Map<String, dynamic>> put(String endpoint, Map<String, dynamic> body) async {
     final token = await _getToken();
     final url = Uri.parse("$baseUrl$endpoint");
 
@@ -95,10 +103,13 @@ class ApiClient {
     if (response.statusCode == 401) {
       await AuthService.clearTokens();
     }
-    return response;
+    return {
+      "statusCode": response.statusCode,
+      "body": jsonDecode(response.body),
+    };
   }
 
-  static Future<http.Response> delete(String endpoint) async {
+  static Future<Map<String, dynamic>> delete(String endpoint) async {
     final token = await _getToken();
     final url = Uri.parse("$baseUrl$endpoint");
 
@@ -115,6 +126,9 @@ class ApiClient {
     if (response.statusCode == 401) {
       await AuthService.clearTokens();
     }
-    return response;
+    return {
+      "statusCode": response.statusCode,
+      "body": jsonDecode(response.body),
+    };
   }
 }

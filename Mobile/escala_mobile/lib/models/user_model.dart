@@ -21,55 +21,85 @@ class UserModel with ChangeNotifier {
     _userName = name;
     _userMatricula = matricula;
     _idFuncionario = idFuncionario;
-    _token = token ?? _token;
-    _refreshToken = refreshToken ?? _refreshToken;
+    if (token != null) _token = token;
+    if (refreshToken != null) _refreshToken = refreshToken;
     notifyListeners();
+    print("👤 UserModel atualizado via setUser - Nome: $_userName, Matrícula: $_userMatricula, ID: $_idFuncionario");
   }
 
   Future<bool> loadUserFromToken() async {
     String? token = await AuthService.getToken();
     String? refreshToken = await AuthService.getRefreshToken();
-    if (token != null && token.isNotEmpty && refreshToken != null && refreshToken.isNotEmpty) {
+
+    print("🚀 Iniciando loadUserFromToken...");
+    print("🔍 Token carregado ao abrir o app: $token");
+    print("🔍 RefreshToken carregado ao abrir o app: $refreshToken");
+
+    if (token != null && token.isNotEmpty) {
       final decodedToken = decodeJwt(token);
-      if (decodedToken.isNotEmpty) {
-        final exp = decodedToken['exp'] as int?;
-        if (exp != null && DateTime.now().millisecondsSinceEpoch ~/ 1000 < exp) {
-          _userName = decodedToken["unique_name"] ?? "";
-          _userMatricula = decodedToken["Matricula"] ?? "";
-          _idFuncionario = decodedToken["IdFuncionario"] ?? "";
-          _token = token;
-          _refreshToken = refreshToken;
-          notifyListeners();
-          return true;
-        } else {
-          return await _refreshUserToken();
-        }
+      print("🔍 Token decodificado: $decodedToken");
+      final exp = decodedToken['exp'] as int?;
+
+      if (exp != null && DateTime.now().millisecondsSinceEpoch ~/ 1000 < exp) {
+        _updateUserFromToken(token, refreshToken ?? "");
+        print("✅ Token válido carregado.");
+        return true;
+      } else if (refreshToken != null && refreshToken.isNotEmpty) {
+        _refreshToken = refreshToken;
+        print("🔄 Token expirado, tentando renovar com refreshToken: $_refreshToken");
+        return await _refreshUserToken();
+      } else {
+        print("⚠️ RefreshToken está vazio ou não disponível para renovação.");
       }
     }
+    print("❌ Nenhum token válido encontrado.");
     return false;
   }
 
   Future<bool> _refreshUserToken() async {
     try {
+      print("🔄 Tentando renovar o token com refreshToken: $_refreshToken");
       final response = await AuthService.refreshToken(_refreshToken);
-      if (response["success"]) {
-        final newToken = response["token"];
-        final newRefreshToken = response["refreshToken"];
+      print("🔍 Resposta completa do refresh: $response");
+
+      if (response["success"] == true) {
+        final newToken = response["token"] as String;
+        final newRefreshToken = response["refreshToken"] as String;
         await AuthService.saveToken(newToken);
         await AuthService.saveRefreshToken(newRefreshToken);
-        final decodedToken = decodeJwt(newToken);
-        _userName = decodedToken["unique_name"] ?? "";
-        _userMatricula = decodedToken["Matricula"] ?? "";
-        _idFuncionario = decodedToken["IdFuncionario"] ?? "";
-        _token = newToken;
-        _refreshToken = newRefreshToken;
-        notifyListeners();
+        _updateUserFromToken(newToken, newRefreshToken);
+        print("✅ Token renovado com sucesso!");
         return true;
+      } else {
+        print("❌ Falha ao renovar o token: ${response["message"]}");
+        await AuthService.clearTokens();
       }
     } catch (e) {
-      print("Erro ao renovar token: $e");
+      print("❌ Erro ao renovar token: $e");
+      await AuthService.clearTokens();
     }
     return false;
+  }
+
+  void _updateUserFromToken(String token, String refreshToken) {
+    final decodedToken = decodeJwt(token);
+    print("🔍 Token decodificado em _updateUserFromToken: $decodedToken");
+    
+    // Só atualiza os campos se eles estiverem presentes no token; caso contrário, mantém os valores existentes
+    if (decodedToken.containsKey("unique_name") || decodedToken.containsKey("nomeUsuario")) {
+      _userName = decodedToken["unique_name"] ?? decodedToken["nomeUsuario"] ?? _userName;
+    }
+    if (decodedToken.containsKey("Matricula") || decodedToken.containsKey("certserialnumber")) {
+      _userMatricula = decodedToken["Matricula"] ?? decodedToken["certserialnumber"] ?? _userMatricula;
+    }
+    if (decodedToken.containsKey("IdFuncionario") || decodedToken.containsKey("idFuncionario")) {
+      _idFuncionario = decodedToken["IdFuncionario"] ?? decodedToken["idFuncionario"] ?? _idFuncionario;
+    }
+    
+    _token = token;
+    _refreshToken = refreshToken;
+    notifyListeners();
+    print("🔄 Dados do token atualizados - Nome: $_userName, Matrícula: $_userMatricula, ID: $_idFuncionario");
   }
 
   void clearUser() {
@@ -80,15 +110,18 @@ class UserModel with ChangeNotifier {
     _refreshToken = "";
     _notificationCount = 0;
     notifyListeners();
+    print("🗑️ Dados do usuário limpos.");
   }
 
   void incrementNotificationCount() {
     _notificationCount++;
     notifyListeners();
+    print("🔔 Contador de notificações incrementado: $_notificationCount");
   }
 
   void clearNotificationCount() {
     _notificationCount = 0;
     notifyListeners();
+    print("🔔 Contador de notificações limpo.");
   }
 }

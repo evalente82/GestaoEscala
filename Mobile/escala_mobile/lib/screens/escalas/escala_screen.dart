@@ -1,12 +1,10 @@
-import 'dart:convert';
-import 'package:escala_mobile/services/HttpInterceptor.dart';
+import 'package:escala_mobile/services/ApiClient.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:escala_mobile/models/user_model.dart';
 import 'package:logger/logger.dart';
 import 'package:intl/intl.dart';
 
-// 🔹 Instância do Logger
 final logger = Logger();
 
 class EscalaScreen extends StatefulWidget {
@@ -35,11 +33,14 @@ class _EscalaScreenState extends State<EscalaScreen> {
   Future<void> _carregarEscalasUsuarioLogado() async {
     try {
       final userModel = Provider.of<UserModel>(context, listen: false);
+      if (userModel.idFuncionario.isEmpty) {
+        throw Exception("ID do funcionário não disponível.");
+      }
       final String url = "/escalaPronta/BuscarPorFuncionario/${userModel.idFuncionario}";
       final response = await ApiClient.get(url);
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+      if (response["statusCode"] == 200) {
+        final List<dynamic> data = response["body"];
         Set<String> escalasUnicas = {};
         final List<Map<String, dynamic>> escalas = data
             .map((e) {
@@ -58,9 +59,17 @@ class _EscalaScreenState extends State<EscalaScreen> {
         setState(() {
           _escalas = escalas;
         });
+        logger.i("✅ Escalas carregadas: ${_escalas.length}");
+      } else {
+        throw Exception("Erro ao carregar escalas. Código: ${response["statusCode"]}");
       }
     } catch (e) {
       logger.e("Erro ao carregar escalas: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Erro ao carregar escalas: $e")),
+        );
+      }
     }
   }
 
@@ -69,14 +78,22 @@ class _EscalaScreenState extends State<EscalaScreen> {
       final String url = "/PostoTrabalho/buscarTodos";
       final response = await ApiClient.get(url);
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+      if (response["statusCode"] == 200) {
+        final List<dynamic> data = response["body"];
         setState(() {
           _postos = {for (var posto in data) posto["idPostoTrabalho"].toString(): posto["nmNome"].toString()};
         });
+        logger.i("✅ Postos carregados: ${_postos.length}");
+      } else {
+        throw Exception("Erro ao carregar postos. Código: ${response["statusCode"]}");
       }
     } catch (e) {
       logger.e("Erro ao carregar postos: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Erro ao carregar postos: $e")),
+        );
+      }
     }
   }
 
@@ -85,14 +102,22 @@ class _EscalaScreenState extends State<EscalaScreen> {
       final String url = "/Funcionario/buscarTodos";
       final response = await ApiClient.get(url);
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+      if (response["statusCode"] == 200) {
+        final List<dynamic> data = response["body"];
         setState(() {
           _funcionarios = {for (var func in data) func["idFuncionario"].toString(): func["nmNome"].toString()};
         });
+        logger.i("✅ Funcionários carregados: ${_funcionarios.length}");
+      } else {
+        throw Exception("Erro ao carregar funcionários. Código: ${response["statusCode"]}");
       }
     } catch (e) {
       logger.e("Erro ao carregar funcionários: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Erro ao carregar funcionários: $e")),
+        );
+      }
     }
   }
 
@@ -101,8 +126,8 @@ class _EscalaScreenState extends State<EscalaScreen> {
       final String url = "/escalaPronta/buscarPorId/$idEscala";
       final response = await ApiClient.get(url);
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+      if (response["statusCode"] == 200) {
+        final List<dynamic> data = response["body"];
 
         List<Map<String, dynamic>> escalaFiltrada = data.map((e) {
           return {
@@ -119,13 +144,20 @@ class _EscalaScreenState extends State<EscalaScreen> {
           _escalaPronta = escalaFiltrada;
           _postosFiltrados = postosFiltrados;
         });
+        logger.i("✅ Postos filtrados para escala $idEscala: ${_postosFiltrados.length}");
+      } else {
+        throw Exception("Erro ao carregar postos da escala. Código: ${response["statusCode"]}");
       }
     } catch (e) {
       logger.e("Erro ao carregar postos da escala: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Erro ao carregar postos da escala: $e")),
+        );
+      }
     }
   }
 
-  /// 🔹 **Agrupa a escala por Dia e Posto**
   Map<String, Map<String, List<String>>> _agruparEscala() {
     Map<String, Map<String, List<String>>> escalaAgrupada = {};
 
@@ -178,17 +210,16 @@ class _EscalaScreenState extends State<EscalaScreen> {
                 );
               }).toList(),
               onChanged: (value) {
-                setState(() {
-                  _idEscalaSelecionada = value;
-                  _filtrarPostosPorEscala(value!);
-                });
+                if (value != null) {
+                  setState(() {
+                    _idEscalaSelecionada = value;
+                    _filtrarPostosPorEscala(value);
+                  });
+                }
               },
               hint: const Text("Selecione uma escala"),
             ),
           ),
-
-          
-
           if (_escalaPronta.isNotEmpty) ...[
             Expanded(
               child: SingleChildScrollView(
@@ -218,6 +249,12 @@ class _EscalaScreenState extends State<EscalaScreen> {
                     ),
                   ],
                 ),
+              ),
+            ),
+          ] else ...[
+            const Expanded(
+              child: Center(
+                child: Text("Nenhuma escala carregada ou selecionada."),
               ),
             ),
           ],

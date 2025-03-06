@@ -1,10 +1,8 @@
-import 'dart:convert';
 import 'package:escala_mobile/models/user_model.dart';
-import 'package:escala_mobile/services/HttpInterceptor.dart';
+import 'package:escala_mobile/services/ApiClient.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-
 
 class SolicitacoesPermutasScreen extends StatefulWidget {
   const SolicitacoesPermutasScreen({super.key});
@@ -25,11 +23,14 @@ class _SolicitacoesPermutasScreenState extends State<SolicitacoesPermutasScreen>
   Future<void> _buscarSolicitacoes() async {
     try {
       final userModel = Provider.of<UserModel>(context, listen: false);
+      if (userModel.idFuncionario.isEmpty) {
+        throw Exception("ID do funcionário não disponível.");
+      }
       final String url = "/permutas/SolicitacoesPorId/${userModel.idFuncionario}";
       final response = await ApiClient.get(url);
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+      if (response["statusCode"] == 200) {
+        final List<dynamic> data = response["body"];
         setState(() {
           _solicitadas = data
               .where((p) =>
@@ -49,10 +50,10 @@ class _SolicitacoesPermutasScreenState extends State<SolicitacoesPermutasScreen>
               .toList();
         });
         if (_solicitadas.isNotEmpty) {
-          userModel.incrementNotificationCount(); // Incrementa contador
+          userModel.incrementNotificationCount();
         }
       } else {
-        throw Exception("Erro ao buscar permutas. Código: ${response.statusCode}");
+        throw Exception("Erro ao buscar permutas. Código: ${response["statusCode"]}");
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -68,7 +69,7 @@ class _SolicitacoesPermutasScreenState extends State<SolicitacoesPermutasScreen>
 
       final Map<String, dynamic> aprovacaoData = {
         "idAprovador": userModel.idFuncionario,
-        "nmAprovador": userModel.userName,
+        "nmAprovador": userModel.userName.isNotEmpty ? userModel.userName : "Usuário",
         "dtAprovacao": DateTime.now().toUtc().toIso8601String(),
       };
 
@@ -77,14 +78,14 @@ class _SolicitacoesPermutasScreenState extends State<SolicitacoesPermutasScreen>
 
       final response = await ApiClient.put(url, aprovacaoData);
 
-      if (response.statusCode == 200) {
+      if (response["statusCode"] == 200) {
         print("✅ Permuta aprovada com sucesso!");
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Permuta aprovada com sucesso!")),
         );
         _buscarSolicitacoes();
       } else {
-        throw Exception("Erro ao aprovar permuta. Código: ${response.statusCode}");
+        throw Exception("Erro ao aprovar permuta. Código: ${response["statusCode"]}");
       }
     } catch (e) {
       print("❌ Erro ao aprovar permuta: $e");
@@ -101,7 +102,7 @@ class _SolicitacoesPermutasScreenState extends State<SolicitacoesPermutasScreen>
 
       final Map<String, dynamic> recusaData = {
         "idAprovador": userModel.idFuncionario,
-        "nmAprovador": userModel.userName,
+        "nmAprovador": userModel.userName.isNotEmpty ? userModel.userName : "Usuário",
         "dtRecusa": DateTime.now().toUtc().toIso8601String(),
       };
 
@@ -110,14 +111,14 @@ class _SolicitacoesPermutasScreenState extends State<SolicitacoesPermutasScreen>
 
       final response = await ApiClient.put(url, recusaData);
 
-      if (response.statusCode == 200) {
+      if (response["statusCode"] == 200) {
         print("✅ Permuta recusada com sucesso!");
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Permuta recusada com sucesso!")),
         );
         _buscarSolicitacoes();
       } else {
-        throw Exception("Erro ao recusar permuta. Código: ${response.statusCode}");
+        throw Exception("Erro ao recusar permuta. Código: ${response["statusCode"]}");
       }
     } catch (e) {
       print("❌ Erro ao recusar permuta: $e");
@@ -132,13 +133,13 @@ class _SolicitacoesPermutasScreenState extends State<SolicitacoesPermutasScreen>
       final String url = "/permutas/AprovarSolicitado/$idPermuta";
       final response = await ApiClient.put(url, {});
 
-      if (response.statusCode == 200) {
+      if (response["statusCode"] == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Permuta aprovada pelo solicitado!")),
         );
         _buscarSolicitacoes();
       } else {
-        throw Exception("Erro ao aprovar permuta. Código: ${response.statusCode}");
+        throw Exception("Erro ao aprovar permuta. Código: ${response["statusCode"]}");
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -152,13 +153,13 @@ class _SolicitacoesPermutasScreenState extends State<SolicitacoesPermutasScreen>
       final String url = "/permutas/RecusarSolicitado/$idPermuta";
       final response = await ApiClient.put(url, {});
 
-      if (response.statusCode == 200) {
+      if (response["statusCode"] == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Permuta recusada pelo solicitado!")),
         );
         _buscarSolicitacoes();
       } else {
-        throw Exception("Erro ao recusar permuta. Código: ${response.statusCode}");
+        throw Exception("Erro ao recusar permuta. Código: ${response["statusCode"]}");
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

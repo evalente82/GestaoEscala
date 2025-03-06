@@ -1,6 +1,8 @@
 import 'package:escala_mobile/models/user_model.dart';
 import 'package:escala_mobile/screens/escalas/escala_screen.dart';
+import 'package:escala_mobile/screens/login/login_screen.dart';
 import 'package:escala_mobile/screens/permutas/permuta_screen.dart';
+import 'package:escala_mobile/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -15,7 +17,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    final userModel = Provider.of<UserModel>(context); // Escuta mudanças no UserModel
+    final userModel = Provider.of<UserModel>(context);
 
     return Scaffold(
       body: Column(
@@ -44,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "${userModel.userName} Mat. ${userModel.userMatricula}",
+                        "${userModel.userName.isNotEmpty ? userModel.userName : "Usuário"} Mat. ${userModel.userMatricula.isNotEmpty ? userModel.userMatricula : "N/A"}",
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.normal,
@@ -57,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 IconButton(
-                  onPressed: _handleExitApp,
+                  onPressed: _handleLogout,
                   icon: const Icon(Icons.logout, color: Colors.black),
                   splashRadius: 20,
                 ),
@@ -128,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     builder: (context) => const PermutaScreen(),
                                   ),
                                 );
-                                userModel.clearNotificationCount(); // Limpa o contador ao entrar
+                                userModel.clearNotificationCount();
                               },
                               style: ElevatedButton.styleFrom(
                                 minimumSize: Size(MediaQuery.of(context).size.width * 0.9, 60),
@@ -181,13 +183,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<void> _handleExitApp() async {
-    bool? shouldExit = await showDialog<bool>(
+  Future<void> _handleLogout() async {
+    bool? shouldLogout = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text("Sair"),
-          content: const Text("Deseja realmente sair do aplicativo?"),
+          content: const Text("Deseja realmente sair e limpar os dados de login?"),
           actions: [
             TextButton(
               onPressed: () {
@@ -206,15 +208,18 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
 
-    if (shouldExit == true && mounted) {
-      if (Theme.of(context).platform == TargetPlatform.iOS) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("O app foi minimizado.")),
-        );
-        SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-      } else {
-        SystemNavigator.pop();
-      }
+    if (shouldLogout == true && mounted) {
+      // Limpa os tokens e os dados do usuário
+      final userModel = Provider.of<UserModel>(context, listen: false);
+      await AuthService.clearTokens(); // Limpa os tokens do SharedPreferences
+      userModel.clearUser(); // Limpa os dados do UserModel
+
+      // Redireciona para a tela de login
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        (Route<dynamic> route) => false, // Remove todas as rotas anteriores
+      );
     }
   }
 }
