@@ -6,7 +6,7 @@ import 'package:escala_mobile/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiClient {
-  static const String baseUrl = "http://10.0.2.2:7207";
+  static const String baseUrl = "http://192.168.0.4:7207";
 
   static Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
