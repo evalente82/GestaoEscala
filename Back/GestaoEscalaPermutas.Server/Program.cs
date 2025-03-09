@@ -44,6 +44,7 @@ using GestaoEscalaPermutas.Dominio.Interfaces.Mensageria;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using GestaoEscalaPermutas.Dominio.Mapping;
+using Microsoft.Extensions.DependencyInjection;
 
 
 var cultureInfo = new CultureInfo("pt-BR");
@@ -142,19 +143,32 @@ builder.Services.AddSingleton<IMessageBus>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
     var hostName = configuration["RabbitMQ:HostName"] ?? "localhost";
+    var userName = configuration["RabbitMQ:UserName"] ?? "guest";
+    var password = configuration["RabbitMQ:Password"] ?? "guest";
+    var port = int.Parse(configuration["RabbitMQ:Port"] ?? "5672");
+    var vhost = configuration["RabbitMQ:VirtualHost"] ?? "/";
 
     Console.WriteLine($"Tentando conectar ao RabbitMQ no host: {hostName}");
-
     try
     {
-        return new RabbitMqMessageBus(hostName);
+        var factory = new RabbitMQ.Client.ConnectionFactory
+        {
+            HostName = hostName,
+            UserName = userName,
+            Password = password,
+            Port = port,
+            VirtualHost = vhost
+        };
+        var connection = factory.CreateConnection();
+        return new RabbitMqMessageBus(hostName); // Ajuste conforme sua implementação
     }
     catch (Exception ex)
     {
         Console.WriteLine($"Erro ao conectar ao RabbitMQ: {ex.Message}");
-        throw; // Relança para que o erro seja visível no startup
+        throw; // Ou use o fallback acima
     }
 });
+
 builder.Services.AddHostedService<UsuarioMessageConsumer>();
 
 
