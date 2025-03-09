@@ -245,7 +245,11 @@ builder.Services.AddAuthentication(options =>
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    serverOptions.ListenAnyIP(8080); // Isso permite conexões de qualquer IP
+    var port = Environment.GetEnvironmentVariable("PORT") != null
+        ? int.Parse(Environment.GetEnvironmentVariable("PORT"))
+        : 8080;
+    serverOptions.ListenAnyIP(port);
+    Console.WriteLine($"Kestrel configurado para escutar na porta: {port}");
 });
 
 //gerarChave teste = new();
