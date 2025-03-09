@@ -1,0 +1,73 @@
+# flyctl launch added from .gitignore
+# Flutter/Dart related
+**\*.dart_tool
+**\*.packages
+**\.buildlog
+**\.flutter-plugins
+**\.flutter-plugins-dependencies
+**\.flutter-versions
+**\pubspec.lock
+**\*.generated.dart
+
+# Build output
+**\build
+**\android\app\build
+**\android\.gradle
+**\android\.idea
+**\android\local.properties
+**\android\key.properties
+
+# iOS/macOS specific
+**\ios\.symlinks
+**\ios\Pods
+**\ios\.generated
+**\ios\Flutter\Flutter.podspec
+**\macos\.symlinks
+**\macos\Pods
+**\macos\.generated
+
+# Web specific
+**\web\.dart_tool
+**\web\.firebase
+**\web\firebase.json
+**\web\.firebase-tools
+
+# Windows/Linux specific
+**\windows\.flutter-plugins
+**\linux\.flutter-plugins
+**\windows\flutter\ephemeral
+**\linux\flutter\ephemeral
+
+# Firebase/Env
+**\firebase.json
+**\*.flutter-plugins
+**\*.flutter-plugins-dependencies
+**\*.env
+**\*.env.local
+**\*.env.development.local
+**\*.env.test.local
+**\*.env.production.local
+
+# IDE & Editor
+**\.vscode
+**\.idea
+**\*.suo
+**\*.ntvs*
+**\*.njsproj
+**\*.sln
+**\*.sw?
+**\*.iml
+**\*.log
+
+# OS-specific files
+**\.DS_Store
+**\Thumbs.db
+**\ehthumbs.db
+
+# Package manager lock files
+**\pubspec.lock
+**\package-lock.json
+**\yarn.lock
+**\pnpm-lock.yaml
+**\node_modules
+fly.toml
