@@ -1,0 +1,24 @@
+# flyctl launch added from .gitignore
+**\﻿bin\Debug\net8.0
+**\obj
+**\vs
+
+# flyctl launch added from GestaoEscalaPermuta.Infra\.gitignore
+GestaoEscalaPermuta.Infra\**\﻿bin\Debug\net8.0
+GestaoEscalaPermuta.Infra\**\obj
+
+# flyctl launch added from GestaoEscalaPermutas.Dominio\.gitignore
+GestaoEscalaPermutas.Dominio\**\﻿bin\Debug\net8.0
+GestaoEscalaPermutas.Dominio\**\obj
+
+# flyctl launch added from GestaoEscalaPermutas.Server\.gitignore
+GestaoEscalaPermutas.Server\**\﻿bin\Debug\net8.0
+GestaoEscalaPermutas.Server\**\obj
+GestaoEscalaPermutas.Server\**\vs
+GestaoEscalaPermutas.Server\**\Back\node_modules
+
+# flyctl launch added from TesteUnitario\.gitignore
+TesteUnitario\**\﻿bin\Debug\net8.0
+TesteUnitario\**\obj
+TesteUnitario\**\vs
+fly.toml
