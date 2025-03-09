@@ -1,6 +1,6 @@
 ﻿using GestaoEscalaPermutas.Dominio.Interfaces.Mensageria;
-using RabbitMQ.Client.Events;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 using System.Text;
 using System.Text.Json;
 
@@ -12,10 +12,9 @@ namespace GestaoEscalaPermutas.Dominio.Services.Mensageria
         private readonly IModel _channel;
         private bool _disposed = false;
 
-        public RabbitMqMessageBus(string hostName)
+        public RabbitMqMessageBus(IConnection connection)
         {
-            var factory = new ConnectionFactory { HostName = hostName };
-            _connection = factory.CreateConnection();
+            _connection = connection ?? throw new ArgumentNullException(nameof(connection));
             _channel = _connection.CreateModel();
         }
 

@@ -45,6 +45,7 @@ using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using GestaoEscalaPermutas.Dominio.Mapping;
 using Microsoft.Extensions.DependencyInjection;
+using RabbitMQ.Client;
 
 
 var cultureInfo = new CultureInfo("pt-BR");
@@ -142,16 +143,26 @@ builder.Services.AddHostedService<PermutasMessageConsumer>();
 builder.Services.AddSingleton<IMessageBus>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
-    var hostName = configuration["RabbitMQ:HostName"] ?? "localhost";
-    var userName = configuration["RabbitMQ:UserName"] ?? "guest";
-    var password = configuration["RabbitMQ:Password"] ?? "guest";
-    var port = int.Parse(configuration["RabbitMQ:Port"] ?? "5672");
-    var vhost = configuration["RabbitMQ:VirtualHost"] ?? "/";
 
-    Console.WriteLine($"Tentando conectar ao RabbitMQ no host: {hostName}");
+    // Priorizar variáveis de ambiente do Fly.io sobre appsettings
+    var hostName = Environment.GetEnvironmentVariable("RABBITMQ_HOSTNAME") ?? configuration["RabbitMQ:HostName"] ?? "localhost";
+    var userName = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? configuration["RabbitMQ:UserName"] ?? "guest";
+    var password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? configuration["RabbitMQ:Password"] ?? "guest";
+    var portStr = Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? configuration["RabbitMQ:Port"] ?? "5672";
+    var vhost = Environment.GetEnvironmentVariable("RABBITMQ_VHOST") ?? configuration["RabbitMQ:VirtualHost"] ?? "/";
+
+    // Converter porta para int com tratamento de erro
+    if (!int.TryParse(portStr, out int port))
+    {
+        port = 5672; // Porta padrão do RabbitMQ
+        Console.WriteLine($"Porta inválida '{portStr}'. Usando padrão: 5672.");
+    }
+
+    Console.WriteLine($"Tentando conectar ao RabbitMQ - Host: {hostName}, User: {userName}, Port: {port}, VHost: {vhost}");
+
     try
     {
-        var factory = new RabbitMQ.Client.ConnectionFactory
+        var factory = new ConnectionFactory
         {
             HostName = hostName,
             UserName = userName,
@@ -160,12 +171,13 @@ builder.Services.AddSingleton<IMessageBus>(sp =>
             VirtualHost = vhost
         };
         var connection = factory.CreateConnection();
-        return new RabbitMqMessageBus(hostName); // Ajuste conforme sua implementação
+        Console.WriteLine("Conexão com RabbitMQ estabelecida com sucesso!");
+        return new RabbitMqMessageBus(connection); // Passe a conexão, não apenas o hostname
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Erro ao conectar ao RabbitMQ: {ex.Message}");
-        throw; // Ou use o fallback acima
+        Console.WriteLine($"Erro ao conectar ao RabbitMQ: {ex.Message}. Continuando sem mensageria.");
+        return null; // Fallback para evitar crash
     }
 });
 
