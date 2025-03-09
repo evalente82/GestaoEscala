@@ -1,4 +1,4 @@
-# fly.toml app configuration file generated for front-purple-snow-9742 on 2025-03-09T20:39:00-03:00
+# fly.toml app configuration file generated for front-gestao-escala on 2025-03-09T20:41:50-03:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
@@ -9,7 +9,7 @@ primary_region = 'gig'
 [build]
 
 [http_service]
-  internal_port = 80
+  internal_port = 8080
   force_https = true
   auto_stop_machines = 'stop'
   auto_start_machines = true

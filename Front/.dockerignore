@@ -66,7 +66,6 @@
 
 # Package manager lock files
 **\pubspec.lock
-**\package-lock.json
 **\yarn.lock
 **\pnpm-lock.yaml
 **\node_modules
