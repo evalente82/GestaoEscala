@@ -177,8 +177,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>
             policy.WithOrigins(
-            "http://192.168.0.4:7207", // Backend local
-            "http://10.0.2.2:7207",   // Emulador Android
+            "http://192.168.0.4:8080", // Backend local
+            "http://10.0.2.2:8080",   // Emulador Android
             "http://localhost:5173",   // Frontend
             "http://localhost:8080"   // Swagger local
             )
@@ -219,7 +219,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    serverOptions.ListenAnyIP(7207); // Isso permite conexões de qualquer IP
+    serverOptions.ListenAnyIP(8080); // Isso permite conexões de qualquer IP
 });
 
 //gerarChave teste = new();
