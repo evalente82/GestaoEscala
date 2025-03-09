@@ -1,56 +1,43 @@
-name: Build and deploy ASP.Net Core app to Azure Web App - BackendGestaoEscala
+# Etapa 1: Construir a aplicação
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /app
 
-on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+# Copiar os arquivos do projeto
+COPY GestaoEscalaPermutas.sln ./
+COPY GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj ./GestaoEscalaPermutas.Server/
+COPY GestaoEscalaPermutas.Dominio/GestaoEscalaPermutas.Dominio.csproj ./GestaoEscalaPermutas.Dominio/
+COPY GestaoEscalaPermuta.Infra/GestaoEscalaPermutas.Infra.csproj ./GestaoEscalaPermuta.Infra/
+COPY GestaoEscalaPermutas.Repository/GestaoEscalaPermutas.Repository.csproj ./GestaoEscalaPermutas.Repository/
 
-jobs:
-  build-and-publish:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write # Permissão para publicar pacotes/imagens
+# Restaurar as dependências
+RUN dotnet restore
 
-    steps:
-      # Passo 1: Fazer checkout do código
-      - name: Checkout code
-        uses: actions/checkout@v4
+# Copiar o restante dos arquivos
+COPY GestaoEscalaPermutas.Server/ ./GestaoEscalaPermutas.Server/
+COPY GestaoEscalaPermutas.Dominio/ ./GestaoEscalaPermutas.Dominio/
+COPY GestaoEscalaPermuta.Infra/ ./GestaoEscalaPermuta.Infra/
+COPY GestaoEscalaPermutas.Repository/ ./GestaoEscalaPermutas.Repository/
 
-      # Passo 2: Fazer login no Azure Container Registry (ACR)
-      - name: Log in to Azure Container Registry
-        uses: azure/docker-login@v1
-        with:
-          login-server: ${{ secrets.ACR_LOGIN_SERVER }}
-          username: ${{ secrets.ACR_USERNAME }}
-          password: ${{ secrets.ACR_PASSWORD }}
+# Copiar o certificado para dentro da imagem
+COPY GestaoEscalaPermutas.Server/certificado.pfx /app/certificado.pfx
 
-      # Passo 3: Construir e publicar a imagem Docker
-      - name: Build and push Docker image
-        run: |
-          docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/gestaoescala-backend:latest .
-          docker push ${{ secrets.ACR_LOGIN_SERVER }}/gestaoescala-backend:latest
+# Publicar a aplicação
+WORKDIR /app/GestaoEscalaPermutas.Server
+RUN dotnet publish -c Release -o out
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build-and-publish
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+# Etapa 2: Criar a imagem final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
+COPY --from=build /app/GestaoEscalaPermutas.Server/out .
 
-    steps:
-      # Passo 1: Fazer login no Azure
-      - name: Log in to Azure
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+# Copiar o certificado para a imagem final
+COPY --from=build /app/certificado.pfx /app/certificado.pfx
 
-      # Passo 2: Implantar a imagem no Azure Web App
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: 'BackendGestaoEscala'
-          slot-name: 'Production'
-          images: '${{ secrets.ACR_LOGIN_SERVER }}/gestaoescala-backend:latest'
+# Expor a porta corretamente
+EXPOSE 8080
+
+# Configurar permissões para o certificado (opcional, mas recomendado)
+RUN chmod 644 /app/certificado.pfx
+
+# Iniciar a aplicação
+ENTRYPOINT ["dotnet", "GestaoEscalaPermutas.Server.dll"]
