@@ -1,0 +1,17 @@
+app = "front-gestao-escala"  # Nome da aplicação (ajuste conforme desejado)
+primary_region = "gig"       # Mesma região do backend para baixa latência
+
+[build]
+  dockerfile = "Dockerfile"  # Aponta para o seu Dockerfile
+
+[http_service]
+  internal_port = 8080       # Porta que o Nginx escuta (definida no Dockerfile)
+  force_https = true         # Força HTTPS
+  auto_stop_machines = "stop" # Para economia de recursos
+  auto_start_machines = true
+  min_machines_running = 0   # Pode ajustar conforme necessidade
+
+[[vm]]
+  memory = "1gb"             # Ajuste conforme necessário
+  cpu_kind = "shared"
+  cpus = 1
