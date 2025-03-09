@@ -4,6 +4,9 @@ using GestaoEscalaPermutas.Dominio.Interfaces.Mensageria;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using FirebaseAdmin.Messaging;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace GestaoEscalaPermutas.Dominio.Services.Mensageria
 {
@@ -23,90 +26,108 @@ namespace GestaoEscalaPermutas.Dominio.Services.Mensageria
             _funcionarioService = funcionarioService;
         }
 
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            // Consumir mensagens de permutas solicitadas
-            _messageBus.Subscribe<PermutaMensagemDTO>("permutas.solicitadas", async msg =>
+            // Verificar se a mensageria está disponível
+            if (_messageBus == null)
             {
-                _logger.LogInformation($"Permuta solicitada: {msg.NmNomeSolicitante} solicitou {msg.NmNomeSolicitado} para {msg.DtDataSolicitadaTroca}");
+                _logger.LogInformation("Mensageria não disponível. Pulando consumo de mensagens para Permutas.");
+                await Task.Delay(Timeout.Infinite, stoppingToken); // Mantém o serviço ativo até ser cancelado
+                return;
+            }
 
-                // Enviar notificação ao funcionário solicitado
-                try
+            try
+            {
+                // Consumir mensagens de permutas solicitadas
+                _messageBus.Subscribe<PermutaMensagemDTO>("permutas.solicitadas", async msg =>
                 {
-                    string fcmTokenSolicitado = await _funcionarioService.GetFcmTokenAsync(msg.IdFuncionarioSolicitado);
-                    if (!string.IsNullOrEmpty(fcmTokenSolicitado))
-                    {
-                        await SendFcmNotification(
-                            fcmTokenSolicitado,
-                            "Nova Solicitação de Permuta",
-                            $"{msg.NmNomeSolicitante} solicitou uma permuta para {msg.DtDataSolicitadaTroca}");
-                    }
-                    else
-                    {
-                        _logger.LogWarning($"FCM Token não encontrado para o funcionário solicitado: {msg.IdFuncionarioSolicitado}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"Erro ao enviar notificação ao solicitado: {ex.Message}");
-                }
+                    _logger.LogInformation($"Permuta solicitada: {msg.NmNomeSolicitante} solicitou {msg.NmNomeSolicitado} para {msg.DtDataSolicitadaTroca}");
 
-                // Enviar notificação aos administradores
-                try
-                {
-                    var administradores = await _funcionarioService.GetAdministradoresAsync();
-                    foreach (var admin in administradores)
+                    // Enviar notificação ao funcionário solicitado
+                    try
                     {
-                        string fcmTokenAdmin = await _funcionarioService.GetFcmTokenAsync(admin.IdFuncionario);
-                        if (!string.IsNullOrEmpty(fcmTokenAdmin))
+                        string fcmTokenSolicitado = await _funcionarioService.GetFcmTokenAsync(msg.IdFuncionarioSolicitado);
+                        if (!string.IsNullOrEmpty(fcmTokenSolicitado))
                         {
                             await SendFcmNotification(
-                                fcmTokenAdmin,
-                                "Nova Permuta Solicitada",
-                                $"{msg.NmNomeSolicitante} solicitou uma permuta com {msg.NmNomeSolicitado} para {msg.DtDataSolicitadaTroca}");
+                                fcmTokenSolicitado,
+                                "Nova Solicitação de Permuta",
+                                $"{msg.NmNomeSolicitante} solicitou uma permuta para {msg.DtDataSolicitadaTroca}");
                         }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"Erro ao enviar notificação aos administradores: {ex.Message}");
-                }
-            });
-
-            // Consumir mensagens de permutas pendentes
-            _messageBus.Subscribe<PermutaMensagemDTO>("permutas.pendentes", async msg =>
-            {
-                _logger.LogInformation($"Permuta pendente de aprovação: {msg.IdPermuta}");
-
-                // Notificar administradores sobre permuta pendente
-                try
-                {
-                    var administradores = await _funcionarioService.GetAdministradoresAsync();
-                    foreach (var admin in administradores)
-                    {
-                        string fcmTokenAdmin = await _funcionarioService.GetFcmTokenAsync(admin.IdFuncionario);
-                        if (!string.IsNullOrEmpty(fcmTokenAdmin))
+                        else
                         {
-                            await SendFcmNotification(
-                                fcmTokenAdmin,
-                                "Permuta Pendente",
-                                $"Permuta {msg.IdPermuta} aguardando aprovação.");
+                            _logger.LogWarning($"FCM Token não encontrado para o funcionário solicitado: {msg.IdFuncionarioSolicitado}");
                         }
                     }
-                }
-                catch (Exception ex)
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Erro ao enviar notificação ao solicitado: {ex.Message}");
+                    }
+
+                    // Enviar notificação aos administradores
+                    try
+                    {
+                        var administradores = await _funcionarioService.GetAdministradoresAsync();
+                        foreach (var admin in administradores)
+                        {
+                            string fcmTokenAdmin = await _funcionarioService.GetFcmTokenAsync(admin.IdFuncionario);
+                            if (!string.IsNullOrEmpty(fcmTokenAdmin))
+                            {
+                                await SendFcmNotification(
+                                    fcmTokenAdmin,
+                                    "Nova Permuta Solicitada",
+                                    $"{msg.NmNomeSolicitante} solicitou uma permuta com {msg.NmNomeSolicitado} para {msg.DtDataSolicitadaTroca}");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Erro ao enviar notificação aos administradores: {ex.Message}");
+                    }
+                });
+
+                // Consumir mensagens de permutas pendentes
+                _messageBus.Subscribe<PermutaMensagemDTO>("permutas.pendentes", async msg =>
                 {
-                    _logger.LogError($"Erro ao notificar administradores sobre permuta pendente: {ex.Message}");
-                }
-            });
+                    _logger.LogInformation($"Permuta pendente de aprovação: {msg.IdPermuta}");
 
-            // Consumir mensagens de resultado
-            _messageBus.Subscribe<PermutaMensagemDTO>("permutas.resultado", msg =>
+                    // Notificar administradores sobre permuta pendente
+                    try
+                    {
+                        var administradores = await _funcionarioService.GetAdministradoresAsync();
+                        foreach (var admin in administradores)
+                        {
+                            string fcmTokenAdmin = await _funcionarioService.GetFcmTokenAsync(admin.IdFuncionario);
+                            if (!string.IsNullOrEmpty(fcmTokenAdmin))
+                            {
+                                await SendFcmNotification(
+                                    fcmTokenAdmin,
+                                    "Permuta Pendente",
+                                    $"Permuta {msg.IdPermuta} aguardando aprovação.");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError($"Erro ao notificar administradores sobre permuta pendente: {ex.Message}");
+                    }
+                });
+
+                // Consumir mensagens de resultado
+                _messageBus.Subscribe<PermutaMensagemDTO>("permutas.resultado", msg =>
+                {
+                    _logger.LogInformation($"Permuta {msg.IdPermuta} foi {msg.NmStatus} para {msg.NmNomeSolicitante} e {msg.NmNomeSolicitado}");
+                });
+
+                _logger.LogInformation("Consumidores de permutas configurados com sucesso.");
+            }
+            catch (Exception ex)
             {
-                _logger.LogInformation($"Permuta {msg.IdPermuta} foi {msg.NmStatus} para {msg.NmNomeSolicitante} e {msg.NmNomeSolicitado}");
-            });
+                _logger.LogError($"Erro ao configurar consumidores de permutas: {ex.Message}");
+            }
 
-            return Task.CompletedTask;
+            // Mantém o serviço ativo até ser cancelado
+            await Task.Delay(Timeout.Infinite, stoppingToken);
         }
 
         private async Task SendFcmNotification(string fcmToken, string title, string body)
