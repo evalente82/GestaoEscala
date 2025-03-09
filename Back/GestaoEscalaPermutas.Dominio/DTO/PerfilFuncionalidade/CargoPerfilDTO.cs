@@ -9,9 +9,9 @@ namespace GestaoEscalaPermutas.Dominio.DTO.PerfilFuncionalidade
     public class CargoPerfilDTO : RetornoDTO
     {
         public Guid IdCargo { get; set; }
-        public string NomeCargo { get; set; } = null!;
+        public string? NomeCargo { get; set; } = null!;
 
         public Guid IdPerfil { get; set; }
-        public string NomePerfil { get; set; } = null!;
+        public string? NomePerfil { get; set; } = null!;
     }
 }

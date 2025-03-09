@@ -26,12 +26,14 @@
     <None Remove="Models\Empresa\**" />
   </ItemGroup>
 
+
   <ItemGroup>
     <None Remove="Controllers\Escala\EscalaController.cs~RF664ededa.TMP" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="FirebaseAdmin" Version="3.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy">
       <Version>9.0.0</Version>

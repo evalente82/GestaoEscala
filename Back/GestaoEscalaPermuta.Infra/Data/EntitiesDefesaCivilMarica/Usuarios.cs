@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
 {
@@ -35,12 +31,13 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
         public DateTime DataCriacao
         {
             get => _dataCriacao;
-            set => _dataCriacao = DateTime.SpecifyKind(value, DateTimeKind.Utc); // 🔹 Agora sempre será UTC
+            set => _dataCriacao = DateTime.SpecifyKind(value, DateTimeKind.Utc);
         }
 
         [ForeignKey("Perfil")]
         public Guid IdPerfil { get; set; }
         public Perfil Perfil { get; set; } = null!;
+
         public string? TokenRecuperacaoSenha { get; set; }
         private DateTime? _tokenExpiracao;
         public DateTime? TokenExpiracao
@@ -48,8 +45,19 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
             get => _tokenExpiracao;
             set => _tokenExpiracao = value.HasValue
                 ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc)
-                : null; // 🔹 Sempre define como UTC
+                : null;
         }
 
+        // Campos adicionados para login único e notificações
+        public string? RefreshToken { get; set; }
+        private DateTime? _refreshTokenExpiry;
+        public DateTime? RefreshTokenExpiry
+        {
+            get => _refreshTokenExpiry;
+            set => _refreshTokenExpiry = value.HasValue
+                ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc)
+                : null;
+        }
+        public string? FcmToken { get; set; } // Para notificações Firebase
     }
 }

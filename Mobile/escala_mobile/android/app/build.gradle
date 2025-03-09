@@ -1,18 +1,18 @@
 plugins {
     id "com.android.application"
     id "kotlin-android"
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
+    id "com.google.gms.google-services"
 }
 
 android {
-    namespace = "com.example.escala_mobile"
+    namespace "com.example.escala_mobile"
     compileSdk 34
-    ndkVersion = 34
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
+        coreLibraryDesugaringEnabled true // Habilitar desugaring
     }
 
     kotlinOptions {
@@ -20,7 +20,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.escala_mobile"
+        applicationId "com.example.escala_mobile"
         minSdk 21
         targetSdk 34
         versionCode 1
@@ -32,12 +32,15 @@ android {
             signingConfig signingConfigs.debug
             minifyEnabled false
             shrinkResources false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
 
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4' // Dependência de desugaring
+}
 
 flutter {
-    source = "../.."
+    source "../.."
 }

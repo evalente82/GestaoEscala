@@ -125,5 +125,19 @@ namespace GestaoEscalaPermutas.Repository.Implementations
             return await _context.Usuario
                 .FirstOrDefaultAsync(u => u.TokenRecuperacaoSenha == token);
         }
+
+        public async Task<Usuarios> ObterUsuarioPorRefreshTokenAsync(string refreshToken)
+        {
+            return await _context.Usuario
+                .Include(u => u.Perfil)
+                .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+        }
+
+        public async Task<Usuarios> ObterUsuarioPorIdAsync(Guid idUsuario)
+        {
+            return await _context.Usuario
+                .Include(u => u.Perfil)
+                .FirstOrDefaultAsync(u => u.IdUsuario == idUsuario);
+        }
     }
 }

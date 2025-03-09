@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:escala_mobile/services/auth_service.dart';
 import 'package:escala_mobile/components/footer_component.dart';
 
 class PrimeiroAcessoScreen extends StatefulWidget {
@@ -16,7 +15,6 @@ class _PrimeiroAcessoScreenState extends State<PrimeiroAcessoScreen> {
   String? _alertMessage;
   String? _successMessage;
 
-  // Função para validar o formato do e-mail
   bool _isValidEmail(String email) {
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     return emailRegex.hasMatch(email);
@@ -27,7 +25,6 @@ class _PrimeiroAcessoScreenState extends State<PrimeiroAcessoScreen> {
     final String senha = _senhaController.text.trim();
     final String confirmarSenha = _confirmarSenhaController.text.trim();
 
-    // Validação dos campos
     if (usuario.isEmpty || senha.isEmpty || confirmarSenha.isEmpty) {
       setState(() {
         _alertMessage = "Preencha todos os campos!";
@@ -36,7 +33,6 @@ class _PrimeiroAcessoScreenState extends State<PrimeiroAcessoScreen> {
       return;
     }
 
-    // Validação do e-mail
     if (!_isValidEmail(usuario)) {
       setState(() {
         _alertMessage = "E-mail inválido! Insira um e-mail no formato correto.";
@@ -45,7 +41,6 @@ class _PrimeiroAcessoScreenState extends State<PrimeiroAcessoScreen> {
       return;
     }
 
-    // Validação das senhas
     if (senha != confirmarSenha) {
       setState(() {
         _alertMessage = "As senhas não coincidem.";
@@ -60,28 +55,31 @@ class _PrimeiroAcessoScreenState extends State<PrimeiroAcessoScreen> {
     });
 
     try {
-      final response = await AuthService.register(usuario, senha);
+      // Placeholder: Substitua pela chamada correta ao seu backend
+      // Exemplo: final response = await ApiClient.post('/login/Incluir', {'usuario': usuario, 'senha': senha});
+      await Future.delayed(const Duration(seconds: 1)); // Simulação de requisição
+      final response = {"success": true, "message": "Cadastro realizado com sucesso!"};
 
-      if (!mounted) return; // Verifica se o widget ainda está montado
+      if (!mounted) return;
 
-      if (response["success"]) {
+      if (response["success"] == true) {
         setState(() {
           _successMessage = "Cadastro realizado com sucesso! Redirecionando...";
           _alertMessage = null;
         });
-        await Future.delayed(const Duration(seconds: 3)); // Aguarda 3 segundos
+        await Future.delayed(const Duration(seconds: 3));
 
-        if (!mounted) return; // Verifica novamente antes de navegar
+        if (!mounted) return;
 
-        Navigator.pop(context); // Volta para a tela de login
+        Navigator.pop(context);
       } else {
         setState(() {
-          _alertMessage = response["message"] ?? "Erro ao criar acesso.";
+          _alertMessage = response["message"] as String? ?? "Erro ao criar acesso."; // Cast com fallback
           _successMessage = null;
         });
       }
     } catch (error) {
-      if (!mounted) return; // Verifica se o widget ainda está montado
+      if (!mounted) return;
 
       setState(() {
         _alertMessage = "Erro ao conectar ao servidor. Tente novamente.";
@@ -93,7 +91,7 @@ class _PrimeiroAcessoScreenState extends State<PrimeiroAcessoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FC), // Cor de fundo suave
+      backgroundColor: const Color(0xFFF7F9FC),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -107,7 +105,7 @@ class _PrimeiroAcessoScreenState extends State<PrimeiroAcessoScreen> {
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF003580), // Azul forte
+                  color: const Color(0xFF003580),
                 ),
               ),
               const SizedBox(height: 20),
@@ -122,13 +120,13 @@ class _PrimeiroAcessoScreenState extends State<PrimeiroAcessoScreen> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF003580), // Azul forte
+                  color: const Color(0xFF003580),
                 ),
               ),
               const SizedBox(height: 20),
               if (_alertMessage != null)
                 Container(
-                  margin: const EdgeInsets.only(bottom: 16),
+                  margin: const EdgeInsets.only(top: 16),
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: Colors.red[100],
@@ -143,7 +141,7 @@ class _PrimeiroAcessoScreenState extends State<PrimeiroAcessoScreen> {
                 ),
               if (_successMessage != null)
                 Container(
-                  margin: const EdgeInsets.only(bottom: 16),
+                  margin: const EdgeInsets.only(top: 16),
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: Colors.green[100],
@@ -162,7 +160,7 @@ class _PrimeiroAcessoScreenState extends State<PrimeiroAcessoScreen> {
                 decoration: InputDecoration(
                   labelText: "E-mail",
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10), // Bordas arredondadas
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),
@@ -173,7 +171,7 @@ class _PrimeiroAcessoScreenState extends State<PrimeiroAcessoScreen> {
                 decoration: InputDecoration(
                   labelText: "Senha",
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10), // Bordas arredondadas
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),
@@ -184,7 +182,7 @@ class _PrimeiroAcessoScreenState extends State<PrimeiroAcessoScreen> {
                 decoration: InputDecoration(
                   labelText: "Confirmar Senha",
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10), // Bordas arredondadas
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),
@@ -193,9 +191,9 @@ class _PrimeiroAcessoScreenState extends State<PrimeiroAcessoScreen> {
                 onPressed: _handleSubmit,
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
-                  backgroundColor: const Color(0xFF003580), // Azul forte
+                  backgroundColor: const Color(0xFF003580),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10), // Bordas arredondadas
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 child: const Text(
@@ -203,14 +201,14 @@ class _PrimeiroAcessoScreenState extends State<PrimeiroAcessoScreen> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white, // Texto branco
+                    color: Colors.white,
                   ),
                 ),
               ),
               const SizedBox(height: 20),
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context); // Volta para a tela de login
+                  Navigator.pop(context);
                 },
                 child: const Text(
                   "Voltar para Login",
@@ -223,5 +221,13 @@ class _PrimeiroAcessoScreenState extends State<PrimeiroAcessoScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _usuarioController.dispose();
+    _senhaController.dispose();
+    _confirmarSenhaController.dispose();
+    super.dispose();
   }
 }

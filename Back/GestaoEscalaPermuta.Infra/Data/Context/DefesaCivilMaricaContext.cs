@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using GestaoEscalaPermutas.Dominio.Entities;
 using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -35,6 +36,7 @@ public partial class DefesaCivilMaricaContext : DbContext
     public DbSet<PerfisFuncionalidades> PerfisFuncionalidades { get; set; }
     public DbSet<CargoPerfis> CargoPerfis { get; set; }
     public DbSet<Setor> Setor { get; set; }
+    public DbSet<FuncionarioFcmToken> FuncionarioFcmTokens { get; set; }
 
 
 
@@ -66,6 +68,52 @@ public partial class DefesaCivilMaricaContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        #region FUNCIONARIO_FCM_TOKENS
+        modelBuilder.Entity<FuncionarioFcmToken>(entity =>
+        {
+            entity.ToTable("FuncionarioFcmTokens", "public");
+
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Id)
+                .HasColumnName("Id")
+                .HasColumnType("uuid")
+                .HasDefaultValueSql("uuid_generate_v4()");
+
+            entity.Property(e => e.IdFuncionario)
+                .HasColumnName("IdFuncionario")
+                .HasColumnType("uuid")
+                .IsRequired();
+
+            entity.Property(e => e.FcmToken)
+                .HasColumnName("FcmToken")
+                .HasColumnType("varchar(255)")
+                .IsRequired();
+
+            entity.Property(e => e.DataRegistro)
+                .HasColumnName("DataRegistro")
+                .HasColumnType("timestamptz")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasConversion(
+                    v => v.ToUniversalTime(), // Converte para UTC ao gravar
+                    v => DateTime.SpecifyKind(v, DateTimeKind.Utc)); // Lê como UTC
+
+            entity.Property(e => e.DataAtualizacao)
+                .HasColumnName("DataAtualizacao")
+                .HasColumnType("timestamptz")
+                .HasConversion(
+                    v => v.HasValue ? v.Value.ToUniversalTime() : (DateTime?)null, // Converte para UTC ou null
+                    v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : null); // Lê como UTC ou null
+
+            // Chave estrangeira para Funcionario
+            entity.HasOne(e => e.Funcionario)
+                .WithMany()
+                .HasForeignKey(e => e.IdFuncionario)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_FuncionarioFcmTokens_Funcionarios");
+        });
+        #endregion
+
         #region CARGO
         modelBuilder.Entity<Cargo>(entity =>
         {
@@ -152,6 +200,19 @@ public partial class DefesaCivilMaricaContext : DbContext
         #endregion
 
         #region PERMUTA
+        modelBuilder.Entity<Permuta>()
+        .Property(e => e.DtDataSolicitadaTroca)
+        .HasColumnType("timestamptz") // Especificar explicitamente o tipo
+        .HasConversion(
+            v => v, // Não precisa converter, já está em UTC
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc)); // Garantir que seja lido como UTC
+
+        modelBuilder.Entity<Permuta>()
+            .Property(e => e.DtSolicitacao)
+            .HasColumnType("timestamptz")
+            .HasConversion(
+                v => v,
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
         modelBuilder.Entity<Permuta>(entity =>
         {
             entity.HasKey(e => e.IdPermuta).HasName("PK_IdPermuta");
@@ -295,7 +356,7 @@ public partial class DefesaCivilMaricaContext : DbContext
             modelBuilder.Entity<Usuarios>()
             .ToTable("usuarios"); // Inclua as aspas duplas para corresponder ao nome sensível a case
         });
-        
+
         #endregion
 
         #region PERFIL_FUNCIONALIDADE

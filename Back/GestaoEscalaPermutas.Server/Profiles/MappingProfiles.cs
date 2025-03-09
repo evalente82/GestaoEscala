@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
-using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using GestaoEscalaPermutas.Dominio.DTO.Cargo;
 using GestaoEscalaPermutas.Dominio.DTO.Departamento;
 using GestaoEscalaPermutas.Dominio.DTO.Escala;
@@ -9,8 +7,12 @@ using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
 using GestaoEscalaPermutas.Dominio.DTO.Login;
 using GestaoEscalaPermutas.Dominio.DTO.PerfilFuncionalidade;
 using GestaoEscalaPermutas.Dominio.DTO.Permutas;
+using GestaoEscalaPermutas.Dominio.DTO.PostoTrabalho;
+using GestaoEscalaPermutas.Dominio.DTO.Setor;
 using GestaoEscalaPermutas.Dominio.DTO.TipoEscala;
 using GestaoEscalaPermutas.Dominio.DTO.Usuario;
+using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
+using GestaoEscalaPermutas.Server.Models;
 using GestaoEscalaPermutas.Server.Models.Cargos;
 using GestaoEscalaPermutas.Server.Models.Departamento;
 using GestaoEscalaPermutas.Server.Models.Escala;
@@ -20,24 +22,22 @@ using GestaoEscalaPermutas.Server.Models.Login;
 using GestaoEscalaPermutas.Server.Models.PerfilFuncionalidade;
 using GestaoEscalaPermutas.Server.Models.Permuta;
 using GestaoEscalaPermutas.Server.Models.PostoTrabalho;
-using GestaoEscalaPermutas.Server.Models.TipoEscala;
-using GestaoEscalaPermutas.Dominio.DTO.Setor;
 using GestaoEscalaPermutas.Server.Models.Setor;
-using GestaoEscalaPermutas.Dominio.DTO.PostoTrabalho;
+using GestaoEscalaPermutas.Server.Models.TipoEscala;
 
-namespace GestaoEscalaPermutas.Server.Profiles
+namespace GestaoEscalaPermutas.Dominio.Mapping
 {
     public class MappingProfiles : Profile
     {
         public MappingProfiles()
         {
             // ======= SETOR =======
-            CreateMap<SetorDTO, SetorModel>().ReverseMap();            
+            CreateMap<SetorDTO, SetorModel>().ReverseMap();
             CreateMap<SetorDTO, Setor>().ReverseMap();
 
             // ======= FUNCIONÁRIOS =======
             CreateMap<Funcionario, FuncionarioDTO>()
-                .ForMember(dest => dest.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso")) // ✅ Mensagem padrão
+                .ForMember(dest => dest.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso"))
                 .ReverseMap();
 
             CreateMap<Funcionario, FuncionarioDTO>()
@@ -47,9 +47,6 @@ namespace GestaoEscalaPermutas.Server.Profiles
                 .ReverseMap();
 
             CreateMap<FuncionarioModel, FuncionarioDTO>().ReverseMap();
-            CreateMap<Funcionario, FuncionarioDTO>()
-                .ForMember(dest => dest.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso"))
-                .ReverseMap();
 
             // ======= CARGOS =======
             CreateMap<CargoModel, CargoDTO>().ReverseMap();
@@ -60,7 +57,7 @@ namespace GestaoEscalaPermutas.Server.Profiles
             // ======= PERFIS =======
             CreateMap<Perfil, PerfilDTO>().ReverseMap();
             CreateMap<PerfilDTO, PerfilModel>().ReverseMap();
-            CreateMap<DepInfra.Perfil, PerfilDTO>().ReverseMap();
+            CreateMap<Perfil, PerfilDTO>().ReverseMap();
 
             // ======= PERFIS FUNCIONALIDADES =======
             CreateMap<PerfisFuncionalidades, PerfisFuncionalidadesDTO>()
@@ -74,34 +71,31 @@ namespace GestaoEscalaPermutas.Server.Profiles
 
             // ======= CARGOS PERFIS =======
             CreateMap<CargoPerfis, CargoPerfilDTO>()
-             .ForMember(dest => dest.IdCargo, opt => opt.MapFrom(src => src.IdCargo))
-             .ForMember(dest => dest.NomeCargo, opt => opt.MapFrom(src => src.Cargo.NmNome)) // Se existir relação
-             .ForMember(dest => dest.IdPerfil, opt => opt.MapFrom(src => src.IdPerfil))
-             .ForMember(dest => dest.NomePerfil, opt => opt.MapFrom(src => src.Perfil.Nome)) // Se existir relação
-             .ReverseMap();
+                .ForMember(dest => dest.IdCargo, opt => opt.MapFrom(src => src.IdCargo))
+                .ForMember(dest => dest.NomeCargo, opt => opt.MapFrom(src => src.Cargo.NmNome))
+                .ForMember(dest => dest.IdPerfil, opt => opt.MapFrom(src => src.IdPerfil))
+                .ForMember(dest => dest.NomePerfil, opt => opt.MapFrom(src => src.Perfil.Nome))
+                .ReverseMap();
 
             // ======= USUÁRIOS E LOGIN =======
-            // 🔹 Mapeamento correto de LoginDTO para Usuarios
             CreateMap<LoginDTO, Usuarios>()
-                .ForMember(dest => dest.Nome, opt => opt.Ignore()) // Nome pode vir do funcionário associado
-                .ForMember(dest => dest.SenhaHash, opt => opt.MapFrom(src => src.SenhaHash)) // SenhaHash já está processada
-                .ForMember(dest => dest.Perfil, opt => opt.Ignore()); // Perfil pode ser tratado separadamente
+                .ForMember(dest => dest.Nome, opt => opt.Ignore())
+                .ForMember(dest => dest.SenhaHash, opt => opt.MapFrom(src => src.SenhaHash))
+                .ForMember(dest => dest.Perfil, opt => opt.Ignore());
 
             CreateMap<Usuarios, LoginDTO>()
-                .ForMember(dest => dest.Senha, opt => opt.Ignore()) // Senha não deve ser retornada
+                .ForMember(dest => dest.Senha, opt => opt.Ignore())
                 .ForMember(dest => dest.SenhaHash, opt => opt.MapFrom(src => src.SenhaHash))
                 .ForMember(dest => dest.Perfil, opt => opt.MapFrom(src => src.Perfil.Nome ?? "Sem Perfil"));
 
-
             CreateMap<LoginResponseDTO, LoginModel>()
-            .ForMember(dest => dest.Usuario, opt => opt.MapFrom(src => src.NomeUsuario));
+                .ForMember(dest => dest.Usuario, opt => opt.MapFrom(src => src.NomeUsuario));
 
             CreateMap<LoginDTO, LoginModel>()
                 .ForMember(dest => dest.SenhaHash, opt => opt.AllowNull())
                 .ForMember(dest => dest.Perfil, opt => opt.AllowNull());
 
-
-            CreateMap<DepInfra.Usuarios, UsuarioDTO>().ReverseMap();
+            CreateMap<Usuarios, UsuarioDTO>().ReverseMap();
             CreateMap<Usuarios, UsuarioDTO>().ReverseMap();
             CreateMap<LoginModel, LoginDTO>().ReverseMap();
             CreateMap<Login, LoginDTO>()
@@ -114,6 +108,16 @@ namespace GestaoEscalaPermutas.Server.Profiles
                 .ForMember(x => x.DtDataSolicitadaTroca, opt => opt.MapFrom(src => src.DtDataSolicitadaTroca))
                 .ForMember(x => x.mensagem, opt => opt.MapFrom(src => "Registro recebido com sucesso"))
                 .ReverseMap();
+
+            // Mapeamento de PermutasDTO para PermutaMensagemDTO
+            CreateMap<PermutasDTO, PermutaMensagemDTO>()
+                .ForMember(dest => dest.IdPermuta, opt => opt.MapFrom(src => src.IdPermuta))
+                .ForMember(dest => dest.IdFuncionarioSolicitante, opt => opt.MapFrom(src => src.IdFuncionarioSolicitante))
+                .ForMember(dest => dest.NmNomeSolicitante, opt => opt.MapFrom(src => src.NmNomeSolicitante))
+                .ForMember(dest => dest.IdFuncionarioSolicitado, opt => opt.MapFrom(src => src.IdFuncionarioSolicitado))
+                .ForMember(dest => dest.NmNomeSolicitado, opt => opt.MapFrom(src => src.NmNomeSolicitado))
+                .ForMember(dest => dest.DtDataSolicitadaTroca, opt => opt.MapFrom(src => src.DtDataSolicitadaTroca.ToString("o")))
+                .ForMember(dest => dest.NmStatus, opt => opt.MapFrom(src => src.NmStatus));
 
             // ======= DEPARTAMENTOS =======
             CreateMap<DepartamentoModel, DepartamentoDTO>().ReverseMap();

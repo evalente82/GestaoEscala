@@ -1,16 +1,16 @@
 ﻿using AutoMapper;
-using BCrypt.Net;
 using GestaoEscalaPermutas.Dominio.DTO.Login;
 using GestaoEscalaPermutas.Dominio.Interfaces.Email;
 using GestaoEscalaPermutas.Dominio.Interfaces.Login;
 using GestaoEscalaPermutas.Infra.Data.Context;
 using GestaoEscalaPermutas.Repository.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
+
 
 
 namespace GestaoEscalaPermutas.Dominio.Services.Login
@@ -20,12 +20,14 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
         private readonly ILoginRepository _loginRepository;
         private readonly IMapper _mapper;
         private readonly IEmailService _emailService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public LoginService(ILoginRepository loginRepository, IMapper mapper, IEmailService emailService)
+        public LoginService(ILoginRepository loginRepository, IMapper mapper, IEmailService emailService, IHttpContextAccessor httpContextAccessor)
         {
             _loginRepository = loginRepository;
             _mapper = mapper;
             _emailService = emailService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         /// <summary>
@@ -58,12 +60,19 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
                     .ToList() ?? new List<string>();
 
                 var token = GerarTokenJWT(usuario, funcionario, permissoes);
+                var refreshToken = Guid.NewGuid().ToString(); // Gera um refresh token único
+
+                // Salvar o refresh token no banco associado ao usuário
+                usuario.RefreshToken = refreshToken;
+                usuario.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7); // Expira em 7 dias, ajuste conforme necessário
+                await _loginRepository.AtualizarUsuarioAsync(usuario);
 
                 return new LoginResponseDTO
                 {
                     Valido = true,
                     Mensagem = "Autenticado com sucesso.",
                     Token = token,
+                    RefreshToken = refreshToken, // Inclui o refresh token na resposta
                     NomeUsuario = usuario.Nome ?? string.Empty,
                     Matricula = funcionario.NrMatricula,
                     IdFuncionario = funcionario.IdFuncionario,
@@ -73,6 +82,56 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
             catch (Exception e)
             {
                 return new LoginResponseDTO { Valido = false, Mensagem = $"Erro ao autenticar: {e.Message}" };
+            }
+        }
+
+        public async Task<LoginResponseDTO> RefreshToken(string refreshToken)
+        {
+            try
+            {
+                var usuario = await _loginRepository.ObterUsuarioPorRefreshTokenAsync(refreshToken);
+
+                if (usuario == null || usuario.RefreshTokenExpiry < DateTime.UtcNow)
+                {
+                    return new LoginResponseDTO { Valido = false, Mensagem = "Refresh token inválido ou expirado." };
+                }
+
+                var funcionario = await _loginRepository.ObterFuncionarioComCargoEPermissoesAsync(usuario.Email);
+
+                if (funcionario == null)
+                {
+                    return new LoginResponseDTO { Valido = false, Mensagem = "Funcionário não encontrado." };
+                }
+
+                var permissoes = funcionario.Cargo?.CargoPerfis
+                    .SelectMany(cp => cp.Perfil.PerfisFuncionalidades)
+                    .Select(pf => pf.Funcionalidade.Nome)
+                    .Distinct()
+                    .ToList() ?? new List<string>();
+
+                var newToken = GerarTokenJWT(usuario, funcionario, permissoes);
+                var newRefreshToken = Guid.NewGuid().ToString();
+
+                // Atualizar o refresh token no banco
+                usuario.RefreshToken = newRefreshToken;
+                usuario.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+                await _loginRepository.AtualizarUsuarioAsync(usuario);
+
+                return new LoginResponseDTO
+                {
+                    Valido = true,
+                    Mensagem = "Token renovado com sucesso.",
+                    Token = newToken,
+                    RefreshToken = newRefreshToken,
+                    NomeUsuario = usuario.Nome ?? string.Empty,
+                    Matricula = funcionario.NrMatricula,
+                    IdFuncionario = funcionario.IdFuncionario,
+                    Permissoes = permissoes
+                };
+            }
+            catch (Exception e)
+            {
+                return new LoginResponseDTO { Valido = false, Mensagem = $"Erro ao renovar token: {e.Message}" };
             }
         }
 
@@ -226,6 +285,39 @@ namespace GestaoEscalaPermutas.Dominio.Services.Login
             {
                 return new LoginResponseDTO { Valido = false, Mensagem = $"Erro ao redefinir senha: {e.Message}" };
             }
+        }
+
+        public async Task<LoginResponseDTO> UpdateFcmToken(UpdateFcmTokenRequestDTO request)
+        {
+            try
+            {
+                var idUsuario = AutenticacaoHelper.getIdByToken(_httpContextAccessor.HttpContext.User);
+                var usuario = await _loginRepository.ObterUsuarioPorIdAsync(idUsuario);
+
+                if (usuario == null)
+                    return new LoginResponseDTO { Valido = false, Mensagem = "Usuário não encontrado." };
+
+                if (usuario.IdFuncionario != Guid.Parse(request.IdFuncionario))
+                    return new LoginResponseDTO { Valido = false, Mensagem = "ID do funcionário não corresponde ao usuário autenticado." };
+
+                usuario.FcmToken = request.FcmToken;
+                await _loginRepository.AtualizarUsuarioAsync(usuario);
+
+                return new LoginResponseDTO { Valido = true, Mensagem = "Token FCM atualizado com sucesso." };
+            }
+            catch (Exception e)
+            {
+                return new LoginResponseDTO { Valido = false, Mensagem = $"Erro ao atualizar token FCM: {e.Message}" };
+            }
+        }
+    }
+
+    public class AutenticacaoHelper
+    {
+        public static Guid getIdByToken(ClaimsPrincipal user)
+        {
+            var idString = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Guid.TryParse(idString, out Guid id) ? id : Guid.Empty;
         }
     }
 }

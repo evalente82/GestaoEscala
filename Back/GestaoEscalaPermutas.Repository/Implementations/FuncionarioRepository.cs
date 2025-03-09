@@ -1,4 +1,5 @@
-﻿using GestaoEscalaPermutas.Infra.Data.Context;
+﻿using GestaoEscalaPermutas.Dominio.Entities;
+using GestaoEscalaPermutas.Infra.Data.Context;
 using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using GestaoEscalaPermutas.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -68,6 +69,61 @@ namespace GestaoEscalaPermutas.Repository.Implementations
         public async Task<bool> EmailExisteAsync(string email)
         {
             return await _context.Funcionarios.AnyAsync(f => f.NmEmail == email);
+        }
+
+        public async Task<string> GetFcmTokenAsync(Guid idFuncionario)
+        {
+            var token = await _context.FuncionarioFcmTokens
+                .Where(f => f.IdFuncionario == idFuncionario)
+                .OrderByDescending(f => f.DataAtualizacao ?? f.DataRegistro)
+                .Select(f => f.FcmToken)
+                .FirstOrDefaultAsync();
+
+            if (string.IsNullOrEmpty(token))
+            {
+                Console.WriteLine($"Nenhum FCM Token encontrado para o funcionário {idFuncionario}");
+                return null; // Retorna null em vez de lançar exceção
+            }
+
+            return token;
+        }
+
+        public async Task SaveFcmTokenAsync(Guid idFuncionario, string fcmToken)
+        {
+            if (string.IsNullOrEmpty(fcmToken))
+                throw new ArgumentException("O FCM Token não pode ser vazio.");
+
+            var existingToken = await _context.FuncionarioFcmTokens
+                .FirstOrDefaultAsync(f => f.IdFuncionario == idFuncionario);
+
+            if (existingToken != null)
+            {
+                existingToken.FcmToken = fcmToken;
+                existingToken.DataAtualizacao = DateTime.UtcNow;
+                _context.FuncionarioFcmTokens.Update(existingToken);
+                Console.WriteLine($"FCM Token atualizado para {idFuncionario}: {fcmToken}");
+            }
+            else
+            {
+                var newToken = new FuncionarioFcmToken
+                {
+                    Id = Guid.NewGuid(),
+                    IdFuncionario = idFuncionario,
+                    FcmToken = fcmToken,
+                    DataRegistro = DateTime.UtcNow,
+                    DataAtualizacao = null
+                };
+                _context.FuncionarioFcmTokens.Add(newToken);
+                Console.WriteLine($"FCM Token criado para {idFuncionario}: {fcmToken}");
+            }
+
+            await _context.SaveChangesAsync();
+        }
+        public async Task<List<Funcionario>> ObterAdministradoresAsync()
+        {
+            return await _context.Funcionarios
+                .Where(f => f.Cargo.NmNome == "Administrador") // Ajuste conforme sua lógica de negócio
+                .ToListAsync();
         }
     }
 }

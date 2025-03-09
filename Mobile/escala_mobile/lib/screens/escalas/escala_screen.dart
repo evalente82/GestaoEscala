@@ -1,14 +1,10 @@
-import 'dart:convert';
-import 'package:escala_mobile/services/HttpInterceptor%20.dart';
-import 'package:escala_mobile/services/api_service.dart';
+import 'package:escala_mobile/services/ApiClient.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:escala_mobile/models/user_model.dart';
 import 'package:logger/logger.dart';
 import 'package:intl/intl.dart';
 
-// 🔹 Instância do Logger
 final logger = Logger();
 
 class EscalaScreen extends StatefulWidget {
@@ -37,15 +33,18 @@ class _EscalaScreenState extends State<EscalaScreen> {
   Future<void> _carregarEscalasUsuarioLogado() async {
     try {
       final userModel = Provider.of<UserModel>(context, listen: false);
-      final String url = "${ApiService.baseUrl}/escalaPronta/BuscarPorFuncionario/${userModel.idFuncionario}";
+      if (userModel.idFuncionario.isEmpty) {
+        throw Exception("ID do funcionário não disponível.");
+      }
+      final String url = "/escalaPronta/BuscarPorFuncionario/${userModel.idFuncionario}";
       final response = await ApiClient.get(url);
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+      if (response["statusCode"] == 200) {
+        final List<dynamic> data = response["body"];
         Set<String> escalasUnicas = {};
         final List<Map<String, dynamic>> escalas = data
             .map((e) {
-              String escalaNome = "${e["nmNomeEscala"] ?? "Sem Nome"}";
+              String escalaNome = "${e["nmNomeEscala"]} - ${DateFormat("MMMM", "pt_BR").format(DateTime.parse(e["dtDataServico"]))}";
               if (escalasUnicas.contains(escalaNome)) return null;
               escalasUnicas.add(escalaNome);
               return {
@@ -60,51 +59,75 @@ class _EscalaScreenState extends State<EscalaScreen> {
         setState(() {
           _escalas = escalas;
         });
+        logger.i("✅ Escalas carregadas: ${_escalas.length}");
+      } else {
+        throw Exception("Erro ao carregar escalas. Código: ${response["statusCode"]}");
       }
     } catch (e) {
       logger.e("Erro ao carregar escalas: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Erro ao carregar escalas: $e")),
+        );
+      }
     }
   }
 
   Future<void> _carregarPostos() async {
     try {
-      final String url = "${ApiService.baseUrl}/PostoTrabalho/buscarTodos";
+      final String url = "/PostoTrabalho/buscarTodos";
       final response = await ApiClient.get(url);
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+      if (response["statusCode"] == 200) {
+        final List<dynamic> data = response["body"];
         setState(() {
           _postos = {for (var posto in data) posto["idPostoTrabalho"].toString(): posto["nmNome"].toString()};
         });
+        logger.i("✅ Postos carregados: ${_postos.length}");
+      } else {
+        throw Exception("Erro ao carregar postos. Código: ${response["statusCode"]}");
       }
     } catch (e) {
       logger.e("Erro ao carregar postos: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Erro ao carregar postos: $e")),
+        );
+      }
     }
   }
 
   Future<void> _carregarFuncionarios() async {
     try {
-      final String url = "${ApiService.baseUrl}/Funcionario/buscarTodos";
+      final String url = "/Funcionario/buscarTodos";
       final response = await ApiClient.get(url);
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+      if (response["statusCode"] == 200) {
+        final List<dynamic> data = response["body"];
         setState(() {
           _funcionarios = {for (var func in data) func["idFuncionario"].toString(): func["nmNome"].toString()};
         });
+        logger.i("✅ Funcionários carregados: ${_funcionarios.length}");
+      } else {
+        throw Exception("Erro ao carregar funcionários. Código: ${response["statusCode"]}");
       }
     } catch (e) {
       logger.e("Erro ao carregar funcionários: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Erro ao carregar funcionários: $e")),
+        );
+      }
     }
   }
 
   Future<void> _filtrarPostosPorEscala(String idEscala) async {
     try {
-      final String url = "${ApiService.baseUrl}/escalaPronta/buscarPorId/$idEscala";
+      final String url = "/escalaPronta/buscarPorId/$idEscala";
       final response = await ApiClient.get(url);
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+      if (response["statusCode"] == 200) {
+        final List<dynamic> data = response["body"];
 
         List<Map<String, dynamic>> escalaFiltrada = data.map((e) {
           return {
@@ -121,13 +144,20 @@ class _EscalaScreenState extends State<EscalaScreen> {
           _escalaPronta = escalaFiltrada;
           _postosFiltrados = postosFiltrados;
         });
+        logger.i("✅ Postos filtrados para escala $idEscala: ${_postosFiltrados.length}");
+      } else {
+        throw Exception("Erro ao carregar postos da escala. Código: ${response["statusCode"]}");
       }
     } catch (e) {
       logger.e("Erro ao carregar postos da escala: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Erro ao carregar postos da escala: $e")),
+        );
+      }
     }
   }
 
-  /// 🔹 **Agrupa a escala por Dia e Posto**
   Map<String, Map<String, List<String>>> _agruparEscala() {
     Map<String, Map<String, List<String>>> escalaAgrupada = {};
 
@@ -180,32 +210,16 @@ class _EscalaScreenState extends State<EscalaScreen> {
                 );
               }).toList(),
               onChanged: (value) {
-                setState(() {
-                  _idEscalaSelecionada = value;
-                  _filtrarPostosPorEscala(value!);
-                });
+                if (value != null) {
+                  setState(() {
+                    _idEscalaSelecionada = value;
+                    _filtrarPostosPorEscala(value);
+                  });
+                }
               },
               hint: const Text("Selecione uma escala"),
             ),
           ),
-
-          ElevatedButton(
-                  onPressed: () {
-                // Implementação futura do PDF
-              },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF003580),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    "Gerar PDF",
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
-                ),
-
           if (_escalaPronta.isNotEmpty) ...[
             Expanded(
               child: SingleChildScrollView(
@@ -235,6 +249,12 @@ class _EscalaScreenState extends State<EscalaScreen> {
                     ),
                   ],
                 ),
+              ),
+            ),
+          ] else ...[
+            const Expanded(
+              child: Center(
+                child: Text("Nenhuma escala carregada ou selecionada."),
               ),
             ),
           ],

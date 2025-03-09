@@ -1,7 +1,7 @@
 import 'package:escala_mobile/models/user_model.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // Importe o Provider
-import 'package:escala_mobile/services/auth_service.dart'; // Importe o AuthService
+import 'package:provider/provider.dart';
+import 'package:escala_mobile/services/auth_service.dart';
 import 'package:escala_mobile/screens/home/home_screen.dart';
 import 'package:escala_mobile/screens/login/primeiro_acesso_screen.dart';
 import 'package:escala_mobile/screens/login/esqueci_senha_screen.dart';
@@ -20,53 +20,67 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _senhaController = TextEditingController();
   String? _alertMessage;
 
-Future<void> _handleSubmit() async {
-  final String usuario = _usuarioController.text.trim();
-  final String senha = _senhaController.text.trim();
+  Future<void> _handleSubmit() async {
+    final String usuario = _usuarioController.text.trim();
+    final String senha = _senhaController.text.trim();
 
-  if (usuario.isEmpty || senha.isEmpty) {
-    setState(() {
-      _alertMessage = "Preencha todos os campos!";
-    });
-    return;
-  }
-
-  try {
-    final response = await AuthService.login(usuario, senha);
-
-    if (response["success"]) {
-      await AuthService.saveToken(response["token"]);
-
-      // 🛠️ Converte `matricula` para String para evitar erros
-      final String nomeUsuario = response["nomeUsuario"] ?? "Desconhecido";
-      final String matricula = response["matricula"].toString(); // Converte para string
-      final String idFuncionario = response["idFuncionario"] ?? ""; // Garantir string
-
-      // Atualiza o UserModel corretamente
-      final userModel = Provider.of<UserModel>(context, listen: false);
-      userModel.setUser(nomeUsuario, matricula, idFuncionario);
-
-      // Verifique se a HomeScreen está carregando corretamente
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
-    } else {
+    if (usuario.isEmpty || senha.isEmpty) {
       setState(() {
-        _alertMessage = response["message"];
+        _alertMessage = "Preencha todos os campos!";
+      });
+      return;
+    }
+
+    try {
+      final response = await AuthService.login(usuario, senha);
+
+      if (response["success"] == true) {
+        final String token = response["token"] as String;
+        final String refreshToken = response["refreshToken"] as String? ?? "";
+        
+        print("📥 Login bem-sucedido - Token recebido: $token");
+        print("📥 Login bem-sucedido - RefreshToken recebido: $refreshToken");
+
+        await AuthService.saveToken(token);
+        if (refreshToken.isNotEmpty) {
+          await AuthService.saveRefreshToken(refreshToken);
+        } else {
+          print("⚠️ RefreshToken está vazio ou não foi retornado pelo backend.");
+        }
+
+        final String nomeUsuario = response["nomeUsuario"] ?? "Desconhecido";
+        final String matricula = response["matricula"]?.toString() ?? "";
+        final String idFuncionario = response["idFuncionario"]?.toString() ?? "";
+
+        final userModel = Provider.of<UserModel>(context, listen: false);
+        userModel.setUser(
+          nomeUsuario,
+          matricula,
+          idFuncionario,
+          token: token,
+          refreshToken: refreshToken,
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      } else {
+        setState(() {
+          _alertMessage = response["message"] as String? ?? "Falha no login.";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _alertMessage = "Erro ao conectar com o servidor: $e";
       });
     }
-  } catch (e) {
-    setState(() {
-      _alertMessage = "Erro ao conectar com o servidor_pagina_login.";
-    });
   }
-}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FC), // Cor de fundo suave
+      backgroundColor: const Color(0xFFF7F9FC),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -140,7 +154,7 @@ Future<void> _handleSubmit() async {
               const SizedBox(height: 20),
               if (_alertMessage != null)
                 Container(
-                  margin: const EdgeInsets.only(bottom: 16),
+                  margin: const EdgeInsets.only(top: 16),
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: Colors.red[100],
@@ -216,5 +230,12 @@ Future<void> _handleSubmit() async {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _usuarioController.dispose();
+    _senhaController.dispose();
+    super.dispose();
   }
 }
