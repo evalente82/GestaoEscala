@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for back-delicate-water-7417 on 2025-03-09T17:41:53-03:00
+# fly.toml app configuration file generated for back-gestao-escala on 2025-03-09T19:56:12-03:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'back-delicate-water-7417'
+app = 'back-gestao-escala'
 primary_region = 'gig'
 
 [build]
