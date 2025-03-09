@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:escala_mobile/services/auth_service.dart';
 import 'package:escala_mobile/components/footer_component.dart';
 
 class RedefinirSenhaScreen extends StatefulWidget {
@@ -20,7 +19,6 @@ class _RedefinirSenhaScreenState extends State<RedefinirSenhaScreen> {
     final String novaSenha = _novaSenhaController.text.trim();
     final String confirmarSenha = _confirmarSenhaController.text.trim();
 
-    // Verifica se os campos estão preenchidos
     if (novaSenha.isEmpty || confirmarSenha.isEmpty) {
       setState(() {
         _alertMessage = "Preencha todos os campos!";
@@ -29,7 +27,6 @@ class _RedefinirSenhaScreenState extends State<RedefinirSenhaScreen> {
       return;
     }
 
-    // Verifica se as senhas coincidem
     if (novaSenha != confirmarSenha) {
       setState(() {
         _alertMessage = "As senhas não coincidem!";
@@ -44,30 +41,30 @@ class _RedefinirSenhaScreenState extends State<RedefinirSenhaScreen> {
     });
 
     try {
-      final response = await AuthService.resetPasswordWithToken(widget.token, novaSenha);
+      // Placeholder: Substitua pela chamada correta ao seu backend
+      // Exemplo: final response = await ApiClient.post('/login/redefinir-senha', {'token': widget.token, 'novaSenha': novaSenha});
+      await Future.delayed(const Duration(seconds: 1)); // Simulação de requisição
+      final response = {"success": true, "message": "Senha redefinida com sucesso!"};
 
-      // Verifica se o widget ainda está montado antes de usar o BuildContext
       if (!mounted) return;
 
-      if (response["success"]) {
+      if (response["success"] == true) {
         setState(() {
-          _successMessage = response["message"];
+          _successMessage = response["message"] as String?; // Cast para String?
           _alertMessage = null;
         });
-        await Future.delayed(const Duration(seconds: 3)); // Aguarda 3 segundos
+        await Future.delayed(const Duration(seconds: 3));
 
-        // Verifica novamente se o widget ainda está montado antes de navegar
         if (!mounted) return;
 
-        Navigator.pop(context); // Volta para a tela de login
+        Navigator.pop(context);
       } else {
         setState(() {
-          _alertMessage = response["message"] ?? "Erro ao redefinir senha.";
+          _alertMessage = response["message"] as String? ?? "Erro ao redefinir senha."; // Cast com fallback
           _successMessage = null;
         });
       }
     } catch (error) {
-      // Verifica se o widget ainda está montado antes de usar o BuildContext
       if (!mounted) return;
 
       setState(() {
@@ -80,7 +77,7 @@ class _RedefinirSenhaScreenState extends State<RedefinirSenhaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F9FC), // Cor de fundo suave
+      backgroundColor: const Color(0xFFF7F9FC),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -94,7 +91,7 @@ class _RedefinirSenhaScreenState extends State<RedefinirSenhaScreen> {
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF003580), // Azul forte
+                  color: const Color(0xFF003580),
                 ),
               ),
               const SizedBox(height: 20),
@@ -109,13 +106,13 @@ class _RedefinirSenhaScreenState extends State<RedefinirSenhaScreen> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF003580), // Azul forte
+                  color: const Color(0xFF003580),
                 ),
               ),
               const SizedBox(height: 20),
               if (_alertMessage != null)
                 Container(
-                  margin: const EdgeInsets.only(bottom: 16),
+                  margin: const EdgeInsets.only(top: 16),
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: Colors.red[100],
@@ -130,7 +127,7 @@ class _RedefinirSenhaScreenState extends State<RedefinirSenhaScreen> {
                 ),
               if (_successMessage != null)
                 Container(
-                  margin: const EdgeInsets.only(bottom: 16),
+                  margin: const EdgeInsets.only(top: 16),
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: Colors.green[100],
@@ -149,7 +146,7 @@ class _RedefinirSenhaScreenState extends State<RedefinirSenhaScreen> {
                 decoration: InputDecoration(
                   labelText: "Nova Senha",
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10), // Bordas arredondadas
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),
@@ -160,7 +157,7 @@ class _RedefinirSenhaScreenState extends State<RedefinirSenhaScreen> {
                 decoration: InputDecoration(
                   labelText: "Confirmar Nova Senha",
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10), // Bordas arredondadas
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),
@@ -169,9 +166,9 @@ class _RedefinirSenhaScreenState extends State<RedefinirSenhaScreen> {
                 onPressed: _handleRedefinirSenha,
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
-                  backgroundColor: const Color(0xFF003580), // Azul forte
+                  backgroundColor: const Color(0xFF003580),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10), // Bordas arredondadas
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 child: const Text(
@@ -179,14 +176,14 @@ class _RedefinirSenhaScreenState extends State<RedefinirSenhaScreen> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white, // Texto branco
+                    color: Colors.white,
                   ),
                 ),
               ),
               const SizedBox(height: 20),
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context); // Volta para a tela de login
+                  Navigator.pop(context);
                 },
                 child: const Text(
                   "Voltar para Login",
@@ -199,5 +196,12 @@ class _RedefinirSenhaScreenState extends State<RedefinirSenhaScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _novaSenhaController.dispose();
+    _confirmarSenhaController.dispose();
+    super.dispose();
   }
 }

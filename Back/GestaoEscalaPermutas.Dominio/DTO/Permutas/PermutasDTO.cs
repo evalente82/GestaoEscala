@@ -27,5 +27,7 @@ namespace GestaoEscalaPermutas.Dominio.DTO.Permutas
         public DateTime DtSolicitacao { get; set; }
         public DateTime DtDataSolicitadaTroca { get; set; }
         public DateTime? DtAprovacao { get; set; }
+        public DateTime? DtReprovacao { get; set; }
+        public string? NmStatus { get; set; }
     }
 }

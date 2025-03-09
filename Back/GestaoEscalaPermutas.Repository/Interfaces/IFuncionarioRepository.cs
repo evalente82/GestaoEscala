@@ -13,5 +13,10 @@ namespace GestaoEscalaPermutas.Repository.Interfaces
         Task<Funcionario[]> AdicionarListaAsync(Funcionario[] funcionarios);
         Task<bool> MatriculaExisteAsync(int nrMatricula);
         Task<bool> EmailExisteAsync(string email);
+
+        // Métodos para FCM Tokens
+        Task<string> GetFcmTokenAsync(Guid idFuncionario);
+        Task SaveFcmTokenAsync(Guid idFuncionario, string fcmToken);
+        Task<List<Funcionario>> ObterAdministradoresAsync();
     }
 }

@@ -79,7 +79,7 @@ function CargoPerfisList(props) {
         api
             .delete(`${API_URL}/deletar`, {
                 data: {
-                    idFuncionario: idCargo,
+                    idCargo: idCargo,
                     idPerfil: idPerfil,
                 },
             })

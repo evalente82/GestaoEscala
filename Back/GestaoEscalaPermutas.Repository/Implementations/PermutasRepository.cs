@@ -16,6 +16,9 @@ namespace GestaoEscalaPermutas.Repository.Implementations
 
         public async Task<Permuta> IncluirAsync(Permuta permuta)
         {
+            // Log para verificar o valor recebido
+            Console.WriteLine($"DtDataSolicitadaTroca no repositório: {permuta.DtDataSolicitadaTroca}");
+
             await _context.Permuta.AddAsync(permuta);
             await _context.SaveChangesAsync();
             return permuta;
@@ -56,6 +59,25 @@ namespace GestaoEscalaPermutas.Repository.Implementations
 
             return await _context.Permuta
                 .Where(p => p.IdFuncionarioSolicitante == idFuncionario)
+                .ToListAsync();
+        }
+        public async Task<List<Permuta>> BuscaSolicitacoesPorIdAsync(Guid idFuncionario)
+        {
+            if (idFuncionario == Guid.Empty)
+                return new List<Permuta>(); // Retorna uma lista vazia se o ID for inválido
+
+            return await _context.Permuta
+                .Where(p => p.IdFuncionarioSolicitante == idFuncionario || p.IdFuncionarioSolicitado == idFuncionario)
+                .ToListAsync();
+        }
+
+        public async Task<List<Permuta>> BuscarSolicitacoesFuncPorIdAsync(Guid idFuncionario)
+        {
+            if (idFuncionario == Guid.Empty)
+                return new List<Permuta>(); // Retorna uma lista vazia se o ID for inválido
+
+            return await _context.Permuta
+                .Where(p => p.IdFuncionarioSolicitado == idFuncionario && p.NmStatus == null)
                 .ToListAsync();
         }
 

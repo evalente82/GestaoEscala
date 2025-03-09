@@ -6,6 +6,8 @@ using GestaoEscalaPermutas.Dominio.Interfaces.Login;
 using GestaoEscalaPermutas.Dominio.DTO.Login;
 using GestaoEscalaPermutas.Server.Models.Login;
 using Microsoft.AspNetCore.Authorization;
+using GestaoEscalaPermutas.Server.Helper;
+using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
 
 namespace GestaoEscalaPermutas.Server.Controllers.Login
 {
@@ -16,11 +18,13 @@ namespace GestaoEscalaPermutas.Server.Controllers.Login
     {
         private readonly ILoginService _loginService;
         private readonly IMapper _mapper;
+        private readonly IFuncionarioService _funcionarioService;
 
-        public LoginController(ILoginService loginService, IMapper mapper)
+        public LoginController(ILoginService loginService, IMapper mapper, IFuncionarioService funcionarioService)
         {
             _loginService = loginService;
             _mapper = mapper;
+            _funcionarioService = funcionarioService;
         }
 
         [AllowAnonymous]
@@ -48,7 +52,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.Login
             var loginResponse = await _loginService.Autenticar(loginRequest);
 
             return loginResponse.Valido
-                ? Ok(loginResponse)
+                ? Ok(loginResponse) // Retorna token e refreshToken
                 : BadRequest(loginResponse);
         }
 
@@ -73,5 +77,33 @@ namespace GestaoEscalaPermutas.Server.Controllers.Login
             return resultado.Valido ? Ok(new { mensagem = resultado.Mensagem }) : BadRequest(new { mensagem = resultado.Mensagem });
         }
 
+        [AllowAnonymous]
+        [HttpPost("refresh")]
+        public async Task<ActionResult> Refresh([FromBody] RefreshTokenRequestDTO request)
+        {
+            var response = await _loginService.RefreshToken(request.RefreshToken);
+            return response.Valido ? Ok(response) : BadRequest(response);
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("updateFcmToken")]
+        public async Task<IActionResult> UpdateFcmToken([FromBody] UpdateFcmTokenRequestDTO request)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(request.IdFuncionario) || string.IsNullOrEmpty(request.FcmToken))
+                    return BadRequest(new { Mensagem = "IdFuncionario ou FcmToken inválidos" });
+
+                Guid idFuncionario = Guid.Parse(request.IdFuncionario); // Converter string para Guid
+                await _funcionarioService.SaveFcmTokenAsync(idFuncionario, request.FcmToken);
+                return Ok(new { Mensagem = "FCM Token atualizado com sucesso" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao atualizar FCM Token: {ex.Message}");
+                return BadRequest(new { Mensagem = $"Erro ao atualizar FCM Token: {ex.Message}" });
+            }
+        }
     }
 }

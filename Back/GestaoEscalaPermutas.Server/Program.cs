@@ -18,7 +18,6 @@ using GestaoEscalaPermutas.Dominio.Interfaces.Permutas;
 using GestaoEscalaPermutas.Dominio.Services.Permutas;
 using GestaoEscalaPermutas.Dominio.Interfaces.Login;
 using GestaoEscalaPermutas.Dominio.Services.Login;
-using GestaoEscalaPermutas.Server.Profiles;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -40,6 +39,11 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Authorization;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
+using GestaoEscalaPermutas.Dominio.Services.Mensageria;
+using GestaoEscalaPermutas.Dominio.Interfaces.Mensageria;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
+using GestaoEscalaPermutas.Dominio.Mapping;
 
 
 var cultureInfo = new CultureInfo("pt-BR");
@@ -97,7 +101,13 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-#region Ije��o de dependencias
+// Configurar Firebase Admin SDK
+FirebaseApp.Create(new AppOptions()
+{
+    Credential = GoogleCredential.FromFile(Path.Combine(Directory.GetCurrentDirectory(), "firebase-adminsdk.json"))
+});
+
+#region Injecao de dependencias
 builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddDbContext<DefesaCivilMaricaContext>(options =>
@@ -124,16 +134,28 @@ builder.Services.AddScoped<ICargoPerfisService, CargoPerfisService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISetorService, SetorService>();
 builder.Services.AddRepositoryServices();
+builder.Services.AddHostedService<PermutasMessageConsumer>();
 #endregion
 
 
-//builder.Services.AddSingleton<IMessageBus>(sp =>
-//{
-//    var configuration = sp.GetRequiredService<IConfiguration>();
-//    var hostName = configuration["RabbitMQ:HostName"];
-//    return new RabbitMqMessageBus(hostName);
-//});
-//builder.Services.AddHostedService<UsuarioMessageConsumer>();
+builder.Services.AddSingleton<IMessageBus>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var hostName = configuration["RabbitMQ:HostName"] ?? "localhost";
+
+    Console.WriteLine($"Tentando conectar ao RabbitMQ no host: {hostName}");
+
+    try
+    {
+        return new RabbitMqMessageBus(hostName);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Erro ao conectar ao RabbitMQ: {ex.Message}");
+        throw; // Relança para que o erro seja visível no startup
+    }
+});
+builder.Services.AddHostedService<UsuarioMessageConsumer>();
 
 
 // Definir ambiente de produção
@@ -155,11 +177,12 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>
             policy.WithOrigins(
-            "https://front-gestao-175014489605.southamerica-east1.run.app",
-            "https://gestao-escala-back-175014489605.southamerica-east1.run.app"
-            //"http://192.168.0.2:7207", // Backend local
-            //"http://10.0.2.2:7207",   // Emulador Android
-            //"http://localhost:5173"   // Frontend
+            //"https://front-gestao-175014489605.southamerica-east1.run.app",
+            //"https://gestao-escala-back-175014489605.southamerica-east1.run.app"
+            "http://192.168.0.2:7207", // Backend local
+            "http://10.0.2.2:7207",   // Emulador Android
+            "http://localhost:5173",   // Frontend
+            "http://localhost:8080"   // Swagger local
             )
             .AllowAnyMethod()
             .AllowAnyHeader()
@@ -198,7 +221,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.WebHost.ConfigureKestrel(serverOptions =>
 {
-    serverOptions.ListenAnyIP(8080); // Isso permite conexões de qualquer IP
+    serverOptions.ListenAnyIP(7207); // Isso permite conexões de qualquer IP
 });
 
 //gerarChave teste = new();

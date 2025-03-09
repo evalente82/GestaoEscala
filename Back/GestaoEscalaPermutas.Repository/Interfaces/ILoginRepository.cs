@@ -51,5 +51,9 @@ namespace GestaoEscalaPermutas.Repository.Interfaces
 
         Task<Usuarios> ObterUsuarioComPerfilEPermissoesAsync(string email);
         Task<Funcionario> ObterFuncionarioComCargoEPermissoesAsync(string email);
+
+        Task<Usuarios> ObterUsuarioPorRefreshTokenAsync(string refreshToken);
+
+        Task<Usuarios> ObterUsuarioPorIdAsync(Guid idUsuario); 
     }
 }

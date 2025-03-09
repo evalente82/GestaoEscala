@@ -304,8 +304,7 @@ export function Exibicao() {
         } catch (error) {
             console.error("❌ Erro na requisição:", error.response?.data || error.message);
         }
-    };
-    
+    };    
     
     function obterNomeMes(numeroMes) {
         const meses = [

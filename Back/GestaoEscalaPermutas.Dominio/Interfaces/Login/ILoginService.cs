@@ -13,5 +13,7 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.Login
         Task<LoginResponseDTO> Incluir(LoginDTO loginDTO);
         Task<LoginResponseDTO> GerarTokenRedefinicaoSenha(string email);
         Task<LoginResponseDTO> RedefinirSenha(RedefinirSenhaRequestDTO request);
+        Task<LoginResponseDTO> RefreshToken(string refreshToken);
+        Task<LoginResponseDTO> UpdateFcmToken(UpdateFcmTokenRequestDTO request);
     }
 }

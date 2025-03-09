@@ -10,5 +10,7 @@ namespace GestaoEscalaPermutas.Repository.Interfaces
         Task<List<Permuta>> BuscarTodosAsync();
         Task<bool> DeletarAsync(Guid idPermuta);
         Task<List<Permuta>> BuscarFuncPorIdAsync(Guid idFuncionario);
+        Task<List<Permuta>> BuscarSolicitacoesFuncPorIdAsync(Guid idFuncionario);
+        Task<List<Permuta>> BuscaSolicitacoesPorIdAsync(Guid idFuncionario);
     }
 }
