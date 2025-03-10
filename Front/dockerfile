@@ -2,28 +2,20 @@
 FROM node:18 AS build
 WORKDIR /app
 
-# Copiar arquivos do projeto
-COPY package.json package-lock.json ./
+# Definir a variável de ambiente no build
+ENV VITE_BACKEND_API=https://back-gestao-escala.fly.dev
 
-# Garantir que as versões corretas sejam instaladas
+COPY package.json ./
 RUN npm install --legacy-peer-deps
-
-# Copiar todos os arquivos restantes
 COPY . .
-
-# Verificar se o Vite está instalado
 RUN npx vite --version
-
-# Build do projeto
 RUN npm run build
 
 # Etapa 2: Criar a imagem final
 FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Configurar a porta dinâmica
 ENV PORT=8080
 EXPOSE $PORT
 
-# Iniciar o servidor Nginx configurado para a porta dinâmica
-CMD sed -i "s/80/$PORT/g" /etc/nginx/conf.d/default.conf && nginx -g "daemon off;"
+CMD echo "Iniciando Nginx na porta $PORT" && sed -i "s/80/$PORT/g" /etc/nginx/conf.d/default.conf && nginx -g "daemon off;"

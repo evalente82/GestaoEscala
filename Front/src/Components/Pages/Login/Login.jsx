@@ -13,6 +13,7 @@ function Login() {
     const { login } = useAuth(); // 🔹 Obtém o método `login` do contexto
 
     const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
+    console.log("🔹 API_BASE_URL:", API_BASE_URL);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
