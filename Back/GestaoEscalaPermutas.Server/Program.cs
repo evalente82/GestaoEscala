@@ -44,6 +44,9 @@ using GestaoEscalaPermutas.Dominio.Interfaces.Mensageria;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using GestaoEscalaPermutas.Dominio.Mapping;
+using Microsoft.Extensions.DependencyInjection;
+using RabbitMQ.Client;
+using FirebaseAdmin.Messaging;
 
 
 var cultureInfo = new CultureInfo("pt-BR");
@@ -141,20 +144,44 @@ builder.Services.AddHostedService<PermutasMessageConsumer>();
 builder.Services.AddSingleton<IMessageBus>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
-    var hostName = configuration["RabbitMQ:HostName"] ?? "localhost";
 
-    Console.WriteLine($"Tentando conectar ao RabbitMQ no host: {hostName}");
+    // Priorizar variáveis de ambiente do Fly.io sobre appsettings
+    var hostName = Environment.GetEnvironmentVariable("RABBITMQ_HOSTNAME") ?? configuration["RabbitMQ:HostName"] ?? "localhost";
+    var userName = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? configuration["RabbitMQ:UserName"] ?? "guest";
+    var password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? configuration["RabbitMQ:Password"] ?? "guest";
+    var portStr = Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? configuration["RabbitMQ:Port"] ?? "5672";
+    var vhost = Environment.GetEnvironmentVariable("RABBITMQ_VHOST") ?? configuration["RabbitMQ:VirtualHost"] ?? "/";
+
+    // Converter porta para int com tratamento de erro
+    if (!int.TryParse(portStr, out int port))
+    {
+        port = 5672; // Porta padrão do RabbitMQ
+        Console.WriteLine($"Porta inválida '{portStr}'. Usando padrão: 5672.");
+    }
+
+    Console.WriteLine($"Tentando conectar ao RabbitMQ - Host: {hostName}, User: {userName}, Port: {port}, VHost: {vhost}");
 
     try
     {
-        return new RabbitMqMessageBus(hostName);
+        var factory = new ConnectionFactory
+        {
+            HostName = hostName,
+            UserName = userName,
+            Password = password,
+            Port = port,
+            VirtualHost = vhost
+        };
+        var connection = factory.CreateConnection();
+        Console.WriteLine("Conexão com RabbitMQ estabelecida com sucesso!");
+        return new RabbitMqMessageBus(connection); // Passe a conexão, não apenas o hostname
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Erro ao conectar ao RabbitMQ: {ex.Message}");
-        throw; // Relança para que o erro seja visível no startup
+        Console.WriteLine($"Erro ao conectar ao RabbitMQ: {ex.Message}. Continuando sem mensageria.");
+        return null; // Fallback para evitar crash
     }
 });
+
 builder.Services.AddHostedService<UsuarioMessageConsumer>();
 
 
@@ -177,9 +204,14 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>
             policy.WithOrigins(
+            //"https://front-gestao-escala.fly.dev",
+            //"http://192.168.0.4:8080", // Backend local
+            //"http://10.0.2.2:8080",   // Emulador Android
+            //"http://localhost:5173",   // Frontend
+            //"http://localhost:8080"   // Swagger local
             "http://192.168.0.4:7207", // Backend local
             "http://10.0.2.2:7207",   // Emulador Android
-            "http://localhost:5173",   // Frontend
+            "http://localhost:5174",   // Frontend
             "http://localhost:8080"   // Swagger local
             )
             .AllowAnyMethod()
@@ -187,7 +219,10 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
-// Configurar autentica��o JWT
+
+
+
+// Configurar autenticação JWT
 var chaveSecreta = "g9h0N7quw2S8mJAF8LKxUF0Os3leG+NDJoypOcWohOEa"; // Mesma chave usada no LoginService
 
 builder.Services.AddAuthentication(options =>
@@ -244,6 +279,7 @@ try
     app.UseRouting();
 
     app.UseCors("AllowSpecificOrigin");
+    Console.WriteLine(app.UseCors("AllowSpecificOrigin"));
 
     app.UseAuthentication();
     app.UseAuthorization();
