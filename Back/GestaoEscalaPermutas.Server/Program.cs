@@ -203,17 +203,18 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>
             policy.WithOrigins(
-            "http://192.168.0.4:8080", // Backend local
-            "http://10.0.2.2:8080",   // Emulador Android
-            "http://localhost:5173",   // Frontend
-            "http://localhost:8080"   // Swagger local
+            "https://front-gestao-escala.fly.dev/"
+            //"http://192.168.0.4:8080", // Backend local
+            //"http://10.0.2.2:8080",   // Emulador Android
+            //"http://localhost:5173",   // Frontend
+            //"http://localhost:8080"   // Swagger local
             )
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
 });
 
-// Configurar autentica��o JWT
+// Configurar autenticação JWT
 var chaveSecreta = "g9h0N7quw2S8mJAF8LKxUF0Os3leG+NDJoypOcWohOEa"; // Mesma chave usada no LoginService
 
 builder.Services.AddAuthentication(options =>
