@@ -20,3 +20,10 @@
     width: 100px; /* Ajuste a largura conforme necess�rio */
     height: auto; /* A altura ser� ajustada automaticamente */
 }
+
+/* Adicione no arquivo NavBar.css */
+.dropdown-item svg {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px; /* Espaçamento entre a bandeira e o texto */
+}
