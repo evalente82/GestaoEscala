@@ -1,3 +1,5 @@
+import 'package:escala_mobile/services/ApiClient.dart';
+import 'package:escala_mobile/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:escala_mobile/components/footer_component.dart';
 
@@ -57,8 +59,7 @@ class _PrimeiroAcessoScreenState extends State<PrimeiroAcessoScreen> {
     try {
       // Placeholder: Substitua pela chamada correta ao seu backend
       // Exemplo: final response = await ApiClient.post('/login/Incluir', {'usuario': usuario, 'senha': senha});
-      await Future.delayed(const Duration(seconds: 1)); // Simulação de requisição
-      final response = {"success": true, "message": "Cadastro realizado com sucesso!"};
+      final response = await ApiClient.post('/login/Incluir', {'usuario': usuario, 'senha': senha});
 
       if (!mounted) return;
 

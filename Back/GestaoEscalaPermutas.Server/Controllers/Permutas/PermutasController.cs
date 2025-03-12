@@ -13,6 +13,8 @@ using GestaoEscalaPermutas.Server.Models.Funcionarios;
 using GestaoEscalaPermutas.Dominio.Interfaces.Mensageria;
 using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
 using FirebaseAdmin.Messaging;
+using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
+using System.Security.Claims;
 
 namespace GestaoEscalaPermutas.Server.Controllers.Permutas
 {
@@ -227,9 +229,13 @@ namespace GestaoEscalaPermutas.Server.Controllers.Permutas
                 return BadRequest(new RetornoModel { Valido = false, Mensagem = permuta.mensagem });
             }
 
+            //permuta.IdFuncionarioAprovador = User.Identity.Name;
             permuta.NmNomeAprovador = User.Identity.Name;
             permuta.DtAprovacao = DateTime.UtcNow;
             permuta.NmStatus = "Aprovada";
+            Claim idFunc = User.Claims.FirstOrDefault(x => x.Type.Contains("IdFuncionario"));
+
+            permuta.IdFuncionarioAprovador = idFunc != null ? Guid.Parse(idFunc.Value) : null;
             var permutaAtualizada = await _permutasService.Alterar(idPermuta, permuta);
 
             if (permutaAtualizada.valido)

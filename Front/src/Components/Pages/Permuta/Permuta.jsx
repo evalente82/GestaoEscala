@@ -7,6 +7,7 @@ import AlertPopup from '../AlertPopup/AlertPopup';
 import Select from 'react-select';
 import { useAuth } from "../AuthContext";
 import api from "./../axiosConfig";
+import './Permuta.css';
 
 
 function PermutaList(props) {
@@ -79,6 +80,34 @@ function PermutaList(props) {
         });
     }
 
+    function handleAprovar(id) {
+        setAlertProps({
+            show: true,
+            type: "confirm",
+            title: "Confirmar Aprovação",
+            message: "Tem certeza que deseja Aprovar esta Permuta?",
+            onConfirm: () => {
+                AprovarPermuta(id);
+                setAlertProps((prev) => ({ ...prev, show: false })); // Fecha o AlertPopup após confirmar
+            },
+            onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
+        });
+    }
+
+    function handleReprovar(id) {
+        setAlertProps({
+            show: true,
+            type: "confirm",
+            title: "Confirmar Reprovação",
+            message: "Tem certeza que deseja Reprovar esta Permuta?",
+            onConfirm: () => {
+                ReprovarPermuta(id);
+                setAlertProps((prev) => ({ ...prev, show: false })); // Fecha o AlertPopup após confirmar
+            },
+            onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
+        });
+    }
+
     function DeletePermuta(idPermuta) {
         api
         .delete(`${API_BASE_URL}/permutas/Deletar/${idPermuta}`)
@@ -102,10 +131,72 @@ function PermutaList(props) {
                     type: "error",
                     title: "Erro",
                     message: "Falha ao excluir o registro.",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })
+                ),
+            });
+            console.error(error);
+        });
+    }
+
+    function AprovarPermuta(idPermuta) {
+        console.log(`${API_BASE_URL}/permutas/Aprovar/${idPermuta}`)
+        api
+        .put(`${API_BASE_URL}/permutas/Aprovar/${idPermuta}`)
+            .then((response) => {
+                console.log(response);
+                setPermuta(
+                    permuta.filter((p) => p.id !== idPermuta)
+                );
+                BuscarTodos();
+                setAlertProps({
+                    show: true,
+                    type: "success",
+                    title: "Sucesso",
+                    message: "Permuta Autorizada com sucesso!",
                     onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
                 });
-                console.error(error);
+            })
+            .catch((error) => {
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Falha ao Autorizar a Permuta.",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })
+                ),
             });
+            console.error(error);
+        });
+    }
+
+    function ReprovarPermuta(idPermuta) {
+        api
+        .put(`${API_BASE_URL}/permutas/Recusar/${idPermuta}`)
+            .then((response) => {
+                console.log(response);
+                setPermuta(
+                    permuta.filter((p) => p.id !== idPermuta)
+                );
+                BuscarTodos();
+                setAlertProps({
+                    show: true,
+                    type: "success",
+                    title: "Sucesso",
+                    message: "Permuta Recusada com sucesso!",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
+            })
+            .catch((error) => {
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Falha ao Recusar a Permuta.",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })
+                ),
+            });
+            console.error(error);
+        });
     }
     
     const filteredRecords = filterRecords(permuta);
@@ -165,32 +256,52 @@ function formatarData(dataISO) {
              <table className="table">
                 <thead>
                     <tr>
-                        <th>NOME SOLICITANTE</th>
-                        <th>NOME SOLICITADO</th>
-                        <th>DATA TROCA</th>
-                        <th>DATA SOLICITAÇÃO</th>
-                        <th>NOME APROVADOR</th>
-                        <th>DATA APROVAÇÃO</th>
-                        <th>NOME ESCALA</th>
+                        <th style={{ width: '15%' }}>NOME SOLICITANTE</th>
+                        <th style={{ width: '15%' }}>NOME SOLICITADO</th>
+                        <th style={{ width: '10%' }}>DATA TROCA</th>
+                        <th style={{ width: '8%' }}>DATA SOLICITAÇÃO</th>
+                        <th style={{ width: '12%' }}>APROVADOR / REPROVADOR</th>
+                        <th style={{ width: '8%' }}>DATA APROVAÇÃO</th>
+                        <th style={{ width: '8%' }}>DATA REPROVAÇÃO</th>
+                        <th style={{ width: '15%' }}>NOME ESCALA</th>
                     </tr>
                 </thead>
                 <tbody>
                     {filteredRecords.map((p, index) => (
                         <tr key={index}>
-                            <td style={{ textAlign: "left" }}>{p.nmNomeSolicitante}</td>
-                            <td style={{ textAlign: "left" }}>{p.nmNomeSolicitado}</td>
-                            <td style={{ textAlign: "left" }}>{formatarData(p.dtDataSolicitadaTroca)}</td>
-                            <td style={{ textAlign: "left" }}>{formatarData(p.dtSolicitacao)}</td>
-                            <td style={{ textAlign: "left" }}>{p.nmNomeAprovador}</td>
-                            <td style={{ textAlign: "left" }}>{formatarData(p.dtAprovacao)}</td>
-                            <td style={{ textAlign: "left" }}>{escalas.find((e) => e.idEscala === p.idEscala)?.nmNomeEscala || "Escala não encontrada"}</td>
+                            <td style={{ textAlign: "left", width: '15%' }}>{p.nmNomeSolicitante}</td>
+                            <td style={{ textAlign: "left", width: '15%' }}>{p.nmNomeSolicitado}</td>
+                            <td style={{ textAlign: "left", width: '10%' }}>{formatarData(p.dtDataSolicitadaTroca)}</td>
+                            <td style={{ textAlign: "left", width: '8%' }}>{formatarData(p.dtSolicitacao)}</td>
+                            <td style={{ textAlign: "left", width: '12%' }}>{p.nmNomeAprovador}</td>
+                            <td style={{ textAlign: "left", width: '8%' }}>{formatarData(p.dtAprovacao)}</td>
+                            <td style={{ textAlign: "left", width: '8%' }}>{formatarData(p.dtReprovacao)}</td>
+                            <td style={{ textAlign: "left", width: '15%' }}>{escalas.find((e) => e.idEscala === p.idEscala)?.nmNomeEscala || "Escala não encontrada"}</td>
                             <td style={{ width: "10px", whiteSpace: "nowrap" }}>
                             {/* Botão Editar - Aparece apenas para quem tem "EditarPermuta" */}
                             {possuiPermissao("EditarPermuta") && (
                                     <button
+                                        onClick={() => handleAprovar(p.idPermuta)}
+                                        type="button"
+                                        className="btn btn-success btn-sm me-2 botaoPequeno"
+                                    >
+                                        Aprovar
+                                    </button>
+                                )}
+                                {possuiPermissao("EditarPermuta") && (
+                                    <button
+                                        onClick={() => handleReprovar(p.idPermuta)}
+                                        type="button"
+                                        className="btn btn-warning btn-sm me-2 botaoPequeno"
+                                    >
+                                        Reprovar
+                                    </button>
+                                )}
+                                {possuiPermissao("EditarPermuta") && (
+                                    <button
                                         onClick={() => props.ShowForm(p)}
                                         type="button"
-                                        className="btn btn-primary btn-sm me-2"
+                                        className="btn btn-primary btn-sm me-2 botaoPequeno"
                                     >
                                         Editar
                                     </button>
@@ -200,7 +311,7 @@ function formatarData(dataISO) {
                                     <button
                                         onClick={() => handleDelete(p.idPermuta)}
                                         type="button"
-                                        className="btn btn-danger btn-sm"
+                                        className="btn btn-danger btn-sm botaoPequeno"
                                     >
                                         Deletar
                                     </button>

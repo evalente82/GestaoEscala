@@ -91,7 +91,7 @@ function FuncionarioList(props) {
 
     function DeleteFuncionario(idFuncionario) {
         api
-        .delete(`https://localhost:7207/funcionario/Deletar/${idFuncionario}`)
+        .delete(`${API_URL}/Deletar/${idFuncionario}`)
             .then((response) => {
                 console.log(response);
                 setFuncionario(

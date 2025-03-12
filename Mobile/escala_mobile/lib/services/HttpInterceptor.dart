@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart'; // Adicione esta linha
 
 class ApiClient {
-  static const String baseUrl = "https://back-gestao-escala.fly.dev";
+  static const String baseUrl = "http://192.168.0.4:7207";
 
   static Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();

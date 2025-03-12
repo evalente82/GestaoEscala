@@ -138,22 +138,6 @@ function NavBar() {
                             </ul>
                         )}
                         <ul className="navbar-nav">
-                            {/* Dropdown do usuário */}
-                            <li className="nav-item dropdown">
-                                <a className="nav-link dropdown-toggle text-dark" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                                    {primeiroNome || t("Usuário")}
-                                </a>
-                                <ul className="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <button className="dropdown-item text-danger" onClick={() => {
-                                            localStorage.clear();
-                                            navigate("/");
-                                        }}>
-                                            {t("Sair")}
-                                        </button>
-                                    </li>
-                                </ul>
-                            </li>
                             {/* Seletor de idiomas */}
                             <li className="nav-item dropdown">
                                 <a className="nav-link dropdown-toggle text-dark" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown">
@@ -187,7 +171,24 @@ function NavBar() {
                                         </button>
                                     </li>
                                 </ul>
-                            </li>                            
+                            </li>
+
+                            {/* Dropdown do usuário */}
+                            <li className="nav-item dropdown">
+                                <a className="nav-link dropdown-toggle text-dark" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                    {primeiroNome || t("Usuário")}
+                                </a>
+                                <ul className="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <button className="dropdown-item text-danger" onClick={() => {
+                                            localStorage.clear();
+                                            navigate("/");
+                                        }}>
+                                            {t("Sair")}
+                                        </button>
+                                    </li>
+                                </ul>
+                            </li>
                         </ul>
                     </div>
                 </div>
