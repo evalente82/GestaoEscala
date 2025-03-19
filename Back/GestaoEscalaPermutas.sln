@@ -19,6 +19,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Repositorio", "Repositorio"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestaoEscalaPermutas.Repository", "GestaoEscalaPermutas.Repository\GestaoEscalaPermutas.Repository.csproj", "{F7CD6AD2-7BB1-4066-BC30-A6E8F18BA348}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestaoEscalaPermutas.Tests", "GestaoEscalaPermutas.Tests\GestaoEscalaPermutas.Tests.csproj", "{6AAA5784-25EE-4BED-8648-AD2A667DCE02}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{8AFB58BB-7105-4AD1-A72F-C20BE69F7A0F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +45,10 @@ Global
 		{F7CD6AD2-7BB1-4066-BC30-A6E8F18BA348}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F7CD6AD2-7BB1-4066-BC30-A6E8F18BA348}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F7CD6AD2-7BB1-4066-BC30-A6E8F18BA348}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6AAA5784-25EE-4BED-8648-AD2A667DCE02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6AAA5784-25EE-4BED-8648-AD2A667DCE02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6AAA5784-25EE-4BED-8648-AD2A667DCE02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6AAA5784-25EE-4BED-8648-AD2A667DCE02}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,6 +58,7 @@ Global
 		{C071F66A-485A-4380-9EC9-293905540D1D} = {F85544CA-B361-49DE-AE27-D62072EF4698}
 		{D8B4212D-4A66-4B9B-BEE0-1452876A5C42} = {7C5C2EA6-6B59-4B5C-BDB2-8E8929E4E93A}
 		{F7CD6AD2-7BB1-4066-BC30-A6E8F18BA348} = {551E57A7-8929-45CC-A72B-F35CC9218F40}
+		{6AAA5784-25EE-4BED-8648-AD2A667DCE02} = {8AFB58BB-7105-4AD1-A72F-C20BE69F7A0F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {ABE64A0E-55F5-4AE6-BB26-0267663CC3A7}

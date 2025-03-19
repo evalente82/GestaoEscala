@@ -50,21 +50,20 @@ public partial class DefesaCivilMaricaContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        if (!optionsBuilder.IsConfigured) // Só configura se não houver configuração prévia
+        {
+            var hostEnvironment = Host.CreateDefaultBuilder().Build().Services.GetRequiredService<IHostEnvironment>();
+            IConfiguration configuration = new ConfigurationBuilder()
+                .SetBasePath(hostEnvironment.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: true)
+                .AddJsonFile($"appsettings.{hostEnvironment.EnvironmentName}.json", optional: true)
+                .AddEnvironmentVariables()
+                .Build();
 
-        var hostEnvironment = Host.CreateDefaultBuilder().Build().Services.GetRequiredService<IHostEnvironment>();
-
-        IConfiguration configuration = new ConfigurationBuilder()
-            .SetBasePath(hostEnvironment.ContentRootPath)
-            .AddJsonFile("appsettings.json", optional: true)
-            .AddJsonFile($"appsettings.{hostEnvironment.EnvironmentName}.json", optional: true)
-            .AddEnvironmentVariables()
-            .Build();
-
-        var connStringEmUso = configuration.GetConnectionString("EmUso");
-
-        optionsBuilder.UseNpgsql(connStringEmUso);
+            var connStringEmUso = configuration.GetConnectionString("EmUso");
+            optionsBuilder.UseNpgsql(connStringEmUso);
+        }
     }
-
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
