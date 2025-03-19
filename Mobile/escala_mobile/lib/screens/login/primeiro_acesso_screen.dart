@@ -1,5 +1,4 @@
 import 'package:escala_mobile/services/ApiClient.dart';
-import 'package:escala_mobile/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:escala_mobile/components/footer_component.dart';
 

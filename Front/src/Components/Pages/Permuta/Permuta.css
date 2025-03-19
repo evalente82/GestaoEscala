@@ -3,3 +3,11 @@
     padding: 0.1rem 0.3rem;
     font-size: 0.8rem;
 }
+
+.form-check {
+    margin-right: 15px;
+}
+
+.form-check-input {
+    margin-right: 5px;
+}

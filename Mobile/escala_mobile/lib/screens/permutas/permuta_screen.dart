@@ -484,7 +484,7 @@ class _PermutaScreenState extends State<PermutaScreen> {
                             DataCell(
                               Container(
                                 alignment: Alignment.center,
-                                child: p["nmStatus"] == "Recusada"
+                                child: p["nmStatus"] == "RecusadaSolicitado"
                                     ? Icon(Icons.close, color: Colors.red, size: 20)
                                     : Checkbox(
                                         value: p["nmStatus"] != null && (p["nmStatus"] == "AprovadaSolicitado" || p["nmStatus"] == "Aprovada"),
@@ -501,7 +501,12 @@ class _PermutaScreenState extends State<PermutaScreen> {
                             DataCell(
                               Container(
                                 alignment: Alignment.center,
-                                child: Checkbox(value: p["aprovado"], onChanged: null),
+                                child: p["nmStatus"] == "Recusada"
+                                    ? Icon(Icons.close, color: Colors.red, size: 20)
+                                    : Checkbox(
+                                        value: p["nmStatus"] != null && (p["nmStatus"] == "Aprovada"),
+                                        onChanged: null,
+                                      ),
                               ),
                             ),
                           ]);

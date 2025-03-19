@@ -190,7 +190,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.Permutas
                 return BadRequest(new RetornoModel { Valido = false, Mensagem = permuta.mensagem });
             }
 
-            permuta.NmStatus = "Recusada";
+            permuta.NmStatus = "RecusadaSolicitado";
             //permuta.DtReprovacao = DateTime.Now;
             var permutaAtualizada = await _permutasService.Alterar(idPermuta, permuta);
 

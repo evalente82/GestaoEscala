@@ -9,7 +9,6 @@ import { useAuth } from "../AuthContext";
 import api from "./../axiosConfig";
 import './Permuta.css';
 
-
 function PermutaList(props) {
     const [searchText, setSearchText] = useState("");
     const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
@@ -18,13 +17,21 @@ function PermutaList(props) {
     const { permissoes } = useAuth();
     const possuiPermissao = (permissao) => permissoes.includes(permissao);
 
+    // Estado para os filtros de status
+    const [statusFilters, setStatusFilters] = useState({
+        aguardandoSolicitado: false, // null
+        aguardandoChefia: false,     // AprovadaSolicitado
+        aprovadas: false,            // Aprovada
+        recusadas: false,            // Recusada e RecusadaSolicitado
+    });
+
     const [alertProps, setAlertProps] = useState({
-        show: false, // Exibe ou esconde o AlertPopup
-        type: "info", // Tipo de mensagem (success, error, confirm, info)
-        title: "", // Título da modal
-        message: "", // Mensagem da modal
-        onConfirm: null, // Callback para ações de confirmação (opcional)
-        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
+        show: false,
+        type: "info",
+        title: "",
+        message: "",
+        onConfirm: null,
+        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
     });
     const API_URL = `${API_BASE_URL}/permutas`;
 
@@ -40,15 +47,16 @@ function PermutaList(props) {
                     type: "error",
                     title: "Erro",
                     message: "Não foi possível carregar os Permutas.",
-                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
                 });
             });
     }
+
     function BuscarEscalas() {
         api.get(`${API_BASE_URL}/escala/buscarTodos`)
             .then((response) => {
                 console.log("Escalas carregadas:", response.data);
-                setEscalas(response.data); // Armazena as escalas no estado
+                setEscalas(response.data);
             })
             .catch((error) => {
                 console.error("Erro ao carregar escalas:", error);
@@ -56,15 +64,56 @@ function PermutaList(props) {
     }
 
     useEffect(() => {
-        // Chamando a função BuscarTodos dentro de useEffect
         BuscarTodos();
         BuscarEscalas();
     }, []);
 
-    PermutaList.propTypes = {
-        ShowForm: PropTypes.func.isRequired, // Indica que ShowForm é uma função obrigatória
+    // Função para manipular a mudança nos checkboxes
+    const handleStatusFilterChange = (filter) => {
+        setStatusFilters((prev) => ({
+            ...prev,
+            [filter]: !prev[filter],
+        }));
     };
-        
+
+    // Função para filtrar os registros com base no texto de busca e nos filtros de status
+    function filterRecords(records) {
+        let filtered = records;
+
+        // Aplicar filtro de status
+        const activeFilters = Object.values(statusFilters).some((v) => v);
+        if (activeFilters) {
+            filtered = filtered.filter((record) => {
+                if (statusFilters.aguardandoSolicitado && record.nmStatus === null) return true;
+                if (statusFilters.aguardandoChefia && record.nmStatus === "AprovadaSolicitado") return true;
+                if (statusFilters.aprovadas && record.nmStatus === "Aprovada") return true;
+                if (statusFilters.recusadas && (record.nmStatus === "Recusada" || record.nmStatus === "RecusadaSolicitado")) return true;
+                return false;
+            });
+        }
+
+        // Aplicar filtro de texto
+        if (searchText) {
+            const search = searchText.toLowerCase();
+            filtered = filtered.filter((record) => (
+                record.nmNomeSolicitante?.toLowerCase().includes(search) ||
+                record.nmNomeSolicitado?.toLowerCase().includes(search) ||
+                record.dtDataSolicitadaTroca?.toLowerCase().includes(search) ||
+                record.dtSolicitacao?.toLowerCase().includes(search)
+            ));
+        }
+
+        return filtered;
+    }
+
+    function formatarData(dataISO) {
+        if (!dataISO) return "";
+        const data = new Date(dataISO);
+        const dia = String(data.getUTCDate()).padStart(2, "0");
+        const mes = String(data.getUTCMonth() + 1).padStart(2, "0");
+        const ano = data.getUTCFullYear();
+        return `${dia}-${mes}-${ano}`;
+    }
 
     function handleDelete(id) {
         setAlertProps({
@@ -73,10 +122,10 @@ function PermutaList(props) {
             title: "Confirmar exclusão",
             message: "Tem certeza que deseja excluir este registro?",
             onConfirm: () => {
-                DeletePermuta(id); // Executa a exclusão
-                setAlertProps((prev) => ({ ...prev, show: false })); // Fecha o AlertPopup após confirmar
+                DeletePermuta(id);
+                setAlertProps((prev) => ({ ...prev, show: false }));
             },
-            onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
+            onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
         });
     }
 
@@ -88,9 +137,9 @@ function PermutaList(props) {
             message: "Tem certeza que deseja Aprovar esta Permuta?",
             onConfirm: () => {
                 AprovarPermuta(id);
-                setAlertProps((prev) => ({ ...prev, show: false })); // Fecha o AlertPopup após confirmar
+                setAlertProps((prev) => ({ ...prev, show: false }));
             },
-            onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
+            onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
         });
     }
 
@@ -102,20 +151,17 @@ function PermutaList(props) {
             message: "Tem certeza que deseja Reprovar esta Permuta?",
             onConfirm: () => {
                 ReprovarPermuta(id);
-                setAlertProps((prev) => ({ ...prev, show: false })); // Fecha o AlertPopup após confirmar
+                setAlertProps((prev) => ({ ...prev, show: false }));
             },
-            onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
+            onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
         });
     }
 
     function DeletePermuta(idPermuta) {
-        api
-        .delete(`${API_BASE_URL}/permutas/Deletar/${idPermuta}`)
+        api.delete(`${API_BASE_URL}/permutas/Deletar/${idPermuta}`)
             .then((response) => {
                 console.log(response);
-                setPermuta(
-                    permuta.filter((p) => p.id !== idPermuta)
-                );
+                setPermuta(permuta.filter((p) => p.id !== idPermuta));
                 BuscarTodos();
                 setAlertProps({
                     show: true,
@@ -131,22 +177,17 @@ function PermutaList(props) {
                     type: "error",
                     title: "Erro",
                     message: "Falha ao excluir o registro.",
-                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })
-                ),
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
+                console.error(error);
             });
-            console.error(error);
-        });
     }
 
     function AprovarPermuta(idPermuta) {
-        console.log(`${API_BASE_URL}/permutas/Aprovar/${idPermuta}`)
-        api
-        .put(`${API_BASE_URL}/permutas/Aprovar/${idPermuta}`)
+        api.put(`${API_BASE_URL}/permutas/Aprovar/${idPermuta}`)
             .then((response) => {
                 console.log(response);
-                setPermuta(
-                    permuta.filter((p) => p.id !== idPermuta)
-                );
+                setPermuta(permuta.filter((p) => p.id !== idPermuta));
                 BuscarTodos();
                 setAlertProps({
                     show: true,
@@ -162,21 +203,17 @@ function PermutaList(props) {
                     type: "error",
                     title: "Erro",
                     message: "Falha ao Autorizar a Permuta.",
-                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })
-                ),
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
+                console.error(error);
             });
-            console.error(error);
-        });
     }
 
     function ReprovarPermuta(idPermuta) {
-        api
-        .put(`${API_BASE_URL}/permutas/Recusar/${idPermuta}`)
+        api.put(`${API_BASE_URL}/permutas/Recusar/${idPermuta}`)
             .then((response) => {
                 console.log(response);
-                setPermuta(
-                    permuta.filter((p) => p.id !== idPermuta)
-                );
+                setPermuta(permuta.filter((p) => p.id !== idPermuta));
                 BuscarTodos();
                 setAlertProps({
                     show: true,
@@ -192,60 +229,83 @@ function PermutaList(props) {
                     type: "error",
                     title: "Erro",
                     message: "Falha ao Recusar a Permuta.",
-                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })
-                ),
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
+                console.error(error);
             });
-            console.error(error);
-        });
     }
-    
+
     const filteredRecords = filterRecords(permuta);
-
-    // Função para filtrar os registros com base no texto de busca
-function filterRecords(records) {
-    return records.filter((record) => {
-        const search = searchText.toLowerCase(); // Normaliza o texto de busca
-
-        return (
-            record.nmNomeSolicitante?.toLowerCase().includes(search) || // Filtro pelo nome do Solicitante
-            record.nmNomeSolicitado?.toLowerCase().includes(search) || // Filtro pelo nome do Solicitado
-            record.dtDataSolicitadaTroca?.toLowerCase().includes(search) || // Filtro pela Data da Troca
-            record.dtSolicitacao?.toLowerCase().includes(search) // Filtro pela Data da Solicitação
-        );
-    });
-}
-
-function formatarData(dataISO) {
-    if (!dataISO) return ""; // Retorna vazio caso a data seja inválida ou indefinida
-    const data = new Date(dataISO);
-    const dia = String(data.getDate()).padStart(2, "0");
-    const mes = String(data.getMonth() + 1).padStart(2, "0");
-    const ano = data.getFullYear();
-    return `${dia}-${mes}-${ano}`;
-}
-
 
     return (
         <>
             <h3 className="text-center mb-3">Lista de Permutas</h3>
             <div className="text-center mb-3">
-                    <button 
-                        onClick={() => props.ShowForm({})}
-                        type="button"
-                        className="btn btn-primary me-2"
-                        >
-                        Cadastrar
-                    </button>
-                    <button
-                        onClick={() => BuscarTodos()}
-                        type="button"
-                        className="btn btn-outline-primary me-2"
-                        >
-                        Atualizar
-                    </button>
+                <button
+                    onClick={() => props.ShowForm({})}
+                    type="button"
+                    className="btn btn-primary me-2"
+                >
+                    Cadastrar
+                </button>
+                <button
+                    onClick={() => BuscarTodos()}
+                    type="button"
+                    className="btn btn-outline-primary me-2"
+                >
+                    Atualizar
+                </button>
+            </div>
+            <div className="mb-3 d-flex justify-content-center flex-wrap gap-3">
+                <div className="form-check">
+                    <input
+                        type="checkbox"
+                        className="form-check-input"
+                        id="aguardandoSolicitado"
+                        checked={statusFilters.aguardandoSolicitado}
+                        onChange={() => handleStatusFilterChange("aguardandoSolicitado")}
+                    />
+                    <label className="form-check-label" htmlFor="aguardandoSolicitado">
+                        Aguardando aprovação do solicitado
+                    </label>
                 </div>
-            <br />
-            <br />
+                <div className="form-check">
+                    <input
+                        type="checkbox"
+                        className="form-check-input"
+                        id="aguardandoChefia"
+                        checked={statusFilters.aguardandoChefia}
+                        onChange={() => handleStatusFilterChange("aguardandoChefia")}
+                    />
+                    <label className="form-check-label" htmlFor="aguardandoChefia">
+                        Aguardando Aprovação Chefia
+                    </label>
+                </div>
+                <div className="form-check">
+                    <input
+                        type="checkbox"
+                        className="form-check-input"
+                        id="aprovadas"
+                        checked={statusFilters.aprovadas}
+                        onChange={() => handleStatusFilterChange("aprovadas")}
+                    />
+                    <label className="form-check-label" htmlFor="aprovadas">
+                        Aprovadas
+                    </label>
+                </div>
+                <div className="form-check">
+                    <input
+                        type="checkbox"
+                        className="form-check-input"
+                        id="recusadas"
+                        checked={statusFilters.recusadas}
+                        onChange={() => handleStatusFilterChange("recusadas")}
+                    />
+                    <label className="form-check-label" htmlFor="recusadas">
+                        Recusadas
+                    </label>
+                </div>
+            </div>
             <input
                 type="text"
                 value={searchText}
@@ -253,7 +313,7 @@ function formatarData(dataISO) {
                 placeholder="Pesquisar..."
                 className="form-control mb-3"
             />
-             <table className="table">
+            <table className="table">
                 <thead>
                     <tr>
                         <th style={{ width: '15%' }}>NOME SOLICITANTE</th>
@@ -278,8 +338,7 @@ function formatarData(dataISO) {
                             <td style={{ textAlign: "left", width: '8%' }}>{formatarData(p.dtReprovacao)}</td>
                             <td style={{ textAlign: "left", width: '15%' }}>{escalas.find((e) => e.idEscala === p.idEscala)?.nmNomeEscala || "Escala não encontrada"}</td>
                             <td style={{ width: "10px", whiteSpace: "nowrap" }}>
-                            {/* Botão Editar - Aparece apenas para quem tem "EditarPermuta" */}
-                            {possuiPermissao("EditarPermuta") && (
+                                {possuiPermissao("EditarPermuta") && (
                                     <button
                                         onClick={() => handleAprovar(p.idPermuta)}
                                         type="button"
@@ -306,7 +365,6 @@ function formatarData(dataISO) {
                                         Editar
                                     </button>
                                 )}
-                                {/* Botão Deletar - Aparece apenas para quem tem "DeletarPermuta" */}
                                 {possuiPermissao("DeletarPermuta") && (
                                     <button
                                         onClick={() => handleDelete(p.idPermuta)}
@@ -316,7 +374,7 @@ function formatarData(dataISO) {
                                         Deletar
                                     </button>
                                 )}
-                    </td>    
+                            </td>
                         </tr>
                     ))}
                 </tbody>
@@ -328,9 +386,8 @@ function formatarData(dataISO) {
                 show={alertProps.show}
                 onConfirm={alertProps.onConfirm}
                 onClose={alertProps.onClose}
-            />           
+            />
         </>
-
     );
 }
 

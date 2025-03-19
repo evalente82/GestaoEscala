@@ -138,40 +138,42 @@ function NavBar() {
                             </ul>
                         )}
                         <ul className="navbar-nav">
-                            {/* Seletor de idiomas */}
-                            <li className="nav-item dropdown">
-                                <a className="nav-link dropdown-toggle text-dark" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown">
-                                    <img src={getFlag(i18n.language)} alt="Bandeira" style={{ width: '20px', marginRight: '8px' }} /> {/* Bandeira do idioma atual */}
-                                    {i18n.language.toUpperCase()} {/* Exibe o código do idioma (ex: "PT", "EN") */}
-                                </a>
-                                <ul className="dropdown-menu dropdown-menu-end">
-                                    <li>
-                                        <button className="dropdown-item" onClick={() => changeLanguage('pt')}>
-                                            <img src={br} alt="Bandeira do Brasil" style={{ width: '20px', marginRight: '8px' }} /> Português
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button className="dropdown-item" onClick={() => changeLanguage('en')}>
-                                            <img src={us} alt="Bandeira dos EUA" style={{ width: '20px', marginRight: '8px' }} /> English
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button className="dropdown-item" onClick={() => changeLanguage('fr')}>
-                                            <img src={fr} alt="Bandeira da França" style={{ width: '20px', marginRight: '8px' }} /> Français
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button className="dropdown-item" onClick={() => changeLanguage('es')}>
-                                            <img src={es} alt="Bandeira da Espanha" style={{ width: '20px', marginRight: '8px' }} /> Español
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button className="dropdown-item" onClick={() => changeLanguage('de')}>
-                                            <img src={de} alt="Bandeira da Alemanha" style={{ width: '20px', marginRight: '8px' }} /> Deutsch
-                                        </button>
-                                    </li>
-                                </ul>
-                            </li>
+                            {/* Seletor de idiomas - Ocultado com condição */}
+                            {false && (
+                                <li className="nav-item dropdown">
+                                    <a className="nav-link dropdown-toggle text-dark" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown">
+                                        <img src={getFlag(i18n.language)} alt="Bandeira" style={{ width: '20px', marginRight: '8px' }} />
+                                        {i18n.language.toUpperCase()}
+                                    </a>
+                                    <ul className="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <button className="dropdown-item" onClick={() => changeLanguage('pt')}>
+                                                <img src={br} alt="Bandeira do Brasil" style={{ width: '20px', marginRight: '8px' }} /> Português
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button className="dropdown-item" onClick={() => changeLanguage('en')}>
+                                                <img src={us} alt="Bandeira dos EUA" style={{ width: '20px', marginRight: '8px' }} /> English
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button className="dropdown-item" onClick={() => changeLanguage('fr')}>
+                                                <img src={fr} alt="Bandeira da França" style={{ width: '20px', marginRight: '8px' }} /> Français
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button className="dropdown-item" onClick={() => changeLanguage('es')}>
+                                                <img src={es} alt="Bandeira da Espanha" style={{ width: '20px', marginRight: '8px' }} /> Español
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button className="dropdown-item" onClick={() => changeLanguage('de')}>
+                                                <img src={de} alt="Bandeira da Alemanha" style={{ width: '20px', marginRight: '8px' }} /> Deutsch
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </li>
+                            )}
 
                             {/* Dropdown do usuário */}
                             <li className="nav-item dropdown">
