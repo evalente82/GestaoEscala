@@ -1,14 +1,21 @@
 # ios/Podfile
 
-# Define a versão mínima do iOS
 platform :ios, '12.0'
 
-# Configuração do CocoaPods
-install! 'cocoapods', :deterministic_uuids => false
+# Define o caminho para o Flutter (usando o ambiente padrão do Codemagic)
+def flutter_root
+  generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
+  unless File.exist?(generated_xcode_build_settings_path)
+    raise "Generated.xcconfig must exist. If you're running pod install manually, make sure flutter pub get is executed first"
+  end
+  File.foreach(generated_xcode_build_settings_path) do |line|
+    matches = line.match(/FLUTTER_ROOT=(.*)/)
+    return matches[1].strip if matches
+  end
+  raise "FLUTTER_ROOT not found in Generated.xcconfig"
+end
 
-# Caminho para o Flutter (necessário para o Codemagic)
-flutter_root = File.expand_path(File.join(File.dirname(__FILE__), '..', '.ios', 'Flutter'))
-require File.join(flutter_root, 'podhelper.rb')
+require File.expand_path(File.join(flutter_root, 'packages', 'flutter_tools', 'bin', 'podhelper.rb'))
 
 target 'Runner' do
   use_frameworks!
