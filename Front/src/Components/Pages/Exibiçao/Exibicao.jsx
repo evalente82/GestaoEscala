@@ -521,16 +521,19 @@ export function Exibicao() {
     
     const handleAbrirIncluirFuncionario = (idPostoTrabalho, dia) => {
         if (!buscaEscalaPronta || buscaEscalaPronta.length === 0) {
-            //console.warn("⚠️ Nenhuma escala pronta encontrada para determinar o ano e o mês!");
+            console.warn("⚠️ Nenhuma escala pronta encontrada para determinar o ano e o mês!");
             return;
         }
     
-        // 🔹 Obtém o ano e o mês da primeira ocorrência da escala pronta
+        // 🔹 Obtém o ano e o mês da primeira ocorrência da escala pronta em UTC
         const primeiraOcorrencia = buscaEscalaPronta[0];
-        const ano = new Date(primeiraOcorrencia.dtDataServico).getFullYear();
-        const mes = String(new Date(primeiraOcorrencia.dtDataServico).getMonth() + 1).padStart(2, "0"); // Ajusta para dois dígitos
+        const data = new Date(primeiraOcorrencia.dtDataServico);
+        const ano = data.getUTCFullYear();
+        const mes = String(data.getUTCMonth() + 1).padStart(2, "0"); // Usa getUTCMonth para manter o mês em UTC
     
-        //console.log(`🟢 Abrindo popup de inclusão para posto: ${idPostoTrabalho}, dia: ${dia}, mês: ${mes}, ano: ${ano}`);
+        console.log(`🟢 Abrindo popup de inclusão para posto: ${idPostoTrabalho}, dia: ${dia}, mês: ${mes}, ano: ${ano}`);
+        console.log("Data bruta:", primeiraOcorrencia.dtDataServico);
+        console.log("Data parseada em UTC:", data.toUTCString());
     
         setNovoFuncionario({
             idFuncionario: "", // Começa vazio para o usuário escolher
@@ -538,8 +541,8 @@ export function Exibicao() {
             dtDataServico: `${ano}-${mes}-${String(dia).padStart(2, "0")}` // Data formatada corretamente
         });
     
-        setShowIncluirPopup(true); // ✅ Atualiza o estado corretamente
-    };    
+        setShowIncluirPopup(true); // Atualiza o estado corretamente
+    };  
     
     const handleConfirmarInclusao = async () => {
         if (!novoFuncionario.idFuncionario || !novoFuncionario.idPostoTrabalho) {
