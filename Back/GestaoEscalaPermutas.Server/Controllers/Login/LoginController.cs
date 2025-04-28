@@ -8,6 +8,7 @@ using GestaoEscalaPermutas.Server.Models.Login;
 using Microsoft.AspNetCore.Authorization;
 using GestaoEscalaPermutas.Server.Helper;
 using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
+using System.Web;
 
 namespace GestaoEscalaPermutas.Server.Controllers.Login
 {
@@ -72,6 +73,9 @@ namespace GestaoEscalaPermutas.Server.Controllers.Login
         [HttpPost("redefinir-senha")]
         public async Task<IActionResult> RedefinirSenha([FromBody] RedefinirSenhaRequestDTO request)
         {
+            // Decodificando o token caso tenha sido alterado na requisição HTTP
+            request.Token = HttpUtility.UrlDecode(request.Token);
+
             var resultado = await _loginService.RedefinirSenha(request);
 
             return resultado.Valido ? Ok(new { mensagem = resultado.Mensagem }) : BadRequest(new { mensagem = resultado.Mensagem });

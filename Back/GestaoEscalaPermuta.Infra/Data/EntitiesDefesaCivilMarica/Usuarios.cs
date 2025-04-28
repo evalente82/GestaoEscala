@@ -31,8 +31,9 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
         public DateTime DataCriacao
         {
             get => _dataCriacao;
-            set => _dataCriacao = DateTime.SpecifyKind(value, DateTimeKind.Utc);
+            set => _dataCriacao = DateTime.SpecifyKind(value, DateTimeKind.Utc); // Garantir UTC
         }
+
 
         [ForeignKey("Perfil")]
         public Guid IdPerfil { get; set; }
