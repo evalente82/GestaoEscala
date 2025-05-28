@@ -3,7 +3,7 @@
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'back-white-waterfall-3342'
+app = 'back-gestao-escala'
 primary_region = 'gig'
 
 [build]
