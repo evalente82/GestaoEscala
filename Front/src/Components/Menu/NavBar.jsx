@@ -180,6 +180,7 @@ function NavBar() {
                                 <a className="nav-link dropdown-toggle text-dark" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
                                     {primeiroNome || t("Usuário")}
                                 </a>
+                                
                                 <ul className="dropdown-menu dropdown-menu-end">
                                     <li>
                                         <button className="dropdown-item text-danger" onClick={() => {

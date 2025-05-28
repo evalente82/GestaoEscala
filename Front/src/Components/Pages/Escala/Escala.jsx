@@ -1,4 +1,3 @@
-import NavBar from "../../Menu/NavBar";
 import { useEffect, useState } from "react";
 import PropTypes from 'prop-types';
 import AlertPopup from '../AlertPopup/AlertPopup';
