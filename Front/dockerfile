@@ -2,10 +2,11 @@
 FROM node:18 AS build
 WORKDIR /app
 
-# Copiar arquivos do projeto
-COPY package.json package-lock.json ./
+# Copiar package.json e package-lock.json (se existir)
+COPY package.json ./
+COPY package-lock.json* ./ 
 
-# Garantir que as versões corretas sejam instaladas
+# Instalar dependências
 RUN npm install --legacy-peer-deps
 
 # Copiar todos os arquivos restantes
