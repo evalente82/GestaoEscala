@@ -48,7 +48,6 @@ using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
 using FirebaseAdmin.Messaging;
 
-
 var cultureInfo = new CultureInfo("pt-BR");
 CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
 CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
@@ -209,7 +208,7 @@ builder.Services.AddCors(options =>
             //"http://10.0.2.2:8080",   // Emulador Android
             //"http://localhost:5173",   // Frontend
             //"http://localhost:8080"   // Swagger local
-            "http://192.168.0.8:7207", // Backend local
+            "http://192.168.0.2:7207", // Backend local
             "http://10.0.2.2:7207",   // Emulador Android
             "http://localhost:5173",   // Frontend
             "http://localhost:8080",   // Swagger local
