@@ -2,28 +2,24 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# Copiar os arquivos do projeto
+# Copiar os arquivos do projeto (excluindo testes)
 COPY GestaoEscalaPermutas.sln ./
 COPY GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj ./GestaoEscalaPermutas.Server/
 COPY GestaoEscalaPermutas.Dominio/GestaoEscalaPermutas.Dominio.csproj ./GestaoEscalaPermutas.Dominio/
 COPY GestaoEscalaPermuta.Infra/GestaoEscalaPermutas.Infra.csproj ./GestaoEscalaPermuta.Infra/
 COPY GestaoEscalaPermutas.Repository/GestaoEscalaPermutas.Repository.csproj ./GestaoEscalaPermutas.Repository/
-COPY GestaoEscalaPermutas.Tests/GestaoEscalaPermutas.Tests.csproj ./GestaoEscalaPermutas.Tests/
 
 # Restaurar as dependências
 RUN dotnet restore
 
-# Copiar o restante dos arquivos
+# Copiar o restante dos arquivos (excluindo testes)
 COPY GestaoEscalaPermutas.Server/ ./GestaoEscalaPermutas.Server/
 COPY GestaoEscalaPermutas.Dominio/ ./GestaoEscalaPermutas.Dominio/
 COPY GestaoEscalaPermuta.Infra/ ./GestaoEscalaPermuta.Infra/
 COPY GestaoEscalaPermutas.Repository/ ./GestaoEscalaPermutas.Repository/
-COPY GestaoEscalaPermutas.Tests/ ./GestaoEscalaPermutas.Tests/
 
-# Copiar o certificado para dentro da imagem
-
+# Copiar o certificado
 COPY GestaoEscalaPermutas.Server/certificado.pfx /app/certificado.pfx
-
 
 # Publicar a aplicação
 WORKDIR /app/GestaoEscalaPermutas.Server
@@ -33,19 +29,12 @@ RUN dotnet publish -c Release -o out
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/GestaoEscalaPermutas.Server/out .
-
-# Copiar o certificado para a imagem final
 COPY --from=build /app/certificado.pfx /app/certificado.pfx
 
-
-# Expor a porta corretamente
+# Expor a porta
 EXPOSE 8080
 
-# Configurar permissões para o certificado (opcional, mas recomendado)
-RUN chmod 644 /app/certificado.pfx
-
-
-# Configurar permissões para o certificado (opcional, mas recomendado)
+# Configurar permissões para o certificado
 RUN chmod 644 /app/certificado.pfx
 
 # Iniciar a aplicação
