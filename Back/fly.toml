@@ -14,7 +14,7 @@ primary_region = 'gru'
 
 [env]
   ASPNETCORE_ENVIRONMENT = "Production"
-  ASPNETCORE_Kestrel__Certificates__Default__Path = "/app/certificado.pfx"
+  
 
 [[vm]]
   memory = '1gb'

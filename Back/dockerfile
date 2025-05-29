@@ -8,6 +8,7 @@ COPY GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj ./GestaoEsca
 COPY GestaoEscalaPermutas.Dominio/GestaoEscalaPermutas.Dominio.csproj ./GestaoEscalaPermutas.Dominio/
 COPY GestaoEscalaPermuta.Infra/GestaoEscalaPermutas.Infra.csproj ./GestaoEscalaPermuta.Infra/
 COPY GestaoEscalaPermutas.Repository/GestaoEscalaPermutas.Repository.csproj ./GestaoEscalaPermutas.Repository/
+COPY GestaoEscalaPermutas.Tests/GestaoEscalaPermutas.Tests.csproj ./GestaoEscalaPermutas.Tests/
 
 # Restaurar as dependências
 RUN dotnet restore
@@ -17,6 +18,7 @@ COPY GestaoEscalaPermutas.Server/ ./GestaoEscalaPermutas.Server/
 COPY GestaoEscalaPermutas.Dominio/ ./GestaoEscalaPermutas.Dominio/
 COPY GestaoEscalaPermuta.Infra/ ./GestaoEscalaPermuta.Infra/
 COPY GestaoEscalaPermutas.Repository/ ./GestaoEscalaPermutas.Repository/
+COPY GestaoEscalaPermutas.Tests/ ./GestaoEscalaPermutas.Tests/
 
 # Copiar o certificado
 COPY GestaoEscalaPermutas.Server/certificado.pfx /app/certificado.pfx
