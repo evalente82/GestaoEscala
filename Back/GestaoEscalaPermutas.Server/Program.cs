@@ -57,7 +57,7 @@ var connString = builder.Configuration.GetConnectionString("EmUso");
 
 IConfiguration configuration = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
     .Build();
 builder.Services.AddSingleton(configuration);
 builder.Services.AddControllers();
@@ -252,10 +252,14 @@ builder.Services.AddAuthentication(options =>
 //        .Build();
 //});
 
-builder.WebHost.ConfigureKestrel(serverOptions =>
-{
-    serverOptions.ListenAnyIP(7207); // Isso permite conexões de qualquer IP
-});
+//builder.WebHost.ConfigureKestrel(serverOptions =>
+//{
+//    serverOptions.ListenAnyIP(8080); // Isso permite conexões de qualquer IP
+//    serverOptions.ListenAnyIP(443, listenOptions =>
+//    {
+//        // Se tiver certificado, configure aqui
+//    });
+//});
 
 //gerarChave teste = new();
 //teste.teste();

@@ -7,16 +7,15 @@ primary_region = 'gru'
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = 'stop'
+  auto_stop_machines = "stop"
   auto_start_machines = true
-  min_machines_running = 1 # Para testes
-  processes = ['app']
-
+  min_machines_running = 1
+  processes = ["app"]
+  
 [env]
   ASPNETCORE_ENVIRONMENT = "Production"
-  
 
 [[vm]]
-  memory = '1gb'
-  cpu_kind = 'shared'
+  memory = "1gb"
+  cpu_kind = "shared"
   cpus = 1

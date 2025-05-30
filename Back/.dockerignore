@@ -1,30 +1,51 @@
-# flyctl launch added from .gitignore
-**\﻿bin\Debug\net8.0
-**\obj
-**\vs
+# Build output
+**/bin/
+**/obj/
 
-# flyctl launch added from GestaoEscalaPermuta.Infra\.gitignore
-GestaoEscalaPermuta.Infra\**\﻿bin\Debug\net8.0
-GestaoEscalaPermuta.Infra\**\obj
+# VS / Visual Studio
+**/.vs/
+**/*.user
+**/*.suo
+**/*.local
+**/*.vspscc
+**/*.vssscc
+**/*.sln.docstates
 
-# flyctl launch added from GestaoEscalaPermutas.Dominio\.gitignore
-GestaoEscalaPermutas.Dominio\**\﻿bin\Debug\net8.0
-GestaoEscalaPermutas.Dominio\**\obj
+# Git
+**/.git
+**/.gitignore
+**/.gitattributes
 
-# flyctl launch added from GestaoEscalaPermutas.Server\.gitignore
-GestaoEscalaPermutas.Server\**\﻿bin\Debug\net8.0
-GestaoEscalaPermutas.Server\**\obj
-GestaoEscalaPermutas.Server\**\vs
-GestaoEscalaPermutas.Server\**\Back\node_modules
+# Markdown e outros docs
+**/*.md
+**/*.txt
+**/*.log
+**/*.bak
+**/*.tmp
+**/*.orig
+**/*.rej
+**/*.DS_Store
+**/*.swp
+**/*.sublime-project
+**/*.sublime-workspace
+**/*.idea
+**/*.iml
+**/*.ipr
+**/*.iws
 
-# flyctl launch added from GestaoEscalaPermutas.Tests\.gitignore
-GestaoEscalaPermutas.Tests\**\﻿bin\Debug\net8.0
-GestaoEscalaPermutas.Tests\**\obj
-GestaoEscalaPermutas.Tests\**\vs
-GestaoEscalaPermutas.Tests\**\Back\node_modules
+# NuGet packages
+**/*.nupkg
+**/*.snupkg
 
-# flyctl launch added from TesteUnitario\.gitignore
-TesteUnitario\**\﻿bin\Debug\net8.0
-TesteUnitario\**\obj
-TesteUnitario\**\vs
-fly.toml
+# Node.js
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Certificados e configurações locais (opcional)
+certificado.pfx
+appsettings.Development.json
+.env
+
