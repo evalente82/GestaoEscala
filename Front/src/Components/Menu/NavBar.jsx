@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../Pages/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
-import logoDefesa from "../../Components/Imagens/LogoDefesaCivil.png";
+import logoDefesa from "../../Components/Imagens/logo_sem_fundo.png";
 import './NavBar.css';
 import { useTranslation } from 'react-i18next';
 import i18n from "../../i18n"; // Importe o i18n configurado

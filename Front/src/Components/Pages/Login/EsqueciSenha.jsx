@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import logo1 from "../../Imagens/LogoDefesaCivil.png";
+import logo1 from "../../Imagens/vcorpLogo.png";
 import "./EsqueciSenha.css";
 
 function EsqueciSenha() {
@@ -31,10 +31,10 @@ function EsqueciSenha() {
     return (
         <div className="esqueci-senha-container">
             {/* Título principal */}
-            <h1 className="main-title">Prefeitura Municipal de Maricá</h1>
+            <h1 className="main-title">Vcorp Sistem</h1>
             <div className="esqueci-senha-card">
                 <div className="text-center">
-                    <h1 className="esqueci-senha-title">Defesa Civil de Maricá</h1>
+                    <h1 className="esqueci-senha-title">VCORP</h1>
                     <img
                         src={logo1}
                         alt="Logo Defesa Civil"
