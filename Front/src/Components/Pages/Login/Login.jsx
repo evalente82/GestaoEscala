@@ -15,6 +15,8 @@ function Login() {
     const { t } = useTranslation();
 
     const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
+    console.log("API BASE URL:", import.meta.env.VITE_BACKEND_API);
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
