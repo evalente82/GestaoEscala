@@ -37,6 +37,8 @@ public partial class DefesaCivilMaricaContext : DbContext
     public DbSet<CargoPerfis> CargoPerfis { get; set; }
     public DbSet<Setor> Setor { get; set; }
     public DbSet<FuncionarioFcmToken> FuncionarioFcmTokens { get; set; }
+    public DbSet<EscalaExtra> EscalaExtras { get; set; }
+    public DbSet<CriacaoEscalaExtra> CriacaoEscalaExtras { get; set; }
 
 
 
@@ -178,6 +180,24 @@ public partial class DefesaCivilMaricaContext : DbContext
                 v => v.ToUniversalTime(),
                 v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
         #endregion
+
+        #region EscalaExtra
+       
+        modelBuilder.Entity<EscalaExtra>(entity =>
+        {
+            entity.HasKey(e => e.IdEscalaExtra);  // Define a chave primária
+
+            entity.Property(e => e.DtServico)  // Define a coluna `DtServico` como tipo `date`
+                  .HasColumnType("date");
+
+            entity.Property(e => e.IdPostoTrabalho)  // Definindo tipo UUID para o Posto de Trabalho
+                  .IsRequired();  // Coluna não nula, se necessário
+
+            entity.Property(e => e.IdFuncionario)  // Definindo tipo UUID para o Funcionario
+                  .IsRequired();  // Coluna não nula, se necessário
+        });
+        #endregion
+
 
         #region EscalaPronta
         modelBuilder.Entity<EscalaPronta>()

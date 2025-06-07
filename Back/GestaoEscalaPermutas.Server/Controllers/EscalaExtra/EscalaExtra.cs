@@ -1,6 +1,14 @@
 ﻿using AutoMapper;
+using GestaoEscalaPermutas.Dominio.DTO.Cargo;
+using GestaoEscalaPermutas.Dominio.DTO.EscalaExtra;
+using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
+using GestaoEscalaPermutas.Dominio.Interfaces.EscalaExtra;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
+using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using GestaoEscalaPermutas.Server.Models;
+using GestaoEscalaPermutas.Server.Models.Cargos;
+using GestaoEscalaPermutas.Server.Models.EscalaExtra;
+using GestaoEscalaPermutas.Server.Models.Funcionarios;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GestaoEscalaPermutas.Server.Controllers.EscalaExtra
@@ -9,12 +17,12 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaExtra
     [Route("escalaExtra")]
     public class EscalaExtra : ControllerBase
     {
-        private readonly IEscalaProntaService _escalaProntaService;
+        private readonly IEscalaExtraService _escalaExtraService;
         private readonly IMapper _mapper;
 
-        public EscalaExtra(IEscalaProntaService escalaProntaService, IMapper mapper)
+        public EscalaExtra(IEscalaExtraService escalaExtraService, IMapper mapper)
         {
-            _escalaProntaService = escalaProntaService;
+            _escalaExtraService = escalaExtraService;
             _mapper = mapper;
         }
 
@@ -22,7 +30,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaExtra
         [Route("buscarExtras")]
         public async Task<ActionResult> BuscarExtras()
         {
-            var extras = await _escalaProntaService.BuscarTodos();
+            var extras = await _escalaExtraService.BuscarTodos();
 
             foreach (var extra in extras)
             {
@@ -34,5 +42,18 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaExtra
 
             return Ok(extras);
         }
+
+
+        [HttpPost]
+        [Route("Incluir/")]
+        public async Task<ActionResult> IncluirListaEscalaExtra([FromBody] EscalaExtraDTO[] escalaExtra)
+        {
+
+            var escalaExtraDTOs = await _escalaExtraService.IncluirLista(_mapper.Map<EscalaExtraDTO[]>(escalaExtra));
+            var escalaExtraModels = _mapper.Map<List<EscalaExtraModel>>(escalaExtraDTOs);
+
+            return Ok(escalaExtraModels);
+        }
+
     }
 }
