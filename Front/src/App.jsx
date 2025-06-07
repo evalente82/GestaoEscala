@@ -132,6 +132,11 @@ function LayoutComMenu() {
                         <Setor />
                     </RotaProtegida>
                 } />
+                <Route path="/EscalaExtra" element={
+                    <RotaProtegida permissoesNecessarias={["VisualizarSetor"]}>
+                        <Setor />
+                    </RotaProtegida>
+                } />
                 </Route>
                 
             </Routes>

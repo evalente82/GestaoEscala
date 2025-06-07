@@ -135,6 +135,18 @@ function NavBar() {
                                         </ul>
                                     </li>
                                 )}
+                                {(possuiPermissao("VisualizarDepartamento") || possuiPermissao("VisualizarCargo") || possuiPermissao("VisualizarFuncionarios")) && (
+                                    <li className="nav-item dropdown">
+                                        <a className="nav-link dropdown-toggle text-dark" href="#" id="departamentoDropdown" role="button" data-bs-toggle="dropdown">
+                                            {t("RAS / Extras")}
+                                        </a>
+                                        <ul className="dropdown-menu">
+                                            {possuiPermissao("VisualizarDepartamento") && (
+                                                <li><Link className="dropdown-item" to="/EscalaExtra">{t("RAS e Extras")}</Link></li>
+                                            )}
+                                        </ul>
+                                    </li>
+                                )}
                             </ul>
                         )}
                         <ul className="navbar-nav">
