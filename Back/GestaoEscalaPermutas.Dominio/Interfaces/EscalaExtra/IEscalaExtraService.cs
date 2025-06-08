@@ -11,7 +11,7 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.EscalaExtra
     public interface IEscalaExtraService
     {
         Task<List<EscalaExtraDTO>> BuscarTodos();
-        Task<List<EscalaExtraDTO>> BuscarPorId(Guid idEscalaExtra);
+        Task<EscalaExtraDTO> BuscarPorId(Guid idEscalaExtra);
         Task<EscalaExtraDTO[]> IncluirLista(EscalaExtraDTO[] escalaExtraDTOs);
     }
 }

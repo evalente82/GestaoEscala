@@ -20,9 +20,9 @@ namespace GestaoEscalaPermutas.Repository.Implementations
             return escalaExtra;
         }
 
-        public Task<EscalaExtra> ObterPorIdAsync(Guid id)
+        public async Task<EscalaExtra> ObterPorIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            return await _context.EscalaExtras.FindAsync(id);
         }
 
         public async Task<List<EscalaExtra>> ObterTodosAsync()
