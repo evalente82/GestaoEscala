@@ -43,12 +43,10 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaExtra
             return Ok(extras);
         }
 
-
         [HttpPost]
         [Route("Incluir/")]
         public async Task<ActionResult> IncluirListaEscalaExtra([FromBody] EscalaExtraDTO[] escalaExtra)
         {
-
             var escalaExtraDTOs = await _escalaExtraService.IncluirLista(_mapper.Map<EscalaExtraDTO[]>(escalaExtra));
             var escalaExtraModels = _mapper.Map<List<EscalaExtraModel>>(escalaExtraDTOs);
 

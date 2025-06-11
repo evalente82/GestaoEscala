@@ -142,8 +142,11 @@ function NavBar() {
                                         </a>
                                         <ul className="dropdown-menu">
                                             {possuiPermissao("VisualizarDepartamento") && (
-                                                <li><Link className="dropdown-item" to="/EscalaExtra">{t("RAS e Extras")}</Link></li>
+                                                <li><Link className="dropdown-item" to="/CriacaoEscalaExtra">{t("Criar RAS e Extras")}</Link></li>
                                             )}
+                                            {possuiPermissao("VisualizarDepartamento") && (
+                                                <li><Link className="dropdown-item" to="/EscalaExtra">{t("RAS e Extras")}</Link></li>
+                                            )}                                            
                                         </ul>
                                     </li>
                                 )}

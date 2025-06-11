@@ -15,12 +15,12 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
     {
         private readonly IEscalaExtraRepository _EscalaExtraRepository;
         private readonly IMapper _mapper;
-        public Task<List<EscalaExtraDTO>> BuscarPorId(Guid idEscalaExtra)
+        public async Task<EscalaExtraDTO> BuscarPorId(Guid idEscalaExtra)
         {
             throw new NotImplementedException();
         }
         
-        public Task<List<EscalaExtraDTO>> BuscarTodos()
+        public async Task<List<EscalaExtraDTO>> BuscarTodos()
         {
             var escalaExtra = await _EscalaExtraRepository.ObterTodosAsync();
             return _mapper.Map<List<EscalaExtraDTO>>(escalaExtra);
@@ -30,5 +30,6 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
         {
             throw new NotImplementedException();
         }
+
     }
 }

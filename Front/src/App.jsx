@@ -20,6 +20,7 @@ import { Navigate } from "react-router-dom";
 import RedefinirSenha from "./Components/Pages/Login/RedefinirSenha";
 import PrimeiroAcesso from "./Components/Pages/Login/PreimeiroAcesso";
 import { Setor } from "./Components/Pages/Setor/Setor";
+import { CriacaoEscalaExtraPage } from "./Components/Pages/EscalaExtra/CriacaoEscalaExtra";
 import ProtectedRoute from "./Components/Pages/ProtectedRoute";
 
 function RotaProtegida({ permissoesNecessarias, children }) {
@@ -132,13 +133,19 @@ function LayoutComMenu() {
                         <Setor />
                     </RotaProtegida>
                 } />
+
                 <Route path="/EscalaExtra" element={
                     <RotaProtegida permissoesNecessarias={["VisualizarSetor"]}>
                         <Setor />
                     </RotaProtegida>
                 } />
+
+                <Route path="/CriacaoEscalaExtra" element={
+                    <RotaProtegida permissoesNecessarias={["VisualizarSetor"]}>
+                        <CriacaoEscalaExtraPage />
+                    </RotaProtegida>
+                } />
                 </Route>
-                
             </Routes>
 
             {/* 🔹 Renderiza o footer apenas se o usuário estiver autenticado e não estiver em uma página pública */}
