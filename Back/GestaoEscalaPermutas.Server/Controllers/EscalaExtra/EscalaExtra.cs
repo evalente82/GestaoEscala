@@ -1,26 +1,20 @@
 ﻿using AutoMapper;
-using GestaoEscalaPermutas.Dominio.DTO.Cargo;
 using GestaoEscalaPermutas.Dominio.DTO.EscalaExtra;
-using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaExtra;
-using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
-using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using GestaoEscalaPermutas.Server.Models;
-using GestaoEscalaPermutas.Server.Models.Cargos;
 using GestaoEscalaPermutas.Server.Models.EscalaExtra;
-using GestaoEscalaPermutas.Server.Models.Funcionarios;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GestaoEscalaPermutas.Server.Controllers.EscalaExtra
 {
     [ApiController]
     [Route("escalaExtra")]
-    public class EscalaExtra : ControllerBase
+    public class CriacaoEscalaExtra : ControllerBase
     {
         private readonly IEscalaExtraService _escalaExtraService;
         private readonly IMapper _mapper;
 
-        public EscalaExtra(IEscalaExtraService escalaExtraService, IMapper mapper)
+        public CriacaoEscalaExtra(IEscalaExtraService escalaExtraService, IMapper mapper)
         {
             _escalaExtraService = escalaExtraService;
             _mapper = mapper;

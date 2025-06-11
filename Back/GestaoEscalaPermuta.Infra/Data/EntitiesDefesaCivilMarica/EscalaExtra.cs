@@ -13,16 +13,14 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
         public Guid IdEscalaExtra { get; set; }
 
         [Required]
-        public Guid IdCriacaoEscalaExtra { get; set; }
-
-        [Required]
-        public Guid IdPostoTrabalho { get; set; }
+        public Guid IdCriacaoEscalaExtra { get; set; }        
 
         [Required]
         public Guid IdFuncionario { get; set; }
 
         [Required]
         public DateTime DtServico { get; set; }
+
         public DateTime DtCriacao { get; set; } = DateTime.Now;
     }
 

@@ -2,6 +2,7 @@
 using GestaoEscalaPermutas.Dominio.DTO.Cargo;
 using GestaoEscalaPermutas.Dominio.DTO.Departamento;
 using GestaoEscalaPermutas.Dominio.DTO.Escala;
+using GestaoEscalaPermutas.Dominio.DTO.EscalaExtra;
 using GestaoEscalaPermutas.Dominio.DTO.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
 using GestaoEscalaPermutas.Dominio.DTO.Login;
@@ -16,6 +17,7 @@ using GestaoEscalaPermutas.Server.Models;
 using GestaoEscalaPermutas.Server.Models.Cargos;
 using GestaoEscalaPermutas.Server.Models.Departamento;
 using GestaoEscalaPermutas.Server.Models.Escala;
+using GestaoEscalaPermutas.Server.Models.EscalaExtra;
 using GestaoEscalaPermutas.Server.Models.EscalaPronta;
 using GestaoEscalaPermutas.Server.Models.Funcionarios;
 using GestaoEscalaPermutas.Server.Models.Login;
@@ -31,6 +33,15 @@ namespace GestaoEscalaPermutas.Dominio.Mapping
     {
         public MappingProfiles()
         {
+            // ======= ESCALA EXTRA =======
+
+            //CreateMap<EscalaExtra, EscalaExtraDTO>();
+            CreateMap<CriacaoEscalaExtra , EscalaExtraDTO>().ReverseMap()
+                .ForMember(dest => dest.DtEscalaExtra, opt => opt.MapFrom(src => src.DtEscalaExtra.ToUniversalTime()))
+                .ForMember(dest => dest.DtAbertura, opt => opt.MapFrom(src => src.DtAbertura.ToUniversalTime()))
+                .ForMember(dest => dest.DtFechamento, opt => opt.MapFrom(src => src.DtFechamento.ToUniversalTime()));
+            CreateMap<EscalaExtraDTO, EscalaExtraModel>().ReverseMap();
+            
             // ======= SETOR =======
             CreateMap<SetorDTO, SetorModel>().ReverseMap();
             CreateMap<SetorDTO, Setor>().ReverseMap();

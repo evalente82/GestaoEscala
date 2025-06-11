@@ -10,7 +10,7 @@ namespace GestaoEscalaPermutas.Repository.Interfaces
     public interface IEscalaExtraRepository
     {
         Task<EscalaExtra> ObterPorIdAsync(Guid id);
-        Task<List<EscalaExtra>> ObterTodosAsync();
-        Task<EscalaExtra[]> AdicionarListaAsync(EscalaExtra[] escalaExtra);
+        Task<List<CriacaoEscalaExtra>> ObterTodosAsync();
+        Task<CriacaoEscalaExtra[]> AdicionarListaAsync(CriacaoEscalaExtra[] escalaExtra);
     }
 }

@@ -23,14 +23,31 @@ function CriacaoEscalaExtraList({ ShowForm }) {
 
     return (
         <div>
-            <h4 className="text-center mb-3">Escalas Extras Cadastradas</h4>
+            <h3 className="text-center mb-3">Escalas Extras Cadastradas</h3>
+            <div className="text-center mb-3">
+                    <button 
+                        onClick={() => ShowForm({})}
+                        type="button"
+                        className="btn btn-primary me-2"
+                        >
+                        Cadastrar
+                    </button>
+                    <button
+                        //onClick={() => BuscarTodos()}
+                        type="button"
+                        className="btn btn-outline-primary me-2"
+                        >
+                        Atualizar
+                    </button>
+                </div>
+            
             <table className="table">
                 <thead>
                     <tr>
                         <th>Nome</th>
                         <th>Data</th>
-                        <th>Hora Início</th>
-                        <th>Hora Fim</th>
+                        <th>Data Abertura</th>
+                        <th>Data Fechamento</th>
                         <th>Setor</th>
                         <th>Ativo</th>
                     </tr>
@@ -40,8 +57,8 @@ function CriacaoEscalaExtraList({ ShowForm }) {
                         <tr key={index}>
                             <td>{escala.nmEscalaExtra}</td>
                             <td>{escala.dtEscalaExtra}</td>
-                            <td>{escala.horaIniicio}</td>
-                            <td>{escala.horaFim}</td>
+                            <td>{escala.dtAbertura}</td>
+                            <td>{escala.dtFechamento}</td>
                             <td>{escala.nomeSetor}</td>
                             <td>{escala.ativo}</td>
                             <td>
@@ -50,17 +67,7 @@ function CriacaoEscalaExtraList({ ShowForm }) {
                         </tr>
                     ))}
                 </tbody>
-            </table>
-
-            <div className="text-center mb-3">
-                <button
-                    onClick={() => ShowForm({})}
-                    type="button"
-                    className="btn btn-primary me-2"
-                >
-                    Novo
-                </button>
-            </div>
+            </table>            
         </div>
     );
 }
@@ -218,10 +225,21 @@ function CriacaoEscalaExtraForm(props) {
                         </div>
 
                         {/* Botão Salvar */}
-                        <div className="d-flex justify-content-center mb-3">
-                            <button type="button" className="btn btn-primary" onClick={handleSave}>
-                                Salvar
-                            </button>
+                        <div className="row">
+                            <div className="offset-sm-4 col-sm-4 d-grid">
+                                <button type="submit" className="btn btn-primary btn-sm me-3">
+                                    Salvar
+                                </button>
+                            </div>
+                            <div className="col-sm-4 d-grid">
+                                <button
+                                    onClick={() => props.ShowList()}
+                                    type="button"
+                                    className="btn btn-danger me-2"
+                                >
+                                    Cancelar
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>

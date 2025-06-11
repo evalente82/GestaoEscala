@@ -13,9 +13,15 @@ namespace GestaoEscalaPermutas.Repository.Implementations
     public class EscalaExtraRepository: IEscalaExtraRepository
     {
         private readonly DefesaCivilMaricaContext _context;
-        public async Task<EscalaExtra[]> AdicionarListaAsync(EscalaExtra[] escalaExtra)
+
+        public EscalaExtraRepository(DefesaCivilMaricaContext context)
         {
-            await _context.EscalaExtras.AddRangeAsync(escalaExtra);
+            _context = context;
+        }
+
+        public async Task<CriacaoEscalaExtra[]> AdicionarListaAsync(CriacaoEscalaExtra[] escalaExtra)
+        {
+            await _context.CriacaoEscalaExtra.AddRangeAsync(escalaExtra);
             await _context.SaveChangesAsync();
             return escalaExtra;
         }
@@ -25,9 +31,9 @@ namespace GestaoEscalaPermutas.Repository.Implementations
             return await _context.EscalaExtras.FindAsync(id);
         }
 
-        public async Task<List<EscalaExtra>> ObterTodosAsync()
+        public async Task<List<CriacaoEscalaExtra>> ObterTodosAsync()
         {
-            return await _context.EscalaExtras.OrderBy(x => x.DtServico).ToListAsync();
+            return await _context.CriacaoEscalaExtra.ToListAsync();
         }
     }
 }

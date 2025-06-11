@@ -7,7 +7,6 @@ using Microsoft.OpenApi.Models;
 using GestaoEscalaPermutas.Dominio.Services.Cargos;
 using GestaoEscalaPermutas.Dominio.Interfaces.Cargos;
 using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
-using GestaoEscalaPermutas.Dominio.Services.Funcionario;
 using GestaoEscalaPermutas.Dominio.Services.Escala;
 using GestaoEscalaPermutas.Dominio.Services.PostoTrabalho;
 using GestaoEscalaPermutas.Dominio.Interfaces.Escala;
@@ -36,17 +35,17 @@ using GestaoEscalaPermutas.Dominio.Services.Funcionario.GestaoEscalaPermutas.Dom
 using GestaoEscalaPermutas.Dominio.Services.TipoEscala.GestaoEscalaPermutas.Dominio.Services;
 using GestaoEscalaPermutas.Dominio.Services.Funcionalidade;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.AspNetCore.Authorization;
 using System.Globalization;
-using Microsoft.AspNetCore.Localization;
 using GestaoEscalaPermutas.Dominio.Services.Mensageria;
 using GestaoEscalaPermutas.Dominio.Interfaces.Mensageria;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using GestaoEscalaPermutas.Dominio.Mapping;
-using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
-using FirebaseAdmin.Messaging;
+using GestaoEscalaPermutas.Dominio.Interfaces.EscalaExtra;
+using GestaoEscalaPermutas.Dominio.Services.EscalaExtra;
+using GestaoEscalaPermutas.Repository.Implementations;
+using GestaoEscalaPermutas.Repository.Interfaces;
 
 var cultureInfo = new CultureInfo("pt-BR");
 CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
@@ -135,6 +134,8 @@ builder.Services.AddScoped<IPerfisFuncionalidadesService, PerfisFuncionalidadesS
 builder.Services.AddScoped<ICargoPerfisService, CargoPerfisService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISetorService, SetorService>();
+builder.Services.AddScoped<IEscalaExtraService, CriacaoEscalaExtraService>();
+builder.Services.AddScoped<IEscalaExtraRepository, EscalaExtraRepository>();
 builder.Services.AddRepositoryServices();
 builder.Services.AddHostedService<PermutasMessageConsumer>();
 #endregion
