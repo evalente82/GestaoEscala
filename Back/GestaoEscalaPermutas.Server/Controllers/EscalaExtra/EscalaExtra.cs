@@ -1,8 +1,12 @@
 ﻿using AutoMapper;
 using GestaoEscalaPermutas.Dominio.DTO.EscalaExtra;
+using GestaoEscalaPermutas.Dominio.DTO.PostoTrabalho;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaExtra;
+using GestaoEscalaPermutas.Dominio.Services.PostoTrabalho;
 using GestaoEscalaPermutas.Server.Models;
 using GestaoEscalaPermutas.Server.Models.EscalaExtra;
+using GestaoEscalaPermutas.Server.Models.EscalaPronta;
+using GestaoEscalaPermutas.Server.Models.PostoTrabalho;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GestaoEscalaPermutas.Server.Controllers.EscalaExtra
@@ -54,6 +58,26 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaExtra
                 return BadRequest(new { message = "Erro ao incluir escala extra", error = ex.Message });
             }
         }
+
+        [HttpDelete]
+        [Route("Deletar/{id:Guid}")]
+        public async Task<ActionResult> DeletarEscalaExtra(Guid id)
+        {
+            var escalaExtraDTO = await _escalaExtraService.Deletar(id);
+            var escalaExtraModel = _mapper.Map<EscalaExtraModel>(escalaExtraDTO);
+            return (escalaExtraModel.Valido) ? Ok(escalaExtraModel.Mensagem) : BadRequest(new RetornoModel { Valido = false, Mensagem = escalaExtraModel.Mensagem });
+        }
+
+        [HttpPatch]
+        [Route("Atualizar/{id:Guid}")]
+        public async Task<ActionResult> AtualizarEscalaExtra(Guid id, [FromBody] EscalaExtraDTO escalaExtra)
+        {
+            escalaExtra.IdCriacaoEscalaExtra = id;
+            var escalaExtraDTO = await _escalaExtraService.Alterar(id, _mapper.Map<EscalaExtraDTO>(escalaExtra));
+            var escalaExtraModel = _mapper.Map<CriacaoEscalaExtraModel>(escalaExtraDTO);
+            return (escalaExtraModel.Valido) ? Ok(escalaExtraModel) : BadRequest(new RetornoModel { Valido = false, Mensagem = escalaExtraModel.Mensagem });
+        }
+
 
     }
 }

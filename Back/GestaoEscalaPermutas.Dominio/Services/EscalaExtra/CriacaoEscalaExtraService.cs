@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using GestaoEscalaPermutas.Dominio.DTO.EscalaExtra;
 using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
+using GestaoEscalaPermutas.Dominio.DTO.PostoTrabalho;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaExtra;
+using GestaoEscalaPermutas.Repository.Implementations;
 using GestaoEscalaPermutas.Repository.Interfaces;
 using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 
@@ -116,6 +118,46 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
 
             // Mapeia de volta para DTOs e retorna
             return _mapper.Map<EscalaExtraDTO[]>(novaEscalaExtra);
+        }
+
+        public async Task<EscalaExtraDTO> Deletar(Guid id)
+        {
+            try
+            {
+                if (id == Guid.Empty)
+                    return new EscalaExtraDTO { valido = false, mensagem = "Id fora do Range." };
+
+                var sucesso = await _EscalaExtraRepository.DeletarAsync(id);
+                return sucesso
+                    ? new EscalaExtraDTO { valido = true, mensagem = "Posto de trabalho deletado com sucesso." }
+                    : new EscalaExtraDTO { valido = false, mensagem = "Posto não encontrado." };
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Erro ao deletar posto de trabalho: {e.Message}");
+            }
+        }
+
+        public async Task<EscalaExtraDTO> Alterar(Guid id, EscalaExtraDTO postoTrabalhoModel)
+        {
+            try
+            {
+                if (id == Guid.Empty)
+                    return new EscalaExtraDTO { valido = false, mensagem = "Id fora do Range." };
+
+                var postoTrabalhoExistente = await _EscalaExtraRepository.BuscarPorIdAsync(id);
+                if (postoTrabalhoExistente == null)
+                    return new EscalaExtraDTO { valido = false, mensagem = "Escala não encontrada." };
+
+                _mapper.Map(postoTrabalhoModel, postoTrabalhoExistente);
+                var postoAtualizado = await _EscalaExtraRepository.AlterarAsync(postoTrabalhoExistente);
+
+                return _mapper.Map<EscalaExtraDTO>(postoAtualizado);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Erro ao alterar Escala Extra: {e.Message}");
+            }
         }
     }
 }
