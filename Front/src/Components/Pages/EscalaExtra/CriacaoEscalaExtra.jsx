@@ -5,14 +5,61 @@ import AlertPopup from '../AlertPopup/AlertPopup';
 import api from './../axiosConfig';
 
 
+
 // Componente para listar as escalas extras
 function CriacaoEscalaExtraList({ ShowForm }) {
     const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     const [escalasExtras, setEscalasExtras] = useState([]);
+    const [setor, setSetor] = useState([]);
+
+    const [alertProps, setAlertProps] = useState({
+        show: false, // Exibe ou esconde o AlertPopup
+        type: "info", // Tipo de mensagem (success, error, confirm, info)
+        title: "", // Título da modal
+        message: "", // Mensagem da modal
+        onConfirm: null, // Callback para ações de confirmação (opcional)
+        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
+    });
+
+    function BuscarSetor() {
+        api.get(`${API_BASE_URL}/setor/buscarTodos`)
+            .then((response) => {
+                console.log(response.data);
+                setSetor(response.data);
+            })
+            .catch((error) => {
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Não foi possível carregar os Setores.",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
+            });
+    }
+
+    function BuscarTodos() {
+        api.get(`${API_BASE_URL}/escalaExtra/buscarExtras`)
+            .then((response) => {
+                console.log(response.data);
+                setEscalasExtras(response.data);
+            })
+            .catch((error) => {
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Não foi possível carregar as Escalas Extras.",
+                });
+            });
+    }
 
     useEffect(() => {
+            BuscarSetor();
+        }, []); 
+    useEffect(() => {
         // Carregar escalas extras
-        axios.get(`${API_BASE_URL}/escalaExtra`)
+        axios.get(`${API_BASE_URL}/escalaExtra/buscarExtras`)
             .then(response => {
                 setEscalasExtras(response.data);
             })
@@ -33,7 +80,7 @@ function CriacaoEscalaExtraList({ ShowForm }) {
                         Cadastrar
                     </button>
                     <button
-                        //onClick={() => BuscarTodos()}
+                        onClick={() => BuscarTodos()}
                         type="button"
                         className="btn btn-outline-primary me-2"
                         >
@@ -59,7 +106,7 @@ function CriacaoEscalaExtraList({ ShowForm }) {
                             <td>{escala.dtEscalaExtra}</td>
                             <td>{escala.dtAbertura}</td>
                             <td>{escala.dtFechamento}</td>
-                            <td>{escala.nomeSetor}</td>
+                            <td>{setor.find(s => s.idSetor === escala.idSetor)?.nmNome || "Setor não encontrado"}</td>
                             <td>{escala.ativo}</td>
                             <td>
                                 <input type="checkbox" checked={escala.isAtivo} readOnly />
@@ -92,136 +139,226 @@ function CriacaoEscalaExtraForm(props) {
     // Campos do formulário
     const [dataEscala, setDataEscala] = useState('');
     const [nomeEscala, setNomeEscala] = useState('');
-    const [setor, setSetor] = useState('');
+    const [setor, setSetor] = useState([]);
+    const [setorSelecionado, setSetorSelecionado] = useState('');
+    const [dataAbertura, setDataAbertura] = useState('');
+    const [dataFechamento, setDataFechamento] = useState('');
     const [horaInicio, sethoraInicio] = useState('');
     const [horaFim, sethoraFim] = useState('');
     const [ativo, setAtivo] = useState(true);
-    const [setores, setSetores] = useState([]);
+
+     useEffect(() => {
+        BuscarSetor();
+    }, []);
+    const API_URL_Setor = `${API_BASE_URL}/setor`;
+    function BuscarSetor() {
+        api.get(`${API_URL_Setor}/buscarTodos`)
+            .then((response) => {
+                console.log(response.data);
+                setSetor(response.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
 
     useEffect(() => {
-        // Carregar setores       
+        if (props.escalasExtras.idSetor) {
+            setSetorSelecionado(props.escalasExtras.idSetor.toString());
+        }
+    }, [props.escalasExtras.idSetor]);
 
-        axios.get(`${API_BASE_URL}/setores`)
-            .then(response => {
-                setSetores(response.data);
-            })
-            .catch(error => {
-                console.error('Erro ao carregar setores', error);
-            });
-    }, []);
-
-    const handleAtivoChange = (e) => {
+    function handleAtivoChange(e) {
         setAtivo(e.target.checked);
-    };
+    }
 
-    const handleSave = () => {
-        const data = {
-            NmEscalaExtra: nomeEscala,
-            DtEscalaExtra: dataEscala,
+    const handleSubmit = (e) => {
+    e.preventDefault();
 
-            IdSetor: setor,
-            IsAtivo: ativo,
-        };
-
-        // Salvando a nova criação
-        api.post(`${API_BASE_URL}/criacaoEscalaExtra`, data)
-            .then(response => {
-                setAlertProps({
-                    show: true,
-                    type: "success",
-                    title: "Sucesso",
-                    message: "Escala extra criada com sucesso!",
-                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
-                });
-                props.ShowList();
-            })
-            .catch(error => {
-                setAlertProps({
-                    show: true,
-                    type: "error",
-                    title: "Erro",
-                    message: "Falha ao criar a escala extra.",
-                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
-                });
+    const data = [{
+        NmEscalaExtra: nomeEscala,
+        DtEscalaExtra: dataEscala,
+        dtAbertura: dataAbertura,
+        dtFechamento: dataFechamento,
+        horaAbertura: horaInicio,
+        horaFechamento: horaFim,
+        IdSetor: setorSelecionado,  // Usando o idSetor selecionado
+        IsAtivo: ativo,
+    }];
+console.log("Dados a serem enviados:", data);
+    // Salvando a nova criação
+    api.post(`${API_BASE_URL}/escalaExtra/Incluir`, data)
+        .then((response) => {
+            console.log(response); // Verifique a resposta para garantir que está correta
+            setAlertProps({
+                show: true,
+                type: "success",
+                title: "Sucesso",
+                message: "Escala Extra cadastrada com sucesso!",
+                onClose: () => {
+                    setAlertProps((prev) => ({ ...prev, show: false }));
+                    props.ShowList(); // Voltar para a lista após fechar a modal
+                },
             });
-    };
+        })
+        .catch((error) => {
+    if (error.response) {
+        // A resposta do servidor está no erro
+        console.error("Erro na requisição:", error.response.data);
+    } else if (error.request) {
+        // A requisição foi feita, mas não houve resposta
+        console.error("Sem resposta do servidor:", error.request);
+    } else {
+        // Algum erro na configuração da requisição
+        console.error("Erro ao configurar a requisição:", error.message);
+    }
+    setAlertProps({
+        show: true,
+        type: "error",
+        title: "Erro",
+        message: "Falha ao cadastrar Escala Extra.",
+        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+    });
+});
+};
 
     return (
         <>
             <h3 className="text-center mb-3">Criar Nova Escala Extra</h3>
             <div className="row">
                 <div className="col-lg-6 mx-auto">
-                    <form onSubmit={(e) => e.preventDefault()}>
+                    <form onSubmit={(e) => handleSubmit(e)}>
                         {/* Campo Nome da Escala Extra */}
-                        <div className="mb-3">
-                            <label className="form-label">Nome da Escala Extra</label>
-                            <input
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Nome da Escala Extra</label>
+                             <div className="col-sm-8">
+                                <input
                                 type="text"
                                 className="form-control"
                                 value={nomeEscala}
                                 onChange={(e) => setNomeEscala(e.target.value)}
+                                required
                             />
+                             </div>                            
                         </div>
                         
                         {/* Campo Data */}
-                        <div className="mb-3">
-                            <label className="form-label">Data</label>
-                            <input
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Data do Extra</label>
+                            <div className="col-sm-8">
+                                <input
                                 type="date"
                                 className="form-control"
                                 value={dataEscala}
                                 onChange={(e) => setDataEscala(e.target.value)}
+                                required
                             />
+                            </div>                            
                         </div>
 
-                        {/* Campo Hora Inicio da Escala Extra */}
-                        <div className="mb-3">
-                            <label className="form-label">Hora Início</label>
-                            <input
-                                type="text"
+                        {/* Campo Data Abertura*/}
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Data Abertura</label>
+                            <div className="col-sm-8">
+                                <input
+                                type="date"
                                 className="form-control"
-                                value={horaInicio}
-                                onChange={(e) => sethoraInicio(e.target.value)}
+                                value={dataAbertura}
+                                onChange={(e) => setDataAbertura(e.target.value)}
+                                required
                             />
+                            </div>                            
+                        </div>                        
+
+                        {/* Campo Hora Inicio da Escala Extra */}
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Hora Abertura</label>
+                                <div className="col-sm-8">
+                                    <select
+                                    className="form-control"
+                                    value={horaInicio}
+                                    onChange={(e) => sethoraInicio(e.target.value)}
+                                    required
+                                    >
+                                    {Array.from({ length: 24 }, (_, i) => {
+                                        const hour = i.toString().padStart(2, "0") + ":00";
+                                        return (
+                                        <option key={hour} value={hour}>
+                                            {hour}
+                                        </option>
+                                        );
+                                    })}
+                                    </select>
+                                </div>
+                            </div>
+
+
+                        {/* Campo Data Fechameto*/}
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Data Fechamento</label>
+                            <div className="col-sm-8">
+                                <input
+                                type="date"
+                                className="form-control"
+                                value={dataFechamento}
+                                onChange={(e) => setDataFechamento(e.target.value)}
+                                required
+                            />
+                            </div>                            
                         </div>
 
                         {/* Campo Hora Fim da Escala Extra */}
-                        <div className="mb-3">
-                            <label className="form-label">Hora Fim</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                value={horaFim}
-                                onChange={(e) => sethoraFim(e.target.value)}
-                            />
-                        </div>
+                         <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Hora Fechamento</label>
+                                <div className="col-sm-8">
+                                    <select
+                                    className="form-control"
+                                    value={horaFim}
+                                    onChange={(e) => sethoraFim(e.target.value)}
+                                    required
+                                    >
+                                    {Array.from({ length: 24 }, (_, i) => {
+                                        const hour = i.toString().padStart(2, "0") + ":00";
+                                        return (
+                                        <option key={hour} value={hour}>
+                                            {hour}
+                                        </option>
+                                        );
+                                    })}
+                                    </select>
+                                </div>
+                            </div>
                         
                         {/* Campo Setor */}
-                        <div className="mb-3">
-                            <label className="form-label">Setor</label>
-                            <select
-                                className="form-select"
-                                value={setor}
-                                onChange={(e) => setSetor(e.target.value)}
-                            >
-                                <option value="">Selecione um setor</option>
-                                {setores.map((setor) => (
-                                    <option key={setor.idSetor} value={setor.idSetor}>
-                                        {setor.nomeSetor}
-                                    </option>
-                                ))}
-                            </select>
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Setor</label>
+                            <div className="col-sm-8">
+                                <select
+                                    className="form-control"
+                                    name="setor"
+                                    value={setorSelecionado}
+                                    onChange={(e) => setSetorSelecionado(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Selecione um setor</option>
+                                    {setor.map(s => (
+                                        <option key={s.idSetor} value={s.idSetor}>{s.nmNome}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
 
                         {/* Campo Ativo */}
-                        <div className="mb-3">
-                            <label className="form-check-label">Ativo</label>
-                            <input
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Ativo</label>
+                            <div className="col-sm-8">
+                                <input
                                 type="checkbox"
                                 className="form-check-input"
                                 checked={ativo}
                                 onChange={handleAtivoChange}
                             />
+                            </div>                            
                         </div>
 
                         {/* Botão Salvar */}
@@ -261,17 +398,6 @@ function CriacaoEscalaExtraForm(props) {
 export function CriacaoEscalaExtraPage() {
     const [content, setContent] = useState(<CriacaoEscalaExtraList ShowForm={ShowForm} />); 
     const [escalasExtras, setEscalasExtras] = useState([]);
-
-    useEffect(() => {
-        // Carregar escalas extras
-        axios.get(`${import.meta.env.VITE_BACKEND_API}/escalaExtra`)
-            .then(response => {
-                setEscalasExtras(response.data);
-            })
-            .catch(error => {
-                console.error('Erro ao carregar escalas extras', error);
-            });
-    }, []);
 
     function ShowList() {
         setContent(<CriacaoEscalaExtraList ShowForm={ShowForm} />);

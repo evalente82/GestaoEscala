@@ -38,13 +38,21 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaExtra
         }
 
         [HttpPost]
-        [Route("Incluir/")]
+        [Route("Incluir")]
         public async Task<ActionResult> IncluirListaEscalaExtra([FromBody] EscalaExtraDTO[] escalaExtra)
         {
-            var escalaExtraDTOs = await _escalaExtraService.IncluirLista(_mapper.Map<EscalaExtraDTO[]>(escalaExtra));
-            var escalaExtraModels = _mapper.Map<List<EscalaExtraModel>>(escalaExtraDTOs);
+            try
+            {
+                var escalaExtraDTOs = await _escalaExtraService.IncluirLista(_mapper.Map<EscalaExtraDTO[]>(escalaExtra));
+                var escalaExtraModels = _mapper.Map<List<EscalaExtraModel>>(escalaExtraDTOs);
 
-            return Ok(escalaExtraModels);
+                // Retorna o resultado correto
+                return Ok(escalaExtraModels);  // Certifique-se de que Ok() está retornando a estrutura correta
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Erro ao incluir escala extra", error = ex.Message });
+            }
         }
 
     }
