@@ -1,14 +1,17 @@
+import { useAuth } from "../../Pages/AuthContext";
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import AlertPopup from '../AlertPopup/AlertPopup';
 import api from './../axiosConfig';
 
+
 // Componente para listar as escalas extras
 function CriacaoEscalaExtraList(props) {
     const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     const [escalasExtras, setEscalasExtras] = useState([]);
     const [setor, setSetor] = useState([]);
+    const { nomeUsuario } = useAuth();
 
     const [alertProps, setAlertProps] = useState({
         show: false, // Exibe ou esconde o AlertPopup
@@ -161,7 +164,7 @@ function CriacaoEscalaExtraList(props) {
                     {escalasExtras.map((escala, index) => (
                         <tr key={index}>
                             <td>{escala.nmEscalaExtra}</td>
-                            <td>{formatDate(escala.dtEscalaExtra)}</td>
+                            <td>{formatDate(escala.dtEscalaExtra, true)}</td>
                             <td>{formatDate(escala.dtAbertura, true)}</td>
                             <td>{formatDate(escala.dtFechamento, true)}</td>
                             <td>{setor.find(s => s.idSetor === escala.idSetor)?.nmNome || "Setor não encontrado"}</td>
@@ -202,8 +205,8 @@ function CriacaoEscalaExtraList(props) {
 
 // Componente para o formulário de criação de escala extra
 function CriacaoEscalaExtraForm(props) {
-    //console.log('props.EscalasExtra.dtAbertura antes do useEffect:', props.EscalaExtra.dtAbertura);
-
+    const { nomeUsuario } = useAuth();
+    //console.log('props.EscalasExtra.dtAbertura antes do useEffect:', nomeEscala);
     CriacaoEscalaExtraForm.propTypes = {
         ShowList: PropTypes.func.isRequired,
         escalasExtra: PropTypes.shape({
@@ -212,8 +215,9 @@ function CriacaoEscalaExtraForm(props) {
                     DtEscalaExtra: PropTypes.string,
                     dtAbertura: PropTypes.string,
                     dtFechamento: PropTypes.string,
-                    horaAberturahoraAbertura: PropTypes.string,
-                    horaFechamentohoraFechamento: PropTypes.string,
+                    horaDoServico: PropTypes.string,
+                    horaAbertura: PropTypes.string,
+                    horaFechamento: PropTypes.string,
                     idSetor: PropTypes.string,
                     isAtivo: PropTypes.bool,
                 }).isRequired,
@@ -230,33 +234,39 @@ function CriacaoEscalaExtraForm(props) {
 
     // Campos do formulário
     const [setor, setSetor] = useState([]);
-    
-    const [nomeEscala, setNomeEscala] = useState(props.EscalasExtra?.NmEscalaExtra || '');  // Preenche com os dados da escala
-    const [dataEscala, setDataEscala] = useState(props.EscalasExtra?.DtEscalaExtra || '');  // Preenche com os dados da escala
-    const [dataAbertura, setDataAbertura] = useState(props.EscalasExtra?.dtAbertura || '');  // Preenche com os dados da escala
-    const [dataFechamento, setDataFechamento] = useState(props.EscalasExtra?.dtFechamento || '');  // Preenche com os dados da escala
-    const [horaInicio, setHoraInicio] = useState(props.EscalasExtra?.horaAbertura || '');  // Preenche com os dados da escala
-    const [horaFim, setHoraFim] = useState(props.EscalasExtra?.horaFechamento || '');  // Preenche com os dados da escala
+    // Campos do formulário - agora controlados corretamente
+    const [nomeEscala, setNomeEscala] = useState('');  // Inicializando com valor vazio
+    const [dataEscala, setDataEscala] = useState('');
+    const [dataAbertura, setDataAbertura] = useState('');
+    const [dataFechamento, setDataFechamento] = useState('');
+    const [horaDoServico, setHoraDoServico] = useState('');
+    const [horaInicio, setHoraInicio] = useState('');
+    const [horaFim, setHoraFim] = useState('');
     const [setorSelecionado, setSetorSelecionado] = useState('');
-    const [ativo, setAtivo] = useState(props.EscalasExtra?.isAtivo || true);  // Preenche com os dados da escala
+    const [ativo, setAtivo] = useState(true);
+
+    useEffect(() => {
+        if (props.EscalaExtra) {
+            //console.log('props.EscalaExtra dentro do useEffect:', props.EscalaExtra);
+
+            setNomeEscala(props.EscalaExtra.nmEscalaExtra || '');  // Atualiza o estado com os valores recebidos
+            setDataEscala(props.EscalaExtra.dtEscalaExtra || '');
+            setDataAbertura(props.EscalaExtra.dtAbertura || '');
+            setDataFechamento(props.EscalaExtra.dtFechamento || '');
+            setHoraDoServico(props.EscalaExtra.horaDoServico || '');
+            setHoraInicio(props.EscalaExtra.horaAbertura || '');
+            setHoraFim(props.EscalaExtra.horaFechamento || '');
+            setSetorSelecionado(props.EscalaExtra.idSetor || '');
+            setAtivo(props.EscalaExtra.isAtivo || true);
+        }
+    }, [props.EscalaExtra]);  // Atualiza os campos sempre que props.EscalaExtra mudar
+
 
      useEffect(() => {
         BuscarSetor();
     }, []);
 
-    useEffect(() => {
-        if (props.EscalasExtra) {
-            setNomeEscala(props.EscalasExtra.NmEscalaExtra);
-            setDataEscala(props.EscalasExtra.DtEscalaExtra);
-            setDataAbertura(props.EscalasExtra.dtAbertura);
-            setDataFechamento(props.EscalasExtra.dtFechamento);
-            setHoraInicio(props.EscalasExtra.horaAbertura);
-            setHoraFim(props.EscalasExtra.horaFechamento);
-            setSetorSelecionado(props.EscalasExtra.idSetor);
-            setAtivo(props.EscalasExtra.isAtivo);
-        }
-    }, [props.EscalasExtra]);  // Atualiza os campos caso o valor de props.escalasExtra mude
-
+    
     const API_URL_Setor = `${API_BASE_URL}/setor`;
     function BuscarSetor() {
         api.get(`${API_URL_Setor}/buscarTodos`)
@@ -282,103 +292,108 @@ function CriacaoEscalaExtraForm(props) {
     }
 
     const handleSubmit = (e) => {
+        console.log('nome para salvar', nomeUsuario);
         console.log('nomeEscala:', nomeEscala);
-console.log('dataEscala:', dataEscala);
-console.log('dataAbertura:', dataAbertura);
-console.log('horaInicio:', horaInicio);
-console.log('horaFim:', horaFim);
-console.log('setorSelecionado:', setorSelecionado);
-console.log('ativo:', ativo);
-
-    e.preventDefault();
-
-    if (props.EscalaExtra.idCriacaoEscalaExtra) {
+        console.log('dataEscala:', dataEscala);
+        console.log('dataAbertura:', dataAbertura);    
+        console.log('horaDoServico:', horaDoServico);
+        console.log('horaInicio:', horaInicio);
+        console.log('horaFim:', horaFim);
+        console.log('setorSelecionado:', setorSelecionado);
+        console.log('ativo:', ativo);
+        e.preventDefault();
         const data = {
-        NmEscalaExtra: nomeEscala,
-        DtEscalaExtra: dataEscala,
-        dtAbertura: dataAbertura,
-        dtFechamento: dataFechamento,
-        horaAbertura: horaInicio,
-        horaFechamento: horaFim,
-        IdSetor: setorSelecionado,  // Usando o idSetor selecionado
-        IsAtivo: ativo,
-    };
-    console.log('dados enviados',data)
+            NmEscalaExtra: nomeEscala,
+            DtEscalaExtra: dataEscala,
+            dtAbertura: dataAbertura,
+            dtFechamento: dataFechamento,
+            horaDoServico: horaDoServico,
+            horaAbertura: horaInicio,
+            horaFechamento: horaFim,
+            IdSetor: setorSelecionado,
+            nomeFuncionario: nomeUsuario,
+            IsAtivo: ativo,
+        };
+
+    // Verifique se props.EscalaExtra está presente antes de acessar idCriacaoEscalaExtra
+    if (props.EscalaExtra && props.EscalaExtra.idCriacaoEscalaExtra) {
+    // Atualização (editar)
     api.patch(
-                `${API_BASE_URL}/escalaExtra/Atualizar/` +
-                    props.EscalaExtra.idCriacaoEscalaExtra,
-                    data
-                )
-                .then(() => {
-                    setAlertProps({
-                        show: true,
-                        type: "success",
-                        title: "Sucesso",
-                        message: "Escala Extra atualizada com sucesso!",
-                        onClose: () => {
-                            setAlertProps((prev) => ({ ...prev, show: false }));
-                            props.ShowList(); // Voltar para a lista após fechar a modal
-                        },
-                    });
-                })
-                .catch((error) => {
-                    setAlertProps({
-                        show: true,
-                        type: "error",
-                        title: "Erro",
-                        message: "Falha ao atualizar o Posto de Trabalho.",
-                        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
-                    });
-                    console.error(error);
-                });
-    } else {
-        const data = [{
-        NmEscalaExtra: nomeEscala,
-        DtEscalaExtra: dataEscala,
-        dtAbertura: dataAbertura,
-        dtFechamento: dataFechamento,
-        horaAbertura: horaInicio,
-        horaFechamento: horaFim,
-        IdSetor: setorSelecionado,  // Usando o idSetor selecionado
-        IsAtivo: ativo,
-    }];
-    //console.log("Dados a serem enviados:", data);
-    // Salvando a nova criação
-    api.post(`${API_BASE_URL}/escalaExtra/Incluir`, data)
-        .then((response) => {
-            //console.log(response); // Verifique a resposta para garantir que está correta
+        `${API_BASE_URL}/escalaExtra/Atualizar/` + props.EscalaExtra.idCriacaoEscalaExtra,
+        data
+    )
+    .then((response) => {
+        // Verifique se a resposta contém a propriedade 'Valido'
+        if (response.data && response.data.valido) {
             setAlertProps({
                 show: true,
                 type: "success",
                 title: "Sucesso",
-                message: "Escala Extra cadastrada com sucesso!",
+                message: "Escala Extra atualizada com sucesso!",
                 onClose: () => {
                     setAlertProps((prev) => ({ ...prev, show: false }));
-                    props.ShowList(); // Voltar para a lista após fechar a modal
+                    props.ShowList();
                 },
             });
-        })
-        .catch((error) => {
-    if (error.response) {
-        // A resposta do servidor está no erro
-        console.error("Erro na requisição:", error.response.data);
-    } else if (error.request) {
-        // A requisição foi feita, mas não houve resposta
-        console.error("Sem resposta do servidor:", error.request);
-    } else {
-        // Algum erro na configuração da requisição
-        console.error("Erro ao configurar a requisição:", error.message);
-    }
-    setAlertProps({
-        show: true,
-        type: "error",
-        title: "Erro",
-        message: "Falha ao cadastrar Escala Extra.",
-        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+        } else {
+            console.log('Erro no backend:', response.data.Mensagem);
+            setAlertProps({
+                show: true,
+                type: "error",
+                title: "Erro",
+                message: response.data.Mensagem || "Falha ao atualizar a Escala Extra.",
+                onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
             });
+        }
+    })
+    .catch((error) => {
+        console.error('Erro ao chamar a API:', error);
+        setAlertProps({
+            show: true,
+            type: "error",
+            title: "Erro",
+            message: "Falha ao atualizar a Escala Extra.",
+            onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
         });
-    };
+    });    
     }
+    else {
+            // Criar nova
+            api.post(`${API_BASE_URL}/escalaExtra/Incluir`, data)
+                .then((response) => {
+                    if (response.data && response.data.valido) {
+                        setAlertProps({
+                            show: true,
+                            type: "success",
+                            title: "Sucesso",
+                            message: "Escala Extra cadastrada com sucesso!",
+                            onClose: () => {
+                                setAlertProps((prev) => ({ ...prev, show: false }));
+                                props.ShowList();
+                            },
+                        });
+                    } else {
+                        setAlertProps({
+                            show: true,
+                            type: "error",
+                            title: "Erro",
+                            message: response.data.Mensagem || "Falha ao cadastrar Escala Extra.",
+                            onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error(error);
+                    setAlertProps({
+                        show: true,
+                        type: "error",
+                        title: "Erro",
+                        message: "Falha ao cadastrar Escala Extra.",
+                        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                    });
+                });
+        }
+    };
     
 
     useEffect(() => {
@@ -398,10 +413,16 @@ console.log('ativo:', ativo);
             const horaFormatadaFechamento = horaBrasiliaFechamento.getHours().toString().padStart(2, "0") + ":00";
             setHoraFim(horaFormatadaFechamento);
         }
+
+        // Atualizando a horaDoServico
+        if (props.EscalaExtra.horaDoServico) {
+            const horaDoServico = new Date(props.EscalaExtra.DtEscalaExtra);
+            const horaBrasiliaDoServico = new Date(horaDoServico.getTime()); // Subtrai 0 horas, ajusta para o fuso de Brasília
+            const horaFormatadaDoServico = horaBrasiliaDoServico.getHours().toString().padStart(2, "0") + ":00";
+            setHoraFim(horaFormatadaDoServico);
+        }
     }
 }, [props.EscalaExtra]); // Executa sempre que `props.EscalaExtra` for alterado
-
-    //console.log('dados do id: ',props.EscalasExtra)
 
     return (
         <>
@@ -423,7 +444,7 @@ console.log('ativo:', ativo);
                                         readOnly
                                         className="form-control-plaintext"
                                         name="idCriacaoEscalaExtra"
-                                        value={props.EscalaExtra.idCriacaoEscalaExtra}
+                                        defaultValue={props.EscalaExtra.idCriacaoEscalaExtra}
                                         required
                                         onChange={(e) => setNomeEscala(e.target.value)}
                                     ></input>
@@ -431,18 +452,19 @@ console.log('ativo:', ativo);
                             </div>
                         )}
 
+                        {/* Campo Nome da Escala Extra */}
                         <div className="row mb-3">
                             <label className="col-sm-4 col-form-label">Nome da Escala Extra</label>
-                             <div className="col-sm-8">
+                            <div className="col-sm-8">
                                 <input
-                                type="text"
-                                className="form-control"
-                                name="nmEscalaExtra"
-                                value={props.EscalaExtra.nmEscalaExtra}
-                                onChange={(e) => setNomeEscala(e.target.value)}
-                                required
-                            />
-                             </div>                            
+                                    type="text"
+                                    className="form-control"
+                                    name="nmEscalaExtra"
+                                    value={nomeEscala}  // Certifique-se de que o valor do estado seja usado aqui
+                                    onChange={(e) => setNomeEscala(e.target.value)}
+                                    required
+                                />
+                            </div>
                         </div>
                         
                         {/* Campo Data */}
@@ -453,12 +475,35 @@ console.log('ativo:', ativo);
                                     type="date"
                                     className="form-control"
                                     name="dtEscalaExtra"
-                                    value={props.EscalaExtra.dtEscalaExtra.split('T')[0]} // Pega apenas a parte da data (yyyy-mm-dd)
+                                    value={dataEscala.split('T')[0]} // Pega apenas a parte da data (yyyy-mm-dd)
                                     onChange={(e) => setDataEscala(e.target.value)}
                                     required
                                 />
                             </div>                            
                         </div>
+
+                        {/* Campo Hora Inicio da Escala Extra */}
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Hora Início do Extra</label>
+                            <div className="col-sm-8">
+                                <select
+                                    className="form-control"
+                                    value={horaDoServico}  // Usando `value` em vez de `defaultValue` para controle do estado
+                                    onChange={(e) => setHoraDoServico(e.target.value)}
+                                    required
+                                >
+                                    {Array.from({ length: 24 }, (_, i) => {
+                                        const hour = i.toString().padStart(2, "0") + ":00";
+                                        return (
+                                            <option key={hour} value={hour}>
+                                                {hour}
+                                            </option>
+                                        );
+                                    })}
+                                </select>
+                            </div>
+                        </div>
+
 
                         {/* Campo Data Abertura*/}
                         <div className="row mb-3">
@@ -468,7 +513,7 @@ console.log('ativo:', ativo);
                                 type="date"
                                 className="form-control"
                                 name="dtAbertura"
-                                value={props.EscalaExtra.dtAbertura.split('T')[0]}
+                                value={dataAbertura.split('T')[0]}
                                 onChange={(e) => setDataAbertura(e.target.value)}
                                 required
                             />
@@ -505,7 +550,7 @@ console.log('ativo:', ativo);
                                 type="date"
                                 className="form-control"
                                 name="dtFechamento"
-                                value={props.EscalaExtra.dtFechamento.split('T')[0]}
+                                value={dataFechamento.split('T')[0]}
                                 onChange={(e) => setDataFechamento(e.target.value)}
                                 required
                             />
@@ -518,19 +563,19 @@ console.log('ativo:', ativo);
                                 <div className="col-sm-8">
                                     <select
                                     className="form-control"
-                                    value={horaFim}
-                                    onChange={(e) => sethoraFim(e.target.value)}
+                                    value={horaFim}  // Usando `value` em vez de `defaultValue` para controle do estado
+                                    onChange={(e) => setHoraFim(e.target.value)}
                                     required
-                                    >
+                                >
                                     {Array.from({ length: 24 }, (_, i) => {
                                         const hour = i.toString().padStart(2, "0") + ":00";
                                         return (
-                                        <option key={hour} value={hour}>
-                                            {hour}
-                                        </option>
+                                            <option key={hour} value={hour}>
+                                                {hour}
+                                            </option>
                                         );
                                     })}
-                                    </select>
+                                </select>
                                 </div>
                             </div>
                         

@@ -8,6 +8,7 @@
         public DateTime DtEscalaExtra { get; set; }
         public DateTime DtAbertura { get; set; }
         public DateTime DtFechamento { get; set; }
+        public string horaDoServico { get; set; }
         public string HoraAbertura { get; set; }
         public string HoraFechamento { get; set; }
         public Guid IdFuncionario { get; set; }

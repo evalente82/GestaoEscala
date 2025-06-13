@@ -7,7 +7,7 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.EscalaExtra
     {
         Task<List<EscalaExtraDTO>> BuscarTodos();
         Task<EscalaExtraDTO> BuscarPorId(Guid idEscalaExtra);
-        Task<EscalaExtraDTO[]> IncluirLista(EscalaExtraDTO[] escalaExtraDTOs);
+        Task<EscalaExtraDTO> IncluirLista(EscalaExtraDTO escalaExtraDTOs);
         Task<EscalaExtraDTO> Deletar(Guid id);
         Task<EscalaExtraDTO> Alterar(Guid id, EscalaExtraDTO escalaExtraModel);
     }

@@ -19,7 +19,7 @@ namespace GestaoEscalaPermutas.Repository.Implementations
             _context = context;
         }
 
-        public async Task<CriacaoEscalaExtra[]> AdicionarListaAsync(CriacaoEscalaExtra[] escalaExtra)
+        public async Task<CriacaoEscalaExtra> AdicionarListaAsync(CriacaoEscalaExtra escalaExtra)
         {
             await _context.CriacaoEscalaExtra.AddRangeAsync(escalaExtra);
             await _context.SaveChangesAsync();

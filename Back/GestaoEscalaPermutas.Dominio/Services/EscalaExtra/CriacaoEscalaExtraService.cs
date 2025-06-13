@@ -82,42 +82,44 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
             }
         }
 
-        public async Task<EscalaExtraDTO[]> IncluirLista(EscalaExtraDTO[] escalaExtraDTOs)
+        public async Task<EscalaExtraDTO> IncluirLista(EscalaExtraDTO escalaExtraDTOs)
         {
-            if (escalaExtraDTOs is null || escalaExtraDTOs.Length == 0)
-                return new EscalaExtraDTO[] { new() { valido = false, mensagem = "Lista de Escala Extra vazia." } };
+            if (escalaExtraDTOs is null)
+                return new EscalaExtraDTO{ valido = false, mensagem = "Lista de Escala Extra vazia."  };
 
-            // Iterando sobre cada objeto de EscalaExtraDTO para combinar data e hora
-            foreach (var escala in escalaExtraDTOs)
-            {
-                // Verificando se a hora e data são válidas
-                if (!string.IsNullOrEmpty(escala.HoraAbertura))
+
+            // Verificando se a hora e data são válidas
+                if (!string.IsNullOrEmpty(escalaExtraDTOs.horaDoServico))
                 {
-                    // Combina a data com a hora (assumindo que HoraAbertura esteja no formato "HH:mm")
-                    DateTime dtAberturaComHora = escala.DtAbertura.Date + TimeSpan.Parse(escala.HoraAbertura);
-                    escala.DtAbertura = dtAberturaComHora; // Atualiza a data de abertura com a hora combinada
+                // Combina a data com a hora (assumindo que horaDoServico esteja no formato "HH:mm")
+                    DateTime dtExtraComHora = escalaExtraDTOs.DtEscalaExtra.Date + TimeSpan.Parse(escalaExtraDTOs.horaDoServico);
+                    escalaExtraDTOs.DtEscalaExtra = dtExtraComHora; // Atualiza a data do Extra com a hora combinada
                 }
 
-                if (!string.IsNullOrEmpty(escala.HoraFechamento))
+                if (!string.IsNullOrEmpty(escalaExtraDTOs.HoraAbertura))
+                    {
+                    // Combina a data com a hora (assumindo que HoraAbertura esteja no formato "HH:mm")
+                    DateTime dtAberturaComHora = escalaExtraDTOs.DtAbertura.Date + TimeSpan.Parse(escalaExtraDTOs.HoraAbertura);
+                    escalaExtraDTOs.DtAbertura = dtAberturaComHora; // Atualiza a data de abertura com a hora combinada
+                }
+
+                if (!string.IsNullOrEmpty(escalaExtraDTOs.HoraFechamento))
                 {
                     // Combina a data de fechamento com a hora (assumindo que HoraFechamento esteja no formato "HH:mm")
-                    DateTime dtFechamentoComHora = escala.DtFechamento.Date + TimeSpan.Parse(escala.HoraFechamento);
-                    escala.DtFechamento = dtFechamentoComHora; // Atualiza a data de fechamento com a hora combinada
+                    DateTime dtFechamentoComHora = escalaExtraDTOs.DtFechamento.Date + TimeSpan.Parse(escalaExtraDTOs.HoraFechamento);
+                    escalaExtraDTOs.DtFechamento = dtFechamentoComHora; // Atualiza a data de fechamento com a hora combinada
                 }
                 //Console.WriteLine("Fuso horário local: " + TimeZoneInfo.Local.DisplayName);
 
 
-
-            }
-
             // Mapeia a lista de DTOs para as entidades (CriacaoEscalaExtra)
-            var escalaExtra = _mapper.Map<DepInfra.CriacaoEscalaExtra[]>(escalaExtraDTOs);
+            var escalaExtra = _mapper.Map<DepInfra.CriacaoEscalaExtra>(escalaExtraDTOs);
 
             // Adiciona a lista de escalas ao repositório
             var novaEscalaExtra = await _EscalaExtraRepository.AdicionarListaAsync(escalaExtra);
 
             // Mapeia de volta para DTOs e retorna
-            return _mapper.Map<EscalaExtraDTO[]>(novaEscalaExtra);
+            return _mapper.Map<EscalaExtraDTO>(novaEscalaExtra);
         }
 
         public async Task<EscalaExtraDTO> Deletar(Guid id)
@@ -138,21 +140,21 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
             }
         }
 
-        public async Task<EscalaExtraDTO> Alterar(Guid id, EscalaExtraDTO postoTrabalhoModel)
+        public async Task<EscalaExtraDTO> Alterar(Guid id, EscalaExtraDTO escalaExtraModel)
         {
             try
             {
                 if (id == Guid.Empty)
                     return new EscalaExtraDTO { valido = false, mensagem = "Id fora do Range." };
 
-                var postoTrabalhoExistente = await _EscalaExtraRepository.BuscarPorIdAsync(id);
-                if (postoTrabalhoExistente == null)
+                var escalaextraExistente = await _EscalaExtraRepository.BuscarPorIdAsync(id);
+                if (escalaextraExistente == null)
                     return new EscalaExtraDTO { valido = false, mensagem = "Escala não encontrada." };
 
-                _mapper.Map(postoTrabalhoModel, postoTrabalhoExistente);
-                var postoAtualizado = await _EscalaExtraRepository.AlterarAsync(postoTrabalhoExistente);
+                _mapper.Map(escalaExtraModel, escalaextraExistente);
+                var escalaExtraAtualizado = await _EscalaExtraRepository.AlterarAsync(escalaextraExistente);
 
-                return _mapper.Map<EscalaExtraDTO>(postoAtualizado);
+                return _mapper.Map<EscalaExtraDTO>(escalaExtraAtualizado);
             }
             catch (Exception e)
             {

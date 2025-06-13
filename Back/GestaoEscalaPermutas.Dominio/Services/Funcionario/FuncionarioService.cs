@@ -7,6 +7,7 @@ using GestaoEscalaPermutas.Infra.Data.Context;
 using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using GestaoEscalaPermutas.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 
 namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
@@ -123,6 +124,28 @@ namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
                 {
                     return new List<FuncionarioDTO> { new FuncionarioDTO { valido = false, mensagem = $"Erro ao buscar administradores: {ex.Message}" } };
                 }
+            }
+
+            public async Task<Guid> BuscarPorNomeFuncionario(string nome)
+            {
+                // Verifica se o nome é vazio ou nulo
+                if (string.IsNullOrEmpty(nome))
+                    throw new ArgumentException("Nome vazio ou nulo.");
+
+                // Obtém todos os funcionários
+                var funcionarios = await _funcionarioRepository.ObterTodosAsync();
+
+                // Filtra o funcionário com o nome correspondente
+                var funcionario = funcionarios
+                    .Where(f => f.NmNome.Equals(nome))
+                    .FirstOrDefault();
+
+                // Se o funcionário não for encontrado, retorna Guid.Empty
+                if (funcionario == null)
+                    return Guid.Empty;
+
+                // Retorna o Id do funcionário encontrado
+                return funcionario.IdFuncionario;
             }
         }
     }

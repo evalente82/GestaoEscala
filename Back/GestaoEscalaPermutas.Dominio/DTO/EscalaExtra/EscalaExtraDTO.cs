@@ -15,9 +15,11 @@ namespace GestaoEscalaPermutas.Dominio.DTO.EscalaExtra
         public DateTime DtEscalaExtra { get; set; }
         public DateTime DtAbertura { get; set; }
         public DateTime DtFechamento { get; set; }
+        public string horaDoServico { get; set; }        
         public string HoraAbertura { get; set; }
         public string HoraFechamento{ get; set; }
         public Guid IdFuncionario { get; set; }
+        public string NomeFuncionario { get; set; }
         public bool IsAtivo { get; set; } = true;
         [JsonIgnore]
         public DateTime DtCriacao { get; set; } = DateTime.Now;

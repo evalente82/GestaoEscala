@@ -23,6 +23,7 @@ function NavBar() {
     };
 
     useEffect(() => {
+        //console.log('nome:',nomeUsuario)
         if (!token) {
             window.location.replace("/");
         }

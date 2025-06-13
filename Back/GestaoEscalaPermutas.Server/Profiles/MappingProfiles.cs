@@ -34,7 +34,15 @@ namespace GestaoEscalaPermutas.Dominio.Mapping
         public MappingProfiles()
         {
             // ======= ESCALA EXTRA =======
-
+            // Mapeia de EscalaExtraDTO para CriacaoEscalaExtraModel
+            CreateMap<EscalaExtraDTO, CriacaoEscalaExtraModel>()
+                .ForMember(dest => dest.NmEscalaExtra, opt => opt.MapFrom(src => src.NmEscalaExtra))
+                .ForMember(dest => dest.DtEscalaExtra, opt => opt.MapFrom(src => src.DtEscalaExtra.ToLocalTime()))
+                .ForMember(dest => dest.DtAbertura, opt => opt.MapFrom(src => src.DtAbertura.ToLocalTime()))
+                .ForMember(dest => dest.DtFechamento, opt => opt.MapFrom(src => src.DtFechamento.ToLocalTime()))
+                .ForMember(dest => dest.IdFuncionario, opt => opt.MapFrom(src => src.IdFuncionario))
+                .ForMember(dest => dest.IdSetor, opt => opt.MapFrom(src => src.IdSetor))
+                .ForMember(dest => dest.IsAtivo, opt => opt.MapFrom(src => src.IsAtivo));
             //CreateMap<EscalaExtra, EscalaExtraDTO>();
             CreateMap<CriacaoEscalaExtra , EscalaExtraDTO>().ReverseMap()
                 .ForMember(dest => dest.DtEscalaExtra, opt => opt.MapFrom(src => src.DtEscalaExtra.ToUniversalTime()))
