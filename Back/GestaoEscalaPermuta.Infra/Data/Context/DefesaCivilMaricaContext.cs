@@ -37,7 +37,7 @@ public partial class DefesaCivilMaricaContext : DbContext
     public DbSet<CargoPerfis> CargoPerfis { get; set; }
     public DbSet<Setor> Setor { get; set; }
     public DbSet<FuncionarioFcmToken> FuncionarioFcmTokens { get; set; }
-    public DbSet<EscalaExtra> EscalaExtras { get; set; }
+    public DbSet<EscalaExtra> EscalaExtra { get; set; }
     public DbSet<CriacaoEscalaExtra> CriacaoEscalaExtra { get; set; }
 
 

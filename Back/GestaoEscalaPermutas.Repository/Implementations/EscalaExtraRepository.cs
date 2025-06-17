@@ -28,7 +28,7 @@ namespace GestaoEscalaPermutas.Repository.Implementations
 
         public async Task<EscalaExtra> ObterPorIdAsync(Guid id)
         {
-            return await _context.EscalaExtras.FindAsync(id);
+            return await _context.EscalaExtra.FindAsync(id);
         }
 
         public async Task<List<CriacaoEscalaExtra>> ObterTodosAsync()

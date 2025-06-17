@@ -136,6 +136,10 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISetorService, SetorService>();
 builder.Services.AddScoped<IEscalaExtraService, CriacaoEscalaExtraService>();
 builder.Services.AddScoped<IEscalaExtraRepository, EscalaExtraRepository>();
+
+builder.Services.AddScoped<ISolicitacaoEscalaExtraService, SolicitacaoEscalaExtraService>();
+builder.Services.AddScoped<ISolicitacaoEscalaExtraRepository, SolicitacaoEscalaExtraRepository>();
+
 builder.Services.AddRepositoryServices();
 builder.Services.AddHostedService<PermutasMessageConsumer>();
 #endregion

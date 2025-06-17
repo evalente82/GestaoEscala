@@ -155,7 +155,7 @@ function NavBar() {
                         )}
                         <ul className="navbar-nav">
                             {/* Seletor de idiomas - Ocultado com condição */}
-                            {true && (
+                            {false && (
                                 <li className="nav-item dropdown">
                                     <a className="nav-link dropdown-toggle text-dark" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown">
                                         <img src={getFlag(i18n.language)} alt="Bandeira" style={{ width: '20px', marginRight: '8px' }} />
