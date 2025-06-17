@@ -65,55 +65,8 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaExtra
         public async Task<ActionResult> DeletarEscalaExtra(Guid id)
         {
             var escalaExtraDTO = await _SolicitacaoEscalaExtraService.Deletar(id);
-            var escalaExtraModel = _mapper.Map<EscalaExtraModel>(escalaExtraDTO);
+            var escalaExtraModel = _mapper.Map<SolicitacaoEscalaExtraModel>(escalaExtraDTO);
             return (escalaExtraModel.Valido) ? Ok(escalaExtraModel.Mensagem) : BadRequest(new RetornoModel { Valido = false, Mensagem = escalaExtraModel.Mensagem });
-        }
-
-        [HttpPatch]
-        [Route("Atualizar/{id:Guid}")]
-        public async Task<ActionResult> AtualizarEscalaExtra(Guid id, [FromBody] SolicitacaoEscalaExtraDTO escalaExtra)
-        {
-            try
-            {
-               
-                escalaExtra.IdCriacaoEscalaExtra = id;
-
-                // Tenta alterar a escala extra
-                var escalaExtraDTO = await _SolicitacaoEscalaExtraService.Alterar(id, _mapper.Map<SolicitacaoEscalaExtraDTO>(escalaExtra));
-
-                // Mapeia para o modelo final
-                var escalaExtraModel = _mapper.Map<CriacaoEscalaExtraModel>(escalaExtraDTO);
-
-                // Verifica se a operação foi válida e retorna a resposta adequada
-                if (escalaExtraModel.Valido)
-                {
-                    return Ok(escalaExtraModel);
-                }
-                else
-                {
-                    return BadRequest(new RetornoModel { Valido = false, Mensagem = escalaExtraModel.Mensagem });
-                }
-            }
-            catch (ArgumentException argEx)
-            {
-                // Log de erro de argumento
-                Console.WriteLine($"ArgumentException: {argEx.Message}");
-                return BadRequest(new RetornoModel { Valido = false, Mensagem = $"Erro de argumento: {argEx.Message}" });
-            }
-            catch (InvalidOperationException invOpEx)
-            {
-                // Log de erro de operação inválida
-                Console.WriteLine($"InvalidOperationException: {invOpEx.Message}");
-                return BadRequest(new RetornoModel { Valido = false, Mensagem = $"Erro na operação: {invOpEx.Message}" });
-            }
-            catch (Exception ex)
-            {
-                // Log do erro geral
-                Console.WriteLine($"Exception: {ex.Message}");
-                return StatusCode(500, new RetornoModel { Valido = false, Mensagem = $"Erro interno do servidor: {ex.Message}" });
-            }
-        }
-
-
+        }        
     }
 }
