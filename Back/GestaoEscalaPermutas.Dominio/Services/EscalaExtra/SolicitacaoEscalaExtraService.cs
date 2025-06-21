@@ -22,7 +22,8 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
         private readonly IEscalaExtraRepository _escalaExtraRepository;
         private readonly ISetorRepository _setorRepository;
         private readonly RecaptchaSettings _recaptchaSettings;
-        private readonly ILogger<SolicitacaoEscalaExtraService> _logger; // Injete o logger
+        private readonly ILogger<SolicitacaoEscalaExtraService> _logger;
+        private readonly IEscalaProntaRepository _escalaProntaRepository;
 
         public SolicitacaoEscalaExtraService(
             ISolicitacaoEscalaExtraRepository SolicitacaoEscalaExtraRepository,
@@ -30,7 +31,8 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
             IEscalaExtraRepository escalaExtraRepository,
             ISetorRepository setorRepository,
             IOptions<RecaptchaSettings> recaptchaOptions,
-            ILogger<SolicitacaoEscalaExtraService> logger) // Injete o logger
+            ILogger<SolicitacaoEscalaExtraService> logger,
+            IEscalaProntaRepository escalaProntaRepository) // Injete o logger
         {
             _SolicitacaoEscalaExtraRepository = SolicitacaoEscalaExtraRepository;
             _mapper = mapper;
@@ -39,6 +41,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
             // REMOVA: _httpClient = httpClientFactory.CreateClient();
             _recaptchaSettings = recaptchaOptions.Value;
             _logger = logger; // Atribua o logger injetado
+            _escalaProntaRepository = escalaProntaRepository;
         }
 
         public async Task<List<SolicitacaoEscalaExtraDTO>> BuscarPorIdFuncionario(Guid idFuncionario)
@@ -209,22 +212,32 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
             }
 
             //verificar se o funcionario esta de serviço no referido dia.
-
-
-
+            var escalasProntas = await _escalaProntaRepository.BuscarPorIdFuncionario(solicitacoesEscalaExtraDTOs.IdFuncionario);
+            
             //verificar se o funcionario ja se cadastrou no dia e não pode cadastrar em outro setor no mesmo dia.
 
-            var teste = await _SolicitacaoEscalaExtraRepository.ObterTodosAsync();
+            var listEscalas = await _SolicitacaoEscalaExtraRepository.ObterTodosAsync();
 
-            foreach (var item in teste)
+            foreach (var escala in escalasProntas)
+            {
+                if (extrasDisponiveis.DtEscalaExtra.Date == escala.DtDataServico.Date)
+                {
+                    return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "O Funcionário está de plantão nesta dia." };
+                }
+            }
+
+
+            foreach (var item in listEscalas)
             {
                 var listaEscala = await _escalaExtraRepository.BuscarListaPorIdAsync(item.IdCriacaoEscalaExtra);
-
+                
                 if (listaEscala.DtEscalaExtra.Date == extrasDisponiveis.DtEscalaExtra.Date)
                 {
                     return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "O Funcionário já possui cadastro de escala extra nesta data." };
-                }
+                }                
             }
+
+
 
 
 
