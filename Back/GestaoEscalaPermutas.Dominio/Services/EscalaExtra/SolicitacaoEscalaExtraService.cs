@@ -200,9 +200,19 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
             // Mapeia a lista de DTOs para as entidades (EscalaExtra)
             var solicitacaoEscalaExtra = _mapper.Map<DepInfra.EscalaExtra>(solicitacoesEscalaExtraDTOs);
 
+            //verificar a Qtd de vagas disponiveis
+            var extrasDisponiveis = await _escalaExtraRepository.BuscarPorIdAsync(solicitacaoEscalaExtra.IdCriacaoEscalaExtra);
+
+            if (extrasDisponiveis.QtdVagas == 0)
+            {
+                return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Sem Vagas disponíveis." };
+            }
 
             // Adiciona a lista de escalas ao repositório
             var novaSolicitacaoEscalaExtra = await _SolicitacaoEscalaExtraRepository.AdicionarListaAsync(solicitacaoEscalaExtra);
+
+            extrasDisponiveis.QtdVagas -- ;
+            var alteraQtdEscalaDisponiivel = await _escalaExtraRepository.AlterarAsync(extrasDisponiveis);
 
             // Mapeia de volta para DTOs e retorna
             return _mapper.Map<SolicitacaoEscalaExtraDTO>(novaSolicitacaoEscalaExtra);

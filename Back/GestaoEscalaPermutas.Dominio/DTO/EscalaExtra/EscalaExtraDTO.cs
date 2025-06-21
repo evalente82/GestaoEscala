@@ -23,5 +23,6 @@ namespace GestaoEscalaPermutas.Dominio.DTO.EscalaExtra
         public bool IsAtivo { get; set; } = true;
         [JsonIgnore]
         public DateTime DtCriacao { get; set; } = DateTime.Now;
+        public int QtdVagas { get; set; }
     }
 }
