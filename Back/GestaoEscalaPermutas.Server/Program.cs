@@ -46,6 +46,9 @@ using GestaoEscalaPermutas.Dominio.Interfaces.EscalaExtra;
 using GestaoEscalaPermutas.Dominio.Services.EscalaExtra;
 using GestaoEscalaPermutas.Repository.Implementations;
 using GestaoEscalaPermutas.Repository.Interfaces;
+using GestaoEscalaPermutas.Server.Settings;
+using Microsoft.Extensions.Options;
+using GestaoEscalaPermutas.Dominio.Services.Recaptcha.SeuNamespace.Services;
 
 var cultureInfo = new CultureInfo("pt-BR");
 CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
@@ -142,6 +145,10 @@ builder.Services.AddScoped<ISolicitacaoEscalaExtraRepository, SolicitacaoEscalaE
 
 builder.Services.AddRepositoryServices();
 builder.Services.AddHostedService<PermutasMessageConsumer>();
+
+// Configurar o HttpClientFactory
+builder.Services.AddHttpClient(); // Adiciona IHttpClientFactory ao container
+
 #endregion
 
 
@@ -198,10 +205,21 @@ var configuracoes = new ConfigurationBuilder()
     .AddEnvironmentVariables()
     .Build();
 
+// Configurar as opções do reCAPTCHA
+// Configurar RecaptchaSettings
+builder.Services.AddOptions<RecaptchaSettings>()
+    .Bind(builder.Configuration.GetSection("RecaptchaSettings"));
+builder.Services.Configure<RecaptchaSettings>(builder.Configuration.GetSection("Recaptcha"));
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
     options.AllowSynchronousIO = true;
 });
+
+// Injetar RecaptchaSettings como singleton (ou Transient/Scoped se preferir)
+// Usamos .Value aqui para injetar diretamente o objeto RecaptchaSettings
+builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<RecaptchaSettings>>().Value);
+// Registrar o RecaptchaService
+builder.Services.AddTransient<RecaptchaService>(); // Use Transient ou Scoped, dependendo do ciclo de vida desejado
 
 
 builder.Services.AddCors(options =>

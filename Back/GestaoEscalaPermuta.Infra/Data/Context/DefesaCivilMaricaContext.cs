@@ -187,9 +187,7 @@ public partial class DefesaCivilMaricaContext : DbContext
         {
             entity.HasKey(e => e.IdEscalaExtra);  // Define a chave primária
 
-            entity.Property(e => e.DtServico)  // Define a coluna `DtServico` como tipo `date`
-                  .HasColumnType("date");
-
+          
             entity.Property(e => e.IdFuncionario)  // Definindo tipo UUID para o Funcionario
                   .IsRequired();  // Coluna não nula, se necessário
         });

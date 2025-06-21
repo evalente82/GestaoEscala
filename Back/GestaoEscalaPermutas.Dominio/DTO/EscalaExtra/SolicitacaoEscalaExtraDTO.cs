@@ -14,13 +14,25 @@ namespace GestaoEscalaPermutas.Dominio.DTO.EscalaExtra
         {
             IdEscalaExtra = Guid.NewGuid();
             DtCriacao = DateTime.UtcNow;
+            NmEscalaExtra = "Null";
+            NmSetor = "Null";
+            DtEscalaExtra = new DateTime(1999, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         }
         [JsonIgnore]
         public Guid IdEscalaExtra { get; set; }
         public Guid IdCriacaoEscalaExtra { get; set; }
         public Guid IdFuncionario { get; set; }
-        public DateTime DtServico { get; set; }
         [JsonIgnore]
         public DateTime DtCriacao { get; set; } = DateTime.Now;
+        [JsonIgnore]
+        public string NmEscalaExtra { get; set; }
+        [JsonIgnore]
+        public string NmSetor { get; set; }
+        [JsonIgnore]
+        public DateTime DtEscalaExtra{ get; set; }
+
+        // --- Nova Propriedade para o reCAPTCHA Token ---
+        public string RecaptchaToken { get; set; }
+
     }
 }

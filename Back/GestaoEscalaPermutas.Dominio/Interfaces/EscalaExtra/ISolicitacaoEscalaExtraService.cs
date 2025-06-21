@@ -10,7 +10,7 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.EscalaExtra
     public interface ISolicitacaoEscalaExtraService
     {
         Task<List<SolicitacaoEscalaExtraDTO>> BuscarTodos();
-        Task<SolicitacaoEscalaExtraDTO> BuscarPorId(Guid idEscalaExtra);
+        Task<List<SolicitacaoEscalaExtraDTO>> BuscarPorIdFuncionario(Guid idFuncionario);
         Task<SolicitacaoEscalaExtraDTO> Incluir(SolicitacaoEscalaExtraDTO escalaExtraDTOs);
         Task<SolicitacaoEscalaExtraDTO> Deletar(Guid id);
         Task<SolicitacaoEscalaExtraDTO> Alterar(Guid id, SolicitacaoEscalaExtraDTO escalaExtraModel);

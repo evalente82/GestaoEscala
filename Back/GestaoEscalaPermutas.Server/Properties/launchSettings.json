@@ -15,7 +15,8 @@
       "launchBrowser": false,
       "applicationUrl": "http://0.0.0.0:8080",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Production"
+        "ASPNETCORE_ENVIRONMENT": "Production",
+        "GOOGLE_APPLICATION_CREDENTIALS": "C:\\Users\\endri\\Desktop\\Projetos\\recaptcha-enterprise-backend.json" // <--- ATUALIZE ESTE CAMINHO
       }
     },
     "https": {

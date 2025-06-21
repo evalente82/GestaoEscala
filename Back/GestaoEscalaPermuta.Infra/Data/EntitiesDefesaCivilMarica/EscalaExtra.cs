@@ -18,9 +18,6 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
         [Required]
         public Guid IdFuncionario { get; set; }
 
-        [Required]
-        public DateTime DtServico { get; set; }
-
         public DateTime DtCriacao { get; set; } = DateTime.Now;
     }
 

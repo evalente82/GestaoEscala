@@ -34,18 +34,21 @@ namespace GestaoEscalaPermutas.Dominio.Mapping
         public MappingProfiles()
         {
             // ======= SOLICITACAO ESCALA EXTRA =======
+            // Adicionando o mapeamento para listas de Solicitação
+            CreateMap<List<SolicitacaoEscalaExtraDTO>, List<SolicitacaoEscalaExtraModel>>()
+                .ConvertUsing((src, dest, context) => src.Select(item => context.Mapper.Map<SolicitacaoEscalaExtraModel>(item)).ToList());
+
             CreateMap<SolicitacaoEscalaExtraDTO, EscalaExtra>()
-            .ForMember(dest => dest.DtServico, opt => opt.MapFrom(src => DateTime.SpecifyKind(src.DtServico, DateTimeKind.Utc)))
-            .ForMember(dest => dest.DtCriacao, opt => opt.MapFrom(src => DateTime.SpecifyKind(src.DtCriacao, DateTimeKind.Utc)))
+            .ForMember(dest => dest.DtCriacao, opt => opt.MapFrom(src => DateTime.SpecifyKind(src.DtCriacao, DateTimeKind.Utc)))  // Certificando-se de que a criação também está em UTC
             .ForMember(dest => dest.IdFuncionario, opt => opt.MapFrom(src => src.IdFuncionario))
             .ForMember(dest => dest.IdCriacaoEscalaExtra, opt => opt.MapFrom(src => src.IdCriacaoEscalaExtra))
             .ReverseMap();
 
 
+
             CreateMap<SolicitacaoEscalaExtraDTO, SolicitacaoEscalaExtraModel>().ReverseMap();
 
             CreateMap<SolicitacaoEscalaExtraDTO, SolicitacaoEscalaExtraModel>()
-            .ForMember(dest => dest.DtServico, opt => opt.MapFrom(src => DateTime.SpecifyKind(src.DtServico, DateTimeKind.Utc)))
             .ForMember(dest => dest.DtCriacao, opt => opt.MapFrom(src => DateTime.SpecifyKind(src.DtCriacao, DateTimeKind.Utc)));
 
 

@@ -18,13 +18,10 @@ namespace GestaoEscalaPermutas.Repository.Implementations
         {
             await _context.EscalaExtra.AddRangeAsync(escalaExtra);
             await _context.SaveChangesAsync();
-            return escalaExtra;
+            var dadosDoBanco = await _context.EscalaExtra.FirstOrDefaultAsync(x => x.IdEscalaExtra == escalaExtra.IdEscalaExtra);
+            return dadosDoBanco;
         }
 
-        public async Task<EscalaExtra> ObterPorIdAsync(Guid id)
-        {
-            return await _context.EscalaExtra.FindAsync(id);
-        }
 
         public async Task<List<EscalaExtra>> ObterTodosAsync()
         {
@@ -52,6 +49,14 @@ namespace GestaoEscalaPermutas.Repository.Implementations
             _context.EscalaExtra.Update(escalaExtra);
             await _context.SaveChangesAsync();
             return escalaExtra;
+        }
+
+        public async Task<List<EscalaExtra>> ObterPorIdAsync(Guid idFuncionario)
+        {
+            // Busca todas as ocorrências da tabela EscalaExtra associadas ao idFuncionario
+            return await _context.EscalaExtra
+                                 .Where(e => e.IdFuncionario == idFuncionario)
+                                 .ToListAsync();
         }
     }
 }

@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using GestaoEscalaPermutas.Dominio.DTO.Cargo;
 using GestaoEscalaPermutas.Dominio.DTO.EscalaExtra;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaExtra;
 using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
 using GestaoEscalaPermutas.Server.Models;
+using GestaoEscalaPermutas.Server.Models.Cargos;
 using GestaoEscalaPermutas.Server.Models.EscalaExtra;
 using GestaoEscalaPermutas.Server.Models.EscalaPronta;
 using Microsoft.AspNetCore.Mvc;
@@ -50,15 +52,18 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaExtra
                 // Mapeia o DTO para o model e realiza a operação
                 var escalaExtraDTOs = await _SolicitacaoEscalaExtraService.Incluir(_mapper.Map<SolicitacaoEscalaExtraDTO>(escalaExtra));
                 var escalaExtraModels = _mapper.Map<SolicitacaoEscalaExtraModel>(escalaExtraDTOs);
+                if (escalaExtraModels.Valido)
+                {
+                    return Ok(escalaExtraModels);
+                }
+                return BadRequest(escalaExtraModels);
 
-                return Ok(escalaExtraModels);
             }
             catch (Exception ex)
             {
                 return BadRequest(new { message = "Erro ao incluir escala extra", error = ex.Message });
             }
         }
-
 
         [HttpDelete]
         [Route("Deletar/{id:Guid}")]
@@ -67,6 +72,30 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaExtra
             var escalaExtraDTO = await _SolicitacaoEscalaExtraService.Deletar(id);
             var escalaExtraModel = _mapper.Map<SolicitacaoEscalaExtraModel>(escalaExtraDTO);
             return (escalaExtraModel.Valido) ? Ok(escalaExtraModel.Mensagem) : BadRequest(new RetornoModel { Valido = false, Mensagem = escalaExtraModel.Mensagem });
-        }        
+        }
+
+        [HttpGet]
+        [Route("BuscarPorId/{idFuncionario:Guid}")]
+        public async Task<ActionResult> BuscarPorIdFuncionario(Guid idFuncionario)
+        {
+            try
+            {
+                // Chama o serviço para buscar as solicitações de escala extra para o idFuncionario
+                var solicitacaoEscalaExtraDTO = await _SolicitacaoEscalaExtraService.BuscarPorIdFuncionario(idFuncionario);
+
+                
+                // Mapeia a lista de DTOs para a lista de modelos
+                var solicitacaoEscalaExtraModels = _mapper.Map<List<SolicitacaoEscalaExtraModel>>(solicitacaoEscalaExtraDTO);
+
+                
+                // Retorna a lista mapeada
+                return Ok(solicitacaoEscalaExtraModels);
+            }
+            catch (Exception ex)
+            {
+                // Em caso de erro, retorna uma mensagem de erro
+                return BadRequest(new RetornoModel { Valido = false, Mensagem = $"Erro ao buscar solicitações de escala extra: {ex.Message}" });
+            }
+        }
     }
 }
