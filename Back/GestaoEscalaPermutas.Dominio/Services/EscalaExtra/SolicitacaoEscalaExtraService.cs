@@ -60,7 +60,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
                 }
 
                 // Busca o objeto de EscalaExtra no repositório
-                var solicitacaoEscalaExtra = await _SolicitacaoEscalaExtraRepository.ObterPorIdAsync(idFuncionario);
+                var solicitacaoEscalaExtra = await _SolicitacaoEscalaExtraRepository.ObterListaPorIdFuncionario(idFuncionario);
 
 
                 // Mapeia as entidades de EscalaExtra para a lista de DTOs e retorna
@@ -68,7 +68,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
 
                 foreach (var item in listSolicitacoes)
                 {
-                    var escalaExtra = await _escalaExtraRepository.BuscarPorIdAsync(item.IdCriacaoEscalaExtra);
+                    var escalaExtra = await _escalaExtraRepository.BuscarListaPorIdAsync(item.IdCriacaoEscalaExtra);
                     var setor = await _setorRepository.BuscarPorIdAsync(escalaExtra.IdSetor);
 
                     item.NmEscalaExtra = escalaExtra.NmEscalaExtra;
@@ -201,12 +201,32 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
             var solicitacaoEscalaExtra = _mapper.Map<DepInfra.EscalaExtra>(solicitacoesEscalaExtraDTOs);
 
             //verificar a Qtd de vagas disponiveis
-            var extrasDisponiveis = await _escalaExtraRepository.BuscarPorIdAsync(solicitacaoEscalaExtra.IdCriacaoEscalaExtra);
+            var extrasDisponiveis = await _escalaExtraRepository.BuscarListaPorIdAsync(solicitacaoEscalaExtra.IdCriacaoEscalaExtra);
 
             if (extrasDisponiveis.QtdVagas == 0)
             {
                 return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Sem Vagas disponíveis." };
             }
+
+            //verificar se o funcionario esta de serviço no referido dia.
+
+
+
+            //verificar se o funcionario ja se cadastrou no dia e não pode cadastrar em outro setor no mesmo dia.
+
+            var teste = await _SolicitacaoEscalaExtraRepository.ObterTodosAsync();
+
+            foreach (var item in teste)
+            {
+                var listaEscala = await _escalaExtraRepository.BuscarListaPorIdAsync(item.IdCriacaoEscalaExtra);
+
+                if (listaEscala.DtEscalaExtra.Date == extrasDisponiveis.DtEscalaExtra.Date)
+                {
+                    return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "O Funcionário já possui cadastro de escala extra nesta data." };
+                }
+            }
+
+
 
             // Adiciona a lista de escalas ao repositório
             var novaSolicitacaoEscalaExtra = await _SolicitacaoEscalaExtraRepository.AdicionarListaAsync(solicitacaoEscalaExtra);

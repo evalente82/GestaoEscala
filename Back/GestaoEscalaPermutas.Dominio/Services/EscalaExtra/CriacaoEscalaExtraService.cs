@@ -147,7 +147,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
                 if (id == Guid.Empty)
                     return new EscalaExtraDTO { valido = false, mensagem = "Id fora do Range." };
 
-                var escalaextraExistente = await _EscalaExtraRepository.BuscarPorIdAsync(id);
+                var escalaextraExistente = await _EscalaExtraRepository.BuscarListaPorIdAsync(id);
                 if (escalaextraExistente == null)
                     return new EscalaExtraDTO { valido = false, mensagem = "Escala não encontrada." };
 

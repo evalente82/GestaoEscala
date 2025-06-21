@@ -47,16 +47,17 @@ namespace GestaoEscalaPermutas.Repository.Implementations
             return true;
         }
 
-        public async Task<CriacaoEscalaExtra> BuscarPorIdAsync(Guid id)
-        {
-            return await _context.CriacaoEscalaExtra.FindAsync(id);
-        }
 
         public async Task<CriacaoEscalaExtra> AlterarAsync(CriacaoEscalaExtra escalaExtra)
         {
             _context.CriacaoEscalaExtra.Update(escalaExtra);
             await _context.SaveChangesAsync();
             return escalaExtra;
+        }
+
+        public async Task<CriacaoEscalaExtra> BuscarListaPorIdAsync(Guid id)
+        {
+            return await _context.CriacaoEscalaExtra.FindAsync(id);
         }
     }
 }

@@ -22,7 +22,6 @@ namespace GestaoEscalaPermutas.Repository.Implementations
             return dadosDoBanco;
         }
 
-
         public async Task<List<EscalaExtra>> ObterTodosAsync()
         {
             return await _context.EscalaExtra.ToListAsync();
@@ -51,12 +50,12 @@ namespace GestaoEscalaPermutas.Repository.Implementations
             return escalaExtra;
         }
 
-        public async Task<List<EscalaExtra>> ObterPorIdAsync(Guid idFuncionario)
+        public async Task<List<EscalaExtra>> ObterListaPorIdFuncionario(Guid idFuncionario)
         {
             // Busca todas as ocorrências da tabela EscalaExtra associadas ao idFuncionario
             return await _context.EscalaExtra
                                  .Where(e => e.IdFuncionario == idFuncionario)
                                  .ToListAsync();
-        }
+        }        
     }
 }
