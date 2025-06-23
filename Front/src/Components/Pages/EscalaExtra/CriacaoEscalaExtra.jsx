@@ -391,10 +391,11 @@ function CriacaoEscalaExtraForm(props) {
                 setHoraFim(horaFormatadaFechamento);
             }
 
-            // Atualizando a horaDoServico (se for uma hora, e não uma data completa)
-            // Se 'horaDoServico' for uma string de hora (ex: "10:00"), não precisa converter de Date
-            if (props.EscalaExtra.horaDoServico) {
-                setHoraDoServico(props.EscalaExtra.horaDoServico); // Mantém como está se já for string de hora
+            
+            if (props.EscalaExtra.dtEscalaExtra) {
+                const dtEscalaExtra = new Date(props.EscalaExtra.dtEscalaExtra);
+                const horaFormatadaServico = dtEscalaExtra.getHours().toString().padStart(2, "0") + ":00";
+                setHoraDoServico(horaFormatadaServico);
             }
         }
     }, [props.EscalaExtra]);

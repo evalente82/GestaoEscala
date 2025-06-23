@@ -151,6 +151,35 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
                 if (escalaextraExistente == null)
                     return new EscalaExtraDTO { valido = false, mensagem = "Escala não encontrada." };
 
+
+                // Verificando se a hora e data são válidas
+                if (!string.IsNullOrEmpty(escalaExtraModel.horaDoServico))
+                {
+                    // Combina a data com a hora (assumindo que horaDoServico esteja no formato "HH:mm")
+                    DateTime dtExtraComHora = escalaExtraModel.DtEscalaExtra.Date + TimeSpan.Parse(escalaExtraModel.horaDoServico);
+                    dtExtraComHora = dtExtraComHora.AddHours(3);
+                    escalaExtraModel.DtEscalaExtra = dtExtraComHora; // Atualiza a data do Extra com a hora combinada
+                }
+
+                if (!string.IsNullOrEmpty(escalaExtraModel.HoraAbertura))
+                {
+                    // Combina a data com a hora (assumindo que HoraAbertura esteja no formato "HH:mm")
+                    DateTime dtAberturaComHora = escalaExtraModel.DtAbertura.Date + TimeSpan.Parse(escalaExtraModel.HoraAbertura);
+                    dtAberturaComHora = dtAberturaComHora.AddHours(3);
+                    escalaExtraModel.DtAbertura = dtAberturaComHora; // Atualiza a data de abertura com a hora combinada
+                }
+
+                if (!string.IsNullOrEmpty(escalaExtraModel.HoraFechamento))
+                {
+                    // Combina a data de fechamento com a hora (assumindo que HoraFechamento esteja no formato "HH:mm")
+                    DateTime dtFechamentoComHora = escalaExtraModel.DtFechamento.Date + TimeSpan.Parse(escalaExtraModel.HoraFechamento);
+                    dtFechamentoComHora = dtFechamentoComHora.AddHours(3);
+                    escalaExtraModel.DtFechamento = dtFechamentoComHora; // Atualiza a data de fechamento com a hora combinada
+                }
+
+
+
+
                 _mapper.Map(escalaExtraModel, escalaextraExistente);
                 var escalaExtraAtualizado = await _EscalaExtraRepository.AlterarAsync(escalaextraExistente);
 
