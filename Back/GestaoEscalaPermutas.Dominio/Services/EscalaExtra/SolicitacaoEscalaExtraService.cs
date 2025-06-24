@@ -24,6 +24,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
         private readonly RecaptchaSettings _recaptchaSettings;
         private readonly ILogger<SolicitacaoEscalaExtraService> _logger;
         private readonly IEscalaProntaRepository _escalaProntaRepository;
+        private readonly IFuncionarioRepository _funcionarioRepository;
 
         public SolicitacaoEscalaExtraService(
             ISolicitacaoEscalaExtraRepository SolicitacaoEscalaExtraRepository,
@@ -32,16 +33,17 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
             ISetorRepository setorRepository,
             IOptions<RecaptchaSettings> recaptchaOptions,
             ILogger<SolicitacaoEscalaExtraService> logger,
-            IEscalaProntaRepository escalaProntaRepository) // Injete o logger
+            IEscalaProntaRepository escalaProntaRepository,
+            IFuncionarioRepository funcionarioRepository)
         {
             _SolicitacaoEscalaExtraRepository = SolicitacaoEscalaExtraRepository;
             _mapper = mapper;
             _escalaExtraRepository = escalaExtraRepository;
             _setorRepository = setorRepository;
-            // REMOVA: _httpClient = httpClientFactory.CreateClient();
             _recaptchaSettings = recaptchaOptions.Value;
-            _logger = logger; // Atribua o logger injetado
+            _logger = logger;
             _escalaProntaRepository = escalaProntaRepository;
+            _funcionarioRepository = funcionarioRepository;
         }
 
         public async Task<List<SolicitacaoEscalaExtraDTO>> BuscarPorIdFuncionario(Guid idFuncionario)
@@ -211,13 +213,16 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
                 return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Sem Vagas disponíveis." };
             }
 
-            //verificar se o funcionario esta de serviço no referido dia.
             var escalasProntas = await _escalaProntaRepository.BuscarPorIdFuncionario(solicitacoesEscalaExtraDTOs.IdFuncionario);
-            
-            //verificar se o funcionario ja se cadastrou no dia e não pode cadastrar em outro setor no mesmo dia.
-
             var listEscalas = await _SolicitacaoEscalaExtraRepository.ObterTodosAsync();
+            var funcionario = await _funcionarioRepository.ObterPorIdAsync(solicitacoesEscalaExtraDTOs.IdFuncionario);
 
+            if (!funcionario.IsAtivo)
+            {
+                return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Funcionário Inativo." };
+            }
+
+            //verificar se o funcionario esta de serviço no referido dia.
             foreach (var escala in escalasProntas)
             {
                 if (extrasDisponiveis.DtEscalaExtra.Date == escala.DtDataServico.Date)
@@ -227,6 +232,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
             }
 
 
+            //verificar se o funcionario ja se cadastrou no dia e não pode cadastrar em outro setor no mesmo dia.
             foreach (var item in listEscalas)
             {
                 var listaEscala = await _escalaExtraRepository.BuscarListaPorIdAsync(item.IdCriacaoEscalaExtra);
