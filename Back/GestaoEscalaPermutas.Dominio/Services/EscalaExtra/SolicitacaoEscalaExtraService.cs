@@ -11,7 +11,8 @@ using System.Text.Json;
 using Google.Api.Gax.ResourceNames;
 using Google.Cloud.RecaptchaEnterprise.V1;
 using Grpc.Core; // Para RpcException
-using Microsoft.Extensions.Logging; // Para logs
+using Microsoft.Extensions.Logging;
+using GestaoEscalaPermutas.Dominio.Interfaces.Email; // Para logs
 
 namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
 {
@@ -25,6 +26,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
         private readonly ILogger<SolicitacaoEscalaExtraService> _logger;
         private readonly IEscalaProntaRepository _escalaProntaRepository;
         private readonly IFuncionarioRepository _funcionarioRepository;
+        private readonly IEmailService _emailService;
 
         public SolicitacaoEscalaExtraService(
             ISolicitacaoEscalaExtraRepository SolicitacaoEscalaExtraRepository,
@@ -34,7 +36,9 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
             IOptions<RecaptchaSettings> recaptchaOptions,
             ILogger<SolicitacaoEscalaExtraService> logger,
             IEscalaProntaRepository escalaProntaRepository,
-            IFuncionarioRepository funcionarioRepository)
+            IFuncionarioRepository funcionarioRepository,
+            IEmailService emailService
+            )
         {
             _SolicitacaoEscalaExtraRepository = SolicitacaoEscalaExtraRepository;
             _mapper = mapper;
@@ -44,6 +48,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
             _logger = logger;
             _escalaProntaRepository = escalaProntaRepository;
             _funcionarioRepository = funcionarioRepository;
+            _emailService = emailService;
         }
 
         public async Task<List<SolicitacaoEscalaExtraDTO>> BuscarPorIdFuncionario(Guid idFuncionario)
@@ -201,7 +206,6 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
             }
             // --- Fim da Validação do reCAPTCHA ---
 
-
             // Mapeia a lista de DTOs para as entidades (EscalaExtra)
             var solicitacaoEscalaExtra = _mapper.Map<DepInfra.EscalaExtra>(solicitacoesEscalaExtraDTOs);
 
@@ -231,7 +235,6 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
                 }
             }
 
-
             //verificar se o funcionario ja se cadastrou no dia e não pode cadastrar em outro setor no mesmo dia.
             foreach (var item in listEscalas)
             {
@@ -248,6 +251,52 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
 
             extrasDisponiveis.QtdVagas -- ;
             var alteraQtdEscalaDisponiivel = await _escalaExtraRepository.AlterarAsync(extrasDisponiveis);
+
+            //enviar e-mail
+            try
+            {
+                var dataServico = extrasDisponiveis.DtEscalaExtra.ToString("dd/MM/yyyy");
+                var horaServico = extrasDisponiveis.DtEscalaExtra.AddHours(-3).ToString("HH:mm");
+                var setor = await _setorRepository.BuscarPorIdAsync(extrasDisponiveis.IdSetor);
+                var setorServico = setor.NmNome;
+
+                string corpoEmail = $@"
+                    <html>
+                    <head>
+                        <style>
+                            body {{ font-family: sans-serif; }}
+                            h2 {{ color: #0056b3; }} /* Cor opcional para o título */
+                            .details {{ margin-top: 15px; }}
+                            .signature {{ margin-top: 20px; }}
+                        </style>
+                    </head>
+                    <body>
+                        <h2>Agendamento com sucesso.</h2>
+
+                        <div class=""details"">
+                            <strong>Data:</strong> {dataServico}<br>
+                            <strong>Hora:</strong> {horaServico}<br>
+                            <strong>Setor:</strong> {setorServico}<br>
+                            <strong>Funcionário:</strong> {funcionario.NmNome}<br>
+                            <strong>Matrícula:</strong> {funcionario.NrMatricula}
+                        </div>
+
+                        <div class=""signature"">
+                            <p>Atenciosamente,<br>Defesa Civil de Maricá.</p>
+                        </div>
+                    </body>
+                    </html>
+                    ";
+
+                await _emailService.EnviarEmail(funcionario.NmEmail = "endrigo.valente@gmail.com", "Cadastro para Serviço Extra", corpoEmail);
+            }
+            catch (Exception ex)
+            {
+
+                _logger.LogError(ex, "Erro inesperado no envio de e-mail.");
+                return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = $"Erro inesperado no envio de e-mail: {ex.Message}" };
+            }
+            
 
             // Mapeia de volta para DTOs e retorna
             return _mapper.Map<SolicitacaoEscalaExtraDTO>(novaSolicitacaoEscalaExtra);
