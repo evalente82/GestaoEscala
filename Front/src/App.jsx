@@ -21,6 +21,7 @@ import RedefinirSenha from "./Components/Pages/Login/RedefinirSenha";
 import PrimeiroAcesso from "./Components/Pages/Login/PreimeiroAcesso";
 import { Setor } from "./Components/Pages/Setor/Setor";
 import { CriacaoEscalaExtraPage } from "./Components/Pages/EscalaExtra/CriacaoEscalaExtra";
+import EscalaExtraList from "./Components/Pages/EscalaExtra/EscalaExtra";
 import ProtectedRoute from "./Components/Pages/ProtectedRoute";
 
 function RotaProtegida({ permissoesNecessarias, children }) {
@@ -136,7 +137,7 @@ function LayoutComMenu() {
 
                 <Route path="/EscalaExtra" element={
                     <RotaProtegida permissoesNecessarias={["VisualizarSetor"]}>
-                        <Setor />
+                        <EscalaExtraList />
                     </RotaProtegida>
                 } />
 

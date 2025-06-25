@@ -1,388 +1,235 @@
-import NavBar from "../../Menu/NavBar";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import PropTypes from 'prop-types';
 import AlertPopup from '../AlertPopup/AlertPopup';
-import api from "./../axiosConfig";
-function DepartamentoList(props) {
-    DepartamentoList.propTypes = {
-        ShowForm: PropTypes.func.isRequired, // Indica que ShowForm é uma função obrigatória
-    };
-    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
-    const [searchText, setSearchText] = useState("");
-    const [departamento, setDepartamento] = useState([]);
-    const [alertProps, setAlertProps] = useState({
-        show: false, // Exibe ou esconde o AlertPopup
-        type: "info", // Tipo de mensagem (success, error, confirm, info)
-        title: "", // Título da modal
-        message: "", // Mensagem da modal
-        onConfirm: null, // Callback para ações de confirmação (opcional)
-        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha a modal
-    });
+import { jsPDF } from 'jspdf'; // Importe jsPDF
 
-    const API_URL = `${API_BASE_URL}/departamento`;
-    function BuscarTodos() {
-        api.get(`${API_URL}/buscarTodos`)
-            .then((response) => {
-                console.log(response.data);
-                setDepartamento(response.data);
-            })
-            .catch((error) => {
-                setAlertProps({
-                    show: true,
-                    type: "error",
-                    title: "Erro",
-                    message: "Não foi possível carregar os departamentos.",
-                });
-            });
+function EscalaExtraList() {
+  const [escalaExtra, setEscalaExtra] = useState([]);
+    const [alertProps, setAlertProps] = useState({
+        show: false,
+        type: "info",
+        title: "",
+        message: "",
+        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+    });
+
+    function BuscarTodos(){
+        const fetchData = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/solicitacaoEscalaExtra/listar');
+        console.log(response.data);
+        setEscalaExtra(response.data);
+      } catch (error) {
+            setAlertProps({
+                show: true,
+                type: "error",
+                title: "Erro",
+                message: "Não foi possível carregar os dados da Escala Extra.",
+            });
+      }
+    };
+    fetchData();
+    }
+
+  useEffect(() => {
+    BuscarTodos();
+    
+  }, []);
+
+    function handleDelete(idEscalaExtra) {
+        setAlertProps({
+            show: true,
+            type: "confirm",
+            title: "Confirmar exclusão",
+            message: "Tem certeza que deseja excluir este registro?",
+            onConfirm: () => {
+                DeleteEscalaExtra(idEscalaExtra);
+                setAlertProps((prev) => ({ ...prev, show: false }));
+            },
+            onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+        });
+    }
+
+    function DeleteEscalaExtra(idEscalaExtra) {
+        axios
+            .delete(`http://localhost:8080/solicitacaoEscalaExtra/deletar/${idEscalaExtra}`) // Replace with your actual delete endpoint
+            .then(() => {
+                setEscalaExtra(escalaExtra.filter((escala) => escala.idEscalaExtra !== idEscalaExtra));
+                setAlertProps({
+                    show: true,
+                    type: "success",
+                    title: "Sucesso",
+                    message: "Registro excluído com sucesso!",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
+            })
+            .catch(() => {
+                setAlertProps({
+                    show: true,
+                    type: "error",
+                    title: "Erro",
+                    message: "Não foi possível excluir o registro.",
+                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+                });
+            });
+    }
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  const formatTime = (dateString) => {
+      const date = new Date(dateString);
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${hours}:${minutes}`;
+  };
+
+  const handleGerarPDF = () => {
+      const pdf = new jsPDF('portrait', 'mm', 'a4');
+      const margemEsquerda = 10;
+      const larguraTotal = 190;
+      let yAtual = 20;
+
+      // ✅ Cabeçalho Principal
+      pdf.setFillColor(0, 40, 120);
+      pdf.setDrawColor(0, 0, 0);
+      pdf.rect(margemEsquerda, yAtual, larguraTotal, 23, "DF");
+
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFont("Helvetica", "bold");
+      pdf.setFontSize(14);
+
+      const titulo = [
+            `Listagem de Escalas Extras`,
+            `${new Date().toLocaleDateString()}`,
+      ];
+
+      titulo.forEach((linha, index) => {
+            const textWidth = pdf.getTextWidth(linha);
+            pdf.text(linha, margemEsquerda + (larguraTotal - textWidth) / 2, yAtual + 10 + index * 6);
+        });
+
+      yAtual += 30;
+
+      // ✅ Agrupar por Setor
+      const escalasPorSetor = {};
+      escalaExtra.forEach(escala => {
+          if (!escalasPorSetor[escala.nmSetor]) {
+              escalasPorSetor[escala.nmSetor] = [];
+          }
+          escalasPorSetor[escala.nmSetor].push(escala);
+      });
+
+      // ✅ Iterar por Setor e Adicionar ao PDF
+      for (const setor in escalasPorSetor) {
+          if (escalasPorSetor.hasOwnProperty(setor)) {
+              // ✅ Cabeçalho do Setor (Estilo Bloco Vermelho)
+              pdf.setFillColor(180, 30, 30);
+              pdf.setDrawColor(0, 0, 0);
+              pdf.rect(margemEsquerda, yAtual, larguraTotal, 15, "DF");
+
+              pdf.setTextColor(255, 255, 255);
+              pdf.setFontSize(18);
+              pdf.setFont("Helvetica", "bold");
+
+              const textWidthSetor = pdf.getTextWidth(setor);
+              pdf.text(setor, margemEsquerda + (larguraTotal - textWidthSetor) / 2, yAtual + 10);
+
+              yAtual += 15 + 5; // Espaço após o título do setor
+
+              // ✅ Listagem de Escalas Extras do Setor
+              pdf.setTextColor(0, 0, 0);
+              pdf.setFontSize(10);
+              escalasPorSetor[setor].forEach(item => {
+                const linhaTexto = `${item.nmFuncionario} - ${formatDate(item.dtEscalaExtra)} - ${formatTime(item.dtEscalaExtra)} - ${item.nmEscalaExtra}`;
+                const textoDividido = pdf.splitTextToSize(linhaTexto, larguraTotal - 20);
+                textoDividido.forEach(linha => {
+                    pdf.text(linha, margemEsquerda, yAtual);
+                    yAtual += 5;
+                });
+                yAtual += 5; // Espaço entre os registros
+                if (yAtual > pdf.internal.pageSize.getHeight() - margemEsquerda - 10) {
+                    pdf.addPage();
+                    yAtual = 20;
+              }
+            });
+            yAtual += 10; // Espaço entre os setores
+
+            if (yAtual > pdf.internal.pageSize.getHeight() - margemEsquerda - 10) {
+                pdf.addPage();
+                yAtual = 20;
+          }
+        }
     }
+    pdf.save("Escala_Extra.pdf"); // Movido para fora do loop
+  };
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const response = await api.get(`${API_URL}/buscarTodos`);
-            console.log(response.data);
-            setDepartamento(response.data);
-        };
-        fetchData();
-    }, []);
-
-    function handleDelete(id) {
-        setAlertProps({
-            show: true,
-            type: "confirm",
-            title: "Confirmar exclusão",
-            message: "Tem certeza que deseja excluir este registro?",
-            onConfirm: () => {
-                DeleteDepartamento(id);
-                setAlertProps((prev) => ({ ...prev, show: false }));
-            },
-            onClose: () => setAlertProps((prev) => ({ ...prev, show: false })), // Fecha o AlertPopup ao cancelar
-        });
-    }
-
-    function DeleteDepartamento(idDepartamento) {
-        api
-            .delete(`${API_URL}/Deletar/${idDepartamento}`)
-            .then(() => {
-                setDepartamento(
-                    departamento.filter((dep) => dep.idDepartamento !== idDepartamento)
-                );
-                setAlertProps({
-                    show: true,
-                    type: "success",
-                    title: "Sucesso",
-                    message: "Departamento excluído com sucesso!",
-                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
-                });
-            })
-            .catch(() => {
-                setAlertProps({
-                    show: true,
-                    type: "error",
-                    title: "Erro",
-                    message: "Não foi possível excluir o departamento.",
-                    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
-                });
-            });
-    }
-    const currentRecords = filterRecords(departamento)
-
-    // Função para filtrar os registros com base no texto de busca
-    function filterRecords(records) {
-        return records.filter(record => {
-            const filtro = departamento.find(dep => dep.idDepartamento === record.idDepartamento)?.nmNome || "";
-            return (
-                record.nmNome.toLowerCase().includes(searchText.toLowerCase()) ||
-                filtro.toLowerCase().includes(searchText.toLowerCase())
-            );
-        });
-    }
-
-    return (
-        <>
-            <h3 className="text-center mb-3">Listagem de Departamentos</h3>
-            <div className="text-center mb-3">
-                    <button 
-                        onClick={() => props.ShowForm({})}
-                        type="button"
-                        className="btn btn-primary me-2"
-                        >
-                        Cadastrar
-                    </button>
-                    <button
-                        onClick={() => BuscarTodos()}
-                        type="button"
-                        className="btn btn-outline-primary me-2"
-                        >
-                        Atualizar
-                    </button>
-                </div>
-            <input
-                type="text"
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                placeholder="Pesquisar..."
-                className="form-control mb-3"
-            />           
-            <table className="table">
-                <thead>
-                    <tr>
-                        {/*<th>ID</th>*/}
-                        <th>NOME</th>
-                        <th>DESCRIÇÃO</th>
-                        <th>ATIVO</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {currentRecords
-                        .map((departamento, index) => {
-                            return (
-                                <tr key={index}>
-                                    <td style={{ textAlign: "left" }}>{departamento.nmNome}</td>
-                                    <td style={{ textAlign: "left" }}>{departamento.nmDescricao}</td>
-                                    <td>
-                                        <input
-                                            type="checkbox"
-                                            checked={departamento.isAtivo == 1}
-                                            readOnly
-                                        />
-                                    </td>
-                                    <td style={{ width: "10px", whiteSpace: "nowrap" }}>
-                                        <button
-                                            onClick={() => props.ShowForm(departamento)}
-                                            type="button"
-                                            className="btn btn-primary btn-sm me-2"
-                                        >
-                                            Editar
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(departamento.idDepartamento)}
-                                            type="button"
-                                            className="btn btn-danger btn-sm"
-                                        >
-                                            Delete
-                                        </button>
-                                    </td>
-                                </tr>
-                            );
-                        })}
-                </tbody>
-            </table>
-            <AlertPopup
-                type={alertProps.type}
-                title={alertProps.title}
-                message={alertProps.message}
-                show={alertProps.show}
-                onClose={alertProps.onClose}
-                onConfirm={alertProps.onConfirm}
-            />
-        </>
-
-    );
-} 
-function DepartamentoForm(props) {
-    DepartamentoForm.propTypes = {
-        ShowList: PropTypes.func.isRequired,
-        departamento: PropTypes.shape({
-            idDepartamento: PropTypes.number,
-            nmNome: PropTypes.string,
-            nmDescricao: PropTypes.string,
-            isAtivo: PropTypes.bool,
-        }).isRequired,
-    };
-    // const [errorMessage, setErrorMessage] = useState('');
-    const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
-    const [nome, setNome] = useState(props.departamento.nmNome || '');
-    const [descricao, setDescricao] = useState(props.departamento.nmDescricao || '');    
-    const [ativo, setAtivo] = useState(props.departamento.isAtivo || false);
-    const [alertProps, setAlertProps] = useState({
-        show: false,
-        type: "info",
-        title: "",
-        message: "",
-        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
-    });
-
-    function handleAtivoChange(e) {
-        setAtivo(e.target.checked);
-    }
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        if (props.departamento.idDepartamento) {
-            const data = {
-                nmNome: nome,
-                nmDescricao: descricao,
-                isAtivo: ativo,
-            };
-            api
-                .patch(
-                    `${API_BASE_URL}/departamento/Atualizar/` +
-                    props.departamento.idDepartamento,
-                    data
-                )
-                .then(() => {
-                    setAlertProps({
-                        show: true,
-                        type: "success",
-                        title: "Sucesso",
-                        message: "Departamento atualizado com sucesso!",
-                        onClose: () => {
-                            setAlertProps((prev) => ({ ...prev, show: false }));
-                            props.ShowList();
-                        },
-                    });
-                })
-                .catch(() => {
-                    setAlertProps({
-                        show: true,
-                        type: "error",
-                        title: "Erro",
-                        message: "Falha ao atualizar o departamento.",
-                    });
-                });
-        } else {
-            const data = {
-                nmNome: nome,
-                NmDescricao: descricao,
-                isAtivo: ativo,
-            };
-            api
-                .post(`${API_BASE_URL}/departamento/Incluir`, data)
-                .then(() => {
-                    setAlertProps({
-                        show: true,
-                        type: "success",
-                        title: "Sucesso",
-                        message: "Departamento cadastrado com sucesso!",
-                        onClose: () => {
-                            setAlertProps((prev) => ({ ...prev, show: false }));
-                            props.ShowList();
-                        },
-                    });
-                })
-                .catch(() => {
-                    setAlertProps({
-                        show: true,
-                        type: "error",
-                        title: "Erro",
-                        message: "Falha ao cadastrar o departamento.",
-                    });
-                });
-        }
-    };
-    return (
-        <>
-            <h2 className="text-center mb-3">
-                {props.departamento.idDepartamento
-                    ? "Editar Departamento"
-                    : "Cadastrar Novo Departamento"}
-            </h2>
-            <div className="row">
-                <div className="col-lg-6 mx-auto">
-                    {/* {errorMessage} */}
-                    <form onSubmit={(e) => handleSubmit(e)}>
-                        {props.departamento.idDepartamento && (
-                            <div className="row mb-3">
-                                <label className="col-sm-4 col-form-label">ID</label>
-                                <div className="col-sm-8">
-                                    <input
-                                        readOnly
-                                        className="form-control-plaintext"
-                                        name="idDepartamento"
-                                        defaultValue={props.departamento.idDepartamento}
-                                        required
-                                        onChange={(e) => setNome(e.target.value)}
-                                    ></input>
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="row mb-3">
-                            <label className="col-sm-4 col-form-label">Nome do Departamento</label>
-                            <div className="col-sm-8">
-                                <input
-                                    className="form-control"
-                                    name="nome"
-                                    defaultValue={props.departamento.nmNome}
-                                    required
-                                    onChange={(e) => setNome(e.target.value)}
-                                ></input>
-                            </div>
-                        </div>
-
-                        <div className="row mb-3">
-                            <label className="col-sm-4 col-form-label">Descrição</label>
-                            <div className="col-sm-8">
-                                <input
-                                    className="form-control"
-                                    name="descricao"
-                                    defaultValue={props.departamento.nmDescricao}
-                                    required
-                                    onChange={(e) => setDescricao(e.target.value)}
-                                ></input>
-                            </div>
-                        </div>
-
-                        <div className="row mb-3">
-                            <label className="col-sm-4 col-form-label">Ativo</label>
-                            <div className="col-sm-8">
-                                <input
-                                    className="form-check-input"
-                                    name="ativo"
-                                    type="checkbox"
-                                    value={props.departamento.isAtivo}
-                                    checked={ativo}
-                                    onChange={handleAtivoChange}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="row">
-                            <div className="offset-sm-4 col-sm-4 d-grid">
-                                <button type="submit" className="btn btn-primary btn-sm me-3">
-                                    Salvar
-                                </button>
-                            </div>
-                            <div className="col-sm-4 d-grid">
-                                <button
-                                    onClick={() => props.ShowList()}
-                                    type="button"
-                                    className="btn btn-danger me-2"
-                                >
-                                    Cancelar
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <AlertPopup
-                type={alertProps.type}
-                title={alertProps.title}
-                message={alertProps.message}
-                show={alertProps.show}
-                onClose={alertProps.onClose}
-                onConfirm={alertProps.onConfirm}
-            />
-        </>
-    );
+  return (
+    <div className="container">
+      <h3 className="text-center mb-3">Listagem de Escalas Extras</h3>
+      <div className="text-center mb-3">
+                <button
+                    onClick={handleGerarPDF}
+                    type="button"
+                    className="btn btn-primary me-2"
+                >
+                    Gerar PDF
+                </button>
+                <button
+                    onClick={() => BuscarTodos()}
+                    type="button"
+                    className="btn btn-outline-primary me-2"
+                >
+                    Atualizar
+                </button>
+            </div>
+      <table className="table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Setor</th>
+            <th>Data</th>
+            <th>Hora</th>
+            <th>Escala_Extra</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {escalaExtra.map((item) => (
+            <tr key={item.idEscalaExtra}>
+              <td>{item.nmFuncionario}</td>
+              <td>{item.nmSetor}</td>
+              <td>{formatDate(item.dtEscalaExtra)}</td>
+              <td>{formatTime(item.dtEscalaExtra)}</td>
+              <td>{item.nmEscalaExtra}</td>
+              <td style={{ width: "10px", whiteSpace: "nowrap" }}>
+                    <button
+                        onClick={() => handleDelete(item.idEscalaExtra)}
+                        type="button"
+                        className="btn btn-danger btn-sm"
+                    >
+                        Delete
+                    </button>
+                </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+        <AlertPopup
+            type={alertProps.type}
+            title={alertProps.title}
+            message={alertProps.message}
+            show={alertProps.show}
+            onClose={alertProps.onClose}
+            onConfirm={alertProps.onConfirm}
+        />
+    </div>
+  );
 }
-export function Departamento() {
 
-    const [content, setContent] = useState(
-        <DepartamentoList ShowForm={ShowForm} />
-    );
-
-    function ShowList() {
-        setContent(<DepartamentoList ShowForm={ShowForm} />);
-    }
-
-    function ShowForm(departamento) {
-        setContent(
-            <DepartamentoForm departamento={departamento} ShowList={ShowList} ShowForm={ShowForm} />
-        );
-    }
-    return <div className="container">{content}</div>;
-}
+export default EscalaExtraList;

@@ -14,5 +14,6 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.EscalaExtra
         Task<SolicitacaoEscalaExtraDTO> Incluir(SolicitacaoEscalaExtraDTO escalaExtraDTOs);
         Task<SolicitacaoEscalaExtraDTO> Deletar(Guid id);
         Task<SolicitacaoEscalaExtraDTO> Alterar(Guid id, SolicitacaoEscalaExtraDTO escalaExtraModel);
+        Task<List<VisualizarSolicitacoesDTO>> ListarTodos();
     }
 }

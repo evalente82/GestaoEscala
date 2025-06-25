@@ -97,5 +97,22 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaExtra
                 return BadRequest(new RetornoModel { Valido = false, Mensagem = $"Erro ao buscar solicitações de escala extra: {ex.Message}" });
             }
         }
+
+        [HttpGet]
+        [Route("listar")]
+        public async Task<ActionResult> ListarExtras()
+        {
+            var extras = await _SolicitacaoEscalaExtraService.ListarTodos();
+
+            foreach (var extra in extras)
+            {
+                if (!extra.valido)
+                {
+                    return BadRequest(new RetornoModel { Valido = false, Mensagem = extra.mensagem });
+                }
+            }
+
+            return Ok(extras);
+        }
     }
 }

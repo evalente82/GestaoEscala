@@ -243,10 +243,6 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
                 }                
             }
 
-
-
-
-
             // Adiciona a lista de escalas ao repositório
             var novaSolicitacaoEscalaExtra = await _SolicitacaoEscalaExtraRepository.AdicionarListaAsync(solicitacaoEscalaExtra);
 
@@ -294,6 +290,56 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
             catch (Exception e)
             {
                 throw new Exception($"Erro ao alterar Escala Extra: {e.Message}");
+            }
+        }
+
+        public async Task<List<VisualizarSolicitacoesDTO>> ListarTodos()
+        {
+            try
+            {
+                var listVisualizarSolicitacoesDTO = new List<VisualizarSolicitacoesDTO>();
+
+                // Obtém todas as EscalasExtra do repositório
+                var escalasExtras = await _SolicitacaoEscalaExtraRepository.ObterTodosAsync();
+
+                // Se não houver registros, retorna uma lista vazia
+                if (escalasExtras == null || !escalasExtras.Any())
+                {
+                    return new List<VisualizarSolicitacoesDTO>(); // Lista vazia
+                }
+
+                //buscar nome funcionario NmFuncionario
+                foreach (var item in escalasExtras)
+                {
+                    var visualizarSolicitacoesDTO = new VisualizarSolicitacoesDTO();
+                    var funcionario = await _funcionarioRepository.ObterPorIdAsync(item.IdFuncionario);
+                    //buscar nome da escala extra NmEscalaExtra
+                    var escala = await _escalaExtraRepository.BuscarListaPorIdAsync(item.IdCriacaoEscalaExtra);
+
+                    //buscar nome do setor NmSetor
+                    var setor = await _setorRepository.BuscarPorIdAsync(escala.IdSetor);
+
+                    //IdCriacaoEscalaExtra e IdEscalaExtra
+                    visualizarSolicitacoesDTO.IdEscalaExtra = item.IdEscalaExtra;
+                    visualizarSolicitacoesDTO.IdCriacaoEscalaExtra = item.IdCriacaoEscalaExtra;
+                    visualizarSolicitacoesDTO.IdFuncionario = item.IdFuncionario;
+                    visualizarSolicitacoesDTO.NmFuncionario = funcionario.NmNome;
+                    visualizarSolicitacoesDTO.NmEscalaExtra = escala.NmEscalaExtra;
+                    visualizarSolicitacoesDTO.NmSetor = setor.NmNome;
+                    visualizarSolicitacoesDTO.DtEscalaExtra = escala.DtEscalaExtra;
+                    listVisualizarSolicitacoesDTO.Add(visualizarSolicitacoesDTO);
+                }
+
+
+
+
+                // Mapeia todas as EscalasExtra para a lista de DTOs
+                return listVisualizarSolicitacoesDTO;
+            }
+            catch (Exception e)
+            {
+                // Lança uma exceção caso ocorra um erro
+                throw new Exception($"Erro ao buscar todas as escalas extras: {e.Message}", e);
             }
         }
     }
