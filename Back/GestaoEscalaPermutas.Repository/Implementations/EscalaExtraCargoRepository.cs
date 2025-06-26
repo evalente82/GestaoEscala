@@ -1,6 +1,7 @@
 ﻿using GestaoEscalaPermutas.Infra.Data.Context;
 using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using GestaoEscalaPermutas.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,6 +62,11 @@ namespace GestaoEscalaPermutas.Repository.Implementations
         public async Task<CriacaoEscalaExtraCargo?> ObterPorIdAsync(Guid id)
         {
             return await _context.CriacaoEscalaExtraCargo.FindAsync(id);
+        }
+
+        public Task<List<CriacaoEscalaExtraCargo>> ObterTodosAsync()
+        {
+            return _context.CriacaoEscalaExtraCargo.ToListAsync();
         }
     }
 }

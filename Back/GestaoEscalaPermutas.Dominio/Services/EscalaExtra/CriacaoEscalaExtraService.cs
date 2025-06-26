@@ -3,9 +3,11 @@ using GestaoEscalaPermutas.Dominio.DTO.EscalaExtra;
 using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
 using GestaoEscalaPermutas.Dominio.DTO.PostoTrabalho;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaExtra;
+using GestaoEscalaPermutas.Infra.Data.Context;
 using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using GestaoEscalaPermutas.Repository.Implementations;
 using GestaoEscalaPermutas.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 
 namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
@@ -16,17 +18,20 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
         private readonly IEscalaExtraCargoRepository _EscalaExtraCargoRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly DefesaCivilMaricaContext _context;
 
         public CriacaoEscalaExtraService(
             IEscalaExtraRepository escalaExtraRepository, 
             IMapper mapper, 
             IEscalaExtraCargoRepository EscalaExtraCargoRepository,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            DefesaCivilMaricaContext context)
         {
             _EscalaExtraRepository = escalaExtraRepository;
             _mapper = mapper;
             _EscalaExtraCargoRepository = EscalaExtraCargoRepository;
             _unitOfWork = unitOfWork;
+            _context = context;
         }
 
         public async Task<EscalaExtraDTO> BuscarPorId(Guid idEscalaExtra)
@@ -72,21 +77,39 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
         {
             try
             {
-                // Obtém todas as EscalasExtra do repositório
-                var escalasExtras = await _EscalaExtraRepository.ObterTodosAsync();
+                // 1. Chama o novo método do repositório que já traz os cargos juntos.
+                var escalasComCargos = await _unitOfWork.CriacaoEscalaExtra.ObterTodosComCargosAsync();
 
-                // Se não houver registros, retorna uma lista vazia
-                if (escalasExtras == null || !escalasExtras.Any())
+
+                if (escalasComCargos == null || !escalasComCargos.Any())
                 {
-                    return new List<EscalaExtraDTO>(); // Lista vazia
+                    return new List<EscalaExtraDTO>();
                 }
 
-                // Mapeia todas as EscalasExtra para a lista de DTOs
-                return _mapper.Map<List<EscalaExtraDTO>>(escalasExtras);
+                // 2. Mapeia os resultados.
+                // O AutoMapper vai mapear as propriedades principais (NmEscalaExtra, DtEscalaExtra, etc.).
+                // A lista de cargos precisaremos preencher manualmente, pois os nomes das propriedades são diferentes.
+                var resultadoFinalDTOs = new List<EscalaExtraDTO>();
+
+                foreach (var escala in escalasComCargos)
+                {
+                    // Mapeia as propriedades simples da escala para o DTO
+                    var dto = _mapper.Map<EscalaExtraDTO>(escala);
+
+                    // Preenche a lista de IDs de cargo no DTO
+                    // usando a propriedade de navegação que o .Include() populou.
+                    dto.IdCargo = escala.CriacaoEscalaExtraCargos
+                                        .Select(juncao => juncao.IdCargo) // Para cada item na junção, pegue o IdCargo
+                                        .ToList(); // E transforme numa lista de Guids
+
+                    // Adiciona o DTO completo à lista final
+                    resultadoFinalDTOs.Add(dto);
+                }
+
+                return resultadoFinalDTOs;
             }
             catch (Exception e)
             {
-                // Lança uma exceção caso ocorra um erro
                 throw new Exception($"Erro ao buscar todas as escalas extras: {e.Message}", e);
             }
         }
@@ -127,7 +150,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
             // PASSO 1: Prepara a adição da entidade principal (Escala)
             // O método do repositório não precisa de um 'await' se for síncrono,
             // ou se retornar Task, pode usar 'await'.
-            await _unitOfWork.EscalaExtra.AdicionarListaAsync(escalaExtra); // Supondo que o repositório use AddAsync
+            await _unitOfWork.CriacaoEscalaExtra.AdicionarListaAsync(escalaExtra); // Supondo que o repositório use AddAsync
 
             // PASSO 2: Prepara a lista de entidades de junção
             var listEscalaExtraCargo = escalaExtraDTOs.IdCargo
@@ -162,7 +185,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
 
             try
             {
-                var escalaParaDeletar = await _unitOfWork.EscalaExtra.ObterPorIdAsync(id);
+                var escalaParaDeletar = await _unitOfWork.CriacaoEscalaExtra.ObterPorIdAsync(id);
 
                 if (escalaParaDeletar == null)
                 {
@@ -170,7 +193,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
                 }
 
                 // Você SÓ precisa de mandar apagar a entidade principal.
-                _unitOfWork.EscalaExtra.DeletarAsync(escalaParaDeletar);
+                _unitOfWork.CriacaoEscalaExtra.DeletarAsync(escalaParaDeletar);
 
                 // Ao salvar, o banco de dados irá apagar a escala E todos os seus cargos associados automaticamente.
                 await _unitOfWork.CompleteAsync();

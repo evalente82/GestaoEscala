@@ -49,6 +49,14 @@ namespace GestaoEscalaPermutas.Repository.Implementations
         public async Task<CriacaoEscalaExtra> BuscarListaPorIdAsync(Guid id)
         {
             return await _context.CriacaoEscalaExtra.FindAsync(id);
-        }        
+        }
+
+        public Task<List<CriacaoEscalaExtra>> ObterTodosComCargosAsync()
+        {
+            return  _context.CriacaoEscalaExtra // Começa na tabela principal
+                             .Include(escala => escala.CriacaoEscalaExtraCargos)
+                             .ThenInclude(cec => cec.Cargo)// Inclui os dados relacionados da tabela de junção
+                             .ToListAsync(); // Executa uma única query otimizada no banco
+        }
     }
 }

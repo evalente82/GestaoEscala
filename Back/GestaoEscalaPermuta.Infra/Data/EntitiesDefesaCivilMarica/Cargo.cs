@@ -24,5 +24,6 @@ public partial class Cargo
 
     // Relacionamento com Perfis
     public ICollection<CargoPerfis> CargoPerfis { get; set; } = new List<CargoPerfis>();
+    public virtual ICollection<CriacaoEscalaExtraCargo> CriacaoEscalaExtraCargos { get; set; } = new List<CriacaoEscalaExtraCargo>();
 
 }

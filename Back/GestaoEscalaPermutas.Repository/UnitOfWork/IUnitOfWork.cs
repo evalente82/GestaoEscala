@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 
 namespace GestaoEscalaPermutas.Repository.UnitOfWork
 {
-    public interface IUnitOfWork : IDisposable
-    {
-        IEscalaRepository Escalas { get; }
-        IUsuarioRepository Usuarios { get; }
-        Task<int> SaveChangesAsync();
-    }
+    //public interface IUnitOfWork : IDisposable
+    //{
+    //    IEscalaRepository Escalas { get; }
+    //    IUsuarioRepository Usuarios { get; }
+    //    Task<int> SaveChangesAsync();
+    //}
 }

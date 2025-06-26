@@ -53,6 +53,7 @@ function CriacaoEscalaExtraList(props) {
     function BuscarTodos() {
         api.get(`${API_BASE_URL}/escalaExtra/buscarExtras`)
             .then((response) => {
+                console.log('extras',response.data);
                 setEscalasExtras(response.data);
             })
             .catch((error) => {
@@ -162,18 +163,21 @@ function CriacaoEscalaExtraList(props) {
                             <td>{formatDate(escala.dtAbertura, true)}</td>
                             <td>{formatDate(escala.dtFechamento, true)}</td>
                             <td>{setor.find(s => s.idSetor === escala.idSetor)?.nmNome || "N/A"}</td>
-                            <td>
-                                {escala.cargos && escala.cargos.length > 0 ? (
-                                    <select className="form-select form-select-sm" disabled>
-                                        <option>Ver Cargos ({escala.cargos.length})</option>
-                                        {escala.cargos.map(cargo => (
-                                            <option key={cargo.idCargo}>{cargo.nmNome}</option>
-                                        ))}
-                                    </select>
-                                ) : (
-                                    "Nenhum cargo"
-                                )}
-                            </td>
+                           <td>
+                            {escala.idCargo && escala.idCargo.length > 0 ? (
+                                <select className="form-select form-select-sm">
+                                    <option>Ver Cargos ({escala.idCargo.length})</option>
+                                    {escala.idCargo.map(idCargo => {
+                                        const cargo = cargos.find(c => c.idCargo === idCargo);
+                                        return cargo ? (
+                                            <option key={idCargo}>{cargo.nmNome}</option>
+                                        ) : null;
+                                    })}
+                                </select>
+                            ) : (
+                                "Nenhum cargo"
+                            )}
+                        </td>
                             <td>{escala.qtdVagas}</td>
                             <td>
                                 <input type="checkbox" checked={escala.isAtivo} readOnly />
@@ -257,20 +261,30 @@ function CriacaoEscalaExtraForm(props) {
 
     // Popula o formulário ao editar (todos os campos restaurados)
     useEffect(() => {
-        if (props.EscalaExtra) {
-            setNomeEscala(props.EscalaExtra.nmEscalaExtra || '');
-            setDataEscala(props.EscalaExtra.dtEscalaExtra || '');
-            setDataAbertura(props.EscalaExtra.dtAbertura || '');
-            setDataFechamento(props.EscalaExtra.dtFechamento || '');
-            setHoraDoServico(props.EscalaExtra.horaDoServico || '');
-            setHoraInicio(props.EscalaExtra.horaAbertura || '');
-            setHoraFim(props.EscalaExtra.horaFechamento || '');
-            setSetorSelecionado(props.EscalaExtra.idSetor || '');
-            setAtivo(props.EscalaExtra.isAtivo === false ? false : true);
-            setQtdVagas(props.EscalaExtra.qtdVagas || 0);
-            setCargosSelecionados(props.EscalaExtra.cargos || []);
+    if (props.EscalaExtra) {
+        setNomeEscala(props.EscalaExtra.nmEscalaExtra || '');
+        setDataEscala(props.EscalaExtra.dtEscalaExtra || '');
+        setDataAbertura(props.EscalaExtra.dtAbertura || '');
+        setDataFechamento(props.EscalaExtra.dtFechamento || '');
+        setHoraDoServico(props.EscalaExtra.horaDoServico || '');
+        setHoraInicio(props.EscalaExtra.horaAbertura || '');
+        setHoraFim(props.EscalaExtra.horaFechamento || '');
+        setSetorSelecionado(props.EscalaExtra.idSetor || '');
+        setAtivo(props.EscalaExtra.isAtivo === false ? false : true);
+        setQtdVagas(props.EscalaExtra.qtdVagas || 0);
+
+        // Carrega os cargos com base nos IDs recebidos
+        if (props.EscalaExtra.idCargo && props.EscalaExtra.idCargo.length > 0) {
+            const cargosCompletos = props.EscalaExtra.idCargo
+                .map(id => cargosDisponiveis.find(c => c.idCargo === id))
+                .filter(Boolean); // remove undefined
+
+            setCargosSelecionados(cargosCompletos);
+        } else {
+            setCargosSelecionados([]);
         }
-    }, [props.EscalaExtra]);
+    }
+}, [props.EscalaExtra, cargosDisponiveis]);
 
     // Busca os dados iniciais (setores e cargos)
     useEffect(() => {
@@ -326,58 +340,57 @@ function CriacaoEscalaExtraForm(props) {
     }, [props.EscalaExtra]);
 
     const handleSubmit = (e) => {
-        e.preventDefault();
-        const data = {
-            nmEscalaExtra: nomeEscala,
-            dtEscalaExtra: dataEscala,
-            dtAbertura: dataAbertura,
-            dtFechamento: dataFechamento,
-            horaDoServico: horaDoServico,
-            horaAbertura: horaInicio,
-            horaFechamento: horaFim,
-            idSetor: setorSelecionado,
-            nomeFuncionario: nomeUsuario,
-            isAtivo: ativo,
-            qtdVagas: qtdVagas,
-            // CORREÇÃO: A propriedade foi renomeada de "cargosIds" para "IdCargo"
-            // para corresponder exatamente ao nome esperado pelo DTO no backend C#.
-            IdCargo: cargosSelecionados.map(c => c.idCargo),
-        };
+    e.preventDefault();
 
-        const isEditing = props.EscalaExtra && props.EscalaExtra.idCriacaoEscalaExtra;
-        const url = isEditing
-            ? `${API_BASE_URL}/escalaExtra/Atualizar/${props.EscalaExtra.idCriacaoEscalaExtra}`
-            : `${API_BASE_URL}/escalaExtra/Incluir`;
-        const method = isEditing ? api.patch : api.post;
+    const data = {
+        nmEscalaExtra: nomeEscala,
+        dtEscalaExtra: dataEscala,
+        dtAbertura: dataAbertura,
+        dtFechamento: dataFechamento,
+        horaDoServico: horaDoServico,
+        horaAbertura: horaInicio,
+        horaFechamento: horaFim,
+        idSetor: setorSelecionado,
+        nomeFuncionario: nomeUsuario,
+        isAtivo: ativo,
+        qtdVagas: qtdVagas,
+        IdCargo: cargosSelecionados.map(c => c.idCargo), // Envia apenas os IDs
+    };
 
-        method(url, data)
-            .then((response) => {
-                if (response.data && response.data.valido) {
-                    setAlertProps({
-                        show: true, type: "success", title: "Sucesso",
-                        message: `Escala Extra ${isEditing ? 'atualizada' : 'cadastrada'} com sucesso!`,
-                        onClose: () => {
-                            setAlertProps((prev) => ({ ...prev, show: false }));
-                            props.ShowList();
-                        },
-                    });
-                } else {
-                    setAlertProps({
-                        show: true, type: "error", title: "Erro",
-                        message: response.data.Mensagem || `Falha ao ${isEditing ? 'atualizar' : 'cadastrar'}.`,
-                        onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
-                    });
-                }
-            })
-            .catch((error) => {
-                console.error('Erro ao chamar a API:', error);
+    const isEditing = props.EscalaExtra && props.EscalaExtra.idCriacaoEscalaExtra;
+    const url = isEditing
+        ? `${API_BASE_URL}/escalaExtra/Atualizar/${props.EscalaExtra.idCriacaoEscalaExtra}`
+        : `${API_BASE_URL}/escalaExtra/Incluir`;
+    const method = isEditing ? api.patch : api.post;
+
+    method(url, data)
+        .then((response) => {
+            if (response.data && response.data.valido) {
+                setAlertProps({
+                    show: true, type: "success", title: "Sucesso",
+                    message: `Escala Extra ${isEditing ? 'atualizada' : 'cadastrada'} com sucesso!`,
+                    onClose: () => {
+                        setAlertProps((prev) => ({ ...prev, show: false }));
+                        props.ShowList();
+                    },
+                });
+            } else {
                 setAlertProps({
                     show: true, type: "error", title: "Erro",
-                    message: `Falha ao ${isEditing ? 'atualizar' : 'cadastrar'}.`,
+                    message: response.data.Mensagem || `Falha ao ${isEditing ? 'atualizar' : 'cadastrar'}.`,
                     onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
                 });
+            }
+        })
+        .catch((error) => {
+            console.error('Erro ao chamar a API:', error);
+            setAlertProps({
+                show: true, type: "error", title: "Erro",
+                message: `Falha ao ${isEditing ? 'atualizar' : 'cadastrar'}.`,
+                onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
             });
-    };
+        });
+};
 
     return (
         <>

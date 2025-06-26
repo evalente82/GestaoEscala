@@ -13,5 +13,6 @@ namespace GestaoEscalaPermutas.Repository.Interfaces
         void DeletarAsync(CriacaoEscalaExtraCargo escalaExtra);
         Task AlterarAsync(CriacaoEscalaExtraCargo escalaExtra);
         Task<CriacaoEscalaExtraCargo?> ObterPorIdAsync(Guid id);
+        Task<List<CriacaoEscalaExtraCargo>> ObterTodosAsync();
     }
 }

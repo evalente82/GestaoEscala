@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using GestaoEscalaPermutas.Dominio.Entities;
+﻿using GestaoEscalaPermutas.Dominio.Entities;
 using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
-using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 namespace GestaoEscalaPermutas.Infra.Data.Context;
 
@@ -42,16 +38,6 @@ public partial class DefesaCivilMaricaContext : DbContext
     public DbSet<CriacaoEscalaExtraCargo> CriacaoEscalaExtraCargo { get; set; }    
     public DbSet<LogGestaoEscala> LogGestaoEscala { get; set; }
 
-
-
-
-
-    //    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-    //        => optionsBuilder.UseSqlServer("Server=localhost;Database=DefesaCivilMarica;User Id=sa;Password=R2d2c3po;TrustServerCertificate=True;");
-
-
-
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured) // Só configura se não houver configuração prévia
@@ -71,30 +57,30 @@ public partial class DefesaCivilMaricaContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        #region CriacaoEscalaExtraCargo (Tabela de Junção)
 
-        // Alvo: a nossa entidade de junção
+        modelBuilder.Entity<CriacaoEscalaExtra>(entity =>
+        {
+            entity.ToTable("CriacaoEscalaExtra");
+            entity.HasKey(e => e.IdCriacaoEscalaExtra);
+
+            entity.HasMany(e => e.CriacaoEscalaExtraCargos)
+                  .WithOne(c => c.CriacaoEscalaExtra)
+                  .HasForeignKey(c => c.IdCriacaoEscalaExtra);
+        });
+
+        #region RELAÇÃO MUITOS-PARA-MUITOS: ESCALA <-> CARGO
+
         modelBuilder.Entity<CriacaoEscalaExtraCargo>(entity =>
         {
-            // 1. DEFINIÇÃO DA CHAVE PRIMÁRIA COMPOSTA
-            // Especifica que a chave primária é a combinação das duas propriedades.
-            entity.HasKey(ceed => new { ceed.IdCriacaoEscalaExtra, ceed.IdCargo });
+            entity.HasKey(ec => new { ec.IdCriacaoEscalaExtra, ec.IdCargo });
 
-            // 2. CONFIGURAÇÃO DA RELAÇÃO COM CriacaoEscalaExtra
-            // Cada registo na tabela de junção tem UMA escala...
-            entity.HasOne<CriacaoEscalaExtra>()
-                // ...e cada escala tem MUITOS registos na tabela de junção.
-                .WithMany() // Se CriacaoEscalaExtra tivesse uma ICollection, seria .WithMany(e => e.DepartamentosDaEscala)
-                            // A chave estrangeira nesta tabela é IdCriacaoEscalaExtra.
-                .HasForeignKey(ceed => ceed.IdCriacaoEscalaExtra);
+            entity.HasOne(ec => ec.CriacaoEscalaExtra)
+                  .WithMany(e => e.CriacaoEscalaExtraCargos)
+                  .HasForeignKey(ec => ec.IdCriacaoEscalaExtra);
 
-            // 3. CONFIGURAÇÃO DA RELAÇÃO COM Departamento
-            // Cada registo na tabela de junção tem UM departamento...
-            entity.HasOne<Cargo>()
-                // ...e cada cargo tem MUITOS registos na tabela de junção.
-                .WithMany() // Se cargos tivesse uma ICollection, seria .WithMany(d => d.EscalasDoDepartamento)
-                            // A chave estrangeira nesta tabela é IdCargo.
-                .HasForeignKey(ceed => ceed.IdCargo);
+            entity.HasOne(ec => ec.Cargo)
+                  .WithMany(c => c.CriacaoEscalaExtraCargos)
+                  .HasForeignKey(ec => ec.IdCargo);
         });
 
         #endregion
