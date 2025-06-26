@@ -49,6 +49,8 @@ using GestaoEscalaPermutas.Repository.Interfaces;
 using GestaoEscalaPermutas.Server.Settings;
 using Microsoft.Extensions.Options;
 using GestaoEscalaPermutas.Dominio.Services.Recaptcha.SeuNamespace.Services;
+using GestaoEscalaPermutas.Dominio.Interfaces.LOGs;
+using GestaoEscalaPermutas.Dominio.Services.LOGs;
 
 var cultureInfo = new CultureInfo("pt-BR");
 CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
@@ -139,12 +141,15 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISetorService, SetorService>();
 builder.Services.AddScoped<IEscalaExtraService, CriacaoEscalaExtraService>();
 builder.Services.AddScoped<IEscalaExtraRepository, EscalaExtraRepository>();
-
 builder.Services.AddScoped<ISolicitacaoEscalaExtraService, SolicitacaoEscalaExtraService>();
 builder.Services.AddScoped<ISolicitacaoEscalaExtraRepository, SolicitacaoEscalaExtraRepository>();
-
+builder.Services.AddScoped<IEscalaExtraCargoRepository, EscalaExtraCargoRepository>();
+builder.Services.AddScoped<ILogRepository, LogRepository>();
+builder.Services.AddScoped<ILogService, LogService>();
 builder.Services.AddRepositoryServices();
 builder.Services.AddHostedService<PermutasMessageConsumer>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Configurar o HttpClientFactory
 builder.Services.AddHttpClient(); // Adiciona IHttpClientFactory ao container

@@ -11,7 +11,6 @@ namespace GestaoEscalaPermutas.Repository.DependencyInjection
         {
             services.AddScoped<IEscalaRepository, EscalaRepository>();
             services.AddScoped<IUsuarioRepository, UsuarioRepository>();
-            services.AddScoped<IUnitOfWork, UnitOfWorkService>();
             services.AddScoped<ICargoRepository, CargoRepository>();
             services.AddScoped<IDepartamentoRepository, DepartamentoRepository>();
             services.AddScoped<IEscalaProntaRepository, EscalaProntaRepository>();

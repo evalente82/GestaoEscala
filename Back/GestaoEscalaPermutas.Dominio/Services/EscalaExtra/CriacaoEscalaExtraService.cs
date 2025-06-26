@@ -3,6 +3,7 @@ using GestaoEscalaPermutas.Dominio.DTO.EscalaExtra;
 using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
 using GestaoEscalaPermutas.Dominio.DTO.PostoTrabalho;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaExtra;
+using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using GestaoEscalaPermutas.Repository.Implementations;
 using GestaoEscalaPermutas.Repository.Interfaces;
 using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
@@ -12,12 +13,20 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
     public class CriacaoEscalaExtraService : IEscalaExtraService
     {
         private readonly IEscalaExtraRepository _EscalaExtraRepository;
+        private readonly IEscalaExtraCargoRepository _EscalaExtraCargoRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public CriacaoEscalaExtraService(IEscalaExtraRepository escalaExtraRepository, IMapper mapper)
+        public CriacaoEscalaExtraService(
+            IEscalaExtraRepository escalaExtraRepository, 
+            IMapper mapper, 
+            IEscalaExtraCargoRepository EscalaExtraCargoRepository,
+            IUnitOfWork unitOfWork)
         {
             _EscalaExtraRepository = escalaExtraRepository;
             _mapper = mapper;
+            _EscalaExtraCargoRepository = EscalaExtraCargoRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<EscalaExtraDTO> BuscarPorId(Guid idEscalaExtra)
@@ -115,28 +124,62 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
             // Mapeia a lista de DTOs para as entidades (CriacaoEscalaExtra)
             var escalaExtra = _mapper.Map<DepInfra.CriacaoEscalaExtra>(escalaExtraDTOs);
 
-            // Adiciona a lista de escalas ao repositório
-            var novaEscalaExtra = await _EscalaExtraRepository.AdicionarListaAsync(escalaExtra);
+            // PASSO 1: Prepara a adição da entidade principal (Escala)
+            // O método do repositório não precisa de um 'await' se for síncrono,
+            // ou se retornar Task, pode usar 'await'.
+            await _unitOfWork.EscalaExtra.AdicionarListaAsync(escalaExtra); // Supondo que o repositório use AddAsync
 
-            // Mapeia de volta para DTOs e retorna
-            return _mapper.Map<EscalaExtraDTO>(novaEscalaExtra);
+            // PASSO 2: Prepara a lista de entidades de junção
+            var listEscalaExtraCargo = escalaExtraDTOs.IdCargo
+                .Select(umIdDeCargo => new CriacaoEscalaExtraCargo
+                {
+                    IdCriacaoEscalaExtra = escalaExtra.IdCriacaoEscalaExtra,
+                    IdCargo = umIdDeCargo
+                }).ToList();
+
+            if (listEscalaExtraCargo.Any())
+            {
+                // PASSO 3: Prepara a adição da lista de junção
+                await _unitOfWork.EscalaExtraCargo.AdicionarListaExtraCargosAsync(listEscalaExtraCargo);
+            }
+
+            // PASSO 4: Salva TODAS as alterações numa única transação
+            await _unitOfWork.CompleteAsync();
+
+            // ======================= A CORREÇÃO ESTÁ AQUI =======================
+            // Mapeia de volta a entidade 'escalaExtra' original, que o EF Core já atualizou.
+            // NÃO mapeie o resultado do método do repositório.
+            return _mapper.Map<EscalaExtraDTO>(escalaExtra);
         }
 
+        // Método Deletar (versão simplificada com Cascade Delete)
         public async Task<EscalaExtraDTO> Deletar(Guid id)
         {
+            if (id == Guid.Empty)
+            {
+                return new EscalaExtraDTO { valido = false, mensagem = "O ID fornecido é inválido." };
+            }
+
             try
             {
-                if (id == Guid.Empty)
-                    return new EscalaExtraDTO { valido = false, mensagem = "Id fora do Range." };
+                var escalaParaDeletar = await _unitOfWork.EscalaExtra.ObterPorIdAsync(id);
 
-                var sucesso = await _EscalaExtraRepository.DeletarAsync(id);
-                return sucesso
-                    ? new EscalaExtraDTO { valido = true, mensagem = "Posto de trabalho deletado com sucesso." }
-                    : new EscalaExtraDTO { valido = false, mensagem = "Posto não encontrado." };
+                if (escalaParaDeletar == null)
+                {
+                    return new EscalaExtraDTO { valido = false, mensagem = "Escala extra não encontrada." };
+                }
+
+                // Você SÓ precisa de mandar apagar a entidade principal.
+                _unitOfWork.EscalaExtra.DeletarAsync(escalaParaDeletar);
+
+                // Ao salvar, o banco de dados irá apagar a escala E todos os seus cargos associados automaticamente.
+                await _unitOfWork.CompleteAsync();
+
+                return new EscalaExtraDTO { valido = true, mensagem = "Escala extra e seus cargos foram deletados com sucesso." };
             }
             catch (Exception e)
             {
-                throw new Exception($"Erro ao deletar posto de trabalho: {e.Message}");
+                return new EscalaExtraDTO { valido = false, mensagem = $"Erro ao deletar a escala extra: {e.Message}" };
             }
         }
 
@@ -177,11 +220,9 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
                     escalaExtraModel.DtFechamento = dtFechamentoComHora; // Atualiza a data de fechamento com a hora combinada
                 }
 
-
-
-
                 _mapper.Map(escalaExtraModel, escalaextraExistente);
-                var escalaExtraAtualizado = await _EscalaExtraRepository.AlterarAsync(escalaextraExistente);
+                var escalaExtraAtualizado = _EscalaExtraRepository.AlterarAsync(escalaextraExistente);
+                await _unitOfWork.CompleteAsync();
 
                 return _mapper.Map<EscalaExtraDTO>(escalaExtraAtualizado);
             }

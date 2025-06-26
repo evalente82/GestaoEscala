@@ -4,11 +4,11 @@ namespace GestaoEscalaPermutas.Repository.Interfaces
 {
     public interface IEscalaExtraRepository
     {
-        Task<EscalaExtra> ObterPorIdAsync(Guid id);
+        Task<CriacaoEscalaExtra> ObterPorIdAsync(Guid id);
         Task<List<CriacaoEscalaExtra>> ObterTodosAsync();
-        Task<CriacaoEscalaExtra> AdicionarListaAsync(CriacaoEscalaExtra escalaExtra);
-        Task<bool> DeletarAsync(Guid id);
+        Task AdicionarListaAsync(CriacaoEscalaExtra escalaExtra);
+        void DeletarAsync(CriacaoEscalaExtra escalaExtra);        
         Task<CriacaoEscalaExtra> BuscarListaPorIdAsync(Guid id);
-        Task<CriacaoEscalaExtra> AlterarAsync(CriacaoEscalaExtra escalaExtra);
+        Task AlterarAsync(CriacaoEscalaExtra escalaExtra);
     }
 }

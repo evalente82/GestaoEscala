@@ -27,6 +27,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
         private readonly IEscalaProntaRepository _escalaProntaRepository;
         private readonly IFuncionarioRepository _funcionarioRepository;
         private readonly IEmailService _emailService;
+        private readonly IUnitOfWork _unitOfWork;
 
         public SolicitacaoEscalaExtraService(
             ISolicitacaoEscalaExtraRepository SolicitacaoEscalaExtraRepository,
@@ -37,7 +38,8 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
             ILogger<SolicitacaoEscalaExtraService> logger,
             IEscalaProntaRepository escalaProntaRepository,
             IFuncionarioRepository funcionarioRepository,
-            IEmailService emailService
+            IEmailService emailService,
+            IUnitOfWork unitOfWork
             )
         {
             _SolicitacaoEscalaExtraRepository = SolicitacaoEscalaExtraRepository;
@@ -49,6 +51,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
             _escalaProntaRepository = escalaProntaRepository;
             _funcionarioRepository = funcionarioRepository;
             _emailService = emailService;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<List<SolicitacaoEscalaExtraDTO>> BuscarPorIdFuncionario(Guid idFuncionario)
@@ -239,18 +242,23 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
             foreach (var item in listEscalas)
             {
                 var listaEscala = await _escalaExtraRepository.BuscarListaPorIdAsync(item.IdCriacaoEscalaExtra);
-                
-                if (listaEscala.DtEscalaExtra.Date == extrasDisponiveis.DtEscalaExtra.Date)
+
+                if (funcionario.IdFuncionario == item.IdFuncionario)
                 {
-                    return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "O Funcionário já possui cadastro de escala extra nesta data." };
-                }                
+                    if (listaEscala.DtEscalaExtra.Date == extrasDisponiveis.DtEscalaExtra.Date)
+                    {
+                        return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "O Funcionário já possui cadastro de escala extra nesta data." };
+                    }
+                }
+                                
             }
 
             // Adiciona a lista de escalas ao repositório
             var novaSolicitacaoEscalaExtra = await _SolicitacaoEscalaExtraRepository.AdicionarListaAsync(solicitacaoEscalaExtra);
 
             extrasDisponiveis.QtdVagas -- ;
-            var alteraQtdEscalaDisponiivel = await _escalaExtraRepository.AlterarAsync(extrasDisponiveis);
+            var alteraQtdEscalaDisponiivel = _escalaExtraRepository.AlterarAsync(extrasDisponiveis);
+            await _unitOfWork.CompleteAsync();
 
             //enviar e-mail
             try

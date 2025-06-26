@@ -19,16 +19,14 @@ namespace GestaoEscalaPermutas.Repository.Implementations
             _context = context;
         }
 
-        public async Task<CriacaoEscalaExtra> AdicionarListaAsync(CriacaoEscalaExtra escalaExtra)
+        public async Task AdicionarListaAsync(CriacaoEscalaExtra escalaExtra)
         {
             await _context.CriacaoEscalaExtra.AddRangeAsync(escalaExtra);
-            await _context.SaveChangesAsync();
-            return escalaExtra;
         }
 
-        public async Task<EscalaExtra> ObterPorIdAsync(Guid id)
+        public async Task<CriacaoEscalaExtra> ObterPorIdAsync(Guid id)
         {
-            return await _context.EscalaExtra.FindAsync(id);
+            return await _context.CriacaoEscalaExtra.FindAsync(id);
         }
 
         public async Task<List<CriacaoEscalaExtra>> ObterTodosAsync()
@@ -36,28 +34,21 @@ namespace GestaoEscalaPermutas.Repository.Implementations
             return await _context.CriacaoEscalaExtra.ToListAsync();
         }
 
-        public async Task<bool> DeletarAsync(Guid id)
+        public void DeletarAsync(CriacaoEscalaExtra escalaExtra)
         {
-            var EscalaExtraExistente = await _context.CriacaoEscalaExtra.FindAsync(id);
-            if (EscalaExtraExistente == null)
-                return false;
-
-            _context.CriacaoEscalaExtra.Remove(EscalaExtraExistente);
-            await _context.SaveChangesAsync();
-            return true;
+            // Apenas marca a entidade para ser removida na próxima vez que SaveChanges for chamado.
+            _context.CriacaoEscalaExtra.Remove(escalaExtra);
         }
 
-
-        public async Task<CriacaoEscalaExtra> AlterarAsync(CriacaoEscalaExtra escalaExtra)
+        public Task AlterarAsync(CriacaoEscalaExtra escalaExtra)
         {
             _context.CriacaoEscalaExtra.Update(escalaExtra);
-            await _context.SaveChangesAsync();
-            return escalaExtra;
+            return Task.CompletedTask;
         }
 
         public async Task<CriacaoEscalaExtra> BuscarListaPorIdAsync(Guid id)
         {
             return await _context.CriacaoEscalaExtra.FindAsync(id);
-        }
+        }        
     }
 }

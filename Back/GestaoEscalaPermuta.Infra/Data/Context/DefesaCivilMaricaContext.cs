@@ -39,6 +39,8 @@ public partial class DefesaCivilMaricaContext : DbContext
     public DbSet<FuncionarioFcmToken> FuncionarioFcmTokens { get; set; }
     public DbSet<EscalaExtra> EscalaExtra { get; set; }
     public DbSet<CriacaoEscalaExtra> CriacaoEscalaExtra { get; set; }
+    public DbSet<CriacaoEscalaExtraCargo> CriacaoEscalaExtraCargo { get; set; }    
+    public DbSet<LogGestaoEscala> LogGestaoEscala { get; set; }
 
 
 
@@ -69,6 +71,56 @@ public partial class DefesaCivilMaricaContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        #region CriacaoEscalaExtraCargo (Tabela de Junção)
+
+        // Alvo: a nossa entidade de junção
+        modelBuilder.Entity<CriacaoEscalaExtraCargo>(entity =>
+        {
+            // 1. DEFINIÇÃO DA CHAVE PRIMÁRIA COMPOSTA
+            // Especifica que a chave primária é a combinação das duas propriedades.
+            entity.HasKey(ceed => new { ceed.IdCriacaoEscalaExtra, ceed.IdCargo });
+
+            // 2. CONFIGURAÇÃO DA RELAÇÃO COM CriacaoEscalaExtra
+            // Cada registo na tabela de junção tem UMA escala...
+            entity.HasOne<CriacaoEscalaExtra>()
+                // ...e cada escala tem MUITOS registos na tabela de junção.
+                .WithMany() // Se CriacaoEscalaExtra tivesse uma ICollection, seria .WithMany(e => e.DepartamentosDaEscala)
+                            // A chave estrangeira nesta tabela é IdCriacaoEscalaExtra.
+                .HasForeignKey(ceed => ceed.IdCriacaoEscalaExtra);
+
+            // 3. CONFIGURAÇÃO DA RELAÇÃO COM Departamento
+            // Cada registo na tabela de junção tem UM departamento...
+            entity.HasOne<Cargo>()
+                // ...e cada cargo tem MUITOS registos na tabela de junção.
+                .WithMany() // Se cargos tivesse uma ICollection, seria .WithMany(d => d.EscalasDoDepartamento)
+                            // A chave estrangeira nesta tabela é IdCargo.
+                .HasForeignKey(ceed => ceed.IdCargo);
+        });
+
+        #endregion
+
+        #region LOG GESTAO ESCALA
+        modelBuilder.Entity<LogGestaoEscala>(entity =>
+        {
+            // Define a chave primária da tabela.
+            entity.HasKey(e => e.Id);
+
+            // Configura a coluna Id para ser uma coluna de identidade (auto-incremento),
+            // que é o comportamento padrão para o tipo BIGSERIAL no PostgreSQL.
+            // Ser explícito aqui ajuda na clareza do código.
+            entity.Property(e => e.Id).UseIdentityByDefaultColumn();
+
+            // As outras propriedades (string, DateTimeOffset) são mapeadas
+            // corretamente por convenção do EF Core.
+
+            // As colunas JSONB já foram configuradas com o atributo [Column(TypeName = "jsonb")]
+            // na entidade, mas se quisesse fazer via Fluent API, seria assim:
+            // entity.Property(e => e.ValoresAntigos).HasColumnType("jsonb");
+            // entity.Property(e => e.ValoresNovos).HasColumnType("jsonb");
+            // entity.Property(e => e.MetadadosAdicionais).HasColumnType("jsonb");
+        });
+        #endregion
+
         #region FUNCIONARIO_FCM_TOKENS
         modelBuilder.Entity<FuncionarioFcmToken>(entity =>
         {
