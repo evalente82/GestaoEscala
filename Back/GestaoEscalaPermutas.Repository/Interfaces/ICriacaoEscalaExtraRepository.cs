@@ -8,6 +8,6 @@ namespace GestaoEscalaPermutas.Repository.Interfaces
         Task AdicionarListaAsync(CriacaoEscalaExtra escalaExtra);
         void DeletarAsync(CriacaoEscalaExtra escalaExtra);
         Task<CriacaoEscalaExtra?> ObterPorIdAsync(Guid id);
-
+        Task<CriacaoEscalaExtra?> BuscarComCargosPorIdAsync(Guid id);
     }
 }

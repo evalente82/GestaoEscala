@@ -68,5 +68,13 @@ namespace GestaoEscalaPermutas.Repository.Implementations
         {
             return _context.CriacaoEscalaExtraCargo.ToListAsync();
         }
+        public async Task<IEnumerable<Guid>> ObterCargosPorEscalaExtraIdAsync(Guid idCriacaoEscalaExtra)
+        {
+            return await _context.CriacaoEscalaExtraCargo
+                             .Where(ec => ec.IdCriacaoEscalaExtra == idCriacaoEscalaExtra)
+                             .Select(ec => ec.IdCargo)
+                             .ToListAsync();
+        }
+
     }
 }

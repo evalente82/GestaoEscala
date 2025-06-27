@@ -16,5 +16,7 @@ namespace GestaoEscalaPermutas.Dominio.DTO.EscalaExtra
         public string NmEscalaExtra { get; set; }
         public string NmSetor { get; set; }
         public DateTime DtEscalaExtra { get; set; }
+        public DateTime DtCriacao { get; set; }
+        public string StatusInscricao { get; set; }
     }
 }

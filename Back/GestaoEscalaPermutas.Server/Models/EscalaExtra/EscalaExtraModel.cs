@@ -15,6 +15,7 @@
         public bool IsAtivo { get; set; } = true;
         public DateTime DtCriacao { get; set; } = DateTime.Now;
         public int QtdVagas { get; set; }
+        public int QtdFilaEspera { get; set; }
         public List<Guid> IdCargo { get; set; }
     }
 }

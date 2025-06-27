@@ -14,5 +14,6 @@ namespace GestaoEscalaPermutas.Repository.Interfaces
         Task AlterarAsync(CriacaoEscalaExtraCargo escalaExtra);
         Task<CriacaoEscalaExtraCargo?> ObterPorIdAsync(Guid id);
         Task<List<CriacaoEscalaExtraCargo>> ObterTodosAsync();
+        Task<IEnumerable<Guid>> ObterCargosPorEscalaExtraIdAsync(Guid idCriacaoEscalaExtra);
     }
 }

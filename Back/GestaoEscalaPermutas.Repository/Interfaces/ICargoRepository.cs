@@ -8,6 +8,6 @@ namespace GestaoEscalaPermutas.Repository.Interfaces
         Task<Cargo?> ObterPorIdAsync(Guid id);
         Task<List<Cargo>> ObterTodosAsync();
         Task AtualizarAsync(Cargo cargo);
-        Task RemoverAsync(Guid id);
+        Task RemoverAsync(Guid id);        
     }
 }

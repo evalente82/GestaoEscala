@@ -24,6 +24,7 @@ namespace GestaoEscalaPermutas.Dominio.DTO.EscalaExtra
         [JsonIgnore]
         public DateTime DtCriacao { get; set; } = DateTime.Now;
         public int QtdVagas { get; set; }
+        public int QtdFilaEspera { get; set; }
         public List<Guid> IdCargo { get; set; }
     }
 }

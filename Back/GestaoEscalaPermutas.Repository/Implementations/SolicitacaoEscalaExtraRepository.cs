@@ -14,12 +14,9 @@ namespace GestaoEscalaPermutas.Repository.Implementations
             _context = context;
         }
 
-        public async Task<EscalaExtra> AdicionarListaAsync(EscalaExtra escalaExtra)
+        public async Task AdicionarListaAsync(EscalaExtra escalaExtra)
         {
-            await _context.EscalaExtra.AddRangeAsync(escalaExtra);
-            await _context.SaveChangesAsync();
-            var dadosDoBanco = await _context.EscalaExtra.FirstOrDefaultAsync(x => x.IdEscalaExtra == escalaExtra.IdEscalaExtra);
-            return dadosDoBanco;
+            await _context.EscalaExtra.AddRangeAsync(escalaExtra);            
         }
 
         public async Task<List<EscalaExtra>> ObterTodosAsync()

@@ -44,5 +44,12 @@ namespace GestaoEscalaPermutas.Repository.Implementations
             
             return lista;
         }
+
+        public async Task<CriacaoEscalaExtra?> BuscarComCargosPorIdAsync(Guid id)
+        {
+            return await _context.CriacaoEscalaExtra
+                                 .Include(e => e.CriacaoEscalaExtraCargos) // <-- PONTO CRÍTICO!
+                                 .FirstOrDefaultAsync(e => e.IdCriacaoEscalaExtra == id);
+        }
     }
 }

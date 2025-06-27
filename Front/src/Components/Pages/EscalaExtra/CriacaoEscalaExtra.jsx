@@ -151,6 +151,7 @@ function CriacaoEscalaExtraList(props) {
                         <th>Setor</th>
                         <th>Cargos</th>
                         <th>Vagas</th>
+                        <th>Fila Espera</th>
                         <th>Ativo</th>
                         <th>Ações</th>
                     </tr>
@@ -163,7 +164,7 @@ function CriacaoEscalaExtraList(props) {
                             <td>{formatDate(escala.dtAbertura, true)}</td>
                             <td>{formatDate(escala.dtFechamento, true)}</td>
                             <td>{setor.find(s => s.idSetor === escala.idSetor)?.nmNome || "N/A"}</td>
-                           <td>
+                            <td style={{ width: '180px' }}>
                             {escala.idCargo && escala.idCargo.length > 0 ? (
                                 <select className="form-select form-select-sm">
                                     <option>Ver Cargos ({escala.idCargo.length})</option>
@@ -177,8 +178,9 @@ function CriacaoEscalaExtraList(props) {
                             ) : (
                                 "Nenhum cargo"
                             )}
-                        </td>
+                            </td>
                             <td>{escala.qtdVagas}</td>
+                            <td>{escala.qtdFilaEspera}</td>
                             <td>
                                 <input type="checkbox" checked={escala.isAtivo} readOnly />
                             </td>
@@ -230,6 +232,7 @@ function CriacaoEscalaExtraForm(props) {
             })),
             isAtivo: PropTypes.bool,
             qtdVagas: PropTypes.number,
+            qtdFilaEspera: PropTypes.number
         }),
     };
 
@@ -253,6 +256,7 @@ function CriacaoEscalaExtraForm(props) {
     const [setorSelecionado, setSetorSelecionado] = useState('');
     const [ativo, setAtivo] = useState(true);
     const [qtdVagas, setQtdVagas] = useState(0);
+    const [qtdFilaEspera, setQtdFilaEspera] = useState(0);
 
     // Estados para gerenciar a seleção de múltiplos cargos
     const [cargosDisponiveis, setCargosDisponiveis] = useState([]);
@@ -266,12 +270,13 @@ function CriacaoEscalaExtraForm(props) {
         setDataEscala(props.EscalaExtra.dtEscalaExtra || '');
         setDataAbertura(props.EscalaExtra.dtAbertura || '');
         setDataFechamento(props.EscalaExtra.dtFechamento || '');
-        setHoraDoServico(props.EscalaExtra.horaDoServico || '');
-        setHoraInicio(props.EscalaExtra.horaAbertura || '');
-        setHoraFim(props.EscalaExtra.horaFechamento || '');
+        // setHoraDoServico(props.EscalaExtra.horaDoServico || '');
+        // setHoraInicio(props.EscalaExtra.horaAbertura || '');
+        // setHoraFim(props.EscalaExtra.horaFechamento || '');
         setSetorSelecionado(props.EscalaExtra.idSetor || '');
         setAtivo(props.EscalaExtra.isAtivo === false ? false : true);
         setQtdVagas(props.EscalaExtra.qtdVagas || 0);
+        setQtdFilaEspera(props.EscalaExtra.qtdFilaEspera || 0);
 
         // Carrega os cargos com base nos IDs recebidos
         if (props.EscalaExtra.idCargo && props.EscalaExtra.idCargo.length > 0) {
@@ -354,6 +359,8 @@ function CriacaoEscalaExtraForm(props) {
         nomeFuncionario: nomeUsuario,
         isAtivo: ativo,
         qtdVagas: qtdVagas,
+        qtdFilaEspera: qtdFilaEspera,
+        
         IdCargo: cargosSelecionados.map(c => c.idCargo), // Envia apenas os IDs
     };
 
@@ -463,6 +470,12 @@ function CriacaoEscalaExtraForm(props) {
                             <label className="col-sm-4 col-form-label">Vagas</label>
                             <div className="col-sm-8">
                                 <input type="number" className="form-control" value={qtdVagas} onChange={(e) => setQtdVagas(Number(e.target.value))} min="0" required />
+                            </div>
+                        </div>
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Fila de Espera</label>
+                            <div className="col-sm-8">
+                                <input type="number" className="form-control" value={qtdFilaEspera} onChange={(e) => setQtdFilaEspera(Number(e.target.value))} min="0" required />
                             </div>
                         </div>
                         <div className="row mb-3">

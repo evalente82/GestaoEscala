@@ -206,53 +206,84 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
             }
         }
 
+
         public async Task<EscalaExtraDTO> Alterar(Guid id, EscalaExtraDTO escalaExtraModel)
         {
             try
             {
-                if (id == Guid.Empty)
-                    return new EscalaExtraDTO { valido = false, mensagem = "Id fora do Range." };
+                // --- VALIDAÇÃO INICIAL ---
+                if (id == Guid.Empty || id != escalaExtraModel.IdCriacaoEscalaExtra)
+                {
+                    return new EscalaExtraDTO { valido = false, mensagem = "ID inválido ou inconsistente." };
+                }
 
-                var escalaextraExistente = await _EscalaExtraRepository.BuscarListaPorIdAsync(id);
+                // --- PASSO 1: BUSCAR A ENTIDADE EXISTENTE COM SEUS RELACIONAMENTOS ---
+                // Garanta que este método do repositório usa .Include(e => e.CriacaoEscalaExtraCargos)
+                var escalaextraExistente = await _unitOfWork.CriacaoEscalaExtra.BuscarComCargosPorIdAsync(id);
+
                 if (escalaextraExistente == null)
-                    return new EscalaExtraDTO { valido = false, mensagem = "Escala não encontrada." };
+                {
+                    return new EscalaExtraDTO { valido = false, mensagem = "Escala extra não encontrada." };
+                }
 
-
+                // --- PASSO 2: ATUALIZAR DATAS E HORAS (Sua lógica atual) ---
                 // Verificando se a hora e data são válidas
                 if (!string.IsNullOrEmpty(escalaExtraModel.horaDoServico))
                 {
-                    // Combina a data com a hora (assumindo que horaDoServico esteja no formato "HH:mm")
                     DateTime dtExtraComHora = escalaExtraModel.DtEscalaExtra.Date + TimeSpan.Parse(escalaExtraModel.horaDoServico);
-                    dtExtraComHora = dtExtraComHora.AddHours(3);
-                    escalaExtraModel.DtEscalaExtra = dtExtraComHora; // Atualiza a data do Extra com a hora combinada
+                    // Cuidado com AddHours(3) se a data já vier com fuso. Considere usar TimeZoneInfo se necessário.
+                    escalaExtraModel.DtEscalaExtra = dtExtraComHora.AddHours(3);
                 }
 
                 if (!string.IsNullOrEmpty(escalaExtraModel.HoraAbertura))
                 {
-                    // Combina a data com a hora (assumindo que HoraAbertura esteja no formato "HH:mm")
                     DateTime dtAberturaComHora = escalaExtraModel.DtAbertura.Date + TimeSpan.Parse(escalaExtraModel.HoraAbertura);
-                    dtAberturaComHora = dtAberturaComHora.AddHours(3);
-                    escalaExtraModel.DtAbertura = dtAberturaComHora; // Atualiza a data de abertura com a hora combinada
+                    escalaExtraModel.DtAbertura = dtAberturaComHora.AddHours(3);
                 }
 
                 if (!string.IsNullOrEmpty(escalaExtraModel.HoraFechamento))
                 {
-                    // Combina a data de fechamento com a hora (assumindo que HoraFechamento esteja no formato "HH:mm")
                     DateTime dtFechamentoComHora = escalaExtraModel.DtFechamento.Date + TimeSpan.Parse(escalaExtraModel.HoraFechamento);
-                    dtFechamentoComHora = dtFechamentoComHora.AddHours(3);
-                    escalaExtraModel.DtFechamento = dtFechamentoComHora; // Atualiza a data de fechamento com a hora combinada
+                    escalaExtraModel.DtFechamento = dtFechamentoComHora.AddHours(3);
                 }
 
+                // --- PASSO 3: ATUALIZAR OS DADOS DA ENTIDADE PRINCIPAL ---
+                // O AutoMapper copia os valores de escalaExtraModel para escalaextraExistente
                 _mapper.Map(escalaExtraModel, escalaextraExistente);
-                var escalaExtraAtualizado = _EscalaExtraRepository.AlterarAsync(escalaextraExistente);
+
+                // --- PASSO 4: ATUALIZAR A TABELA DE JUNÇÃO (CriacaoEscalaExtraCargo) ---
+
+                // 4.1. Limpa os cargos existentes. O EF vai rastrear isso como "para deletar".
+                escalaextraExistente.CriacaoEscalaExtraCargos.Clear();
+
+                // 4.2. Adiciona os novos cargos que vieram no DTO. O EF vai rastrear como "para adicionar".
+                if (escalaExtraModel.IdCargo != null && escalaExtraModel.IdCargo.Any())
+                {
+                    foreach (var cargoId in escalaExtraModel.IdCargo)
+                    {
+                        escalaextraExistente.CriacaoEscalaExtraCargos.Add(new CriacaoEscalaExtraCargo
+                        {
+                            IdCargo = cargoId,
+                            IdCriacaoEscalaExtra = escalaextraExistente.IdCriacaoEscalaExtra
+                        });
+                    }
+                }
+
+                // --- PASSO 5: PERSISTIR TODAS AS ALTERAÇÕES ---
+                // Não é necessário chamar um método "AlterarAsync" específico se o EF já está rastreando a entidade.
+                // O UnitOfWork/SaveChanges cuidará de tudo.
                 await _unitOfWork.CompleteAsync();
 
-                return _mapper.Map<EscalaExtraDTO>(escalaExtraAtualizado);
+                // --- PASSO 6: RETORNAR O RESULTADO ATUALIZADO ---
+                // Mapeia a entidade que foi persistida (agora completa e atualizada) de volta para um DTO.
+                return _mapper.Map<EscalaExtraDTO>(escalaextraExistente);
             }
             catch (Exception e)
             {
-                throw new Exception($"Erro ao alterar Escala Extra: {e.Message}");
+                // Idealmente, logar o erro aqui (e.g., com Serilog, NLog)
+                throw new Exception($"Erro ao alterar Escala Extra: {e.Message}", e);
             }
         }
+
     }
 }

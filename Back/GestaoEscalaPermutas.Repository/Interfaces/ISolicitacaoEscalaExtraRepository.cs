@@ -6,7 +6,7 @@ namespace GestaoEscalaPermutas.Repository.Interfaces
     {
         Task<List<EscalaExtra>> ObterListaPorIdFuncionario(Guid id);
         Task<List<EscalaExtra>> ObterTodosAsync();
-        Task<EscalaExtra> AdicionarListaAsync(EscalaExtra escalaExtra);
+        Task AdicionarListaAsync(EscalaExtra escalaExtra);
         Task<bool> DeletarAsync(Guid id);
         Task<EscalaExtra> BuscarPorIdAsync(Guid id);
         Task<EscalaExtra> AlterarAsync(EscalaExtra escalaExtra);

@@ -22,7 +22,7 @@ namespace GestaoEscalaPermutas.Dominio.DTO.EscalaExtra
         public Guid IdEscalaExtra { get; set; }
         public Guid IdCriacaoEscalaExtra { get; set; }
         public Guid IdFuncionario { get; set; }
-        [JsonIgnore]
+        
         public DateTime DtCriacao { get; set; } = DateTime.Now;
         [JsonIgnore]
         public string NmEscalaExtra { get; set; }
@@ -30,6 +30,7 @@ namespace GestaoEscalaPermutas.Dominio.DTO.EscalaExtra
         public string NmSetor { get; set; }
         [JsonIgnore]
         public DateTime DtEscalaExtra{ get; set; }
+        public string StatusInscricao { get; set; } = string.Empty;
 
         // --- Nova Propriedade para o reCAPTCHA Token ---
         public string RecaptchaToken { get; set; }

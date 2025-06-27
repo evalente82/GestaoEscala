@@ -41,5 +41,6 @@ namespace GestaoEscalaPermutas.Repository.Implementations
                 await _context.SaveChangesAsync();
             }
         }
+               
     }
 }
