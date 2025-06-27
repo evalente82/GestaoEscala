@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
-using GestaoEscalaPermutas.Dominio.DTO.Cargo;
 using GestaoEscalaPermutas.Dominio.DTO.EscalaExtra;
+using GestaoEscalaPermutas.Dominio.ENUM;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaExtra;
 using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
 using GestaoEscalaPermutas.Server.Models;
-using GestaoEscalaPermutas.Server.Models.Cargos;
 using GestaoEscalaPermutas.Server.Models.EscalaExtra;
-using GestaoEscalaPermutas.Server.Models.EscalaPronta;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GestaoEscalaPermutas.Server.Controllers.EscalaExtra
@@ -83,11 +81,11 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaExtra
                 // Chama o serviço para buscar as solicitações de escala extra para o idFuncionario
                 var solicitacaoEscalaExtraDTO = await _SolicitacaoEscalaExtraService.BuscarPorIdFuncionario(idFuncionario);
 
-                
+
                 // Mapeia a lista de DTOs para a lista de modelos
                 var solicitacaoEscalaExtraModels = _mapper.Map<List<SolicitacaoEscalaExtraModel>>(solicitacaoEscalaExtraDTO);
 
-                
+
                 // Retorna a lista mapeada
                 return Ok(solicitacaoEscalaExtraModels);
             }
@@ -113,6 +111,70 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaExtra
             }
 
             return Ok(extras);
+        }
+
+        [HttpGet]
+        [Route("BuscarPorIdEscalaExtra/{idEscalaExtra:Guid}")]
+        public async Task<ActionResult> BuscarPorIdDaEscalaExtra(Guid idEscalaExtra)
+        {
+            try
+            {
+                // Chama o serviço para buscar as solicitações de escala extra para o idFuncionario
+                var solicitacaoEscalaExtraDTO = await _SolicitacaoEscalaExtraService.BuscarPorIdEscalaExtra(idEscalaExtra);
+
+                // Mapeia a lista de DTOs para a lista de modelos
+                var solicitacaoEscalaExtraModels = _mapper.Map<SolicitacaoEscalaExtraModel>(solicitacaoEscalaExtraDTO);
+
+                // Retorna a lista mapeada
+                return Ok(solicitacaoEscalaExtraModels);
+            }
+            catch (Exception ex)
+            {
+                // Em caso de erro, retorna uma mensagem de erro
+                return BadRequest(new RetornoModel { Valido = false, Mensagem = $"Erro ao buscar solicitações de escala extra: {ex.Message}" });
+            }
+        }
+
+        [HttpGet]
+        [Route("BuscarStatusInscricao")]
+        public ActionResult BuscarStatus()
+        {
+            try
+            {
+                // Pega todos os nomes do enum como um array de strings
+                var listaDeStatus = Enum.GetNames(typeof(StatusInscricaoEnum));
+
+                // Retorna a lista. O ASP.NET Core irá serializar isso para um JSON array.
+                return Ok(listaDeStatus);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Erro ao buscar os status de inscrição: {ex.Message}");
+            }
+        }
+
+        [HttpPut]
+        [Route("AlterarStatusExtra/{idEscalaExtra:Guid}")]
+        public async Task<ActionResult> AlterarStatusExtra(Guid idEscalaExtra, [FromQuery] string statusInscricao)
+        {
+            try
+            {
+                var solicitacaoEscalaExtraDTO = await _SolicitacaoEscalaExtraService.AlterarStatusExtra(idEscalaExtra, statusInscricao);
+
+                if (solicitacaoEscalaExtraDTO == null || !solicitacaoEscalaExtraDTO.valido)
+                {
+                    return BadRequest(new RetornoModel { Valido = false, Mensagem = solicitacaoEscalaExtraDTO?.mensagem ?? "Não foi possível alterar o status." });
+                }
+
+                // Mapeia somente o DTO de sucesso para o modelo de retorno
+                var solicitacaoEscalaExtraModel = _mapper.Map<SolicitacaoEscalaExtraModel>(solicitacaoEscalaExtraDTO);
+
+                return Ok(solicitacaoEscalaExtraModel);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new RetornoModel { Valido = false, Mensagem = $"Erro ao alterar o status: {ex.Message}" });
+            }
         }
     }
 }

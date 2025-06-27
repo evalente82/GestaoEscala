@@ -15,5 +15,8 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.EscalaExtra
         Task<SolicitacaoEscalaExtraDTO> Deletar(Guid id);
         Task<SolicitacaoEscalaExtraDTO> Alterar(Guid id, SolicitacaoEscalaExtraDTO escalaExtraModel);
         Task<List<VisualizarSolicitacoesDTO>> ListarTodos();
+        Task<SolicitacaoEscalaExtraDTO> BuscarPorIdEscalaExtra(Guid idEscalaExtra);
+        Task<SolicitacaoEscalaExtraDTO> AlterarStatusExtra(Guid idEscalaExtra, string statusInscricao);
+
     }
 }

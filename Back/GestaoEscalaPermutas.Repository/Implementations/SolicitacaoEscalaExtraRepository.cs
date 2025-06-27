@@ -35,7 +35,7 @@ namespace GestaoEscalaPermutas.Repository.Implementations
             return true;
         }
 
-        public async Task<EscalaExtra> BuscarPorIdAsync(Guid id)
+        public async Task<EscalaExtra?> BuscarPorIdAsync(Guid id)
         {
             return await _context.EscalaExtra.FindAsync(id);
         }
@@ -49,10 +49,14 @@ namespace GestaoEscalaPermutas.Repository.Implementations
 
         public async Task<List<EscalaExtra>> ObterListaPorIdFuncionario(Guid idFuncionario)
         {
-            // Busca todas as ocorrências da tabela EscalaExtra associadas ao idFuncionario
             return await _context.EscalaExtra
                                  .Where(e => e.IdFuncionario == idFuncionario)
                                  .ToListAsync();
-        }        
+        }
+
+        public Task<EscalaExtra?> BuscarPorIdEscalaExtra(Guid id)
+        {
+            return _context.EscalaExtra.FirstOrDefaultAsync(e => e.IdEscalaExtra == id);
+        }
     }
 }

@@ -14,7 +14,8 @@ using Grpc.Core; // Para RpcException
 using Microsoft.Extensions.Logging;
 using GestaoEscalaPermutas.Dominio.Interfaces.Email;
 using GestaoEscalaPermutas.Dominio.ENUM;
-using Google.Type; // Para logs
+using Google.Type;
+using Microsoft.IdentityModel.Tokens; // Para logs
 
 namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
 {
@@ -438,6 +439,109 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
             {
                 // Lança uma exceção caso ocorra um erro
                 throw new Exception($"Erro ao buscar todas as escalas extras: {e.Message}", e);
+            }
+        }
+
+        public async Task<SolicitacaoEscalaExtraDTO> BuscarPorIdEscalaExtra(Guid idEscalaExtra)
+        {
+            try
+            {
+                // Verifica se o Id fornecido é válido
+                if (idEscalaExtra == Guid.Empty)
+                {
+                    // Retorna um DTO de erro se o ID for inválido
+                    return new SolicitacaoEscalaExtraDTO
+                    {
+                        valido = false,
+                        mensagem = "Id fora do Range."
+                    };
+                }
+
+                var escalaExtraEntiti = await _SolicitacaoEscalaExtraRepository.BuscarPorIdEscalaExtra(idEscalaExtra);
+
+                // Busca o objeto de EscalaExtra no repositório
+                var solicitacaoEscalaExtra = await _SolicitacaoEscalaExtraRepository.ObterListaPorIdFuncionario(escalaExtraEntiti.IdFuncionario);
+                // Mapeia as entidades de EscalaExtra para DTO e retorna
+                var escalaExtra = _mapper.Map<SolicitacaoEscalaExtraDTO>(escalaExtraEntiti);
+
+                // Mapeia as entidades de EscalaExtra para a lista de DTOs e retorna
+                var solicitacaoDeExtra = _mapper.Map<List<SolicitacaoEscalaExtraDTO>>(solicitacaoEscalaExtra);
+
+                foreach (var item in solicitacaoDeExtra)
+                {
+                    var escalaExtra2 = await _escalaExtraRepository.BuscarListaPorIdAsync(item.IdCriacaoEscalaExtra);
+                    var setor = await _setorRepository.BuscarPorIdAsync(escalaExtra2.IdSetor);
+                    escalaExtra.NmEscalaExtra = escalaExtra2.NmEscalaExtra;
+                    escalaExtra.NmSetor = setor.NmNome;
+                    escalaExtra.DtEscalaExtra = escalaExtra2.DtEscalaExtra;
+                }                                
+                return escalaExtra;
+            }
+            catch (Exception e)
+            {
+                // Lança a exceção com a mensagem de erro
+                throw new Exception($"Erro ao buscar escala extra: {e.Message}");
+            }
+        }
+
+        public async Task<SolicitacaoEscalaExtraDTO> AlterarStatusExtra(Guid idEscalaExtra, string statusInscricao)
+        {
+            try
+            {
+                // Verifica se o Id fornecido é válido
+                if (idEscalaExtra == Guid.Empty || statusInscricao == string.Empty)
+                {
+                    // Retorna um DTO de erro se o ID for inválido
+                    return new SolicitacaoEscalaExtraDTO
+                    {
+                        valido = false,
+                        mensagem = "Id fora do Range ou sem Status."
+                    };
+                }
+
+                var escalaExtraEntiti = await _SolicitacaoEscalaExtraRepository.BuscarPorIdEscalaExtra(idEscalaExtra);
+
+                // 2. Tentar converter a string para o enum StatusInscricaoEnum
+                //    O 'true' ignora diferenças de maiúsculas/minúsculas (ex: "ausente" funciona)
+                if (!Enum.TryParse<StatusInscricaoEnum>(statusInscricao, true, out StatusInscricaoEnum novoStatus))
+                {
+                    // Se a conversão falhar, o status fornecido é inválido.
+                    return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = $"O status '{statusInscricao}' é inválido." };
+                }
+
+
+                //modificar o StatusInscricao para 
+                if (escalaExtraEntiti != null)
+                {
+                    escalaExtraEntiti.StatusInscricao = novoStatus.ToString();
+                    await _SolicitacaoEscalaExtraRepository.AlterarAsync(escalaExtraEntiti);
+                }
+
+                // Busca o objeto de EscalaExtra no repositório
+                var solicitacaoEscalaExtra = await _SolicitacaoEscalaExtraRepository.ObterListaPorIdFuncionario(escalaExtraEntiti.IdFuncionario);
+
+                // Mapeia as entidades de EscalaExtra para DTO e retorna
+                var escalaExtra = _mapper.Map<SolicitacaoEscalaExtraDTO>(escalaExtraEntiti);
+
+                // Mapeia as entidades de EscalaExtra para a lista de DTOs e retorna
+                var solicitacaoDeExtra = _mapper.Map<List<SolicitacaoEscalaExtraDTO>>(solicitacaoEscalaExtra);
+
+
+
+                foreach (var item in solicitacaoDeExtra)
+                {
+                    var escalaExtra2 = await _escalaExtraRepository.BuscarListaPorIdAsync(item.IdCriacaoEscalaExtra);
+                    var setor = await _setorRepository.BuscarPorIdAsync(escalaExtra2.IdSetor);
+                    escalaExtra.NmEscalaExtra = escalaExtra2.NmEscalaExtra;
+                    escalaExtra.NmSetor = setor.NmNome;
+                    escalaExtra.DtEscalaExtra = escalaExtra2.DtEscalaExtra;
+                }
+                return escalaExtra;
+            }
+            catch (Exception e)
+            {
+                // Lança a exceção com a mensagem de erro
+                throw new Exception($"Erro ao buscar escala extra: {e.Message}");
             }
         }
     }
