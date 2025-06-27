@@ -176,5 +176,50 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaExtra
                 return BadRequest(new RetornoModel { Valido = false, Mensagem = $"Erro ao alterar o status: {ex.Message}" });
             }
         }
+
+        [HttpPut]
+        [Route("AlterarStatusMobile/{idEscalaExtra:Guid}")]
+        public async Task<ActionResult> AlterarStatusMobile(Guid idEscalaExtra, [FromQuery] string statusInscricao)
+        {
+            try
+            {
+                var inscricaoExistente = await _SolicitacaoEscalaExtraService.BuscarPorIdEscalaExtra(idEscalaExtra);
+                if (inscricaoExistente == null)
+                {
+                    return NotFound(new RetornoModel { Valido = false, Mensagem = "Inscrição não encontrada." });
+                }
+
+                //verificar se a solicitação de cancelamento esta dentro do prazo de 72H
+                var dataAtual = DateTime.UtcNow;
+                var prazoFinalParaCancelar = inscricaoExistente.DtEscalaExtra.AddHours(-72);
+
+                //if (dataAtual > prazoFinalParaCancelar)
+                //{
+                //    return BadRequest(new RetornoModel
+                //    {
+                //        Valido = false,
+                //        Mensagem = "Não é possível cancelar. O prazo para cancelamento (72 horas antes do evento) já expirou."
+                //    });
+                //}
+
+                var solicitacaoEscalaExtraDTO = await _SolicitacaoEscalaExtraService.CancelarInscricaoEPromoverFilaAsync(idEscalaExtra);
+
+                if (solicitacaoEscalaExtraDTO == null || !solicitacaoEscalaExtraDTO.valido)
+                {
+                    return BadRequest(new RetornoModel { Valido = false, Mensagem = solicitacaoEscalaExtraDTO?.mensagem ?? "Não foi possível alterar o status." });
+                }
+
+                // Mapeia somente o DTO de sucesso para o modelo de retorno
+                var solicitacaoEscalaExtraModel = _mapper.Map<SolicitacaoEscalaExtraModel>(solicitacaoEscalaExtraDTO);
+
+                return Ok(solicitacaoEscalaExtraModel);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new RetornoModel { Valido = false, Mensagem = $"Erro ao alterar o status: {ex.Message}" });
+            }
+        }
+
+
     }
 }

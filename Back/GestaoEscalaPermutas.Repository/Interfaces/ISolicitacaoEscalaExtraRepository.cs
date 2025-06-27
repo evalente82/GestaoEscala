@@ -11,5 +11,6 @@ namespace GestaoEscalaPermutas.Repository.Interfaces
         Task<EscalaExtra?> BuscarPorIdAsync(Guid id);
         Task<EscalaExtra> AlterarAsync(EscalaExtra escalaExtra);
         Task<EscalaExtra?> BuscarPorIdEscalaExtra(Guid id);
+        Task<EscalaExtra?> ObterProximoDaFilaAsync(Guid idCriacaoEscalaExtra);
     }
 }

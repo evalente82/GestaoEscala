@@ -17,6 +17,7 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.EscalaExtra
         Task<List<VisualizarSolicitacoesDTO>> ListarTodos();
         Task<SolicitacaoEscalaExtraDTO> BuscarPorIdEscalaExtra(Guid idEscalaExtra);
         Task<SolicitacaoEscalaExtraDTO> AlterarStatusExtra(Guid idEscalaExtra, string statusInscricao);
+        Task<SolicitacaoEscalaExtraDTO> CancelarInscricaoEPromoverFilaAsync(Guid idInscricaoCancelando);
 
     }
 }

@@ -11,6 +11,8 @@ using Grpc.Core; // Para RpcException
 using Microsoft.Extensions.Logging;
 using GestaoEscalaPermutas.Dominio.Interfaces.Email;
 using GestaoEscalaPermutas.Dominio.ENUM;
+using GestaoEscalaPermutas.Repository.Implementations;
+using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
 {
     public class SolicitacaoEscalaExtraService : ISolicitacaoEscalaExtraService
@@ -538,5 +540,96 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
                 throw new Exception($"Erro ao buscar escala extra: {e.Message}");
             }
         }
+
+        public async Task<SolicitacaoEscalaExtraDTO> CancelarInscricaoEPromoverFilaAsync(Guid idInscricaoCancelando)
+        {
+            // 1. BUSCAR A INSCRIÇÃO QUE ESTÁ SENDO CANCELADA
+            var inscricaoCancelando = await _SolicitacaoEscalaExtraRepository.BuscarPorIdEscalaExtra(idInscricaoCancelando);
+            if (inscricaoCancelando == null)
+            {
+                return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Inscrição a ser cancelada não encontrada." };
+            }
+
+            var statusOriginal = inscricaoCancelando.StatusInscricao;
+            if (statusOriginal == StatusInscricaoEnum.Cancelado.ToString())
+            {
+                return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Esta inscrição já foi cancelada." };
+            }
+
+            inscricaoCancelando.StatusInscricao = StatusInscricaoEnum.Cancelado.ToString();
+
+            // 2. LÓGICA DE PROMOÇÃO (SÓ SE QUEM CANCELOU ESTAVA CONFIRMADO)
+            if (statusOriginal == StatusInscricaoEnum.Confirmado.ToString())
+            {
+                var escalaPrincipal = await _escalaExtraRepository.ObterPorIdAsync(inscricaoCancelando.IdCriacaoEscalaExtra);
+                if (escalaPrincipal == null)
+                {
+                    return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Escala principal associada não encontrada." };
+                }
+
+                var proximoDaFila = await _SolicitacaoEscalaExtraRepository.ObterProximoDaFilaAsync(inscricaoCancelando.IdCriacaoEscalaExtra);
+
+                if (proximoDaFila != null)
+                {
+                    // PROMOVE O USUÁRIO DA FILA
+                    proximoDaFila.StatusInscricao = StatusInscricaoEnum.Confirmado.ToString();
+                    proximoDaFila.DtConfirmacao = DateTime.UtcNow;
+
+                    // --- ENVIO DE E-MAIL (AGORA SEGURO) ---
+                    try
+                    {
+                        var funcionarioPromovido = await _funcionarioRepository.ObterPorIdAsync(proximoDaFila.IdFuncionario);
+                        if (funcionarioPromovido != null)
+                        {
+                            var setor = await _setorRepository.BuscarPorIdAsync(escalaPrincipal.IdSetor);
+                            var dataServico = escalaPrincipal.DtEscalaExtra.ToString("dd/MM/yyyy");
+                            var horaServico = escalaPrincipal.DtEscalaExtra.AddHours(-3).ToString("HH:mm");
+
+                            string corpoEmail = $@"
+                        <html><body>
+                            <h2>Vaga de Extra Confirmada!</h2>
+                            <p>Olá, {funcionarioPromovido.NmNome}.</p>
+                            <p>Uma vaga foi liberada na escala '{escalaPrincipal.NmEscalaExtra}' e você foi promovido da fila de espera. Sua inscrição agora está <strong>Confirmada</strong>.</p>
+                            <div class='details'>
+                                <strong>Data:</strong> {dataServico}<br>
+                                <strong>Hora:</strong> {horaServico}<br>
+                                <strong>Setor:</strong> {setor.NmNome}<br>
+                            </div>
+                            <div class='signature'><p>Atenciosamente,<br>Defesa Civil de Maricá.</p></div>
+                        </body></html>";
+
+                            // ==========================================================
+                            // CORREÇÃO AQUI:
+                            // Para testar, passe a string diretamente, sem atribuir.
+                            // ==========================================================
+                            string emailDestino = "endrigo.valente@gmail.com"; // Para teste
+                                                                               // string emailDestino = funcionarioPromovido.NmEmail; // Para produção
+
+                            // Log para depuração do corpo do e-mail
+                            _logger.LogInformation("Corpo do e-mail a ser enviado: {CorpoEmail}", corpoEmail);
+
+                            await _emailService.EnviarEmail(emailDestino, "Vaga de Serviço Extra Confirmada", corpoEmail);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Falha ao enviar e-mail de confirmação para o promovido.");
+                    }
+                }
+                else // Se não há ninguém na fila
+                {
+                    // Apenas incrementa a vaga
+                    //escalaPrincipal.QtdVagas++;
+                }
+            }
+
+            // 3. SALVA TODAS AS ALTERAÇÕES RASTREADAS PELO EF CORE
+            await _unitOfWork.CompleteAsync();
+
+            // 4. RETORNA O DTO DA INSCRIÇÃO ORIGINALMENTE CANCELADA
+            return _mapper.Map<SolicitacaoEscalaExtraDTO>(inscricaoCancelando);
+        }
+
+
     }
 }

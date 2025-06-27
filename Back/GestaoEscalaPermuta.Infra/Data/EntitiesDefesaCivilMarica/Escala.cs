@@ -29,6 +29,7 @@ public partial class Escala
     public bool IsGerada { get; set; }
 
     public int NrPessoaPorPosto { get; set; }
-
     
+
+
 }

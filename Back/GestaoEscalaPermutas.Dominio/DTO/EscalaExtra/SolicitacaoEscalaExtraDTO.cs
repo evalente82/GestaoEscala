@@ -31,6 +31,7 @@ namespace GestaoEscalaPermutas.Dominio.DTO.EscalaExtra
         [JsonIgnore]
         public DateTime DtEscalaExtra{ get; set; }
         public string StatusInscricao { get; set; } = string.Empty;
+        public DateTime? DtConfirmacao { get; set; }
 
         // --- Nova Propriedade para o reCAPTCHA Token ---
         public string RecaptchaToken { get; set; }

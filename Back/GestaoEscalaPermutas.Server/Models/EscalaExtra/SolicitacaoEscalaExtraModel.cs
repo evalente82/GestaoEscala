@@ -10,5 +10,6 @@
         public string NmSetor { get; set; }
         public DateTime DtEscalaExtra { get; set; }
         public string StatusInscricao { get; set; } = string.Empty;
+        public DateTime? DtConfirmacao { get; set; }
     }
 }

@@ -58,5 +58,13 @@ namespace GestaoEscalaPermutas.Repository.Implementations
         {
             return _context.EscalaExtra.FirstOrDefaultAsync(e => e.IdEscalaExtra == id);
         }
+
+        public async Task<EscalaExtra?> ObterProximoDaFilaAsync(Guid idCriacaoEscalaExtra)
+        {
+            return await _context.EscalaExtra
+                .Where(e => e.IdCriacaoEscalaExtra == idCriacaoEscalaExtra && e.StatusInscricao == "FilaDeEspera")
+                .OrderBy(e => e.DtCriacao)
+                .FirstOrDefaultAsync();
+        }
     }
 }

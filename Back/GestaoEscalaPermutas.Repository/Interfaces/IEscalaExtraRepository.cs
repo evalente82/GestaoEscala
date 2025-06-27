@@ -1,4 +1,5 @@
 ﻿using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
+using System.Threading.Tasks;
 
 namespace GestaoEscalaPermutas.Repository.Interfaces
 {
@@ -11,5 +12,6 @@ namespace GestaoEscalaPermutas.Repository.Interfaces
         Task<CriacaoEscalaExtra> BuscarListaPorIdAsync(Guid id);
         Task AlterarAsync(CriacaoEscalaExtra escalaExtra);
         Task<List<CriacaoEscalaExtra>> ObterTodosComCargosAsync();
+        
     }
 }

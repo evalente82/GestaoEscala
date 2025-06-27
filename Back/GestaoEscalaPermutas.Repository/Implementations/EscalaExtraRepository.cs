@@ -58,5 +58,6 @@ namespace GestaoEscalaPermutas.Repository.Implementations
                              .ThenInclude(cec => cec.Cargo)// Inclui os dados relacionados da tabela de junção
                              .ToListAsync(); // Executa uma única query otimizada no banco
         }
+        
     }
 }
