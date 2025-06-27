@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import AlertPopup from '../AlertPopup/AlertPopup';
+import PropTypes from 'prop-types';
+// IMPORTAÇÕES PARA EXPORTAÇÃO REINSERIDAS
+import jsPDF from 'jspdf'; // Importação padrão de jsPDF
+import autoTable from 'jspdf-autotable'; // Importamos a função autoTable diretamente
 
+// =================================================================================
+// Componente da Lista (Com todas as funcionalidades integradas)
+// =================================================================================
+function EscalaExtraList({ ShowForm }) {
+  const [escalaExtra, setEscalaExtra] = useState([]); 
+  const [filteredData, setFilteredData] = useState([]); 
 
-function EscalaExtraList() {
-  const [escalaExtra, setEscalaExtra] = useState([]); // Dados originais da API
-  const [filteredData, setFilteredData] = useState([]); // Dados que serão exibidos na tela
-
-  // --- Novos estados para os filtros ---
   const [searchText, setSearchText] = useState("");
-  const [statusFilters, setStatusFilters] = useState({
-    Confirmado: false,
-    FilaDeEspera: false,
-  });
+  const [statusFilters, setStatusFilters] = useState({});
   const [setorFilters, setSetorFilters] = useState({});
   const [escalaExtraNomeFilters, setEscalaExtraNomeFilters] = useState({});
 
@@ -24,18 +26,12 @@ function EscalaExtraList() {
     onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
   });
 
-  // Função para buscar os dados da API
   const BuscarTodos = async () => {
     try {
       const response = await axios.get('http://localhost:8080/solicitacaoEscalaExtra/listar');
-      setEscalaExtra(response.data); // Armazena os dados originais
+      setEscalaExtra(response.data);
     } catch (error) {
-      setAlertProps({
-        show: true,
-        type: "error",
-        title: "Erro",
-        message: "Não foi possível carregar os dados da Escala Extra.",
-      });
+      setAlertProps({ show: true, type: "error", title: "Erro", message: "Não foi possível carregar os dados." });
     }
   };
 
@@ -43,26 +39,21 @@ function EscalaExtraList() {
     BuscarTodos();
   }, []);
 
-  // --- Novo useEffect para inicializar os filtros dinâmicos ---
   useEffect(() => {
     if (escalaExtra.length > 0) {
-      // Cria os filtros de setor dinamicamente
+      const uniqueStatus = [...new Set(escalaExtra.map(item => item.statusInscricao))];
+      setStatusFilters(uniqueStatus.reduce((acc, status) => ({ ...acc, [status]: false }), {}));
+
       const uniqueSetores = [...new Set(escalaExtra.map(item => item.nmSetor))];
-      const setorInitialState = uniqueSetores.reduce((acc, setor) => ({ ...acc, [setor]: false }), {});
-      setSetorFilters(setorInitialState);
+      setSetorFilters(uniqueSetores.reduce((acc, setor) => ({ ...acc, [setor]: false }), {}));
 
-      // Cria os filtros de nome de escala extra dinamicamente
       const uniqueNomes = [...new Set(escalaExtra.map(item => item.nmEscalaExtra))];
-      const escalaExtraInitialState = uniqueNomes.reduce((acc, nome) => ({ ...acc, [nome]: false }), {});
-      setEscalaExtraNomeFilters(escalaExtraInitialState);
+      setEscalaExtraNomeFilters(uniqueNomes.reduce((acc, nome) => ({ ...acc, [nome]: false }), {}));
     }
-  }, [escalaExtra]); // Roda sempre que os dados originais mudarem
+  }, [escalaExtra]);
 
-  // --- Novo useEffect para aplicar os filtros ---
   useEffect(() => {
     let data = [...escalaExtra];
-
-    // 1. Filtrar por texto de pesquisa
     if (searchText) {
       const searchLower = searchText.toLowerCase();
       data = data.filter(item =>
@@ -71,134 +62,193 @@ function EscalaExtraList() {
         item.nmEscalaExtra?.toLowerCase().includes(searchLower)
       );
     }
+    const activeStatus = Object.keys(statusFilters).filter(k => statusFilters[k]);
+    if (activeStatus.length > 0) data = data.filter(item => activeStatus.includes(item.statusInscricao));
 
-    // 2. Filtrar por Checkboxes de Status
-    const activeStatusFilters = Object.keys(statusFilters).filter(key => statusFilters[key]);
-    if (activeStatusFilters.length > 0) {
-      data = data.filter(item => activeStatusFilters.includes(item.statusInscricao));
-    }
+    const activeSetores = Object.keys(setorFilters).filter(k => setorFilters[k]);
+    if (activeSetores.length > 0) data = data.filter(item => activeSetores.includes(item.nmSetor));
 
-    // 3. Filtrar por Checkboxes de Setor
-    const activeSetorFilters = Object.keys(setorFilters).filter(key => setorFilters[key]);
-    if (activeSetorFilters.length > 0) {
-      data = data.filter(item => activeSetorFilters.includes(item.nmSetor));
-    }
-
-    // 4. Filtrar por Checkboxes de Nome da Escala
-    const activeEscalaExtraFilters = Object.keys(escalaExtraNomeFilters).filter(key => escalaExtraNomeFilters[key]);
-    if (activeEscalaExtraFilters.length > 0) {
-      data = data.filter(item => activeEscalaExtraFilters.includes(item.nmEscalaExtra));
-    }
+    const activeNomes = Object.keys(escalaExtraNomeFilters).filter(k => escalaExtraNomeFilters[k]);
+    if (activeNomes.length > 0) data = data.filter(item => activeNomes.includes(item.nmEscalaExtra));
     
     setFilteredData(data);
   }, [searchText, statusFilters, setorFilters, escalaExtraNomeFilters, escalaExtra]);
 
+  const handleFilterChange = (setter, key) => setter(prev => ({ ...prev, [key]: !prev[key] }));
 
-  // Função para manipular a mudança nos checkboxes
-  const handleFilterChange = (filterStateSetter, filterKey) => {
-    filterStateSetter(prev => ({ ...prev, [filterKey]: !prev[filterKey] }));
-  };
-
-  // Funções de formatação e delete (sem alterações)
   const formatDate = (dateString) => {
+    if (!dateString) return "";
     const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+    return new Intl.DateTimeFormat('pt-BR', {timeZone: 'UTC'}).format(date);
   };
 
   const formatTime = (dateString) => {
+    if (!dateString) return "";
     const date = new Date(dateString);
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${hours}:${minutes}`;
+    return new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' }).format(date);
   };
 
-  const formatarDataCustomizada = (dateString) => {
-    if (!dateString || !dateString.includes('T') || !dateString.endsWith('Z')) return ""; 
-    const dataUTC = new Date(dateString);
-    const dataAjustada = new Date(dataUTC.getTime() - (3 * 60 * 60 * 1000));
-    const dia = String(dataAjustada.getUTCDate()).padStart(2, '0');
-    const mes = String(dataAjustada.getUTCMonth() + 1).padStart(2, '0');
-    const ano = dataAjustada.getUTCFullYear();
-    const hora = String(dataAjustada.getUTCHours()).padStart(2, '0');
-    const minutos = String(dataAjustada.getUTCMinutes()).padStart(2, '0');
-    const segundos = String(dataAjustada.getUTCSeconds()).padStart(2, '0');
-    const [parteData, parteHoraCompleta] = dateString.split('T');
-    const fracaoDeSegundos = parteHoraCompleta.substring(parteHoraCompleta.indexOf('.') + 1, parteHoraCompleta.length - 1);
-    return `${dia}-${mes}-${ano} H:${hora}:${minutos}:${segundos}.${fracaoDeSegundos}Z`;
-  };
+  function handleDelete(idEscalaExtra) {
+    setAlertProps({
+      show: true,
+      type: "confirm",
+      title: "Confirmar exclusão",
+      message: "Tem certeza que deseja excluir este registro?",
+      onConfirm: () => DeleteEscalaExtra(idEscalaExtra),
+    });
+  }
 
-    function handleDelete(idEscalaExtra) {
+  function DeleteEscalaExtra(idEscalaExtra) {
+    axios.delete(`http://localhost:8080/solicitacaoEscalaExtra/deletar/${idEscalaExtra}`)
+      .then(() => {
         setAlertProps({
-            show: true,
-            type: "confirm",
-            title: "Confirmar exclusão",
-            message: "Tem certeza que deseja excluir este registro?",
-            onConfirm: () => {
-                DeleteEscalaExtra(idEscalaExtra);
-            },
+          show: true, type: "success", title: "Sucesso", message: "Registro excluído com sucesso!",
+          onClose: () => {
+            setAlertProps(p => ({ ...p, show: false }));
+            BuscarTodos();
+          }
         });
+      })
+      .catch(() => {
+        setAlertProps({ show: true, type: "error", title: "Erro", message: "Não foi possível excluir o registro."});
+      });
+  }
+
+  // --- FUNÇÕES DE EXPORTAÇÃO REINSERIDAS AQUI ---
+  const handleGerarPDF = () => {
+    if (filteredData.length === 0) {
+      setAlertProps({ show: true, type: "info", title: "Aviso", message: "Nenhum dado filtrado para gerar o PDF." });
+      return;
     }
 
-    function DeleteEscalaExtra(idEscalaExtra) {
-        axios.delete(`http://localhost:8080/solicitacaoEscalaExtra/deletar/${idEscalaExtra}`)
-            .then(() => {
-                setAlertProps({
-                    show: true, type: "success", title: "Sucesso",
-                    message: "Registro excluído com sucesso!",
-                    onClose: () => {
-                        setAlertProps(prev => ({ ...prev, show: false }));
-                        BuscarTodos(); // Recarrega os dados após a exclusão
-                    }
-                });
-            })
-            .catch(() => {
-                setAlertProps({ show: true, type: "error", title: "Erro", message: "Não foi possível excluir o registro."});
-            });
+    const pdf = new jsPDF('portrait', 'mm', 'a4');
+    const margemEsquerda = 15;
+    const larguraPagina = pdf.internal.pageSize.getWidth();
+    let yAtual = 20;
+
+    // Função para adicionar cabeçalho (reutilizável para novas páginas)
+    const adicionarCabecalho = () => {
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(16);
+        pdf.text("Listagem de Escalas Extras", larguraPagina / 2, yAtual, { align: "center" });
+        yAtual += 7;
+        pdf.setFontSize(10);
+        pdf.setFont("helvetica", "normal");
+        pdf.text(new Date().toLocaleDateString('pt-BR'), larguraPagina / 2, yAtual, { align: "center" });
+        yAtual += 15;
+    };
+    
+    adicionarCabecalho();
+
+    // Agrupa os dados filtrados por setor
+    const escalasPorSetor = filteredData.reduce((acc, escala) => {
+      const setor = escala.nmSetor;
+      if (!acc[setor]) {
+        acc[setor] = [];
+      }
+      acc[setor].push(escala);
+      return acc;
+    }, {});
+
+    // Itera por cada setor para criar os blocos
+    for (const setor in escalasPorSetor) {
+      // Verifica se há espaço para o cabeçalho do setor + pelo menos um item
+      if (yAtual > pdf.internal.pageSize.getHeight() - 40) {
+          pdf.addPage();
+          yAtual = 20;
+          adicionarCabecalho();
+      }
+
+      // Desenha o cabeçalho do setor
+      pdf.setFontSize(14);
+      pdf.setFont("helvetica", "bold");
+      pdf.text(setor.toUpperCase(), margemEsquerda, yAtual);
+      yAtual += 5;
+      pdf.setLineWidth(0.5);
+      pdf.line(margemEsquerda, yAtual, larguraPagina - margemEsquerda, yAtual); // Linha abaixo do título do setor
+      yAtual += 8;
+
+      // Itera sobre as inscrições daquele setor
+      escalasPorSetor[setor].forEach(item => {
+        if (yAtual > pdf.internal.pageSize.getHeight() - 20) {
+            pdf.addPage();
+            yAtual = 20;
+            adicionarCabecalho();
+        }
+
+        const linhaTexto = `${item.nmFuncionario} - ${formatDate(item.dtEscalaExtra)} - ${formatTime(item.dtEscalaExtra)} - ${item.nmEscalaExtra} (${item.statusInscricao})`;
+        
+        pdf.setFontSize(10);
+        pdf.setFont("helvetica", "normal");
+        pdf.text(linhaTexto, margemEsquerda, yAtual);
+        yAtual += 7; // Espaçamento entre as linhas
+      });
+
+      yAtual += 10; // Espaço extra entre os blocos de setores
+    }
+
+    pdf.save("listagem_escalas_extras.pdf");
+  };
+
+  const handleGerarCSV = () => {
+    if (filteredData.length === 0) {
+      setAlertProps({ show: true, type: "info", title: "Aviso", message: "Nenhum dado filtrado para gerar o CSV." });
+      return;
     }
     
-  const handleGerarPDF = () => {
-    const pdf = new jsPDF('p', 'pt', 'a4');
-    const colunas = ["Nome", "Setor", "Data", "Hora", "Escala Extra", "Status"];
-    const dados = filteredData.map(item => [
-      item.nmFuncionario,
-      item.nmSetor,
-      formatDate(item.dtEscalaExtra),
-      formatTime(item.dtEscalaExtra),
-      item.nmEscalaExtra,
-      item.statusInscricao
-    ]);
-
-    pdf.autoTable({
-        head: [colunas],
-        body: dados,
-        startY: 60,
-        headStyles: { fillColor: [0, 40, 120] },
-        didDrawPage: function(data) {
-            pdf.setFontSize(18);
-            pdf.setTextColor(40);
-            pdf.text('Listagem de Escalas Extras', data.settings.margin.left, 40);
+    const colunas = ["Nome", "Setor", "Data", "Hora", "Escala Extra", "Status", "Data de Inscrição"];
+    const escapeCSV = (field) => {
+        if (field === null || field === undefined) return "";
+        const str = String(field);
+        if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+            return `"${str.replace(/"/g, '""')}"`;
         }
-    });
-
-    pdf.save("Escala_Extra.pdf");
+        return str;
+    };
+    const dadosCSV = filteredData.map(item => [
+        escapeCSV(item.nmFuncionario),
+        escapeCSV(item.nmSetor),
+        escapeCSV(formatDate(item.dtEscalaExtra)),
+        escapeCSV(formatTime(item.dtEscalaExtra)),
+        escapeCSV(item.nmEscalaExtra),
+        escapeCSV(item.statusInscricao),
+        escapeCSV(new Date(item.dtCriacao).toLocaleString('pt-BR'))
+    ].join(','));
+    
+    const csvContent = [colunas.join(','), ...dadosCSV].join('\n');
+    const blob = new Blob([`\uFEFF${csvContent}`], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "inscricoes_escala_extra.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
+
   return (
-    <div className="container">
-      <h3 className="text-center mb-3">Listagem de Escalas Extras</h3>
+    <div>
+      <h3 className="text-center mb-3">Listagem de Inscrições em Escalas Extras</h3>
+      {/* --- BOTÕES DE AÇÃO COM DROPDOWN REINSERIDOS --- */}
       <div className="text-center mb-3">
-        <button onClick={handleGerarPDF} type="button" className="btn btn-primary me-2">Gerar PDF</button>
-        <button onClick={BuscarTodos} type="button" className="btn btn-outline-primary me-2">Atualizar</button>
+        <div className="btn-group me-2">
+            <button type="button" className="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Gerar
+            </button>
+            <ul className="dropdown-menu">
+                <li><button className="dropdown-item" type="button" onClick={handleGerarPDF}>PDF</button></li>
+                <li><button className="dropdown-item" type="button" onClick={handleGerarCSV}>CSV</button></li>
+            </ul>
+        </div>
+        <button onClick={BuscarTodos} type="button" className="btn btn-outline-primary">
+            Atualizar
+        </button>
       </div>
       
-      {/* --- NOVA ÁREA DE FILTROS --- */}
+      {/* ÁREA DE FILTROS */}
       <div className="card p-3 mb-3">
-        <h5>Filtros</h5>
         <div className="row">
-          {/* Filtro de Pesquisa */}
           <div className="col-12 mb-3">
             <input
               type="text"
@@ -208,8 +258,6 @@ function EscalaExtraList() {
               onChange={(e) => setSearchText(e.target.value)}
             />
           </div>
-
-          {/* Filtros de Checkbox */}
           <div className="col-12">
             <div className="d-flex flex-column align-items-start">
               <div>
@@ -244,7 +292,8 @@ function EscalaExtraList() {
         </div>
       </div>
       
-      <table className="table">
+      {/* TABELA */}
+      <table className="table table-striped table-hover">
         <thead>
           <tr>
             <th>Nome</th>
@@ -253,12 +302,10 @@ function EscalaExtraList() {
             <th>Hora</th>
             <th>Escala Extra</th>
             <th>Status</th>
-            <th>Data Cadastro</th>
             <th>Ações</th>
           </tr>
         </thead>
         <tbody>
-          {/* Mapeia os dados JÁ FILTRADOS */}
           {filteredData.map((item) => (
             <tr key={item.idEscalaExtra}>
               <td>{item.nmFuncionario}</td>
@@ -267,8 +314,8 @@ function EscalaExtraList() {
               <td>{formatTime(item.dtEscalaExtra)}</td>
               <td>{item.nmEscalaExtra}</td>
               <td>{item.statusInscricao}</td>
-              <td>{formatarDataCustomizada(item.dtCriacao)}</td>
               <td style={{ width: "10px", whiteSpace: "nowrap" }}>
+                <button onClick={() => ShowForm(item)} type="button" className="btn btn-primary btn-sm me-2">Editar</button>
                 <button onClick={() => handleDelete(item.idEscalaExtra)} type="button" className="btn btn-danger btn-sm">Delete</button>
               </td>
             </tr>
@@ -280,4 +327,141 @@ function EscalaExtraList() {
   );
 }
 
-export default EscalaExtraList;
+// =================================================================================
+// Componente do Formulário de Edição (Sem alterações)
+// =================================================================================
+function EscalaExtraForm({ escala, ShowList }) {
+  const [statusDisponiveis, setStatusDisponiveis] = useState([]);
+  const [statusSelecionado, setStatusSelecionado] = useState(escala.statusInscricao || "");
+  
+  const [alertProps, setAlertProps] = useState({
+    show: false,
+    type: "info",
+    title: "",
+    message: "",
+    onClose: () => setAlertProps((prev) => ({ ...prev, show: false })),
+  });
+
+  useEffect(() => {
+    const buscarStatus = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/solicitacaoEscalaExtra/BuscarStatusInscricao');
+        setStatusDisponiveis(response.data);
+      } catch (error) {
+        setAlertProps({ show: true, type: "error", title: "Erro", message: "Não foi possível carregar a lista de status." });
+      }
+    };
+    buscarStatus();
+  }, []);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const url = `http://localhost:8080/solicitacaoEscalaExtra/AlterarStatusExtra/${escala.idEscalaExtra}?statusInscricao=${statusSelecionado}`;
+    axios.put(url, {})
+      .then(() => {
+        setAlertProps({
+          show: true, type: "success", title: "Sucesso", message: "Status atualizado com sucesso!",
+          onClose: () => {
+            setAlertProps(p => ({ ...p, show: false }));
+            ShowList();
+          }
+        });
+      })
+      .catch((error) => {
+        const errorMessage = error.response?.data?.mensagem || "Falha ao atualizar o status.";
+        setAlertProps({ show: true, type: "error", title: "Erro", message: errorMessage });
+      });
+  };
+
+  return (
+    <>
+      <h2 className="text-center mb-3">Editar Inscrição</h2>
+      <div className="row">
+        <div className="col-lg-8 mx-auto">
+          <form onSubmit={handleSubmit}>
+            <div className="row mb-3">
+                <label className="col-sm-4 col-form-label">ID Inscrição</label>
+                <div className="col-sm-8"><input readOnly className="form-control-plaintext" value={escala.idEscalaExtra || ''} /></div>
+            </div>
+            <div className="row mb-3">
+                <label className="col-sm-4 col-form-label">Funcionário</label>
+                <div className="col-sm-8"><input readOnly className="form-control-plaintext" value={escala.nmFuncionario || ''} /></div>
+            </div>
+            <div className="row mb-3">
+                <label className="col-sm-4 col-form-label">Escala</label>
+                <div className="col-sm-8"><input readOnly className="form-control-plaintext" value={escala.nmEscalaExtra || ''} /></div>
+            </div>
+             <div className="row mb-3">
+                <label className="col-sm-4 col-form-label">Setor</label>
+                <div className="col-sm-8"><input readOnly className="form-control-plaintext" value={escala.nmSetor || ''} /></div>
+            </div>
+            <div className="row mb-3">
+                <label htmlFor="statusSelect" className="col-sm-4 col-form-label"><strong>Status</strong></label>
+                <div className="col-sm-8">
+                    <select
+                        id="statusSelect"
+                        className="form-select"
+                        value={statusSelecionado}
+                        onChange={(e) => setStatusSelecionado(e.target.value)}
+                        required
+                    >
+                        <option value="" disabled>Selecione um status...</option>
+                        {statusDisponiveis.map(status => (
+                            <option key={status} value={status}>{status}</option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+            <div className="row mt-4">
+                <div className="offset-sm-4 col-sm-4 d-grid">
+                    <button type="submit" className="btn btn-primary">Salvar Alteração</button>
+                </div>
+                <div className="col-sm-4 d-grid">
+                    <button type="button" className="btn btn-secondary" onClick={ShowList}>Cancelar</button>
+                </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <AlertPopup {...alertProps} />
+    </>
+  );
+}
+
+// =================================================================================
+// Componente Principal (Page) que controla a exibição
+// =================================================================================
+export function EscalaExtraPage() {
+  const [content, setContent] = useState('list');
+  const [escalaParaEditar, setEscalaParaEditar] = useState(null);
+
+  function ShowList() {
+    setContent('list');
+    setEscalaParaEditar(null);
+  }
+
+  function ShowForm(escala) {
+    setEscalaParaEditar(escala);
+    setContent('form');
+  }
+
+  return (
+    <div className="container my-4">
+        {content === 'list' && <EscalaExtraList ShowForm={ShowForm} />}
+        {content === 'form' && <EscalaExtraForm escala={escalaParaEditar} ShowList={ShowList} />}
+    </div>
+  );
+}
+
+// Definição de propTypes para os componentes
+EscalaExtraList.propTypes = {
+    ShowForm: PropTypes.func.isRequired,
+};
+
+EscalaExtraForm.propTypes = {
+    ShowList: PropTypes.func.isRequired,
+    escala: PropTypes.object.isRequired,
+};
+
+// Exporta o componente principal para ser usado nas rotas
+export default EscalaExtraPage;

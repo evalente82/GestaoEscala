@@ -5,18 +5,12 @@ using GestaoEscalaPermutas.Repository.Interfaces;
 using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using GestaoEscalaPermutas.Server.Settings;
 using Microsoft.Extensions.Options;
-using System.Text.Json;
-
-// --- NOVOS USINGS PARA reCAPTCHA ENTERPRISE ---
 using Google.Api.Gax.ResourceNames;
 using Google.Cloud.RecaptchaEnterprise.V1;
 using Grpc.Core; // Para RpcException
 using Microsoft.Extensions.Logging;
 using GestaoEscalaPermutas.Dominio.Interfaces.Email;
 using GestaoEscalaPermutas.Dominio.ENUM;
-using Google.Type;
-using Microsoft.IdentityModel.Tokens; // Para logs
-
 namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
 {
     public class SolicitacaoEscalaExtraService : ISolicitacaoEscalaExtraService
