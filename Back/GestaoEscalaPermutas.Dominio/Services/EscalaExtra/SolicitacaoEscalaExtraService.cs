@@ -13,6 +13,7 @@ using GestaoEscalaPermutas.Dominio.Interfaces.Email;
 using GestaoEscalaPermutas.Dominio.ENUM;
 using GestaoEscalaPermutas.Repository.Implementations;
 using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
+using static Google.Cloud.RecaptchaEnterprise.V1.TransactionData.Types;
 namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
 {
     public class SolicitacaoEscalaExtraService : ISolicitacaoEscalaExtraService
@@ -28,6 +29,8 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
         private readonly IEmailService _emailService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEscalaExtraCargoRepository _escalaExtraCargoRepository;
+        private readonly IEscalaRepository _escalaRepository;
+        private readonly ITipoEscalaRepository _tipoEscalaRepository;
 
         public SolicitacaoEscalaExtraService(
             ISolicitacaoEscalaExtraRepository SolicitacaoEscalaExtraRepository,
@@ -40,7 +43,9 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
             IFuncionarioRepository funcionarioRepository,
             IEmailService emailService,
             IUnitOfWork unitOfWork,
-            IEscalaExtraCargoRepository escalaExtraCargoRepository
+            IEscalaExtraCargoRepository escalaExtraCargoRepository,
+            IEscalaRepository escalaRepository,
+            ITipoEscalaRepository tipoEscalaRepository
             )
         {
             _SolicitacaoEscalaExtraRepository = SolicitacaoEscalaExtraRepository;
@@ -54,6 +59,9 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
             _emailService = emailService;
             _unitOfWork = unitOfWork;
             _escalaExtraCargoRepository = escalaExtraCargoRepository;
+            _setorRepository = setorRepository;
+            _escalaRepository = escalaRepository;
+            _tipoEscalaRepository = tipoEscalaRepository;
         }
 
         public async Task<List<SolicitacaoEscalaExtraDTO>> BuscarPorIdFuncionario(Guid idFuncionario)
@@ -212,83 +220,81 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
 
             try
             {
-                // Mapeia a lista de DTOs para as entidades (EscalaExtra)
+                // --- 1. BUSCAR DADOS INICIAIS ---
                 var solicitacaoEscalaExtra = _mapper.Map<DepInfra.EscalaExtra>(solicitacoesEscalaExtraDTOs);
-
-                //verificar a Qtd de vagas disponiveis
-                var extrasDisponiveis = await _escalaExtraRepository.BuscarListaPorIdAsync(solicitacaoEscalaExtra.IdCriacaoEscalaExtra);
-
-                var escalasProntas = await _escalaProntaRepository.BuscarPorIdFuncionario(solicitacoesEscalaExtraDTOs.IdFuncionario);
-                var listEscalas = await _SolicitacaoEscalaExtraRepository.ObterTodosAsync();
                 var funcionario = await _funcionarioRepository.ObterPorIdAsync(solicitacoesEscalaExtraDTOs.IdFuncionario);
+                var extrasDisponiveis = await _escalaExtraRepository.BuscarListaPorIdAsync(solicitacaoEscalaExtra.IdCriacaoEscalaExtra);
+                var escalasProntasDoFuncionario = await _escalaProntaRepository.BuscarPorIdFuncionario(solicitacoesEscalaExtraDTOs.IdFuncionario);
 
+                if (funcionario == null || extrasDisponiveis == null)
+                    return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Funcionário ou Escala Extra não encontrados." };
                 if (!funcionario.IsAtivo)
-                {
                     return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Funcionário Inativo." };
-                }
 
-                // 1. Busca a lista de IDs de cargos permitidos para esta escala extra específica.
+                // --- 2. VALIDAÇÃO DE CARGO ---
                 var cargosPermitidosIds = await _escalaExtraCargoRepository.ObterCargosPorEscalaExtraIdAsync(extrasDisponiveis.IdCriacaoEscalaExtra);
-
-
-                //    (Se a lista estiver vazia, assume-se que a escala é aberta para qualquer cargo, dependendo da regra de negócio).
-                if (cargosPermitidosIds.Any())
+                if (cargosPermitidosIds.Any() && !cargosPermitidosIds.Contains(funcionario.IdCargo))
                 {
-                    if (!cargosPermitidosIds.Contains(funcionario.IdCargo))
-                    {
-                        return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Seu Cargo não é elegível para se inscrever nesta escala extra." };
-                    }
+                    return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Seu cargo não é elegível para esta escala." };
                 }
 
-                //verificar se o funcionario esta de serviço no referido dia.
-                foreach (var escala in escalasProntas)
-                {
-                    if (extrasDisponiveis.DtEscalaExtra.Date == escala.DtDataServico.Date)
-                    {
-                        return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "O Funcionário está de plantão nesta dia." };
-                    }
-                }
+                // --- 3. VALIDAÇÃO DE DESCANSO MÍNIMO DE 11 HORAS ---
+                DateTime inicioDoExtra = extrasDisponiveis.DtEscalaExtra;
 
-                //verificar se o funcionario ja se cadastrou no dia e não pode cadastrar em outro setor no mesmo dia.
-                foreach (var item in listEscalas)
-                {
-                    var listaEscala = await _escalaExtraRepository.BuscarListaPorIdAsync(item.IdCriacaoEscalaExtra);
+                // Pré-carrega os detalhes das escalas para otimizar
+                var idsDasEscalasRegulares = escalasProntasDoFuncionario.Select(ep => ep.IdEscala).Distinct().ToList();
+                var escalasRegularesCompletas = await _escalaRepository.ObterEscalasComTipoPorIdsAsync(idsDasEscalasRegulares);
+                var mapaDeEscalas = escalasRegularesCompletas.ToDictionary(e => e.IdEscala);
 
-                    if (funcionario.IdFuncionario == item.IdFuncionario)
+                foreach (var plantaoRegular in escalasProntasDoFuncionario)
+                {
+                    if (mapaDeEscalas.TryGetValue(plantaoRegular.IdEscala, out var detalhesDaEscalaRegular) && detalhesDaEscalaRegular.IdTipoEscala != null)
                     {
-                        if (listaEscala.DtEscalaExtra.Date == extrasDisponiveis.DtEscalaExtra.Date)
+                        var tipoDaEscala = detalhesDaEscalaRegular.TipoEscala;
+
+                        // CORREÇÃO DO ERRO 'ToDateTime': Combinando a data do plantão com a hora de início
+                        DateTime inicioDoPlantao = plantaoRegular.DtDataServico.Date + tipoDaEscala.HoraInicio.ToTimeSpan();
+                        DateTime fimDoPlantao = inicioDoPlantao.AddHours(tipoDaEscala.NrHorasTrabalhada);
+
+                        if (inicioDoExtra > fimDoPlantao)
                         {
-                            return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "O Funcionário já possui cadastro de escala extra nesta data." };
+                            TimeSpan descanso = inicioDoExtra - fimDoPlantao;
+                            if (descanso.TotalHours < 11)
+                            {
+                                return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = $"Descanso insuficiente. Mínimo de 11h necessário após o plantão que termina em {fimDoPlantao:dd/MM/yyyy HH:mm}h." };
+                            }
                         }
                     }
-
                 }
 
-                // Variável local para decidir o status usando o enum
-                StatusInscricaoEnum statusDaInscricao;
+                // --- 4. VALIDAÇÃO DE INSCRIÇÃO DUPLICADA NO MESMO DIA ---
+                var inscricoesNoMesmoDia = await _SolicitacaoEscalaExtraRepository.ObterInscricoesPorFuncionarioEData(funcionario.IdFuncionario, inicioDoExtra.Date);
+                if (inscricoesNoMesmoDia.Any(i => i.StatusInscricao != StatusInscricaoEnum.Cancelado.ToString()))
+                {
+                    return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Funcionário já possui inscrição em extra nesta data." };
+                }
 
+                // --- 5. LÓGICA DE VAGAS E FILA DE ESPERA ---
+                StatusInscricaoEnum statusDaInscricao;
                 if (extrasDisponiveis.QtdVagas > 0)
                 {
-                    // Decisão da lógica de negócio usando o enum
                     statusDaInscricao = StatusInscricaoEnum.Confirmado;
                     extrasDisponiveis.QtdVagas--;
-                    await _escalaExtraRepository.AlterarAsync(extrasDisponiveis);
                 }
                 else if (extrasDisponiveis.QtdFilaEspera > 0)
                 {
                     statusDaInscricao = StatusInscricaoEnum.FilaDeEspera;
                     extrasDisponiveis.QtdFilaEspera--;
-                    await _escalaExtraRepository.AlterarAsync(extrasDisponiveis);
                 }
                 else
                 {
-                    return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Sem Vagas disponíveis." };
-                }                
+                    return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Não há mais vagas disponíveis, nem na fila de espera." };
+                }
 
-                // Adiciona a lista de escalas ao repositório
+                // --- 6. SALVANDO AS ALTERAÇÕES ---
                 solicitacaoEscalaExtra.StatusInscricao = statusDaInscricao.ToString();
                 await _SolicitacaoEscalaExtraRepository.AdicionarListaAsync(solicitacaoEscalaExtra);
-
+                await _escalaExtraRepository.AlterarAsync(extrasDisponiveis);
                 await _unitOfWork.CompleteAsync();
 
                 //enviar e-mail

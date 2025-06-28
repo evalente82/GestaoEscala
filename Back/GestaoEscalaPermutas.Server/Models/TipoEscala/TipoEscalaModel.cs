@@ -17,5 +17,8 @@
         public int NrHorasFolga { get; set; }
 
         public bool IsExpediente { get; set; }
+
+        public TimeOnly HoraInicio { get; set; }
+        public TimeOnly HoraFim { get; set; }
     }
 }

@@ -66,5 +66,13 @@ namespace GestaoEscalaPermutas.Repository.Implementations
                 .OrderBy(e => e.DtCriacao)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<List<EscalaExtra>> ObterInscricoesPorFuncionarioEData(Guid idFuncionario, DateTime data)
+        {
+            // A comparação .Date garante que estamos comparando apenas o dia, mês e ano, ignorando a hora.
+            return await _context.EscalaExtra
+                .Where(i => i.IdFuncionario == idFuncionario && i.DtCriacao.Date == data.Date)
+                .ToListAsync();
+        }
     }
 }

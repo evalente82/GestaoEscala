@@ -26,5 +26,6 @@ namespace GestaoEscalaPermutas.Dominio.DTO.EscalaExtra
         public int QtdVagas { get; set; }
         public int QtdFilaEspera { get; set; }
         public List<Guid> IdCargo { get; set; }
+        public string TipoServicoExtra { get; set; }
     }
 }

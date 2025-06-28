@@ -2,6 +2,7 @@
 using GestaoEscalaPermutas.Dominio.DTO.EscalaExtra;
 using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
 using GestaoEscalaPermutas.Dominio.DTO.PostoTrabalho;
+using GestaoEscalaPermutas.Dominio.ENUM;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaExtra;
 using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
 using GestaoEscalaPermutas.Dominio.Services.PostoTrabalho;
@@ -151,6 +152,22 @@ namespace GestaoEscalaPermutas.Server.Controllers.EscalaExtra
             }
         }
 
+        [HttpGet]
+        [Route("BuscarTiposServicoExtra")]
+        public ActionResult BuscarTiposExtras()
+        {
+            try
+            {
+                // Pega todos os nomes do enum como um array de strings
+                var listaDeTiposExtra = Enum.GetNames(typeof(TipoServicoExtraEnum));
 
+                // Retorna a lista. O ASP.NET Core irá serializar isso para um JSON array.
+                return Ok(listaDeTiposExtra);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Erro ao buscar os tipos de de Extras: {ex.Message}");
+            }
+        }
     }
 }

@@ -19,6 +19,10 @@ public partial class Escala
     public string? NmNomeEscala { get; set; }
 
     public Guid IdTipoEscala { get; set; }
+    // ADICIONE A PROPRIEDADE DE NAVEGAÇÃO ABAIXO
+    [ForeignKey("IdTipoEscala")]
+    public virtual TipoEscala TipoEscala { get; set; } = null!;
+    // --- FIM DA MUDANÇA ---
     public Guid IdCargo { get; set; }
 
     public DateTime DtCriacao { get; set; }

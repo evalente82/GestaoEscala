@@ -14,5 +14,8 @@ namespace GestaoEscalaPermutas.Repository.Interfaces
         Task<List<EscalaPronta>> ObterEscalasProntasPorEscalaId(Guid idEscala);
         Task RemoverEscalasProntasPorEscalaId(Guid idEscala);
         Task<IDbContextTransaction> IniciarTransacaoAsync();
+        Task<Escala?> ObterEscalaObj(Guid id);
+        Task<Escala?> ObterPorIdComTipoEscalaAsync(Guid id);
+        Task<List<Escala>> ObterEscalasComTipoPorIdsAsync(List<Guid> ids);
     }
 }

@@ -232,7 +232,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigin", policy =>
             policy.WithOrigins(
             //"https://front-gestao-escala.fly.dev"
-            "http://192.168.0.2:8080", // Backend local
+            "http://192.168.0.10:8080", // Backend local
             "http://10.0.2.2:8080",   // Emulador Android
             "http://localhost:5173",   // Frontend
             "http://localhost:8080",   // Swagger local

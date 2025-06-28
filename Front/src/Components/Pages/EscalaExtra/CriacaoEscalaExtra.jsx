@@ -11,6 +11,7 @@ function CriacaoEscalaExtraList(props) {
     const [escalasExtras, setEscalasExtras] = useState([]);
     const [setor, setSetor] = useState([]);
     const [cargos, setCargos] = useState([]);
+    const [tipoServicoExtra, setTipoServicoExtra] = useState([]);
     const { nomeUsuario } = useAuth();
 
     const [alertProps, setAlertProps] = useState({
@@ -65,7 +66,7 @@ function CriacaoEscalaExtraList(props) {
                 });
             });
     }
-
+    
     function handleDelete(id) {
         setAlertProps({
             show: true,
@@ -108,6 +109,7 @@ function CriacaoEscalaExtraList(props) {
         BuscarSetor();
         BuscarTodos();
         BuscarCargos();
+        BuscarTiposSevicoExtra();
     }, []);
 
     function formatDate(dateString, includeTime = false) {
@@ -120,6 +122,15 @@ function CriacaoEscalaExtraList(props) {
         }
         return new Intl.DateTimeFormat('pt-BR', options).format(date);
     }
+
+    const BuscarTiposSevicoExtra = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/escalaExtra/BuscarTiposServicoExtra');
+      setTipoServicoExtra(response.data);
+    } catch (error) {
+      setAlertProps({ show: true, type: "error", title: "Erro", message: "Não foi possível carregar os dados." });
+    }
+  };
 
     return (
         <div>
@@ -150,6 +161,7 @@ function CriacaoEscalaExtraList(props) {
                         <th>Data Fechamento</th>
                         <th>Setor</th>
                         <th>Cargos</th>
+                        <th>Tipo</th>
                         <th>Vagas</th>
                         <th>Fila Espera</th>
                         <th>Ativo</th>
@@ -179,6 +191,7 @@ function CriacaoEscalaExtraList(props) {
                                 "Nenhum cargo"
                             )}
                             </td>
+                            <td>{escala.tipoServicoExtra}</td>
                             <td>{escala.qtdVagas}</td>
                             <td>{escala.qtdFilaEspera}</td>
                             <td>
@@ -230,6 +243,7 @@ function CriacaoEscalaExtraForm(props) {
                 idCargo: PropTypes.string,
                 nmNome: PropTypes.string,
             })),
+            tipoServicoExtra: PropTypes.string,
             isAtivo: PropTypes.bool,
             qtdVagas: PropTypes.number,
             qtdFilaEspera: PropTypes.number
@@ -254,6 +268,8 @@ function CriacaoEscalaExtraForm(props) {
     const [horaInicio, setHoraInicio] = useState('');
     const [horaFim, setHoraFim] = useState('');
     const [setorSelecionado, setSetorSelecionado] = useState('');
+    const [tipoExtraSelecionado, setTipoExtraSelecionado] = useState('');
+    const [tipoServicoExtra, setTipoServicoExtra] = useState([]);
     const [ativo, setAtivo] = useState(true);
     const [qtdVagas, setQtdVagas] = useState(0);
     const [qtdFilaEspera, setQtdFilaEspera] = useState(0);
@@ -274,6 +290,7 @@ function CriacaoEscalaExtraForm(props) {
         // setHoraInicio(props.EscalaExtra.horaAbertura || '');
         // setHoraFim(props.EscalaExtra.horaFechamento || '');
         setSetorSelecionado(props.EscalaExtra.idSetor || '');
+        setTipoExtraSelecionado(props.EscalaExtra.tipoServicoExtra || 'RAS');
         setAtivo(props.EscalaExtra.isAtivo === false ? false : true);
         setQtdVagas(props.EscalaExtra.qtdVagas || 0);
         setQtdFilaEspera(props.EscalaExtra.qtdFilaEspera || 0);
@@ -295,6 +312,7 @@ function CriacaoEscalaExtraForm(props) {
     useEffect(() => {
         BuscarSetor();
         BuscarCargos();
+        BuscarTiposSevicoExtra();
     }, []);
 
     function BuscarCargos() {
@@ -308,6 +326,15 @@ function CriacaoEscalaExtraForm(props) {
             .then((response) => setSetor(response.data))
             .catch((error) => console.log(error));
     }
+
+    const BuscarTiposSevicoExtra = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/escalaExtra/BuscarTiposServicoExtra');
+      setTipoServicoExtra(response.data);
+    } catch (error) {
+      setAlertProps({ show: true, type: "error", title: "Erro", message: "Não foi possível carregar os dados." });
+    }
+  };
 
     const handleAdicionarCargo = () => {
         if (!cargoParaAdicionar) return;
@@ -356,6 +383,7 @@ function CriacaoEscalaExtraForm(props) {
         horaAbertura: horaInicio,
         horaFechamento: horaFim,
         idSetor: setorSelecionado,
+        tipoServicoExtra: tipoExtraSelecionado,
         nomeFuncionario: nomeUsuario,
         isAtivo: ativo,
         qtdVagas: qtdVagas,
@@ -513,6 +541,24 @@ function CriacaoEscalaExtraForm(props) {
                                         <div className="text-muted small mt-1">Nenhum cargo selecionado.</div>
                                     )}
                                 </div>
+                            </div>
+                        </div>
+
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Tipo do Extra</label>
+                            <div className="col-sm-8">
+                                <select 
+                                    className="form-select" 
+                                    value={tipoExtraSelecionado} // Corrigido para usar o estado correto
+                                    onChange={(e) => setTipoExtraSelecionado(e.target.value)} // Corrigido para atualizar o estado correto
+                                    required
+                                >
+                                    <option value="" disabled>Selecione um tipo</option>
+                                    {/* Corrigido para mapear um array de strings */}
+                                    {tipoServicoExtra.map(tipo => (
+                                        <option key={tipo} value={tipo}>{tipo}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 

@@ -140,6 +140,8 @@ function TipoEscalaList(props) {
                         <th style={{ textAlign: "left" }}>DESCRIÇÃO</th>
                         <th >HORAS TRABALHADA</th>
                         <th>HORAS DE FOLGA</th>
+                        <th>HORA INÍCIO</th>
+                        <th>HORA FIM</th>
                         <th>EXPEDIENTE</th>
                         <th>ATIVO</th>
                     </tr>
@@ -153,6 +155,8 @@ function TipoEscalaList(props) {
                                     <td style={{ textAlign: "left" }}>{tipoEscala.nmDescricao}</td>
                                     <td>{tipoEscala.nrHorasTrabalhada}</td>
                                     <td>{tipoEscala.nrHorasFolga}</td>
+                                    <td>{tipoEscala.horaInicio}</td>
+                                    <td>{tipoEscala.horaFim}</td>
                                     <td>
                                         <input
                                             type="checkbox"
@@ -209,10 +213,19 @@ function TipoEscalaForm(props) {
             nmDescricao: PropTypes.number,
             nrHorasTrabalhada: PropTypes.number,
             nrHorasFolga: PropTypes.number,
+            horaInicio: PropTypes.string,
+            horaFim: PropTypes.string,
             isExpediente: PropTypes.bool,
             isAtivo: PropTypes.bool,
         }).isRequired,
     };
+
+        // --- Gera uma lista de opções de horário com intervalo de 1 hora (ex: "00:00", "01:00", "02:00"...) ---
+        const timeOptions = Array.from({ length: 24 }, (_, i) => {
+            // 'i' agora representa diretamente a hora, de 0 a 23.
+            const hours = i.toString().padStart(2, '0');
+            return `${hours}:00`;
+        });
 
     const [nome, setNome] = useState(props.tipoEscala.nmNome || '');
     const [ativo, setAtivo] = useState(props.tipoEscala.isAtivo || false);
@@ -220,6 +233,9 @@ function TipoEscalaForm(props) {
     const [descricao, setDescricao] = useState(props.tipoEscala.nmDescricao || '');
     const [horasTrabalhada, setHorasTrabalhada] = useState(props.tipoEscala.nrHorasTrabalhada || '');
     const [horasFolga, setHorasFolga] = useState(props.tipoEscala.nrHorasFolga || '');
+    const [horaInicio, setHoraInicio] = useState('08:00'); // Valor padrão para cadastro
+    const [horaFim, setHoraFim] = useState('20:00');     // Valor padrão para cadastro
+
     const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
     
     const [alertProps, setAlertProps] = useState({
@@ -246,6 +262,8 @@ function TipoEscalaForm(props) {
                 nmDescricao: descricao,
                 nrHorasTrabalhada: horasTrabalhada,
                 nrHorasFolga: horasFolga,
+                horaInicio: horaInicio,
+                horaFim: horaFim,
                 isExpediente: expediente,
                 isAtivo: ativo,
             };
@@ -283,6 +301,8 @@ function TipoEscalaForm(props) {
                 nmDescricao: descricao,
                 nrHorasTrabalhada: horasTrabalhada,
                 nrHorasFolga: horasFolga,
+                horaInicio: horaInicio,
+                horaFim: horaFim,
                 isExpediente: expediente,
                 isAtivo: ativo,
             };
@@ -389,6 +409,24 @@ function TipoEscalaForm(props) {
                                     required
                                     onChange={(e) => setHorasFolga(e.target.value)}
                                 ></input>
+                            </div>
+                        </div>
+
+                        {/* --- 4. NOVOS CAMPOS DE HORA INÍCIO E FIM ADICIONADOS AO FORMULÁRIO --- */}
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Hora Início</label>
+                            <div className="col-sm-8">
+                                <select className="form-select" value={horaInicio} onChange={(e) => setHoraInicio(e.target.value)} required>
+                                    {timeOptions.map(time => <option key={`inicio-${time}`} value={time}>{time}</option>)}
+                                </select>
+                            </div>
+                        </div>
+                        <div className="row mb-3">
+                            <label className="col-sm-4 col-form-label">Hora Fim</label>
+                            <div className="col-sm-8">
+                                <select className="form-select" value={horaFim} onChange={(e) => setHoraFim(e.target.value)} required>
+                                    {timeOptions.map(time => <option key={`fim-${time}`} value={time}>{time}</option>)}
+                                </select>
                             </div>
                         </div>
 

@@ -36,6 +36,7 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
         public DateTime DtCriacao { get; set; } = DateTime.Now;
         public int QtdVagas { get; set; }
         public int QtdFilaEspera { get; set; }
+        public string TipoServicoExtra { get; set; }
 
         // Propriedade de navegação para a tabela de junção
         public virtual ICollection<CriacaoEscalaExtraCargo> CriacaoEscalaExtraCargos { get; set; }

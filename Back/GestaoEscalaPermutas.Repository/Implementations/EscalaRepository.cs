@@ -66,5 +66,29 @@ namespace GestaoEscalaPermutas.Repository.Implementations
         {
             return await _context.Database.BeginTransactionAsync();
         }
+
+        public async Task<Escala?> ObterEscalaObj(Guid id)
+        {
+            return await _context.Escalas.FirstOrDefaultAsync(e => e.IdEscala == id);
+        }
+        public async Task<Escala?> ObterPorIdComTipoEscalaAsync(Guid id)
+        {
+            // Usamos FirstOrDefaultAsync para poder usar o .Include()
+            return await _context.Escalas
+                                 .Include(e => e.IdTipoEscala) // Inclui os dados do TipoEscala na consulta
+                                 .FirstOrDefaultAsync(e => e.IdEscala == id);
+        }
+        public async Task<List<Escala>> ObterEscalasComTipoPorIdsAsync(List<Guid> ids)
+        {
+            if (ids == null || !ids.Any())
+            {
+                return new List<Escala>(); // Retorna lista vazia se não houver IDs para buscar
+            }
+
+            return await _context.Escalas
+                                    .Include(e => e.TipoEscala)
+                                    .Where(e => ids.Contains(e.IdEscala))
+                                    .ToListAsync();
+        }
     }
 }
