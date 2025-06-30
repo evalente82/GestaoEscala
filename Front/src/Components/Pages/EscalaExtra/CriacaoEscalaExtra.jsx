@@ -8,6 +8,7 @@ import api from './../axiosConfig';
 // Componente para listar as escalas extras
 function CriacaoEscalaExtraList(props) {
     const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
+    const API_URL = `${API_BASE_URL}/escalaExtra`;
     const [escalasExtras, setEscalasExtras] = useState([]);
     const [setor, setSetor] = useState([]);
     const [cargos, setCargos] = useState([]);
@@ -52,7 +53,7 @@ function CriacaoEscalaExtraList(props) {
     }
 
     function BuscarTodos() {
-        api.get(`${API_BASE_URL}/escalaExtra/buscarExtras`)
+        api.get(`${API_URL}/buscarExtras`)
             .then((response) => {
                 console.log('extras',response.data);
                 setEscalasExtras(response.data);
@@ -125,7 +126,7 @@ function CriacaoEscalaExtraList(props) {
 
     const BuscarTiposSevicoExtra = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/escalaExtra/BuscarTiposServicoExtra');
+      const response = await api.get(`${API_URL}/BuscarTiposServicoExtra`);
       setTipoServicoExtra(response.data);
     } catch (error) {
       setAlertProps({ show: true, type: "error", title: "Erro", message: "Não foi possível carregar os dados." });
@@ -226,6 +227,7 @@ function CriacaoEscalaExtraList(props) {
 function CriacaoEscalaExtraForm(props) {
     const { nomeUsuario } = useAuth();
     const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
+    const API_URL = `${API_BASE_URL}/escalaExtra`;
 
     CriacaoEscalaExtraForm.propTypes = {
         ShowList: PropTypes.func.isRequired,
@@ -329,7 +331,7 @@ function CriacaoEscalaExtraForm(props) {
 
     const BuscarTiposSevicoExtra = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/escalaExtra/BuscarTiposServicoExtra');
+      const response = await api.get(`${API_URL}/BuscarTiposServicoExtra`);
       setTipoServicoExtra(response.data);
     } catch (error) {
       setAlertProps({ show: true, type: "error", title: "Erro", message: "Não foi possível carregar os dados." });

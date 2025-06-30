@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
 {
@@ -14,6 +15,9 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
         public DateTime DtCriacao { get; set; } = DateTime.Now;
         public string StatusInscricao { get; set; } = string.Empty;
         public DateTime? DtConfirmacao { get; set; }
+
+        [ForeignKey("IdCriacaoEscalaExtra")]
+        public virtual CriacaoEscalaExtra CriacaoEscalaExtra { get; set; } = null!;
     }
 
 }

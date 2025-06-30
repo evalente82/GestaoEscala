@@ -92,6 +92,15 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
                 foreach (var item in listSolicitacoes)
                 {
                     var escalaExtra = await _escalaExtraRepository.BuscarListaPorIdAsync(item.IdCriacaoEscalaExtra);
+                    if (escalaExtra == null)
+                    {
+                        // Loga um aviso para que os desenvolvedores saibam do problema de dados
+                        _logger.LogWarning("Inscrição {IdCriacaoEscalaExtra} possui uma referência para uma CriacaoEscalaExtra inexistente: {IdCriacaoEscalaExtra}", item.IdEscalaExtra, item.IdCriacaoEscalaExtra);
+
+                        // Pula para a próxima iteração do loop, ignorando este registro "órfão"
+                        continue;
+                    }
+
                     var setor = await _setorRepository.BuscarPorIdAsync(escalaExtra.IdSetor);
 
                     item.NmEscalaExtra = escalaExtra.NmEscalaExtra;
@@ -238,36 +247,59 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
                     return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Seu cargo não é elegível para esta escala." };
                 }
 
-                // --- 3. VALIDAÇÃO DE DESCANSO MÍNIMO DE 11 HORAS ---
+                // ===================================================================
+                // 3. VALIDAÇÃO UNIFICADA DE SOBREPOSIÇÃO E DESCANSO MÍNIMO
+                // ===================================================================
                 DateTime inicioDoExtra = extrasDisponiveis.DtEscalaExtra;
+                // IMPORTANTE: Assumindo que um serviço extra dura 12 horas. Se a duração for variável,
+                // você precisará adicionar um campo de duração na tabela CriacaoEscalaExtra.
+                DateTime fimDoExtra = inicioDoExtra.AddHours(12);
 
-                // Pré-carrega os detalhes das escalas para otimizar
                 var idsDasEscalasRegulares = escalasProntasDoFuncionario.Select(ep => ep.IdEscala).Distinct().ToList();
                 var escalasRegularesCompletas = await _escalaRepository.ObterEscalasComTipoPorIdsAsync(idsDasEscalasRegulares);
                 var mapaDeEscalas = escalasRegularesCompletas.ToDictionary(e => e.IdEscala);
 
                 foreach (var plantaoRegular in escalasProntasDoFuncionario)
                 {
-                    if (mapaDeEscalas.TryGetValue(plantaoRegular.IdEscala, out var detalhesDaEscalaRegular) && detalhesDaEscalaRegular.IdTipoEscala != null)
+                    if (mapaDeEscalas.TryGetValue(plantaoRegular.IdEscala, out var detalhesDaEscalaRegular) && detalhesDaEscalaRegular.TipoEscala != null)
                     {
                         var tipoDaEscala = detalhesDaEscalaRegular.TipoEscala;
 
-                        // CORREÇÃO DO ERRO 'ToDateTime': Combinando a data do plantão com a hora de início
                         DateTime inicioDoPlantao = plantaoRegular.DtDataServico.Date + tipoDaEscala.HoraInicio.ToTimeSpan();
                         DateTime fimDoPlantao = inicioDoPlantao.AddHours(tipoDaEscala.NrHorasTrabalhada);
 
+                        // VERIFICAÇÃO 1: SOBREPOSIÇÃO DIRETA (O extra acontece DURANTE o plantão)
+                        // A sobreposição ocorre se (InícioA < FimB) E (InícioB < FimA)
+                        if (inicioDoExtra < fimDoPlantao && inicioDoPlantao < fimDoExtra)
+                        {
+                            return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = $"Conflito de horário. O extra se sobrepõe ao seu plantão do dia {plantaoRegular.DtDataServico:dd/MM/yyyy}." };
+                        }
+
+                        // VERIFICAÇÃO 2: DESCANSO APÓS O PLANTÃO
                         if (inicioDoExtra > fimDoPlantao)
                         {
-                            TimeSpan descanso = inicioDoExtra - fimDoPlantao;
-                            if (descanso.TotalHours < 11)
+                            TimeSpan descansoApos = inicioDoExtra - fimDoPlantao;
+                            if (descansoApos.TotalHours < 11)
                             {
                                 return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = $"Descanso insuficiente. Mínimo de 11h necessário após o plantão que termina em {fimDoPlantao:dd/MM/yyyy HH:mm}h." };
                             }
                         }
+
+                        // validar esta opção
+                        // VERIFICAÇÃO 3: DESCANSO ANTES DO PLANTÃO
+                        //if (inicioDoPlantao > fimDoExtra)
+                        //{
+                        //    TimeSpan descansoAntes = inicioDoPlantao - fimDoExtra;
+                        //    if (descansoAntes.TotalHours < 11)
+                        //    {
+                        //        return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = $"Descanso insuficiente. Mínimo de 11h necessário antes do seu próximo plantão que começa em {inicioDoPlantao:dd/MM/yyyy HH:mm}h." };
+                        //    }
+                        //}
                     }
                 }
 
                 // --- 4. VALIDAÇÃO DE INSCRIÇÃO DUPLICADA NO MESMO DIA ---
+                // (Esta verificação continua sendo útil como uma camada extra de segurança)
                 var inscricoesNoMesmoDia = await _SolicitacaoEscalaExtraRepository.ObterInscricoesPorFuncionarioEData(funcionario.IdFuncionario, inicioDoExtra.Date);
                 if (inscricoesNoMesmoDia.Any(i => i.StatusInscricao != StatusInscricaoEnum.Cancelado.ToString()))
                 {
@@ -418,6 +450,15 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
                     //buscar nome da escala extra NmEscalaExtra
                     var escala = await _escalaExtraRepository.BuscarListaPorIdAsync(item.IdCriacaoEscalaExtra);
 
+                    if (escala == null)
+                    {
+                        // Loga um aviso para que os desenvolvedores saibam do problema de dados
+                        _logger.LogWarning("Inscrição {IdInscricao} possui uma referência para uma CriacaoEscalaExtra inexistente: {IdCriacaoEscalaExtra}", item.IdEscalaExtra, item.IdCriacaoEscalaExtra);
+
+                        // Pula para a próxima iteração do loop, ignorando este registro "órfão"
+                        continue;
+                    }
+
                     //buscar nome do setor NmSetor
                     var setor = await _setorRepository.BuscarPorIdAsync(escala.IdSetor);
 
@@ -549,11 +590,24 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
 
         public async Task<SolicitacaoEscalaExtraDTO> CancelarInscricaoEPromoverFilaAsync(Guid idInscricaoCancelando)
         {
-            // 1. BUSCAR A INSCRIÇÃO QUE ESTÁ SENDO CANCELADA
+            // PASSO 1: BUSCAR DADOS E FAZER VALIDAÇÕES INICIAIS (permanece o mesmo)
             var inscricaoCancelando = await _SolicitacaoEscalaExtraRepository.BuscarPorIdEscalaExtra(idInscricaoCancelando);
             if (inscricaoCancelando == null)
             {
                 return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Inscrição a ser cancelada não encontrada." };
+            }
+
+            var escalaPrincipal = await _escalaExtraRepository.ObterPorIdAsync(inscricaoCancelando.IdCriacaoEscalaExtra);
+            if (escalaPrincipal == null)
+            {
+                return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Escala principal associada não encontrada." };
+            }
+
+            var dataAtual = DateTime.UtcNow;
+            var prazoFinalParaCancelar = escalaPrincipal.DtEscalaExtra.AddHours(-72);
+            if (dataAtual > prazoFinalParaCancelar)
+            {
+                return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Não é possível cancelar. O prazo para cancelamento (72 horas antes do evento) já expirou." };
             }
 
             var statusOriginal = inscricaoCancelando.StatusInscricao;
@@ -562,59 +616,74 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
                 return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Esta inscrição já foi cancelada." };
             }
 
+            // Define o novo status da inscrição que está sendo cancelada.
+            // Esta alteração será salva no final, junto com as outras.
             inscricaoCancelando.StatusInscricao = StatusInscricaoEnum.Cancelado.ToString();
 
-            // 2. LÓGICA DE PROMOÇÃO (SÓ SE QUEM CANCELOU ESTAVA CONFIRMADO)
+            // ====================================================================================
+            // PASSO 2: LÓGICA DE ATUALIZAÇÃO DE VAGAS BASEADA NO STATUS ORIGINAL
+            // ====================================================================================
+
+            // Cenário A: O usuário que cancelou estava CONFIRMADO em uma vaga.
             if (statusOriginal == StatusInscricaoEnum.Confirmado.ToString())
             {
-                var escalaPrincipal = await _escalaExtraRepository.ObterPorIdAsync(inscricaoCancelando.IdCriacaoEscalaExtra);
-                if (escalaPrincipal == null)
-                {
-                    return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Escala principal associada não encontrada." };
-                }
-
                 var proximoDaFila = await _SolicitacaoEscalaExtraRepository.ObterProximoDaFilaAsync(inscricaoCancelando.IdCriacaoEscalaExtra);
 
                 if (proximoDaFila != null)
                 {
-                    // PROMOVE O USUÁRIO DA FILA
+                    // Se há alguém na fila, promove-o. O número de vagas não muda (um sai, outro entra).
                     proximoDaFila.StatusInscricao = StatusInscricaoEnum.Confirmado.ToString();
                     proximoDaFila.DtConfirmacao = DateTime.UtcNow;
 
-                    // --- ENVIO DE E-MAIL (AGORA SEGURO) ---
+                    _logger.LogInformation("Usuário {Id} promovido da fila de espera.", proximoDaFila.IdFuncionario);
+
+                    // Tenta enviar o e-mail de notificação para o usuário promovido.
                     try
                     {
                         var funcionarioPromovido = await _funcionarioRepository.ObterPorIdAsync(proximoDaFila.IdFuncionario);
                         if (funcionarioPromovido != null)
                         {
-                            var setor = await _setorRepository.BuscarPorIdAsync(escalaPrincipal.IdSetor);
-                            var dataServico = escalaPrincipal.DtEscalaExtra.ToString("dd/MM/yyyy");
-                            var horaServico = escalaPrincipal.DtEscalaExtra.AddHours(-3).ToString("HH:mm");
+                            // --- ENVIO DE E-MAIL (AGORA SEGURO) ---
+                            try
+                            {
+                                if (funcionarioPromovido != null)
+                                {
+                                    var setor = await _setorRepository.BuscarPorIdAsync(escalaPrincipal.IdSetor);
+                                    var dataServico = escalaPrincipal.DtEscalaExtra.ToString("dd/MM/yyyy");
+                                    var horaServico = escalaPrincipal.DtEscalaExtra.AddHours(-3).ToString("HH:mm");
 
-                            string corpoEmail = $@"
-                        <html><body>
-                            <h2>Vaga de Extra Confirmada!</h2>
-                            <p>Olá, {funcionarioPromovido.NmNome}.</p>
-                            <p>Uma vaga foi liberada na escala '{escalaPrincipal.NmEscalaExtra}' e você foi promovido da fila de espera. Sua inscrição agora está <strong>Confirmada</strong>.</p>
-                            <div class='details'>
-                                <strong>Data:</strong> {dataServico}<br>
-                                <strong>Hora:</strong> {horaServico}<br>
-                                <strong>Setor:</strong> {setor.NmNome}<br>
-                            </div>
-                            <div class='signature'><p>Atenciosamente,<br>Defesa Civil de Maricá.</p></div>
-                        </body></html>";
+                                    string corpoEmail = $@"
+                                    <html><body>
+                                        <h2>Vaga de RAS / Extra Confirmada!</h2>
+                                        <p>Olá, {funcionarioPromovido.NmNome}.</p>
+                                        <p>Uma vaga foi liberada na escala '{escalaPrincipal.NmEscalaExtra}' e você foi promovido da fila de espera. Sua inscrição agora está <strong>Confirmada</strong>.</p>
+                                        <div class='details'>
+                                            <strong>Data:</strong> {dataServico}<br>
+                                            <strong>Hora:</strong> {horaServico}<br>
+                                            <strong>Setor:</strong> {setor.NmNome}<br>
+                                        </div>
+                                        <div class='signature'><p>Atenciosamente,<br>Defesa Civil de Maricá.</p></div>
+                                    </body></html>";
 
-                            // ==========================================================
-                            // CORREÇÃO AQUI:
-                            // Para testar, passe a string diretamente, sem atribuir.
-                            // ==========================================================
-                            string emailDestino = "endrigo.valente@gmail.com"; // Para teste
-                                                                               // string emailDestino = funcionarioPromovido.NmEmail; // Para produção
+                                    // ==========================================================
+                                    // CORREÇÃO AQUI:
+                                    // Para testar, passe a string diretamente, sem atribuir.
+                                    // ==========================================================
+                                    string emailDestino = "endrigo.valente@gmail.com"; // Para teste
+                                                                                       // string emailDestino = funcionarioPromovido.NmEmail; // Para produção
 
-                            // Log para depuração do corpo do e-mail
-                            _logger.LogInformation("Corpo do e-mail a ser enviado: {CorpoEmail}", corpoEmail);
+                                    // Log para depuração do corpo do e-mail
+                                    _logger.LogInformation("Corpo do e-mail a ser enviado: {CorpoEmail}", corpoEmail);
 
-                            await _emailService.EnviarEmail(emailDestino, "Vaga de Serviço Extra Confirmada", corpoEmail);
+                                    await _emailService.EnviarEmail(emailDestino, "Vaga de Serviço Extra Confirmada", corpoEmail);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, "Falha ao enviar e-mail de confirmação para o promovido.");
+                            }
+
+                            await _emailService.EnviarEmail(funcionarioPromovido.NmEmail, "Vaga de Serviço Extra Confirmada", "...");
                         }
                     }
                     catch (Exception ex)
@@ -624,18 +693,29 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
                 }
                 else // Se não há ninguém na fila
                 {
-                    // Apenas incrementa a vaga
-                    //escalaPrincipal.QtdVagas++;
+                    // A vaga confirmada fica livre, então incrementamos o contador de vagas.
+                    escalaPrincipal.QtdVagas++;
+                    _logger.LogInformation("Vaga aberta na escala {Id} pois não havia fila de espera.", escalaPrincipal.IdCriacaoEscalaExtra);
                 }
             }
+            // ====================================================================================
+            // NOVA LÓGICA ADICIONADA AQUI
+            // ====================================================================================
+            // Cenário B: O usuário que cancelou estava na FILA DE ESPERA.
+            else if (statusOriginal == StatusInscricaoEnum.FilaDeEspera.ToString())
+            {
+                // A vaga na fila de espera fica livre, então incrementamos o contador da fila.
+                escalaPrincipal.QtdFilaEspera++;
+                _logger.LogInformation("Vaga na fila de espera reaberta para a escala {Id}", escalaPrincipal.IdCriacaoEscalaExtra);
+            }
 
-            // 3. SALVA TODAS AS ALTERAÇÕES RASTREADAS PELO EF CORE
+            // PASSO 3: SALVAR TODAS AS ALTERAÇÕES EM UMA ÚNICA TRANSAÇÃO
+            // O Entity Framework já está rastreando as mudanças em 'inscricaoCancelando' e 'escalaPrincipal'.
             await _unitOfWork.CompleteAsync();
 
-            // 4. RETORNA O DTO DA INSCRIÇÃO ORIGINALMENTE CANCELADA
+            // PASSO 4: RETORNAR O DTO DA INSCRIÇÃO QUE FOI CANCELADA
             return _mapper.Map<SolicitacaoEscalaExtraDTO>(inscricaoCancelando);
         }
-
 
     }
 }

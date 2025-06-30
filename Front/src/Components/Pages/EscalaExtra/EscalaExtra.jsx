@@ -5,11 +5,14 @@ import AlertPopup from '../AlertPopup/AlertPopup';
 import PropTypes from 'prop-types';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import api from "../axiosConfig";
 
 // =================================================================================
 // Componente da Lista (Com Filtros e Exportação Reintegrados)
 // =================================================================================
 function EscalaExtraList({ ShowForm }) {
+  const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
+  const API_URL = `${API_BASE_URL}/solicitacaoEscalaExtra`;
   const [escalaExtra, setEscalaExtra] = useState([]); 
   const [filteredData, setFilteredData] = useState([]); 
 
@@ -28,7 +31,7 @@ function EscalaExtraList({ ShowForm }) {
 
   const BuscarTodos = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/solicitacaoEscalaExtra/listar');
+      const response = await api.get(`${API_URL}/listar`);
       setEscalaExtra(response.data);
     } catch (error) {
       setAlertProps({ show: true, type: "error", title: "Erro", message: "Não foi possível carregar os dados." });
@@ -85,7 +88,7 @@ function EscalaExtraList({ ShowForm }) {
   const formatTime = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' }).format(date);
+    return new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit'}).format(date);
   };
   
   const formatarDataCustomizada = (dateString) => {
@@ -114,7 +117,7 @@ function EscalaExtraList({ ShowForm }) {
   }
 
   function DeleteEscalaExtra(idEscalaExtra) {
-    axios.delete(`http://localhost:8080/solicitacaoEscalaExtra/deletar/${idEscalaExtra}`)
+    api.delete(`${API_URL}/deletar/${idEscalaExtra}`)
       .then(() => {
         setAlertProps({
           show: true, type: "success", title: "Sucesso", message: "Registro excluído com sucesso!",
@@ -302,6 +305,10 @@ function EscalaExtraList({ ShowForm }) {
 // Componente do Formulário de Edição
 // =================================================================================
 function EscalaExtraForm({ escala, ShowList }) {
+
+  const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
+  const API_URL = `${API_BASE_URL}/solicitacaoEscalaExtra`;
+
   const [statusDisponiveis, setStatusDisponiveis] = useState([]);
   const [statusSelecionado, setStatusSelecionado] = useState(escala.statusInscricao || "");
   
@@ -316,7 +323,7 @@ function EscalaExtraForm({ escala, ShowList }) {
   useEffect(() => {
     const buscarStatus = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/solicitacaoEscalaExtra/BuscarStatusInscricao');
+        const response = await api.get(`${API_URL}/BuscarStatusInscricao`);
         setStatusDisponiveis(response.data);
       } catch (error) {
         setAlertProps({ show: true, type: "error", title: "Erro", message: "Não foi possível carregar a lista de status." });
@@ -327,8 +334,8 @@ function EscalaExtraForm({ escala, ShowList }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const url = `http://localhost:8080/solicitacaoEscalaExtra/AlterarStatusExtra/${escala.idEscalaExtra}?statusInscricao=${statusSelecionado}`;
-    axios.put(url, {})
+    const url = `${API_URL}/AlterarStatusExtra/${escala.idEscalaExtra}?statusInscricao=${statusSelecionado}`;
+    api.put(url, {})
       .then(() => {
         setAlertProps({
           show: true, type: "success", title: "Sucesso", message: "Status atualizado com sucesso!",

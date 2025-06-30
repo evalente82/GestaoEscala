@@ -51,6 +51,7 @@ using Microsoft.Extensions.Options;
 using GestaoEscalaPermutas.Dominio.Services.Recaptcha.SeuNamespace.Services;
 using GestaoEscalaPermutas.Dominio.Interfaces.LOGs;
 using GestaoEscalaPermutas.Dominio.Services.LOGs;
+using Microsoft.AspNetCore.Authorization;
 
 var cultureInfo = new CultureInfo("pt-BR");
 CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
@@ -232,7 +233,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigin", policy =>
             policy.WithOrigins(
             //"https://front-gestao-escala.fly.dev"
-            "http://192.168.0.10:8080", // Backend local
+            //"http://192.168.0.10:8080", // Backend local
+
+            "http://172.17.16.1:8080", // Backend local
             "http://10.0.2.2:8080",   // Emulador Android
             "http://localhost:5173",   // Frontend
             "http://localhost:8080",   // Swagger local
@@ -273,12 +276,12 @@ builder.Services.AddAuthentication(options =>
 
 // Configurar autorização global (protegendo todas as rotas por padrão)
 
-//builder.Services.AddAuthorization(options =>
-//{
-//    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-//        .RequireAuthenticatedUser()
-//        .Build();
-//});
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
 
 //builder.WebHost.ConfigureKestrel(serverOptions =>
 //{

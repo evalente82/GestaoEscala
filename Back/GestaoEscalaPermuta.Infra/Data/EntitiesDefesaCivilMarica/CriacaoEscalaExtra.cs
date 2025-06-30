@@ -42,5 +42,6 @@ namespace GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica
         public virtual ICollection<CriacaoEscalaExtraCargo> CriacaoEscalaExtraCargos { get; set; }
             = new List<CriacaoEscalaExtraCargo>();
 
+        public virtual ICollection<EscalaExtra> Inscricoes { get; set; } = new List<EscalaExtra>();
     }
 }
