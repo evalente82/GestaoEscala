@@ -367,7 +367,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
                     </html>
                     ";
 
-                    await _emailService.EnviarEmail(funcionario.NmEmail = "endrigo.valente@gmail.com", "Cadastro para Serviço Extra", corpoEmail);
+                    await _emailService.EnviarEmail(funcionario.NmEmail, "Cadastro para Serviço Extra", corpoEmail);
                 }
                 catch (Exception ex)
                 {
@@ -669,13 +669,13 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
                                     // CORREÇÃO AQUI:
                                     // Para testar, passe a string diretamente, sem atribuir.
                                     // ==========================================================
-                                    string emailDestino = "endrigo.valente@gmail.com"; // Para teste
+                                    //string emailDestino = "endrigo.valente@gmail.com"; // Para teste
                                                                                        // string emailDestino = funcionarioPromovido.NmEmail; // Para produção
 
                                     // Log para depuração do corpo do e-mail
                                     _logger.LogInformation("Corpo do e-mail a ser enviado: {CorpoEmail}", corpoEmail);
 
-                                    await _emailService.EnviarEmail(emailDestino, "Vaga de Serviço Extra Confirmada", corpoEmail);
+                                    await _emailService.EnviarEmail(funcionarioPromovido.NmEmail, "Vaga de Serviço Extra Confirmada", corpoEmail);
                                 }
                             }
                             catch (Exception ex)

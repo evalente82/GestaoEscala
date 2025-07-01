@@ -52,6 +52,7 @@ using GestaoEscalaPermutas.Dominio.Services.Recaptcha.SeuNamespace.Services;
 using GestaoEscalaPermutas.Dominio.Interfaces.LOGs;
 using GestaoEscalaPermutas.Dominio.Services.LOGs;
 using Microsoft.AspNetCore.Authorization;
+using System.Threading.RateLimiting;
 
 var cultureInfo = new CultureInfo("pt-BR");
 CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
@@ -67,6 +68,37 @@ IConfiguration configuration = new ConfigurationBuilder()
 builder.Services.AddSingleton(configuration);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+
+//segurança -  limitação de taxa nativa do ASP.NET Core
+builder.Services.AddRateLimiter(options =>
+{
+    // Política global para todas as requisições
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+    {
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Request.Headers.Host.ToString(), // Pode usar IP ou outro identificador
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 100, // Ex: 100 requisições
+                Window = TimeSpan.FromMinutes(1) // a cada 1 minuto
+            });
+    });
+
+    // Política específica e mais restrita para o endpoint de login
+    options.AddPolicy("LoginPolicy", httpContext =>
+    {
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(), // Limita por IP
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5, // Apenas 5 tentativas de login
+                Window = TimeSpan.FromMinutes(1) // por minuto
+            });
+    });
+
+    options.RejectionStatusCode = 429; // Too Many Requests
+});
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -163,11 +195,18 @@ builder.Services.AddSingleton<IMessageBus>(sp =>
     var configuration = sp.GetRequiredService<IConfiguration>();
 
     // Priorizar variáveis de ambiente do Fly.io sobre appsettings
+    //var hostName = Environment.GetEnvironmentVariable("RABBITMQ_HOSTNAME") ?? configuration["RabbitMQ:HostName"] ?? "localhost";
+    //var userName = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? configuration["RabbitMQ:UserName"] ?? "guest";
+    //var password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? configuration["RabbitMQ:Password"] ?? "guest";
+    //var portStr = Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? configuration["RabbitMQ:Port"] ?? "5672";
+    //var vhost = Environment.GetEnvironmentVariable("RABBITMQ_VHOST") ?? configuration["RabbitMQ:VirtualHost"] ?? "/";
     var hostName = Environment.GetEnvironmentVariable("RABBITMQ_HOSTNAME") ?? configuration["RabbitMQ:HostName"] ?? "localhost";
     var userName = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? configuration["RabbitMQ:UserName"] ?? "guest";
     var password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? configuration["RabbitMQ:Password"] ?? "guest";
     var portStr = Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? configuration["RabbitMQ:Port"] ?? "5672";
     var vhost = Environment.GetEnvironmentVariable("RABBITMQ_VHOST") ?? configuration["RabbitMQ:VirtualHost"] ?? "/";
+
+
 
     // Converter porta para int com tratamento de erro
     if (!int.TryParse(portStr, out int port))
@@ -232,18 +271,19 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>
             policy.WithOrigins(
-            //"https://front-gestao-escala.fly.dev"
+            "https://front-gestao-escala.fly.dev",
+            "https://mobile-gestao-escala.fly.dev"
             //"http://192.168.0.10:8080", // Backend local
 
-            "http://172.17.16.1:8080", // Backend local
-            "http://10.0.2.2:8080",   // Emulador Android
-            "http://localhost:5173",   // Frontend
-            "http://localhost:8080",   // Swagger local
+            //"http://172.17.16.1:8080", // Backend local
+            //"http://10.0.2.2:8080",   // Emulador Android
+            //"http://localhost:5173",   // Frontend
+            //"http://localhost:8080",   // Swagger local
             
-            "http://10.0.2.2:7207",   // Emulador Android
-            "http://localhost:5173",   // Frontend
-            "http://localhost:8080",   // Swagger local
-            "http://localhost:3000"    // Flutter Web
+            //"http://10.0.2.2:7207",   // Emulador Android
+            //"http://localhost:5173",   // Frontend
+            //"http://localhost:8080",   // Swagger local
+            //"http://localhost:3000"    // Flutter Web
             )
             .AllowAnyMethod()
             .AllowAnyHeader()
@@ -297,6 +337,7 @@ builder.Services.AddAuthorization(options =>
 try
 {
     var app = builder.Build();
+    app.UseRateLimiter(); //segurança
     app.UseDefaultFiles();
     app.UseStaticFiles();
     app.UseDeveloperExceptionPage();

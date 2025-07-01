@@ -1,4 +1,4 @@
-# Etapa 1: Build
+# Etapa 1: Build (NENHUMA MUDANÇA AQUI)
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
@@ -21,18 +21,33 @@ WORKDIR /app/GestaoEscalaPermutas.Server
 RUN dotnet publish -c Release -o /app/publish --runtime linux-x64 --self-contained false
 
 
-# Etapa 2: Imagem final mínima
+# Etapa 2: Imagem final mínima (APENAS PEQUENOS AJUSTES AQUI)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/publish .
 COPY --from=build /app/GestaoEscalaPermutas.Server/certificado.pfx /app/certificado.pfx
 
-# Configurações extras
+# ==================================================================
+# INÍCIO DAS MINHAS ADIÇÕES
+# ==================================================================
+
+# ADIÇÃO 1: Copiar o script que criamos para dentro da imagem final.
+COPY docker-entrypoint.sh .
+
+# ADIÇÃO 2: Dar permissão de execução para o script.
+RUN chmod +x ./docker-entrypoint.sh
+
+# ==================================================================
+# FIM DAS MINHAS ADIÇÕES
+# ==================================================================
+
+
+# Configurações extras (mantidas como estavam)
 RUN chmod 644 /app/certificado.pfx
 EXPOSE 8080
 
-# Forçar uso de IPv4
+# Forçar uso de IPv4 (mantido como estava)
 ENV ASPNETCORE_URLS=http://+:80
 
-# Iniciar app
-ENTRYPOINT ["dotnet", "GestaoEscalaPermutas.Server.dll"]
+# ALTERAÇÃO: Em vez de iniciar o dotnet diretamente, agora iniciamos o nosso script.
+ENTRYPOINT ["/app/docker-entrypoint.sh"]

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using GestaoEscalaPermutas.Server.Helper;
 using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
 using System.Web;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace GestaoEscalaPermutas.Server.Controllers.Login
 {
@@ -28,6 +29,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.Login
             _funcionarioService = funcionarioService;
         }
 
+        [EnableRateLimiting("LoginPolicy")]
         [AllowAnonymous]
         [HttpPost]
         [Route("Incluir/")]
@@ -45,6 +47,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.Login
             return (loginModel.Valido) ? Ok(loginModel) : BadRequest(new RetornoModel { Valido = false, Mensagem = loginModel.Mensagem });
         }
 
+        [EnableRateLimiting("LoginPolicy")]
         [AllowAnonymous]
         [HttpPost]
         [Route("autenticar")]
@@ -57,6 +60,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.Login
                 : BadRequest(loginResponse);
         }
 
+        [EnableRateLimiting("LoginPolicy")]
         [AllowAnonymous]
         [HttpPost("esqueci-senha")]
         public async Task<IActionResult> EsqueciSenha([FromBody] EsqueciSenhaRequestDTO request)
@@ -69,6 +73,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.Login
             return resultado.Valido ? Ok(new { mensagem = resultado.Mensagem }) : BadRequest(new { mensagem = resultado.Mensagem });
         }
 
+        [EnableRateLimiting("LoginPolicy")]
         [AllowAnonymous]
         [HttpPost("redefinir-senha")]
         public async Task<IActionResult> RedefinirSenha([FromBody] RedefinirSenhaRequestDTO request)
