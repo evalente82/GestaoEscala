@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 import axios from "axios";
-import logo1 from "../../Imagens/vcorpLogo.png";
+import logo1 from "../../Imagens/LogoDefesaCivil.png";
 import "./Login.css";
 import { useTranslation } from 'react-i18next';
 

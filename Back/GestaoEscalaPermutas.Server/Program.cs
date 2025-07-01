@@ -271,6 +271,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>
             policy.WithOrigins(
+            "https://dcmarica.vcorpsistem.com",
+            "https://appdcmarica.vcorpsistem.com",
             "https://front-gestao-escala.fly.dev",
             "https://mobile-gestao-escala.fly.dev"
             //"http://192.168.0.10:8080", // Backend local
@@ -279,7 +281,7 @@ builder.Services.AddCors(options =>
             //"http://10.0.2.2:8080",   // Emulador Android
             //"http://localhost:5173",   // Frontend
             //"http://localhost:8080",   // Swagger local
-            
+
             //"http://10.0.2.2:7207",   // Emulador Android
             //"http://localhost:5173",   // Frontend
             //"http://localhost:8080",   // Swagger local

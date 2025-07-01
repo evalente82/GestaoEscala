@@ -31,8 +31,8 @@ i18n
           "footer.copyright2": "© Todos os direitos reservados à VCORP Sistem",
 
           // Login
-          "main_title": "Vcorp Sistem",
-          "login_title": "VCORP",
+          "main_title": "Defesa Civil de Maricá",
+          "login_title": "Defesa Civil",
           "Login": "Login",
           "Usuário": "Usuário",
           "Senha": "Senha",
