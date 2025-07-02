@@ -275,7 +275,7 @@ builder.Services.AddCors(options =>
             "https://appdcmarica.vcorpsistem.com",
             "https://front-gestao-escala.fly.dev",
             "https://mobile-gestao-escala.fly.dev"
-            //"http://192.168.0.10:8080", // Backend local
+            //"http://192.168.0.10:8080", // Backend local.
 
             //"http://172.17.16.1:8080", // Backend local
             //"http://10.0.2.2:8080",   // Emulador Android

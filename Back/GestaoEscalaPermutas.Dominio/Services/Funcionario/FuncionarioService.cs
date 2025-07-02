@@ -66,7 +66,7 @@ namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
                 }
 
                 // É crucial usar 'await' para obter o objeto Usuario, e não a Task.
-                var usuarioExistente = await _usuarioRepository.BuscarPorIdAsync(id);
+                var usuarioExistente = await _usuarioRepository.VerificarUsuarioPorFuncionarioAsync(id);
                 if (usuarioExistente == null)
                 {
                     // Decide como tratar: pode ser um erro ou talvez o usuário ainda não exista.

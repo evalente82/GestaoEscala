@@ -30,9 +30,10 @@ namespace GestaoEscalaPermutas.Dominio.Services.Usuarios
             return _mapper.Map<UsuarioDTO>(usuarioCriado);
         }
 
-        public async Task<bool> VerificarUsuarioPorFuncionario(Guid idFuncionario)
+        public async Task<UsuarioDTO> VerificarUsuarioPorFuncionario(Guid idFuncionario)
         {
-            return await _usuarioRepository.VerificarUsuarioPorFuncionarioAsync(idFuncionario);
+            var usuario = await _usuarioRepository.VerificarUsuarioPorFuncionarioAsync(idFuncionario);
+            return _mapper.Map<UsuarioDTO>(usuario);
         }
 
         public async Task<UsuarioDTO> Criar(UsuarioDTO usuarioDTO)
