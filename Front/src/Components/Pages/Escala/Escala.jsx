@@ -35,7 +35,7 @@ function EscalaList(props) {
         setIsLoading(true);
         api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
-                console.log(response.data);
+                //console.log(response.data);
                 setEscala(response.data);
             })
             .catch((error) => {
@@ -55,9 +55,9 @@ function EscalaList(props) {
             try {
                 const response = await api.get(`${API_BASE_URL}/departamento/buscarTodos`);
                 setDepartamentos(response.data);
-                console.log('Departamentos', response.data);
+                //console.log('Departamentos', response.data);
             } catch (error) {
-                console.log(error);
+                //console.log(error);
             }
         };
         fetchData();
@@ -68,9 +68,9 @@ function EscalaList(props) {
             try {
                 const response = await api.get(`${API_BASE_URL}/cargo/buscarTodos`);
                 setCargos(response.data);
-                console.log('Cargos', response.data);
+                //console.log('Cargos', response.data);
             } catch (error) {
-                console.log(error);
+                //console.log(error);
             }
         };
         fetchData();
@@ -82,7 +82,7 @@ function EscalaList(props) {
                 const response = await api.get(`${API_BASE_URL}/tipoEscala/buscarTodos`);
                 setTipoEscalas(response.data);
             } catch (error) {
-                console.log(error);
+                //console.log(error);
             }
         };
         fetchData();
@@ -119,7 +119,7 @@ function EscalaList(props) {
         api
             .delete(`${API_URL}/Deletar/${idEscala}`)
             .then((response) => {
-                console.log(response);
+                //console.log(response);
                 setEscala(escala.filter((usuario) => usuario.id !== idEscala));
                 BuscarTodos();
                 setAlertProps({
@@ -388,12 +388,12 @@ function EscalaForm(props) {
     function BuscarDepartametos() {
         api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
-                console.log(`DEPARTAMENTO `);
-                console.log(response.data);
+                //console.log(`DEPARTAMENTO `);
+                //console.log(response.data);
                 setDepartamentos(response.data);
             })
             .catch((error) => {
-                console.log(error);
+                //console.log(error);
             });
     }
     useEffect(() => {
@@ -403,12 +403,12 @@ function EscalaForm(props) {
     function BuscarCargos() {
         api.get(`${API_URL_Carcos}/buscarTodos`)
             .then((response) => {
-                console.log(`CARGOS`);
-                console.log(response.data);
+                //console.log(`CARGOS`);
+                //console.log(response.data);
                 setCargos(response.data);
             })
             .catch((error) => {
-                console.log(error);
+                //console.log(error);
             });
     }
     useEffect(() => {
@@ -418,12 +418,12 @@ function EscalaForm(props) {
     function BuscarTipoEscala() {
         api.get(`${API_URL_TipoEscala}/buscarTodos`)
             .then((response) => {
-                console.log(`TIPOESCALA`);
-                console.log(response.data);
+                //console.log(`TIPOESCALA`);
+                //console.log(response.data);
                 setTipoEscalas(response.data);
             })
             .catch((error) => {
-                console.log(error);
+                //console.log(error);
             });
     }
 
@@ -439,7 +439,7 @@ function EscalaForm(props) {
     const handleSelectChange = (e) => {
         const selectedValue = e.target.value;
         setCargoSelecionado(selectedValue);
-        console.log(selectedValue);
+        //console.log(selectedValue);
     };
 
     const handleSubmit = (e) => {
@@ -456,7 +456,7 @@ function EscalaForm(props) {
                 isAtivo: ativo,
                 isGerada: gerada,
             };
-            console.log("Dados enviados alterar:", data);
+            //console.log("Dados enviados alterar:", data);
             api
                 .patch(
                     `${API_BASE_URL}/escala/Atualizar/` + props.escala.idEscala,
@@ -495,7 +495,7 @@ function EscalaForm(props) {
                 isAtivo: ativo,
                 isGerada: gerada,
             };
-            console.log("Dados enviados:", data);
+            //console.log("Dados enviados:", data);
             api
                 .post(`${API_BASE_URL}/escala/Incluir`, data)
                 .then(() => {
@@ -747,11 +747,11 @@ function MontaEscala(props) {
     function BuscarDepartametos() {
         api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
-                console.log(response.data);
+                //console.log(response.data);
                 setDepartamentos(response.data);
             })
             .catch((error) => {
-                console.log(error);
+                //console.log(error);
             });
     }
     useEffect(() => {
@@ -761,11 +761,11 @@ function MontaEscala(props) {
     function BuscarCargos() {
         api.get(`${API_URL_Cargo}/buscarTodos`)
             .then((response) => {
-                console.log(response.data);
+                //(response.data);
                 setCargos(response.data);
             })
             .catch((error) => {
-                console.log(error);
+                //console.log(error);
             });
     }
     useEffect(() => {
@@ -775,11 +775,11 @@ function MontaEscala(props) {
     function BuscarTipoEscala() {
         api.get(`${API_URL_TipoEscala}/buscarTodos`)
             .then((response) => {
-                console.log(response.data);
+                //(response.data);
                 setTipoEscalas(response.data);
             })
             .catch((error) => {
-                console.log(error);
+                //console.log(error);
             });
     }
 

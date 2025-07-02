@@ -104,9 +104,9 @@ export function Exibicao() {
     }, [escala, departamentos]); // ⚡️ Executa quando escala ou departamentos mudam
     
     useEffect(() => {
-        console.log("📢 Estado atual do showIncluirPopup:", showIncluirPopup);
-        console.log("📢 Funcionários disponíveis:", funcionarios);
-        console.log("📢 Postos disponíveis:", postos);
+        // console.log("📢 Estado atual do showIncluirPopup:", showIncluirPopup);
+        // console.log("📢 Funcionários disponíveis:", funcionarios);
+        // console.log("📢 Postos disponíveis:", postos);
     }, [showIncluirPopup]);    
     
     function BuscaSetores() {
@@ -114,7 +114,7 @@ export function Exibicao() {
             .get(`${API_BASE_URL}/setor/buscarTodos`)
             .then((response) => {
                 setSetores(response.data);
-                console.log("Setores carregados:", response.data);
+                //console.log("Setores carregados:", response.data);
             })
             .catch((error) => {
                 console.error("Erro ao buscar setores:", error);
@@ -129,7 +129,7 @@ export function Exibicao() {
     function BuscarTipoEscalaPorId(idTipoEscala) {
         api.get(`${API_BASE_URL}/tipoEscala/buscarPorId/${idTipoEscala}`)
             .then((response) => {
-                console.log(response.data);
+                //console.log(response.data);
                 setTipoEscala(response.data);
             })
             .catch((error) => {
@@ -148,11 +148,11 @@ export function Exibicao() {
             .get(`${API_BASE_URL}/escala/buscarPorId/${id}`)
             .then((response) => {
                 setEscala(response.data);
-                console.log('buscando escala !');
-                console.log(response.data);
+                // console.log('buscando escala !');
+                // console.log(response.data);
             })
             .catch((error) => {
-                console.log(error);
+                //console.log(error);
             });
     }
 
@@ -161,10 +161,10 @@ export function Exibicao() {
             try {
                 const response = await api.get(`${API_BASE_URL}/departamento/buscarTodos`);
                 setDepartamentos(response.data);
-                console.log('Departamentos');
-                console.log(response.data);
+                // console.log('Departamentos');
+                // console.log(response.data);
             } catch (error) {
-                console.log(error);
+                //console.log(error);
             }
         };
         fetchData();
@@ -185,10 +185,10 @@ export function Exibicao() {
                 );
     
                 setPostos(postosFiltrados);
-                console.log("Postos filtrados:", postosFiltrados);
+                //console.log("Postos filtrados:", postosFiltrados);
             })
             .catch((error) => {
-                console.log(error);
+                //console.log(error);
             });
     }
 
@@ -197,11 +197,11 @@ export function Exibicao() {
             .get(`${API_BASE_URL}/funcionario/buscarTodos`)
             .then((response) => {
                 setFuncionarios(response.data);
-                console.log('Funcionarios');
-                console.log(response.data);
+                // console.log('Funcionarios');
+                // console.log(response.data);
             })
             .catch((error) => {
-                console.log(error);
+                //console.log(error);
             });
     }
 
@@ -210,11 +210,11 @@ export function Exibicao() {
             .get(`${API_BASE_URL}/escalaPronta/buscarPorId/${id}`)
             .then((response) => {
                 setBuscaEscalaPronta(response.data);
-                console.log('buscaEscalaPronta');
-                console.log(response.data);
+                // console.log('buscaEscalaPronta');
+                // console.log(response.data);
             })
             .catch((error) => {
-                console.log(error);
+                //console.log(error);
             });
     }
 
@@ -225,14 +225,14 @@ export function Exibicao() {
 
     const obterIdFuncionarioPorNome = (nome) => {
         if (!funcionarios) {
-            console.log('Lista de funcionários não carregada.');
+            //console.log('Lista de funcionários não carregada.');
             return null; // Retorna null explicitamente
         }
     
-        console.log('Nome do funcionário:', nome);
+        //console.log('Nome do funcionário:', nome);
         const funcionario = funcionarios.find(func => func.nmNome === nome);
         if (!funcionario) {
-            console.log(`Funcionário com o nome "${nome}" não encontrado.`);
+            //console.log(`Funcionário com o nome "${nome}" não encontrado.`);
         }
         return funcionario ? funcionario.idFuncionario : null;
     };
@@ -242,7 +242,7 @@ export function Exibicao() {
         const idDestino = obterIdFuncionarioPorNome(funcionarioDestino);
 
         if (idOrigem && idDestino) {
-            console.log('IDs encontrados:', { idOrigem, idDestino });
+            //console.log('IDs encontrados:', { idOrigem, idDestino });
 
             // Atualiza escalaAlterada trocando os IDs de origem e destino
             const novaEscala = escalaAlterada.map(item => {
@@ -263,9 +263,9 @@ export function Exibicao() {
                 setHighlightedIds([]);
             }, 3000);
 
-            console.log('Escala atualizada com troca completa:', novaEscala);
+            //console.log('Escala atualizada com troca completa:', novaEscala);
         } else {
-            console.log('IDs de origem ou destino não encontrados.');
+            //console.log('IDs de origem ou destino não encontrados.');
         }
     };
 
@@ -281,7 +281,7 @@ export function Exibicao() {
             nmNomeEscala: escala.nmNomeEscala ?? "Nome Escala Padrão" // Define um nome padrão se for null/undefined
         }));
     
-        console.log("📤 Enviando para API (corrigido):", JSON.stringify(escalaAlteradaCorrigida, null, 2));
+        //console.log("📤 Enviando para API (corrigido):", JSON.stringify(escalaAlteradaCorrigida, null, 2));
     
         try {
             const response = await api.put(`${API_BASE_URL}/escala/SalvarEscalaAlterada`, escalaAlteradaCorrigida, {
@@ -290,7 +290,7 @@ export function Exibicao() {
                 },
             });
     
-            console.log("✅ Resposta da API:", response);
+            //console.log("✅ Resposta da API:", response);
     
             if (response.status === 200) {
                 await BuscaEscalaPronta(idEscala);
@@ -352,7 +352,7 @@ export function Exibicao() {
         };
         
         // ✅ Testando a função
-        console.log("🏢 Nome do Departamento:", departamentoDaEscala());
+        //console.log("🏢 Nome do Departamento:", departamentoDaEscala());
         
         const nomeDepartamento = departamentoDaEscala();
         const titulo = [
@@ -531,9 +531,9 @@ export function Exibicao() {
         const ano = data.getUTCFullYear();
         const mes = String(data.getUTCMonth() + 1).padStart(2, "0"); // Usa getUTCMonth para manter o mês em UTC
     
-        console.log(`🟢 Abrindo popup de inclusão para posto: ${idPostoTrabalho}, dia: ${dia}, mês: ${mes}, ano: ${ano}`);
-        console.log("Data bruta:", primeiraOcorrencia.dtDataServico);
-        console.log("Data parseada em UTC:", data.toUTCString());
+        // console.log(`🟢 Abrindo popup de inclusão para posto: ${idPostoTrabalho}, dia: ${dia}, mês: ${mes}, ano: ${ano}`);
+        // console.log("Data bruta:", primeiraOcorrencia.dtDataServico);
+        // console.log("Data parseada em UTC:", data.toUTCString());
     
         setNovoFuncionario({
             idFuncionario: "", // Começa vazio para o usuário escolher

@@ -30,7 +30,7 @@ function CriacaoEscalaExtraList(props) {
                 const response = await api.get(`${API_BASE_URL}/cargo/buscarTodos`);
                 setCargos(response.data);
             } catch (error) {
-                console.log(error);
+                //console.log(error);
             }
         };
         fetchData();
@@ -55,7 +55,7 @@ function CriacaoEscalaExtraList(props) {
     function BuscarTodos() {
         api.get(`${API_URL}/buscarExtras`)
             .then((response) => {
-                console.log('extras',response.data);
+                //console.log('extras',response.data);
                 setEscalasExtras(response.data);
             })
             .catch((error) => {

@@ -62,8 +62,8 @@ function PerfisFuncionalidadesList(props) {
     }
 
     function DesvincularFuncionalidade(idPerfil, idFuncionalidade) {
-        console.log("perfil2", idPerfil);
-        console.log("funcionalidade2", idFuncionalidade);
+        // console.log("perfil2", idPerfil);
+        // console.log("funcionalidade2", idFuncionalidade);
     
         api
             .delete(`${API_URL}/deletar`, {
@@ -204,10 +204,10 @@ function PerfisFuncionalidadesForm(props) {
             (funcionalidade) => funcionalidade.idFuncionalidade === funcionalidadeSelecionada
         )?.nome;
 
-        console.log("Perfil Selecionado (ID):", perfilSelecionado);
-        console.log("Perfil Selecionado (Nome):", perfilSelecionadoNome);
-        console.log("Funcionalidade Selecionada (ID):", funcionalidadeSelecionada);
-        console.log("Funcionalidade Selecionada (Nome):", funcionalidadeSelecionadaNome);
+        // console.log("Perfil Selecionado (ID):", perfilSelecionado);
+        // console.log("Perfil Selecionado (Nome):", perfilSelecionadoNome);
+        // console.log("Funcionalidade Selecionada (ID):", funcionalidadeSelecionada);
+        // console.log("Funcionalidade Selecionada (Nome):", funcionalidadeSelecionadaNome);
 
         try {
             await api.post(`${API_BASE_URL}/perfisFuncionalidades/incluir`, {

@@ -16,7 +16,7 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         const handleBackButton = () => {
-            console.log("🔄 Tentativa de voltar detectada!");
+            //console.log("🔄 Tentativa de voltar detectada!");
             window.location.reload(); // 🔹 Força um recarregamento completo
         };
     
@@ -52,7 +52,7 @@ export function AuthProvider({ children }) {
     };
 
     const logout = () => {
-        console.log("🚪 Realizando logout...");
+        //console.log("🚪 Realizando logout...");
     
         localStorage.clear(); // 🔹 Remove todos os dados do usuário
     

@@ -28,7 +28,7 @@ function FuncionarioList(props) {
                 const response = await api.get(`${API_BASE_URL}/cargo/buscarTodos`);
                 setCargos(response.data);
             } catch (error) {
-                console.log(error);
+                //console.log(error);
             }
         };
         fetchData();
@@ -37,7 +37,7 @@ function FuncionarioList(props) {
     function BuscarFuncionarios() {
         api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
-                console.log(response.data);
+                //console.log(response.data);
                 setFuncionario(response.data);
             })
             .catch((error) => {
@@ -69,7 +69,7 @@ function FuncionarioList(props) {
     useEffect(() => {
         const fetchData = async () => {
             const response = await api.get(`${API_URL}/buscarTodos`);
-            console.log(response.data);
+            //console.log(response.data);
             setFuncionario(response.data);
         };
         fetchData();
@@ -93,7 +93,7 @@ function FuncionarioList(props) {
         api
         .delete(`${API_URL}/Deletar/${idFuncionario}`)
             .then((response) => {
-                console.log(response);
+                //console.log(response);
                 setFuncionario(
                     funcionario.filter((usuario) => usuario.id !== idFuncionario)
                 );
@@ -264,11 +264,11 @@ function FuncionarioForm(props) {
     function BuscarTodos() {
         api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
-                console.log(response.data);
+                //console.log(response.data);
                 setCargos(response.data);
             })
             .catch((error) => {
-                console.log(error);
+                //console.log(error);
             });
     }
 
