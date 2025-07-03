@@ -52,48 +52,29 @@ namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
 
             public async Task<FuncionarioDTO> Alterar(Guid id, FuncionarioDTO funcionarioDTO)
             {
-                // --- 1. VALIDAÇÃO INICIAL ---
                 if (id == Guid.Empty || id != funcionarioDTO.IdFuncionario)
                 {
                     return new FuncionarioDTO { valido = false, mensagem = "ID inválido ou inconsistente." };
                 }
 
-                // --- 2. BUSCAR AMBAS AS ENTIDADES QUE SERÃO ALTERADAS ---
                 var funcionarioExistente = await _funcionarioRepository.ObterPorIdAsync(id);
                 if (funcionarioExistente == null)
                 {
                     return new FuncionarioDTO { valido = false, mensagem = "Funcionário não encontrado." };
                 }
 
-                // É crucial usar 'await' para obter o objeto Usuario, e não a Task.
+                var teste = _mapper.Map(funcionarioDTO, funcionarioExistente);
+
+                await _funcionarioRepository.AlterarAsync(teste);
+
                 var usuarioExistente = await _usuarioRepository.VerificarUsuarioPorFuncionarioAsync(id);
-                if (usuarioExistente == null)
+                if (usuarioExistente != null)
                 {
-                    // Decide como tratar: pode ser um erro ou talvez o usuário ainda não exista.
-                    // Por segurança, vamos tratar como um erro.
-                    return new FuncionarioDTO { valido = false, mensagem = "Usuário correspondente não encontrado." };
+                    _mapper.Map(funcionarioDTO, funcionarioExistente);
+                    usuarioExistente.Email = funcionarioExistente.NmEmail;
+                    usuarioExistente.Nome = funcionarioExistente.NmNome;
+                    await _usuarioRepository.AtualizarAsync(usuarioExistente);                    
                 }
-
-
-                // --- 3. ATUALIZAR OS OBJETOS EM MEMÓRIA ---
-
-                // a) Usa o AutoMapper para atualizar o funcionário com os dados do DTO.
-                _mapper.Map(funcionarioDTO, funcionarioExistente);
-
-                // b) Atualiza manualmente as propriedades do usuário com base no funcionário já atualizado.
-                //    Não precisamos criar um novo DTO para isso.
-                usuarioExistente.Email = funcionarioExistente.NmEmail;
-                usuarioExistente.Nome = funcionarioExistente.NmNome;
-                // Se houver outras propriedades para sincronizar, adicione-as aqui.
-
-
-                // --- 4. PREPARAR AS ALTERAÇÕES PARA SEREM SALVAS ---
-                // Apenas informa ao repositório que as entidades foram modificadas.
-                // Estes métodos não devem chamar SaveChanges() se você usa Unit of Work.
-                await _funcionarioRepository.AlterarAsync(funcionarioExistente);
-                await _usuarioRepository.AtualizarAsync(usuarioExistente);
-                
-                // --- 6. RETORNAR O RESULTADO ---
                 return _mapper.Map<FuncionarioDTO>(funcionarioExistente);
             }
 
@@ -119,6 +100,13 @@ namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
                     return new FuncionarioDTO { valido = false, mensagem = "Funcionário não encontrado." };
 
                 await _funcionarioRepository.RemoverAsync(id);
+
+                var usuarioExistente = await _usuarioRepository.VerificarUsuarioPorFuncionarioAsync(id);
+                if (usuarioExistente != null)
+                {
+                    _mapper.Map(funcionarioExistente, funcionarioExistente);
+                    await _usuarioRepository.DeletarAsync(id);
+                }
                 return new FuncionarioDTO { valido = true, mensagem = "Funcionário deletado com sucesso." };
             }
 
