@@ -10,6 +10,7 @@ using GestaoEscalaPermutas.Dominio.DTO.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
 using GestaoEscalaPermutas.Server.Models.EscalaPronta;
 using System.Globalization;
+using GestaoEscalaPermutas.Dominio.Interfaces.Feriados;
 
 namespace GestaoEscalaPermutas.Server.Controllers.Escala
 {
@@ -23,8 +24,15 @@ namespace GestaoEscalaPermutas.Server.Controllers.Escala
         private readonly IFuncionarioService _funcionarioService;
         private readonly ITipoEscalaService _tipoEscalaService;
         private readonly IMapper _mapper;
+        private readonly IFeriadoService _feriadoService;
 
-        public EscalaController(IEscalaService escalaService, IEscalaProntaService escalaProntaService, IMapper mapper, IPostoTrabalhoService postoTrabalhoService, IFuncionarioService funcionarioService, ITipoEscalaService tipoEscalaService) 
+        public EscalaController(IEscalaService escalaService, 
+            IEscalaProntaService escalaProntaService, 
+            IMapper mapper, 
+            IPostoTrabalhoService postoTrabalhoService, 
+            IFuncionarioService funcionarioService, 
+            ITipoEscalaService tipoEscalaService,
+            IFeriadoService feriadoService) 
         {
             _escalaService = escalaService;
             _escalaProntaService = escalaProntaService;
@@ -32,6 +40,7 @@ namespace GestaoEscalaPermutas.Server.Controllers.Escala
             _postoTrabalhoService = postoTrabalhoService;
             _funcionarioService = funcionarioService;
             _tipoEscalaService = tipoEscalaService;
+            _feriadoService = feriadoService;
         }
         
         [HttpPost]
