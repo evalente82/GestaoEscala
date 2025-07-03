@@ -26,7 +26,7 @@ function CargoList(props) {
     function BuscarTodos() {
         api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
-                console.log(response.data);
+                //console.log(response.data);
                 setCargo(response.data);
             })
             .catch((error) => {
@@ -43,7 +43,7 @@ function CargoList(props) {
     useEffect(() => {
         const fetchData = async () => {
             const response = await api.get(`${API_URL}/buscarTodos`);
-            console.log(response.data);
+            //console.log(response.data);
             setCargo(response.data);
         };
         fetchData();
@@ -67,7 +67,7 @@ function CargoList(props) {
         api
             .delete(`${API_BASE_URL}/cargo/Deletar/${idCargo}`)
             .then((response) => {
-                console.log(response);
+                //console.log(response);
                 setCargo(
                     cargo.filter((usuario) => usuario.id !== idCargo)
                 );

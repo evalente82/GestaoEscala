@@ -41,7 +41,7 @@ function RedefinirSenha() {
     };
 
     useEffect(() => {
-        console.log("Token recebido na URL:", token);
+        //console.log("Token recebido na URL:", token);
     }, [token]);
 
     return (

@@ -26,7 +26,7 @@ function TipoEscalaList(props) {
     function BuscarTodos() {
         api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
-                console.log(response.data);
+                //console.log(response.data);
                 setTipoEscala(response.data);
             })
             .catch((error) => {
@@ -43,7 +43,7 @@ function TipoEscalaList(props) {
     useEffect(() => {
         const fetchData = async () => {
             const response = await api.get(`${API_URL}/buscarTodos`);
-            console.log(response.data);
+            //console.log(response.data);
             setTipoEscala(response.data);
         };
         fetchData();
@@ -67,7 +67,7 @@ function TipoEscalaList(props) {
         api
             .delete(`${API_URL}/Deletar/${idTipoEscala}`)
             .then((response) => {
-                console.log(response);
+                //console.log(response);
                 setTipoEscala(
                     tipoEscala.filter((usuario) => usuario.id !== idTipoEscala)
                 );

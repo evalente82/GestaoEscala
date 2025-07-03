@@ -9,6 +9,6 @@ namespace GestaoEscalaPermutas.Repository.Interfaces
         Task<IEnumerable<Usuarios>> BuscarTodosAsync();
         Task<Usuarios> AtualizarAsync(Usuarios usuario);
         Task<bool> DeletarAsync(Guid id);
-        Task<bool> VerificarUsuarioPorFuncionarioAsync(Guid idFuncionario);
+        Task<Usuarios?> VerificarUsuarioPorFuncionarioAsync(Guid idFuncionario);
     }
 }

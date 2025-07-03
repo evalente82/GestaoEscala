@@ -38,7 +38,7 @@ function PermutaList(props) {
     function BuscarTodos() {
         api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
-                console.log(response.data);
+                //console.log(response.data);
                 setPermuta(response.data);
             })
             .catch((error) => {
@@ -55,7 +55,7 @@ function PermutaList(props) {
     function BuscarEscalas() {
         api.get(`${API_BASE_URL}/escala/buscarTodos`)
             .then((response) => {
-                console.log("Escalas carregadas:", response.data);
+                //console.log("Escalas carregadas:", response.data);
                 setEscalas(response.data);
             })
             .catch((error) => {
@@ -160,7 +160,7 @@ function PermutaList(props) {
     function DeletePermuta(idPermuta) {
         api.delete(`${API_BASE_URL}/permutas/Deletar/${idPermuta}`)
             .then((response) => {
-                console.log(response);
+                //console.log(response);
                 setPermuta(permuta.filter((p) => p.id !== idPermuta));
                 BuscarTodos();
                 setAlertProps({
@@ -186,7 +186,7 @@ function PermutaList(props) {
     function AprovarPermuta(idPermuta) {
         api.put(`${API_BASE_URL}/permutas/Aprovar/${idPermuta}`)
             .then((response) => {
-                console.log(response);
+                //console.log(response);
                 setPermuta(permuta.filter((p) => p.id !== idPermuta));
                 BuscarTodos();
                 setAlertProps({
@@ -212,7 +212,7 @@ function PermutaList(props) {
     function ReprovarPermuta(idPermuta) {
         api.put(`${API_BASE_URL}/permutas/Recusar/${idPermuta}`)
             .then((response) => {
-                console.log(response);
+                //(response);
                 setPermuta(permuta.filter((p) => p.id !== idPermuta));
                 BuscarTodos();
                 setAlertProps({

@@ -4,7 +4,6 @@ build
 .git
 *.log
 *.md
-public
 __tests__
 coverage
 yarn-error.log

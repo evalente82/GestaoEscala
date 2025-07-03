@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
 using GestaoEscalaPermutas.Dominio.DTO.PostoTrabalho;
+using GestaoEscalaPermutas.Dominio.DTO.Usuario;
 using GestaoEscalaPermutas.Dominio.Entities;
 using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
 using GestaoEscalaPermutas.Infra.Data.Context;
 using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
+using GestaoEscalaPermutas.Repository.Implementations;
 using GestaoEscalaPermutas.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
@@ -18,11 +20,13 @@ namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
         {
             private readonly IFuncionarioRepository _funcionarioRepository;
             private readonly IMapper _mapper;
+            private readonly IUsuarioRepository _usuarioRepository;
 
-            public FuncionarioService(IFuncionarioRepository funcionarioRepository, IMapper mapper)
+            public FuncionarioService(IFuncionarioRepository funcionarioRepository, IMapper mapper, IUsuarioRepository usuarioRepository)
             {
                 _funcionarioRepository = funcionarioRepository;
                 _mapper = mapper;
+                _usuarioRepository = usuarioRepository;
             }
 
             public async Task<FuncionarioDTO> Incluir(FuncionarioDTO funcionarioDTO)
@@ -48,15 +52,48 @@ namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
 
             public async Task<FuncionarioDTO> Alterar(Guid id, FuncionarioDTO funcionarioDTO)
             {
-                if (id == Guid.Empty)
-                    return new FuncionarioDTO { valido = false, mensagem = "Id fora do Range." };
+                // --- 1. VALIDAÇÃO INICIAL ---
+                if (id == Guid.Empty || id != funcionarioDTO.IdFuncionario)
+                {
+                    return new FuncionarioDTO { valido = false, mensagem = "ID inválido ou inconsistente." };
+                }
 
+                // --- 2. BUSCAR AMBAS AS ENTIDADES QUE SERÃO ALTERADAS ---
                 var funcionarioExistente = await _funcionarioRepository.ObterPorIdAsync(id);
                 if (funcionarioExistente == null)
+                {
                     return new FuncionarioDTO { valido = false, mensagem = "Funcionário não encontrado." };
+                }
 
+                // É crucial usar 'await' para obter o objeto Usuario, e não a Task.
+                var usuarioExistente = await _usuarioRepository.VerificarUsuarioPorFuncionarioAsync(id);
+                if (usuarioExistente == null)
+                {
+                    // Decide como tratar: pode ser um erro ou talvez o usuário ainda não exista.
+                    // Por segurança, vamos tratar como um erro.
+                    return new FuncionarioDTO { valido = false, mensagem = "Usuário correspondente não encontrado." };
+                }
+
+
+                // --- 3. ATUALIZAR OS OBJETOS EM MEMÓRIA ---
+
+                // a) Usa o AutoMapper para atualizar o funcionário com os dados do DTO.
                 _mapper.Map(funcionarioDTO, funcionarioExistente);
+
+                // b) Atualiza manualmente as propriedades do usuário com base no funcionário já atualizado.
+                //    Não precisamos criar um novo DTO para isso.
+                usuarioExistente.Email = funcionarioExistente.NmEmail;
+                usuarioExistente.Nome = funcionarioExistente.NmNome;
+                // Se houver outras propriedades para sincronizar, adicione-as aqui.
+
+
+                // --- 4. PREPARAR AS ALTERAÇÕES PARA SEREM SALVAS ---
+                // Apenas informa ao repositório que as entidades foram modificadas.
+                // Estes métodos não devem chamar SaveChanges() se você usa Unit of Work.
                 await _funcionarioRepository.AlterarAsync(funcionarioExistente);
+                await _usuarioRepository.AtualizarAsync(usuarioExistente);
+                
+                // --- 6. RETORNAR O RESULTADO ---
                 return _mapper.Map<FuncionarioDTO>(funcionarioExistente);
             }
 

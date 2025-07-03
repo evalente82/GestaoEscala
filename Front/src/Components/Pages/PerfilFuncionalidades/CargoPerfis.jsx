@@ -24,11 +24,11 @@ function CargoPerfisList(props) {
     const API_URL = `${API_BASE_URL}/cargoPerfis`;
 
     function BuscarCargoPerfis() {
-        console.log("Buscando Cargo e perfis...");
+        //console.log("Buscando Cargo e perfis...");
         api
             .get(`${API_URL}/buscarTodos`)
             .then((response) => {
-                console.log("Dados recebidos da API:", response.data);
+                //console.log("Dados recebidos da API:", response.data);
                 setCargoPerfis(response.data);
             })
             .catch((error) => {
@@ -51,12 +51,12 @@ function CargoPerfisList(props) {
         fp.nomeCargo?.toLowerCase().includes(searchText.toLowerCase())
     );
 
-    console.log("Cargo e Perfis filtrados:", filteredCargoPerfis);
+    //console.log("Cargo e Perfis filtrados:", filteredCargoPerfis);
 
     function handleDelete(idCargo, idPerfil) {
-        console.log("Iniciando exclusão do perfil...");
-        console.log("ID Cargo:", idCargo);
-        console.log("ID Perfil:", idPerfil);
+        // console.log("Iniciando exclusão do perfil...");
+        // console.log("ID Cargo:", idCargo);
+        // console.log("ID Perfil:", idPerfil);
 
         setAlertProps({
             show: true,
@@ -72,9 +72,9 @@ function CargoPerfisList(props) {
     }
 
     function DesvincularPerfil(idCargo, idPerfil) {
-        console.log("Chamando API para desvincular perfil...");
-        console.log("ID Cargo:", idCargo);
-        console.log("ID Perfil:", idPerfil);
+        // console.log("Chamando API para desvincular perfil...");
+        // console.log("ID Cargo:", idCargo);
+        // console.log("ID Perfil:", idPerfil);
 
         api
             .delete(`${API_URL}/deletar`, {
@@ -84,7 +84,7 @@ function CargoPerfisList(props) {
                 },
             })
             .then(() => {
-                console.log("Perfil desvinculado com sucesso!");
+                //console.log("Perfil desvinculado com sucesso!");
                 BuscarCargoPerfis();
                 setAlertProps({
                     show: true,
@@ -201,14 +201,14 @@ function CargoPerfisForm(props) {
     useEffect(() => {
         api.get(`${API_BASE_URL}/cargo/buscarTodos`)
             .then((response) => {
-                console.log("Dados de Cargos recebidossssss:", response.data);
+                //console.log("Dados de Cargos recebidossssss:", response.data);
                 setCargos(response.data);
             })
             .catch((error) => console.error("Erro ao buscar Cargos:", error));
 
         api.get(`${API_BASE_URL}/perfil/buscarTodos`)
             .then((response) => {
-                console.log("Dados de perfis recebidos:", response.data);
+                //console.log("Dados de perfis recebidos:", response.data);
                 setPerfis(response.data);
             })
             .catch((error) => console.error("Erro ao buscar perfis:", error));
@@ -227,8 +227,8 @@ function CargoPerfisForm(props) {
     }));
 
     function SelectComFiltro({ options, value, onChange, placeholder }) {
-    console.log("Opções disponíveis para o select:", options);
-    console.log("Valor recebido no value:", value);
+    // console.log("Opções disponíveis para o select:", options);
+    // console.log("Valor recebido no value:", value);
 
     return (
         <Select
@@ -236,7 +236,7 @@ function CargoPerfisForm(props) {
             placeholder={placeholder}
             value={options.find((o) => o.value === value) || null}
             onChange={(selectedOption) => {
-                console.log("Opção selecionada:", selectedOption);
+                //console.log("Opção selecionada:", selectedOption);
                 onChange(selectedOption ? selectedOption.value : null);
             }}
             isClearable
@@ -257,10 +257,10 @@ const handleSubmit = async (e) => {
         (cargo) => cargo.idCargo === cargoSelecionado
     )?.nmNome || "Cargo não encontrado"; // Ajustado para evitar undefined
 
-    console.log("Cargo Selecionado (ID):", cargoSelecionado);
-    console.log("Cargo Selecionado (Nome):", cargoSelecionadoNome);
-    console.log("Perfil Selecionado (ID):", perfilSelecionado);
-    console.log("Perfil Selecionado (Nome):", perfilSelecionadoNome);
+    // console.log("Cargo Selecionado (ID):", cargoSelecionado);
+    // console.log("Cargo Selecionado (Nome):", cargoSelecionadoNome);
+    // console.log("Perfil Selecionado (ID):", perfilSelecionado);
+    // console.log("Perfil Selecionado (Nome):", perfilSelecionadoNome);
 
     // Validar se os valores são válidos antes da requisição
     if (!cargoSelecionado || !perfilSelecionado) {
@@ -282,7 +282,7 @@ const handleSubmit = async (e) => {
             nomePerfil: perfilSelecionadoNome,
         });
 
-        console.log("Resposta da API:", response.data);
+        //console.log("Resposta da API:", response.data);
 
         setAlertProps({
             show: true,

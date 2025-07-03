@@ -26,10 +26,10 @@ function SetorList(props) {
     });
 
     function BuscarTodos() {
-        console.log("[LOG] Buscando todos os setores...");
+        //console.log("[LOG] Buscando todos os setores...");
         api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
-                console.log("[LOG] Setores recebidos do backend:", response.data);
+                //console.log("[LOG] Setores recebidos do backend:", response.data);
                 setSetores(response.data);
             })
             .catch((error) => {
@@ -49,7 +49,7 @@ function SetorList(props) {
     }, []);
 
     function handleDelete(id) {
-        console.log("[LOG] Tentando excluir setor:", id);
+        //console.log("[LOG] Tentando excluir setor:", id);
         setAlertProps({
             show: true,
             type: "confirm",
@@ -64,11 +64,11 @@ function SetorList(props) {
     }
 
     function DeleteSetor(idSetor) {
-        console.log("[LOG] Enviando requisição para deletar setor:", idSetor);
+        //console.log("[LOG] Enviando requisição para deletar setor:", idSetor);
         api
             .delete(`${API_URL}/Deletar/${idSetor}`)
             .then(() => {
-                console.log("[LOG] Setor deletado com sucesso.");
+                //console.log("[LOG] Setor deletado com sucesso.");
                 setSetores(setores.filter((s) => s.idSetor !== idSetor));
                 BuscarTodos();
                 setAlertProps({
@@ -113,7 +113,7 @@ function SetorList(props) {
                 type="text"
                 value={searchText}
                 onChange={(e) => {
-                    console.log("[LOG] Pesquisando setor:", e.target.value);
+                    //console.log("[LOG] Pesquisando setor:", e.target.value);
                     setSearchText(e.target.value);
                 }}
                 placeholder="Pesquisar..."
@@ -139,7 +139,7 @@ function SetorList(props) {
                             </td>
                             <td>
                                 <button onClick={() => {
-                                    console.log("[LOG] Editando setor:", setor);
+                                    //console.log("[LOG] Editando setor:", setor);
                                     props.ShowForm(setor);
                                 }} className="btn btn-primary btn-sm me-2">
                                     Editar
@@ -191,12 +191,12 @@ function SetorForm(props) {
         e.preventDefault();
         const data = { nmNome: nome, nmDescricao: descricao, isAtivo: ativo };
     
-        console.log("[LOG] Enviando dados para salvar setor:", data);
+        //console.log("[LOG] Enviando dados para salvar setor:", data);
     
         try {
             if (setorInicial.idSetor) {
                 await api.patch(`${API_BASE_URL}/setor/Atualizar/${setorInicial.idSetor}`, data);
-                console.log("[LOG] Setor atualizado com sucesso.");
+                //console.log("[LOG] Setor atualizado com sucesso.");
     
                 setAlertProps({
                     show: true,
@@ -211,7 +211,7 @@ function SetorForm(props) {
     
             } else {
                 await api.post(`${API_BASE_URL}/setor/Incluir`, data);
-                console.log("[LOG] Novo setor cadastrado com sucesso.");
+                //console.log("[LOG] Novo setor cadastrado com sucesso.");
     
                 setAlertProps({
                     show: true,

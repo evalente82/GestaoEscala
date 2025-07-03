@@ -28,7 +28,7 @@ function PostoTrabalhoList(props) {
                 const response = await api.get(`${API_BASE_URL}/departamento/buscarTodos`);
                 setDepartamentos(response.data);
             } catch (error) {
-                console.log(error);
+                //console.log(error);
             }
         };
         fetchData();
@@ -36,7 +36,7 @@ function PostoTrabalhoList(props) {
     function BuscarPostos() {
         api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
-                console.log(response.data);
+                //console.log(response.data);
                 setPosto(response.data);
             })
             .catch((error) => {
@@ -57,7 +57,7 @@ function PostoTrabalhoList(props) {
     function BuscarSetor() {
         api.get(`${API_BASE_URL}/setor/buscarTodos`)
             .then((response) => {
-                console.log(response.data);
+                //console.log(response.data);
                 setSetor(response.data);
             })
             .catch((error) => {
@@ -86,7 +86,7 @@ function PostoTrabalhoList(props) {
     useEffect(() => {
         const fetchData = async () => {
             const response = await api.get(`${API_URL}/buscarTodos`);
-            console.log(response.data);
+           // console.log(response.data);
             setPosto(response.data);
         };
         fetchData();
@@ -111,7 +111,7 @@ function PostoTrabalhoList(props) {
         api
             .delete(`${API_URL}/Deletar/${idPostoTrabalho}`)
             .then((response) => {
-                console.log(response);
+               // console.log(response);
                 setPosto(
                     posto.filter((usuario) => usuario.id !== idPostoTrabalho)
                 );
@@ -271,11 +271,11 @@ function PostoTrabalhoForm(props) {
     function BuscarTodos() {
         api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
-                console.log(response.data);
+                //console.log(response.data);
                 setDepartamentos(response.data);
             })
             .catch((error) => {
-                console.log(error);
+                //console.log(error);
             });
     }
 
@@ -286,11 +286,11 @@ function PostoTrabalhoForm(props) {
     function BuscarSetor() {
         api.get(`${API_URL_Setor}/buscarTodos`)
             .then((response) => {
-                console.log(response.data);
+                //console.log(response.data);
                 setSetor(response.data);
             })
             .catch((error) => {
-                console.log(error);
+                //console.log(error);
             });
     }
 

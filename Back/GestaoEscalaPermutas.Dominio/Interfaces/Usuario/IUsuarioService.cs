@@ -14,5 +14,6 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.Usuario
         Task<IEnumerable<UsuarioDTO>> BuscarTodos();
         Task<UsuarioDTO> Atualizar(UsuarioDTO usuario);
         Task<bool> Deletar(Guid id);
+        Task<UsuarioDTO> VerificarUsuarioPorFuncionario(Guid idFuncionario);
     }
 }

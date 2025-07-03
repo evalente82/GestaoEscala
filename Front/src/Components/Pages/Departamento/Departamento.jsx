@@ -24,7 +24,7 @@ function DepartamentoList(props) {
     function BuscarTodos() {
         api.get(`${API_URL}/buscarTodos`)
             .then((response) => {
-                console.log(response.data);
+                //console.log(response.data);
                 setDepartamento(response.data);
             })
             .catch((error) => {
@@ -40,7 +40,7 @@ function DepartamentoList(props) {
     useEffect(() => {
         const fetchData = async () => {
             const response = await api.get(`${API_URL}/buscarTodos`);
-            console.log(response.data);
+            //console.log(response.data);
             setDepartamento(response.data);
         };
         fetchData();

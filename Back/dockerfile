@@ -27,27 +27,22 @@ WORKDIR /app
 COPY --from=build /app/publish .
 COPY --from=build /app/GestaoEscalaPermutas.Server/certificado.pfx /app/certificado.pfx
 
-# ==================================================================
-# INÍCIO DAS MINHAS ADIÇÕES
-# ==================================================================
 
 # ADIÇÃO 1: Copiar o script que criamos para dentro da imagem final.
 COPY docker-entrypoint.sh .
 
-# ADIÇÃO 2: Dar permissão de execução para o script.
+# ==================================================================
+# CORREÇÃO AQUI: Garante que o script tenha o formato de linha correto (LF)
+RUN sed -i 's/\r$//' ./docker-entrypoint.sh
+# ==================================================================
+
+# Dá permissão de execução para o script
 RUN chmod +x ./docker-entrypoint.sh
 
-# ==================================================================
-# FIM DAS MINHAS ADIÇÕES
-# ==================================================================
-
-
-# Configurações extras (mantidas como estavam)
+# Configurações extras
 RUN chmod 644 /app/certificado.pfx
 EXPOSE 8080
-
-# Forçar uso de IPv4 (mantido como estava)
 ENV ASPNETCORE_URLS=http://+:80
 
-# ALTERAÇÃO: Em vez de iniciar o dotnet diretamente, agora iniciamos o nosso script.
+# Inicia o container usando o script
 ENTRYPOINT ["/app/docker-entrypoint.sh"]

@@ -49,9 +49,9 @@ namespace GestaoEscalaPermutas.Repository.Implementations
             return true;
         }
 
-        public async Task<bool> VerificarUsuarioPorFuncionarioAsync(Guid idFuncionario)
+        public Task<Usuarios?> VerificarUsuarioPorFuncionarioAsync(Guid idFuncionario)
         {
-            return await _context.Usuario.AnyAsync(u => u.IdFuncionario == idFuncionario);
+            return  _context.Usuario.FirstOrDefaultAsync(u => u.IdFuncionario == idFuncionario);
         }
     }
 }

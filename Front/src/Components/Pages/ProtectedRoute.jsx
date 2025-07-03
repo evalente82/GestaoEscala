@@ -7,7 +7,7 @@ const ProtectedRoute = () => {
 
     useEffect(() => {
         if (!token) {
-            console.log("🔐 Usuário não autenticado! Redirecionando...");
+            //console.log("🔐 Usuário não autenticado! Redirecionando...");
             window.location.replace("/"); // 🔹 Garante que o usuário seja redirecionado sem ver a interface
         }
     }, [token]);
