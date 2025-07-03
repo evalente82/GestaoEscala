@@ -51,7 +51,6 @@ using Microsoft.Extensions.Options;
 using GestaoEscalaPermutas.Dominio.Services.Recaptcha.SeuNamespace.Services;
 using GestaoEscalaPermutas.Dominio.Interfaces.LOGs;
 using GestaoEscalaPermutas.Dominio.Services.LOGs;
-using Microsoft.AspNetCore.Authorization;
 using System.Threading.RateLimiting;
 
 var cultureInfo = new CultureInfo("pt-BR");
@@ -59,16 +58,34 @@ CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
 CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 var builder = WebApplication.CreateBuilder(args);
-var connString = builder.Configuration.GetConnectionString("EmUso");
 
-IConfiguration configuration = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
-    .Build();
-builder.Services.AddSingleton(configuration);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin", policy =>
+            policy.WithOrigins(
+            //"https://dcmarica.vcorpsistem.com",
+            //"https://appdcmarica.vcorpsistem.com",
+            //"https://front-gestao-escala.fly.dev",
+            //"https://mobile-gestao-escala.fly.dev"
+            "http://192.168.0.10:8080", // Backend local.
+
+            "http://172.17.16.1:8080", // Backend local
+            "http://10.0.2.2:8080",   // Emulador Android
+            "http://localhost:5173",   // Frontend
+            "http://localhost:8080",   // Swagger local
+
+            "http://10.0.2.2:7207",   // Emulador Android
+            "http://localhost:5173",   // Frontend
+            "http://localhost:8080",   // Swagger local
+            "http://localhost:3000"    // Flutter Web
+            )
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+});
 
 //segurança -  limitação de taxa nativa do ASP.NET Core
 builder.Services.AddRateLimiter(options =>
@@ -99,7 +116,6 @@ builder.Services.AddRateLimiter(options =>
 
     options.RejectionStatusCode = 429; // Too Many Requests
 });
-
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -146,6 +162,26 @@ FirebaseApp.Create(new AppOptions()
     Credential = GoogleCredential.FromFile(Path.Combine(Directory.GetCurrentDirectory(), "firebase-adminsdk.json"))
 });
 
+// Configurar autenticação JWT
+var chaveSecreta = "g9h0N7quw2S8mJAF8LKxUF0Os3leG+NDJoypOcWohOEa"; // Mesma chave usada no LoginService
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = "gestao-escala-backend",  // Mesmo valor usado no token JWT
+        ValidAudience = "gestao-escala-frontend",  // Mesmo valor usado no token JWT
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(chaveSecreta))
+    };
+});
+
 #region Injecao de dependencias
 builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
@@ -189,68 +225,41 @@ builder.Services.AddHttpClient(); // Adiciona IHttpClientFactory ao container
 
 #endregion
 
-
+// --- Configuração do RabbitMQ Simplificada ---
 builder.Services.AddSingleton<IMessageBus>(sp =>
 {
-    var configuration = sp.GetRequiredService<IConfiguration>();
+    var rabbitMqConfig = builder.Configuration.GetSection("RabbitMQ");
+    var hostName = Environment.GetEnvironmentVariable("RABBITMQ_HOSTNAME") ?? rabbitMqConfig["HostName"];
 
-    // Priorizar variáveis de ambiente do Fly.io sobre appsettings
-    //var hostName = Environment.GetEnvironmentVariable("RABBITMQ_HOSTNAME") ?? configuration["RabbitMQ:HostName"] ?? "localhost";
-    //var userName = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? configuration["RabbitMQ:UserName"] ?? "guest";
-    //var password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? configuration["RabbitMQ:Password"] ?? "guest";
-    //var portStr = Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? configuration["RabbitMQ:Port"] ?? "5672";
-    //var vhost = Environment.GetEnvironmentVariable("RABBITMQ_VHOST") ?? configuration["RabbitMQ:VirtualHost"] ?? "/";
-    var hostName = Environment.GetEnvironmentVariable("RABBITMQ_HOSTNAME") ?? configuration["RabbitMQ:HostName"] ?? "localhost";
-    var userName = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? configuration["RabbitMQ:UserName"] ?? "guest";
-    var password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? configuration["RabbitMQ:Password"] ?? "guest";
-    var portStr = Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? configuration["RabbitMQ:Port"] ?? "5672";
-    var vhost = Environment.GetEnvironmentVariable("RABBITMQ_VHOST") ?? configuration["RabbitMQ:VirtualHost"] ?? "/";
-
-
-
-    // Converter porta para int com tratamento de erro
-    if (!int.TryParse(portStr, out int port))
+    if (string.IsNullOrEmpty(hostName))
     {
-        port = 5672; // Porta padrão do RabbitMQ
-        Console.WriteLine($"Porta inválida '{portStr}'. Usando padrão: 5672.");
+        Console.WriteLine("Configuração do RabbitMQ não encontrada. Mensageria desativada.");
+        return null;
     }
-
-    Console.WriteLine($"Tentando conectar ao RabbitMQ - Host: {hostName}, User: {userName}, Port: {port}, VHost: {vhost}");
 
     try
     {
         var factory = new ConnectionFactory
         {
             HostName = hostName,
-            UserName = userName,
-            Password = password,
-            Port = port,
-            VirtualHost = vhost
+            UserName = rabbitMqConfig["UserName"],
+            Password = rabbitMqConfig["Password"],
+            VirtualHost = rabbitMqConfig["VirtualHost"],
+            Port = 5672
         };
         var connection = factory.CreateConnection();
-        Console.WriteLine("Conexão com RabbitMQ estabelecida com sucesso!");
-        return new RabbitMqMessageBus(connection); // Passe a conexão, não apenas o hostname
+        Console.WriteLine($"Conexão com RabbitMQ em '{hostName}' estabelecida com sucesso!");
+        return new RabbitMqMessageBus(connection);
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Erro ao conectar ao RabbitMQ: {ex.Message}. Continuando sem mensageria.");
-        return null; // Fallback para evitar crash
+        Console.WriteLine($"Erro ao conectar ao RabbitMQ em '{hostName}': {ex.Message}. Mensageria desativada.");
+        return null;
     }
 });
 
 builder.Services.AddHostedService<UsuarioMessageConsumer>();
 
-
-// Definir ambiente de produção
-var environment = builder.Environment.EnvironmentName;
-var configuracoes = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-    .AddJsonFile($"appsettings.{environment}.json", optional: true)
-    .AddEnvironmentVariables()
-    .Build();
-
-// Configurar as opções do reCAPTCHA
 // Configurar RecaptchaSettings
 builder.Services.AddOptions<RecaptchaSettings>()
     .Bind(builder.Configuration.GetSection("RecaptchaSettings"));
@@ -260,78 +269,17 @@ builder.Services.Configure<KestrelServerOptions>(options =>
     options.AllowSynchronousIO = true;
 });
 
-// Injetar RecaptchaSettings como singleton (ou Transient/Scoped se preferir)
 // Usamos .Value aqui para injetar diretamente o objeto RecaptchaSettings
 builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<RecaptchaSettings>>().Value);
 // Registrar o RecaptchaService
 builder.Services.AddTransient<RecaptchaService>(); // Use Transient ou Scoped, dependendo do ciclo de vida desejado
 
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigin", policy =>
-            policy.WithOrigins(
-            "https://dcmarica.vcorpsistem.com",
-            "https://appdcmarica.vcorpsistem.com",
-            "https://front-gestao-escala.fly.dev",
-            "https://mobile-gestao-escala.fly.dev"
-            //"http://192.168.0.10:8080", // Backend local.
-
-            //"http://172.17.16.1:8080", // Backend local
-            //"http://10.0.2.2:8080",   // Emulador Android
-            //"http://localhost:5173",   // Frontend
-            //"http://localhost:8080",   // Swagger local
-
-            //"http://10.0.2.2:7207",   // Emulador Android
-            //"http://localhost:5173",   // Frontend
-            //"http://localhost:8080",   // Swagger local
-            //"http://localhost:3000"    // Flutter Web
-            )
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials());
-});
-
-
-
-
-// Configurar autenticação JWT
-var chaveSecreta = "g9h0N7quw2S8mJAF8LKxUF0Os3leG+NDJoypOcWohOEa"; // Mesma chave usada no LoginService
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = "gestao-escala-backend",  // Mesmo valor usado no token JWT
-        ValidAudience = "gestao-escala-frontend",  // Mesmo valor usado no token JWT
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(chaveSecreta))
-    };
-});
-
 // Configurar autorização global (protegendo todas as rotas por padrão)
-
-builder.Services.AddAuthorization(options =>
-{
-    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-});
-
-//builder.WebHost.ConfigureKestrel(serverOptions =>
+//builder.Services.AddAuthorization(options =>
 //{
-//    serverOptions.ListenAnyIP(8080); // Isso permite conexões de qualquer IP
-//    serverOptions.ListenAnyIP(443, listenOptions =>
-//    {
-//        // Se tiver certificado, configure aqui
-//    });
+//    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+//        .RequireAuthenticatedUser()
+//        .Build();
 //});
 
 //gerarChave teste = new();
