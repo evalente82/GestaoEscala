@@ -52,6 +52,8 @@ using GestaoEscalaPermutas.Dominio.Services.Recaptcha.SeuNamespace.Services;
 using GestaoEscalaPermutas.Dominio.Interfaces.LOGs;
 using GestaoEscalaPermutas.Dominio.Services.LOGs;
 using System.Threading.RateLimiting;
+using GestaoEscalaPermutas.Dominio.Interfaces.Feriados;
+using GestaoEscalaPermutas.Dominio.Services.Feriados;
 
 var cultureInfo = new CultureInfo("pt-BR");
 CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
@@ -219,6 +221,8 @@ builder.Services.AddRepositoryServices();
 builder.Services.AddHostedService<PermutasMessageConsumer>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IFeriadoRepository, FeriadoRepository>();
+builder.Services.AddScoped<IFeriadoService, FeriadoService>();
 
 // Configurar o HttpClientFactory
 builder.Services.AddHttpClient(); // Adiciona IHttpClientFactory ao container

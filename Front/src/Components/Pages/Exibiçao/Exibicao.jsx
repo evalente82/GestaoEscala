@@ -21,8 +21,6 @@ export function Exibicao() {
     const [buscaEscalaPronta, setBuscaEscalaPronta] = useState(null);
     const { idEscala } = useParams();
     const [showEditContent, setShowEditContent] = useState(false);
-    const [showIncluirContent, setShowIncluirContent] = useState(false);
-    const [showDeleteContent, setShowDeleteContent] = useState(false);
     const [funcionarioOrigem, setFuncionarioOrigem] = useState('');
     const [funcionarioDestino, setFuncionarioDestino] = useState('');
     const [escalaAlterada, setEscalaAlterada] = useState([]);
@@ -32,6 +30,31 @@ export function Exibicao() {
     const [showIncluirPopup, setShowIncluirPopup] = useState(false);
     const numDias = escala ? obterQuantidadeDiasNoMes(2025, escala.nrMesReferencia) : 0;
     const API_BASE_URL = import.meta.env.VITE_BACKEND_API;
+    
+    
+
+    // Função para obter a sigla do dia da semana (SEG, TER, etc.)
+    const obterSiglaDiaSemana = (dia) => {
+        // Verifica se 'escala' e 'nrMesReferencia' existem para evitar erros
+        if (!escala || !escala.nrMesReferencia) {
+            // Se escala ou nrMesReferencia não estiverem definidos, retorna vazio.
+            // Isso pode acontecer se os dados da escala ainda não foram carregados.
+            return '';
+        }
+
+        // Tenta pegar o ano da primeira data de serviço na escala alterada.
+        // Se 'escalaAlterada' estiver vazia ou 'dtDataServico' não existir, usa o ano atual.
+        const ano = new Date(escalaAlterada[0]?.dtDataServico || new Date()).getFullYear();
+        
+        // Cria um objeto Date usando o ano, o mês da escala (subtraindo 1, pois os meses em JS são de 0 a 11) e o dia fornecido.
+        const data = new Date(ano, escala.nrMesReferencia - 1, dia);
+        
+        // Array com as siglas dos dias da semana, começando por Domingo (índice 0)
+        const diasDaSemana = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SAB"];
+        
+        // Retorna a sigla correspondente ao dia da semana (0 para DOM, 1 para SEG, etc.)
+        return diasDaSemana[data.getDay()];
+    };
     
     //console.log("📢 Estado atual do showIncluirPopup:", showIncluirPopup);
     const [alertProps, setAlertProps] = useState({
@@ -793,78 +816,91 @@ export function Exibicao() {
                         <thead>
                             <tr>
                                 <th>Dia</th>
+                                <th>Sem</th>
                                 {postos && postos.map((posto) => (
                                     <th key={posto.idPostoTrabalho}>{posto.nmNome}</th>
                                 ))}
                             </tr>
                         </thead>
-                        <tbody>
-                            {Array.from({ length: numDias }, (_, index) => (
-                                <tr key={index + 1}>
-                                    <td className="border">{index + 1}</td>
-                                    {postos && postos.map((posto) => {
-                                        const funcionariosNoPosto = escalaAlterada.filter(item =>
-                                            new Date(item.dtDataServico).getDate() === index + 1 &&
-                                            item.idPostoTrabalho === posto.idPostoTrabalho
-                                        );
+<tbody>
+        {Array.from({ length: numDias }, (_, index) => {
+            const diaNumero = index + 1;
+            const diaFormatado = diaNumero.toString().padStart(2, '0');
+            const siglaDiaSemana = obterSiglaDiaSemana(diaNumero);
 
-                                        return (
-                                            <td key={posto.idPostoTrabalho} className="position-relative">
-                                                {funcionariosNoPosto.length > 0 ? (
-                                                    funcionariosNoPosto.map(item => {
-                                                        const isFuncionarioDesconhecido = item.idFuncionario === "00000000-0000-0000-0000-000000000000" ||
-                                                        obterNomeFuncionario(item.idFuncionario) === "Desconhecido";
-                                                            return (
-                                                                <div key={item.idEscalaPronta} className="d-flex justify-content-start align-items-center">
-                                                                    {possuiPermissao("EditarEscalas") && (
-                                                                        <div className="btn-container">
-                                                                            {isFuncionarioDesconhecido ? (
-                                                                                <button
-                                                                                    className="btn btn-xs btn-outline-success small-btn"
-                                                                                    onClick={() => handleAbrirIncluirFuncionario(posto.idPostoTrabalho, index + 1)}
-                                                                                    title="Adicionar funcionário"
-                                                                                >
-                                                                                    ➕
-                                                                                </button>
-                                                                            ) : (
-                                                                                <button
-                                                                                    className="btn btn-xs btn-outline-danger small-btn"
-                                                                                    onClick={() => handleRemoverFuncionario(item)}
-                                                                                    title="Remover funcionário"
-                                                                                >
-                                                                                    ❌
-                                                                                </button>
-                                                                            )}
-                                                                        </div>
-                                                                    )}
-                                                                    <span className={`nome-funcionario ${highlightedIds.includes(item.idFuncionario) ? 'highlight' : ''}`}>
-                                                                        {isFuncionarioDesconhecido ? "Desconhecido" : obterNomeFuncionario(item.idFuncionario)}
-                                                                    </span>
-                                                                </div>
-                                                            );
-                                                    })
-                                                ) : (
-                                                    <div className="d-flex justify-content-start align-items-center">
-                                                        {possuiPermissao("EditarEscalas") && (
-                                                            <div className="btn-container">
+            let rowClassName = "";
+            if (siglaDiaSemana === "SAB" || siglaDiaSemana === "DOM") {
+                rowClassName = "fim-de-semana";
+            }
+
+            return (
+                <tr key={diaNumero} className={rowClassName}>
+                    <td className="border">{diaFormatado}</td>
+                    <td className="border">{siglaDiaSemana}</td>
+                    {postos && postos.map((posto) => {
+                        const funcionariosNoPosto = escalaAlterada.filter(item =>
+                            new Date(item.dtDataServico).getDate() === diaNumero &&
+                            item.idPostoTrabalho === posto.idPostoTrabalho
+                        );
+
+                        return (
+                            <td key={posto.idPostoTrabalho} className="position-relative">
+                                {funcionariosNoPosto.length > 0 ? (
+                                    funcionariosNoPosto.map(item => {
+                                        const isFuncionarioDesconhecido = item.idFuncionario === "00000000-0000-0000-0000-000000000000" ||
+                                        obterNomeFuncionario(item.idFuncionario) === "Desconhecido";
+                                            return (
+                                                <div key={item.idEscalaPronta} className="d-flex justify-content-start align-items-center">
+                                                    {possuiPermissao("EditarEscalas") && (
+                                                        <div className="btn-container">
+                                                            {isFuncionarioDesconhecido ? (
                                                                 <button
                                                                     className="btn btn-xs btn-outline-success small-btn"
-                                                                    onClick={() => handleAbrirIncluirFuncionario(posto.idPostoTrabalho, index + 1)}
+                                                                    onClick={() => handleAbrirIncluirFuncionario(posto.idPostoTrabalho, diaNumero)}
                                                                     title="Adicionar funcionário"
-                                                                    >
+                                                                >
                                                                     ➕
                                                                 </button>
-                                                            </div>
-                                                        )}
-                                                        <span className="text-muted">Desconhecido</span>
-                                                    </div>
-                                                )}
-                                            </td>
-                                        );
-                                    })}
-                                </tr>
-                            ))}
-                        </tbody>
+                                                            ) : (
+                                                                <button
+                                                                    className="btn btn-xs btn-outline-danger small-btn"
+                                                                    onClick={() => handleRemoverFuncionario(item)}
+                                                                    title="Remover funcionário"
+                                                                >
+                                                                    ❌
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                    <span className={`nome-funcionario ${highlightedIds.includes(item.idFuncionario) ? 'highlight' : ''}`}>
+                                                        {isFuncionarioDesconhecido ? "Desconhecido" : obterNomeFuncionario(item.idFuncionario)}
+                                                    </span>
+                                                </div>
+                                            );
+                                    })
+                                ) : (
+                                    <div className="d-flex justify-content-start align-items-center">
+                                        {possuiPermissao("EditarEscalas") && (
+                                            <div className="btn-container">
+                                                <button
+                                                    className="btn btn-xs btn-outline-success small-btn"
+                                                    onClick={() => handleAbrirIncluirFuncionario(posto.idPostoTrabalho, diaNumero)}
+                                                    title="Adicionar funcionário"
+                                                >
+                                                    ➕
+                                                </button>
+                                            </div>
+                                        )}
+                                        <span className="text-muted">Desconhecido</span>
+                                    </div>
+                                )}
+                            </td>
+                        );
+                    })}
+                </tr>
+            );
+        })}
+    </tbody>
                     </table>
                     <AlertPopup
                         type={alertProps.type}

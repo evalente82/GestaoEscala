@@ -68,6 +68,8 @@
   <PublishTrimmed>false</PublishTrimmed>
   <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
   <PreserveCompilationContext>true</PreserveCompilationContext>
+  <AssemblyVersion>2.1.0</AssemblyVersion>
+  <FileVersion>2.1.0</FileVersion>
 </PropertyGroup>
 
 </Project>

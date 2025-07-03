@@ -1,5 +1,6 @@
 ﻿using GestaoEscalaPermutas.Dominio.DTO.Departamento;
 using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
+using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 using System;
 using System.Collections.Generic;
 using System.Linq;

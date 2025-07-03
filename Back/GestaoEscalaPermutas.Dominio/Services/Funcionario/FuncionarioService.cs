@@ -172,6 +172,9 @@ namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
                 // Retorna o Id do funcionário encontrado
                 return funcionario.IdFuncionario;
             }
+
+
+            
         }
     }
 }

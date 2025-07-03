@@ -1,4 +1,5 @@
-﻿using GestaoEscalaPermutas.Dominio.DTO.Escala;
+﻿using GestaoEscalaPermutas.Dominio.DTO;
+using GestaoEscalaPermutas.Dominio.DTO.Escala;
 using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
 
 namespace GestaoEscalaPermutas.Dominio.Interfaces.Escala
@@ -10,6 +11,7 @@ namespace GestaoEscalaPermutas.Dominio.Interfaces.Escala
         Task<EscalaDTO> Deletar(Guid id);
         Task<List<EscalaDTO>> BuscarTodos();
         Task<EscalaDTO> BuscarPorId(Guid idEscala);
+        Task<RetornoDTO> MontarEscalaAsync(Guid idEscala);
 
     }
 }
