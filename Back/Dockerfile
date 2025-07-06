@@ -1,8 +1,8 @@
-# Etapa 1: Build
+# Etapa 1: Build (NENHUMA MUDANÇA AQUI)
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# Copiar solução e projetos individualmente para otimizar o cache do Docker
+# Copiar solução e projetos individualmente
 COPY GestaoEscalaPermutas.sln ./
 COPY GestaoEscalaPermutas.Server/*.csproj ./GestaoEscalaPermutas.Server/
 COPY GestaoEscalaPermutas.Dominio/*.csproj ./GestaoEscalaPermutas.Dominio/
@@ -13,27 +13,30 @@ COPY GestaoEscalaPermutas.Tests/*.csproj ./GestaoEscalaPermutas.Tests/
 # Restaurar dependências
 RUN dotnet restore
 
-# Copiar todo o código fonte (incluindo o docker-entrypoint.sh da pasta Back)
+# Copiar todo o código fonte
 COPY . .
 
-# Publica a aplicação. Esta linha está correta e resolveu o erro anterior.
+# Publicar aplicação
 WORKDIR /app/GestaoEscalaPermutas.Server
 RUN dotnet publish -c Release -o /app/publish
 
 
-# Etapa 2: Imagem final mínima
+# Etapa 2: Imagem final mínima (APENAS PEQUENOS AJUSTES AQUI)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/publish .
-COPY --from=build /app/certificado.pfx /app/certificado.pfx
+COPY --from=build /app/GestaoEscalaPermutas.Server/certificado.pfx /app/certificado.pfx
+
+
+# ADIÇÃO 1: Copiar o script que criamos para dentro da imagem final.
+COPY docker-entrypoint.sh .
 
 # ==================================================================
-# CORREÇÃO AQUI: Corrigindo o caminho de onde o script é copiado da etapa de build.
-# ==================================================================
-COPY --from=build /app/docker-entrypoint.sh .
-
-# Garante o formato de linha correto (LF) e permissão de execução
+# CORREÇÃO AQUI: Garante que o script tenha o formato de linha correto (LF)
 RUN sed -i 's/\r$//' ./docker-entrypoint.sh
+# ==================================================================
+
+# Dá permissão de execução para o script
 RUN chmod +x ./docker-entrypoint.sh
 
 # Configurações extras
