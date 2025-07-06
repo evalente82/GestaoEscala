@@ -1,15 +1,7 @@
 ﻿using AutoMapper;
 using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
-using GestaoEscalaPermutas.Dominio.DTO.PostoTrabalho;
-using GestaoEscalaPermutas.Dominio.DTO.Usuario;
-using GestaoEscalaPermutas.Dominio.Entities;
 using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
-using GestaoEscalaPermutas.Infra.Data.Context;
-using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
-using GestaoEscalaPermutas.Repository.Implementations;
 using GestaoEscalaPermutas.Repository.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using System.Globalization;
 using DepInfra = GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
 
 namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
