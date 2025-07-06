@@ -2,7 +2,6 @@ app = 'back-gestao-escala'
 primary_region = 'gru'
 
 [build]
-  dockerfile = "Dockerfile"
   dockerfile = "GestaoEscalaPermutas.Server/Dockerfile"
 
 [http_service]
