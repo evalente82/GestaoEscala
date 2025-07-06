@@ -17,7 +17,7 @@ RUN dotnet restore
 COPY . .
 
 # Publica a aplicação de forma mais explícita, especificando o projeto.
-RUN dotnet publish "GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj" -c Release -o /app/publish
+RUN dotnet publish "GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj" -c Release -o /app/publish --runtime linux-x64 --self-contained true
 
 
 # Etapa 2: Imagem final mínima

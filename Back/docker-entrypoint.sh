@@ -9,4 +9,4 @@ export GOOGLE_APPLICATION_CREDENTIALS="/app/gcp-credentials.json"
 
 # 3. Executa o comando original do seu Dockerfile para iniciar a aplicação .NET.
 # O 'exec' garante que sua aplicação se torne o processo principal do container.
-exec dotnet GestaoEscalaPermutas.Server.dll
+exec ./GestaoEscalaPermutas.Server
