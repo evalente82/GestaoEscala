@@ -17,7 +17,8 @@ RUN dotnet restore
 COPY . .
 
 # Publicar aplicação no modo autossuficiente
-RUN dotnet publish "GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj" -c Release -o /app/publish --runtime linux-x64 --self-contained true
+RUN dotnet publish "GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj" -c Release -o /app/publish /p:PublishTrimmed=false
+
 
 RUN find /app/publish -name "*Microsoft.AspNetCore.Http.Abstractions*"
 
