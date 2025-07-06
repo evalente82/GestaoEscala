@@ -19,6 +19,7 @@ COPY . .
 # Publicar aplicação no modo autossuficiente
 RUN dotnet publish "GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj" -c Release -o /app/publish --runtime linux-x64 --self-contained true
 
+
 # ==================================================================
 # PASSO DE DEPURAÇÃO 1: Listar o conteúdo da pasta de publicação
 # Vamos verificar se 'Microsoft.AspNetCore.Http.Abstractions.dll' está aqui.
@@ -28,7 +29,7 @@ RUN echo "--- Conteúdo de /app/publish ---" && ls -la /app/publish
 
 # Etapa 2: Imagem final
 # Usando a imagem base correta para builds autossuficientes
-FROM mcr.microsoft.com/dotnet/runtime-deps:8.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
 # Copiar os arquivos publicados da etapa de build
