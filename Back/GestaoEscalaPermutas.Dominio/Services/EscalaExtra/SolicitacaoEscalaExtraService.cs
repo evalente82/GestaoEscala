@@ -300,11 +300,29 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
 
                 // --- 4. VALIDAÇÃO DE INSCRIÇÃO DUPLICADA NO MESMO DIA ---
                 // (Esta verificação continua sendo útil como uma camada extra de segurança)
-                var inscricoesNoMesmoDia = await _SolicitacaoEscalaExtraRepository.ObterInscricoesPorFuncionarioEData(funcionario.IdFuncionario, inicioDoExtra.Date);
-                if (inscricoesNoMesmoDia.Any(i => i.StatusInscricao != StatusInscricaoEnum.Cancelado.ToString()))
+                var verificaDia = await _SolicitacaoEscalaExtraRepository.ObterInscricoesPorFuncionarioEData(funcionario.IdFuncionario, inicioDoExtra.Date);
+
+                var listExtras = new List<EscalaExtraDTO>();
+                foreach (var item in verificaDia)
                 {
-                    return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Funcionário já possui inscrição em extra nesta data." };
+                    var comparaData = await _escalaExtraRepository.BuscarListaPorIdAsync(item.IdCriacaoEscalaExtra);
+
+                    if (comparaData != null)
+                    {
+                        listExtras.Add(_mapper.Map<EscalaExtraDTO>(comparaData));
+                    }
                 }
+
+                foreach (var item in listExtras)
+                {
+                    
+                    if (item.DtEscalaExtra.Date == inicioDoExtra.Date.Date)
+                    {
+                        return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Funcionário já possui inscrição em extra nesta data." };
+                    }
+
+                }
+                                
 
                 // --- 5. LÓGICA DE VAGAS E FILA DE ESPERA ---
                 StatusInscricaoEnum statusDaInscricao;

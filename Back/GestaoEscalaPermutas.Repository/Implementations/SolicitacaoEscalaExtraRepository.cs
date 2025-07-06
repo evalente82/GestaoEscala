@@ -71,7 +71,7 @@ namespace GestaoEscalaPermutas.Repository.Implementations
         {
             // A comparação .Date garante que estamos comparando apenas o dia, mês e ano, ignorando a hora.
             return await _context.EscalaExtra
-                .Where(i => i.IdFuncionario == idFuncionario && i.DtCriacao.Date == data.Date)
+                .Where(i => i.IdFuncionario == idFuncionario)
                 .ToListAsync();
         }
     }
