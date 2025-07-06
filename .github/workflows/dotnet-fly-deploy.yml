@@ -1,0 +1,62 @@
+# Nome do seu workflow. Aparecerá na aba "Actions" do GitHub.
+name: Backend .NET - Build, Test and Deploy to Fly.io
+
+# Gatilhos: o que faz o workflow rodar.
+on:
+  # Roda quando um Pull Request é aberto ou atualizado para a branch 'main'.
+  pull_request:
+    branches: [ "main" ]
+  # Roda também quando um commit é enviado diretamente para a 'main'.
+  push:
+    branches: [ "main" ]
+
+jobs:
+  # Primeiro Job: Compilar e Testar a aplicação.
+  build-and-test:
+    runs-on: ubuntu-latest # O trabalho rodará em uma máquina virtual Linux (Ubuntu).
+    steps:
+      # 1. Clona o seu repositório para a máquina virtual.
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Configura o ambiente .NET. Mude '8.0.x' para a sua versão do .NET.
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x' # <-- ATENÇÃO: Verifique e ajuste sua versão aqui.
+
+      # 3. Restaura as dependências do projeto (NuGet packages).
+      - name: Restore dependencies
+        run: dotnet restore
+
+      # 4. Compila o projeto.
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      # 5. Roda os testes unitários.
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
+
+  # Segundo Job: Fazer o deploy para o Fly.io.
+  deploy:
+    # Garante que o deploy só aconteça se o job 'build-and-test' for bem-sucedido.
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    # CONDIÇÃO IMPORTANTE: Este job só rodará em um 'push' para a 'main'.
+    # Isso evita que o deploy seja feito em cada commit de um Pull Request.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      # 1. Clona o código novamente.
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Instala e configura o 'flyctl', a ferramenta de linha de comando do Fly.io.
+      - name: Setup Flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      # 3. Realiza o deploy.
+      - name: Deploy to Fly.io
+        run: flyctl deploy --remote-only
+        env:
+          # Usa o token que configuramos nos Secrets do GitHub.
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
