@@ -2,7 +2,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# Copiar solução e projetos individualmente para otimizar o cache do Docker
+# Copiar solução e projetos individualmente
 COPY GestaoEscalaPermutas.sln ./
 COPY GestaoEscalaPermutas.Server/*.csproj ./GestaoEscalaPermutas.Server/
 COPY GestaoEscalaPermutas.Dominio/*.csproj ./GestaoEscalaPermutas.Dominio/
@@ -13,34 +13,43 @@ COPY GestaoEscalaPermutas.Tests/*.csproj ./GestaoEscalaPermutas.Tests/
 # Restaurar dependências
 RUN dotnet restore
 
-# Copiar todo o código fonte (incluindo Dockerfile, certificado.pfx, e docker-entrypoint.sh)
+# Copiar todo o código fonte
 COPY . .
 
-# Publica a aplicação de forma mais explícita, especificando o projeto.
+# Publicar aplicação no modo autossuficiente
 RUN dotnet publish "GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj" -c Release -o /app/publish --runtime linux-x64 --self-contained true
 
+# ==================================================================
+# PASSO DE DEPURAÇÃO 1: Listar o conteúdo da pasta de publicação
+# Vamos verificar se 'Microsoft.AspNetCore.Http.Abstractions.dll' está aqui.
+# ==================================================================
+RUN echo "--- Conteúdo de /app/publish ---" && ls -la /app/publish
 
-# Etapa 2: Imagem final mínima
+
+# Etapa 2: Imagem final
+# Usando a imagem base correta para builds autossuficientes
 FROM mcr.microsoft.com/dotnet/runtime-deps:8.0
 WORKDIR /app
+
+# Copiar os arquivos publicados da etapa de build
 COPY --from=build /app/publish .
 
-# CORREÇÃO 1: Copiando o certificado do local correto na imagem de build (/app/).
+# Copiar o certificado e o script de entrada
 COPY --from=build /app/GestaoEscalaPermutas.Server/certificado.pfx /app/certificado.pfx
-
-# CORREÇÃO 2: Copiando o script do local correto na imagem de build (/app/).
 COPY --from=build /app/docker-entrypoint.sh .
 
-# Garante o formato de linha correto (LF) e permissão de execução
+# Preparar o script de entrada
 RUN sed -i 's/\r$//' ./docker-entrypoint.sh
 RUN chmod +x ./docker-entrypoint.sh
-
-# Configurações extras
 RUN chmod 644 /app/certificado.pfx
+
+# ==================================================================
+# PASSO DE DEPURAÇÃO 2: Listar o conteúdo da pasta final da aplicação
+# Vamos verificar se tudo foi copiado corretamente.
+# ==================================================================
+RUN echo "--- Conteúdo final de /app ---" && ls -la .
+
+# Configurar e executar a aplicação
 EXPOSE 8080
-
-# CORREÇÃO 3: Alinhando a porta da aplicação com a porta interna do fly.toml (8080).
 ENV ASPNETCORE_URLS=http://+:8080
-
-# Inicia o container usando o script
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
