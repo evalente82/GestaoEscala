@@ -1,5 +1,4 @@
 ﻿using GestaoEscalaPermutas.Dominio.DTO.Escala;
-using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
 
 namespace GestaoEscalaPermutas.Dominio.Interfaces.Escala
 {

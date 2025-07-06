@@ -1,10 +1,4 @@
-﻿using GestaoEscalaPermutas.Dominio.DTO.Departamento;
-using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using GestaoEscalaPermutas.Dominio.DTO.Funcionario;
 
 namespace GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios
 {
