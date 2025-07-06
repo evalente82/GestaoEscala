@@ -6,7 +6,7 @@ on:
   # Roda quando um Pull Request é aberto ou atualizado para a branch 'main'.
   pull_request:
     branches: [ "main" ]
-  # Roda também quando um commit é enviado diretamente para a 'main'.
+  # Roda também quando um commit é enviado diretamente para a 'main' (após um merge).
   push:
     branches: [ "main" ]
 
@@ -25,17 +25,17 @@ jobs:
         with:
           dotnet-version: '8.0.x' # <-- ATENÇÃO: Verifique e ajuste sua versão aqui.
 
-      # 3. Restaura as dependências do projeto (NuGet packages).
+      # 3. Restaura as dependências usando o caminho para o arquivo de solução.
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore Back/GestaoEscalaPermutas.sln
 
-      # 4. Compila o projeto.
+      # 4. Compila o projeto usando o caminho para o arquivo de solução.
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build Back/GestaoEscalaPermutas.sln --configuration Release --no-restore
 
-      # 5. Roda os testes unitários.
+      # 5. Roda os testes unitários usando o caminho para o arquivo de solução.
       - name: Test
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test Back/GestaoEscalaPermutas.sln --no-build --verbosity normal
 
   # Segundo Job: Fazer o deploy para o Fly.io.
   deploy:
@@ -45,6 +45,7 @@ jobs:
     # CONDIÇÃO IMPORTANTE: Este job só rodará em um 'push' para a 'main'.
     # Isso evita que o deploy seja feito em cada commit de um Pull Request.
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
     steps:
       # 1. Clona o código novamente.
       - name: Checkout code
@@ -55,7 +56,9 @@ jobs:
         uses: superfly/flyctl-actions/setup-flyctl@master
 
       # 3. Realiza o deploy.
+      # O comando é executado a partir da pasta 'Back' para encontrar o fly.toml
       - name: Deploy to Fly.io
+        working-directory: ./Back 
         run: flyctl deploy --remote-only
         env:
           # Usa o token que configuramos nos Secrets do GitHub.
