@@ -63,9 +63,9 @@ namespace GestaoEscalaPermutas.Dominio.Services.Funcionario
                     return new FuncionarioDTO { valido = false, mensagem = "Funcionário não encontrado." };
                 }
 
-                var teste = _mapper.Map(funcionarioDTO, funcionarioExistente);
+                var newFunc = _mapper.Map(funcionarioDTO, funcionarioExistente);
 
-                await _funcionarioRepository.AlterarAsync(teste);
+                await _funcionarioRepository.AlterarAsync(newFunc);
 
                 var usuarioExistente = await _usuarioRepository.VerificarUsuarioPorFuncionarioAsync(id);
                 if (usuarioExistente != null)
