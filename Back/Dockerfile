@@ -13,12 +13,10 @@ COPY GestaoEscalaPermutas.Tests/*.csproj ./GestaoEscalaPermutas.Tests/
 # Restaurar dependências
 RUN dotnet restore
 
-# Copiar todo o código fonte
+# Copiar todo o código fonte (incluindo o docker-entrypoint.sh da pasta Back)
 COPY . .
 
-# ==================================================================
-# CORREÇÃO AQUI: Simplificamos o comando publish para garantir que todas as DLLs sejam incluídas.
-# ==================================================================
+# Publica a aplicação. Esta linha está correta e resolveu o erro anterior.
 WORKDIR /app/GestaoEscalaPermutas.Server
 RUN dotnet publish -c Release -o /app/publish
 
@@ -27,10 +25,12 @@ RUN dotnet publish -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/publish .
-COPY --from=build /app/GestaoEscalaPermutas.Server/certificado.pfx /app/certificado.pfx
+COPY --from=build /app/certificado.pfx /app/certificado.pfx
 
-# Copia o script de entrada
-COPY --from=build /app/GestaoEscalaPermutas.Server/docker-entrypoint.sh .
+# ==================================================================
+# CORREÇÃO AQUI: Corrigindo o caminho de onde o script é copiado da etapa de build.
+# ==================================================================
+COPY --from=build /app/docker-entrypoint.sh .
 
 # Garante o formato de linha correto (LF) e permissão de execução
 RUN sed -i 's/\r$//' ./docker-entrypoint.sh
