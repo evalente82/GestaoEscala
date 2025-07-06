@@ -19,6 +19,7 @@ COPY . .
 # Publicar aplicação no modo autossuficiente
 RUN dotnet publish "GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj" -c Release -o /app/publish --runtime linux-x64 --self-contained true
 
+RUN find /app/publish -name "*Microsoft.AspNetCore.Http.Abstractions*"
 
 # ==================================================================
 # PASSO DE DEPURAÇÃO 1: Listar o conteúdo da pasta de publicação
