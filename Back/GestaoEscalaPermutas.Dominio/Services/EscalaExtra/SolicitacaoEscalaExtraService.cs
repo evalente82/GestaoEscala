@@ -7,13 +7,10 @@ using GestaoEscalaPermutas.Server.Settings;
 using Microsoft.Extensions.Options;
 using Google.Api.Gax.ResourceNames;
 using Google.Cloud.RecaptchaEnterprise.V1;
-using Grpc.Core; // Para RpcException
+using Grpc.Core;
 using Microsoft.Extensions.Logging;
 using GestaoEscalaPermutas.Dominio.Interfaces.Email;
 using GestaoEscalaPermutas.Dominio.ENUM;
-using GestaoEscalaPermutas.Repository.Implementations;
-using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
-using static Google.Cloud.RecaptchaEnterprise.V1.TransactionData.Types;
 namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
 {
     public class SolicitacaoEscalaExtraService : ISolicitacaoEscalaExtraService
