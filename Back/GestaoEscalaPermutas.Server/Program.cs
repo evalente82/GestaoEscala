@@ -260,7 +260,6 @@ builder.Services.Configure<KestrelServerOptions>(options =>
     options.AllowSynchronousIO = true;
 });
 
-// Injetar RecaptchaSettings como singleton (ou Transient/Scoped se preferir)
 // Usamos .Value aqui para injetar diretamente o objeto RecaptchaSettings
 builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<RecaptchaSettings>>().Value);
 // Registrar o RecaptchaService

@@ -9,7 +9,6 @@ using GestaoEscalaPermutas.Dominio.Interfaces.TipoEscala;
 using GestaoEscalaPermutas.Dominio.DTO.EscalaPronta;
 using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
 using GestaoEscalaPermutas.Server.Models.EscalaPronta;
-using System.Globalization;
 
 namespace GestaoEscalaPermutas.Server.Controllers.Escala
 {
