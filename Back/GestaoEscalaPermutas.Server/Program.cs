@@ -1,3 +1,4 @@
+
 using GestaoEscalaPermutas.Infra.Data.Context;
 using GestaoEscalaPermutas.Dominio.Services.Departamento;
 using GestaoEscalaPermutas.Dominio.Interfaces.Departamento;
