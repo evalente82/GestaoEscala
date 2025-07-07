@@ -11,6 +11,7 @@
 		<PublishTrimmed>false</PublishTrimmed>
 		<IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
+    <PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
 	</PropertyGroup>
 
 	<ItemGroup>
