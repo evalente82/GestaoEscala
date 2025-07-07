@@ -1,0 +1,8 @@
+{
+  "runtimeOptions": {
+    "rollForward": "Major",
+    "configProperties": {
+      "System.GC.Server": true
+    }
+  }
+}

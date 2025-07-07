@@ -1,3 +1,48 @@
 ﻿bin/Debug/net8.0/
 obj/
 vs/
+
+# Build folders
+bin/
+obj/
+out/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Rider / JetBrains
+.idea/
+
+# MacOS
+.DS_Store
+
+# Logs
+*.log
+
+# User-specific files
+*.userosscache
+*.sln.docstates
+
+# Docker
+*.pid
+docker-compose.override.yml
+
+# Publish output
+publish/
+*.publishsettings
+
+# Secrets
+*.pfx
+*.key
+*.cert
+secrets.json
+
+# Node/npm (caso tenha front integrado)
+node_modules/
+dist/
+
+# Optional: excluir pastas por framework
+**/bin/
+**/obj/
