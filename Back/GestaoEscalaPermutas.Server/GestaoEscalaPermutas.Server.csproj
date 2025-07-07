@@ -61,14 +61,6 @@
 		<ProjectReference Include="..\GestaoEscalaPermutas.Dominio\GestaoEscalaPermutas.Dominio.csproj" />
 		<ProjectReference Include="..\GestaoEscalaPermutas.Repository\GestaoEscalaPermutas.Repository.csproj" />
 	</ItemGroup>
-
-	<ItemGroup>
-		<Reference Include="Microsoft.IdentityModel.Tokens">
-			<HintPath></HintPath>
-			<Private>true</Private>
-		</Reference>
-	</ItemGroup>
-
 	
 	<ItemGroup>
 	  <Folder Include="out\" />
