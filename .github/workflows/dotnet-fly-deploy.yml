@@ -1,17 +1,13 @@
 # Nome do seu workflow. Aparecerá na aba "Actions" do GitHub.
 name: Backend .NET - Build, Test and Deploy to Fly.io
 
-# Gatilhos: o que faz o workflow rodar.
 on:
-  # Roda quando um Pull Request é aberto ou atualizado para a branch 'main'.
   pull_request:
     branches: [ "main" ]
-  # Roda também quando um commit é enviado diretamente para a 'main' (após um merge).
   push:
     branches: [ "main" ]
 
 jobs:
-  # Primeiro Job: Compilar e Testar a aplicação.
   build-and-test:
     runs-on: ubuntu-latest
     steps:
@@ -32,7 +28,6 @@ jobs:
       - name: Test
         run: dotnet test Back/GestaoEscalaPermutas.sln --configuration Release --verbosity normal
 
-  # Segundo Job: Fazer o deploy para o Fly.io.
   deploy:
     needs: build-and-test
     runs-on: ubuntu-latest
@@ -42,12 +37,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore Back/GestaoEscalaPermutas.sln
+
+      - name: Publish project
+        run: dotnet publish Back/GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj \
+               -c Release -o out --runtime linux-x64 --self-contained false /p:PublishTrimmed=false
+
       - name: Setup Flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
 
-      # CORREÇÃO: Adicionada a flag --no-cache para forçar um build limpo.
       - name: Deploy to Fly.io
-        working-directory: ./Back 
-        run: fly deploy --no-cache
+        run: flyctl deploy --remote-only --no-cache
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

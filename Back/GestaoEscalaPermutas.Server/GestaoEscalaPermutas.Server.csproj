@@ -64,17 +64,12 @@
 
 	<ItemGroup>
 		<Reference Include="Microsoft.IdentityModel.Tokens">
-			<HintPath>$(UserProfile)\.nuget\packages\microsoft.identitymodel.tokens\8.11.0\lib\netstandard2.0\Microsoft.IdentityModel.Tokens.dll</HintPath>
+			<HintPath></HintPath>
 			<Private>true</Private>
 		</Reference>
 	</ItemGroup>
 
-	<ItemGroup>
-		<Content Include="lib\Microsoft.IdentityModel.Tokens.dll">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
-	</ItemGroup>
-
+	
 	<ItemGroup>
 	  <Folder Include="out\" />
 	</ItemGroup>
