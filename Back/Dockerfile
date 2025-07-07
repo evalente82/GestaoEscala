@@ -16,21 +16,20 @@ RUN dotnet restore
 # Copiar todo o código fonte
 COPY . .
 
-# Publicar aplicação no modo autossuficiente
-RUN dotnet publish "GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj" -c Release -o /app/publish /p:PublishTrimmed=false
+# Publicar aplicação no modo framework-dependent, sem trimming
+RUN dotnet publish "GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj" \
+    -c Release -o /app/publish --runtime linux-x64 --self-contained false /p:PublishTrimmed=false
 
-
+# Verificação de DLL específica
 RUN find /app/publish -name "*Microsoft.AspNetCore.Http.Abstractions*"
 
-# ==================================================================
-# PASSO DE DEPURAÇÃO 1: Listar o conteúdo da pasta de publicação
-# Vamos verificar se 'Microsoft.AspNetCore.Http.Abstractions.dll' está aqui.
-# ==================================================================
+# Depuração do conteúdo publicado
 RUN echo "--- Conteúdo de /app/publish ---" && ls -la /app/publish
 
+# Listar todas as DLLs publicadas
+RUN echo "--- DLLs publicadas ---" && find /app/publish -name "*.dll"
 
-# Etapa 2: Imagem final
-# Usando a imagem base correta para builds autossuficientes
+# Etapa 2: Imagem final com runtime do ASP.NET
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
@@ -46,10 +45,7 @@ RUN sed -i 's/\r$//' ./docker-entrypoint.sh
 RUN chmod +x ./docker-entrypoint.sh
 RUN chmod 644 /app/certificado.pfx
 
-# ==================================================================
-# PASSO DE DEPURAÇÃO 2: Listar o conteúdo da pasta final da aplicação
-# Vamos verificar se tudo foi copiado corretamente.
-# ==================================================================
+# Depuração final da pasta da aplicação
 RUN echo "--- Conteúdo final de /app ---" && ls -la .
 
 # Configurar e executar a aplicação
