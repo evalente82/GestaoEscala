@@ -1,6 +1,7 @@
 ﻿bin/Debug/net8.0/
 obj/
 vs/
+appsettings.Development.json
 
 # Build folders
 bin/
