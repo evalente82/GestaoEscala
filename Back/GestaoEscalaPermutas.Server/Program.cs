@@ -64,8 +64,6 @@ CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-
 // =================================================================
 // SEÇÃO DE REGISTRO DE SERVIÇOS (Injeção de Dependência)
 // =================================================================
