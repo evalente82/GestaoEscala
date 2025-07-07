@@ -3,12 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
 # Copiar solução e projetos individualmente
-COPY GestaoEscalaPermutas.sln ./
-COPY GestaoEscalaPermutas.Server/*.csproj ./GestaoEscalaPermutas.Server/
-COPY GestaoEscalaPermutas.Dominio/*.csproj ./GestaoEscalaPermutas.Dominio/
-COPY GestaoEscalaPermuta.Infra/*.csproj ./GestaoEscalaPermuta.Infra/
-COPY GestaoEscalaPermutas.Repository/*.csproj ./GestaoEscalaPermutas.Repository/
-COPY GestaoEscalaPermutas.Tests/*.csproj ./GestaoEscalaPermutas.Tests/
+COPY . .
 
 # Restaurar dependências
 RUN dotnet restore
