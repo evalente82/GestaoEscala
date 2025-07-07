@@ -1,4 +1,5 @@
 
+#region using
 using GestaoEscalaPermutas.Infra.Data.Context;
 using GestaoEscalaPermutas.Dominio.Services.Departamento;
 using GestaoEscalaPermutas.Dominio.Interfaces.Departamento;
@@ -54,53 +55,28 @@ using GestaoEscalaPermutas.Dominio.Interfaces.LOGs;
 using GestaoEscalaPermutas.Dominio.Services.LOGs;
 using Microsoft.AspNetCore.Authorization;
 using System.Threading.RateLimiting;
+#endregion
 
+// --- Configuração de Cultura (Globalização) ---
 var cultureInfo = new CultureInfo("pt-BR");
 CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
 CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 var builder = WebApplication.CreateBuilder(args);
-var connString = builder.Configuration.GetConnectionString("EmUso");
 
-IConfiguration configuration = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
-    .Build();
-builder.Services.AddSingleton(configuration);
+
+
+// =================================================================
+// SEÇÃO DE REGISTRO DE SERVIÇOS (Injeção de Dependência)
+// =================================================================
+
+// --- Serviços Essenciais do ASP.NET Core ---
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddHttpClient();
 
-
-//segurança -  limitação de taxa nativa do ASP.NET Core
-builder.Services.AddRateLimiter(options =>
-{
-    // Política global para todas as requisições
-    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
-    {
-        return RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: httpContext.Request.Headers.Host.ToString(), // Pode usar IP ou outro identificador
-            factory: partition => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = 100, // Ex: 100 requisições
-                Window = TimeSpan.FromMinutes(1) // a cada 1 minuto
-            });
-    });
-
-    // Política específica e mais restrita para o endpoint de login
-    options.AddPolicy("LoginPolicy", httpContext =>
-    {
-        return RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(), // Limita por IP
-            factory: partition => new FixedWindowRateLimiterOptions
-            {
-                PermitLimit = 5, // Apenas 5 tentativas de login
-                Window = TimeSpan.FromMinutes(1) // por minuto
-            });
-    });
-
-    options.RejectionStatusCode = 429; // Too Many Requests
-});
-
+// --- Configuração do Swagger ---
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -141,73 +117,111 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+// --- Configuração de CORS (Cross-Origin Resource Sharing) ---
+// 1. Leia a seção "AllowedCorsOrigins" do seu appsettings.json
+//    O .NET automaticamente pega o de Development ou Production.
+var allowedOrigins = builder.Configuration.GetSection("AllowedCorsOrigins").Get<string[]>();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin", policy =>
+    {
+        // Verifica se a lista não é nula ou vazia antes de usar
+        if (allowedOrigins != null && allowedOrigins.Length > 0)
+        {
+            policy.WithOrigins(allowedOrigins) // Usa as origens do appsettings
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
+        }
+        // Opcional: Adicionar uma política mais restritiva se nenhuma origem for configurada
+        // else { /* ... */ }
+    });
+});
+
+// --- Configuração de Segurança (Rate Limiting, JWT, Autorização) ---
+builder.Services.AddRateLimiter(options =>
+{
+    // Política global para todas as requisições
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+    {
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Request.Headers.Host.ToString(), // Pode usar IP ou outro identificador
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 100, // Ex: 100 requisições
+                Window = TimeSpan.FromMinutes(1) // a cada 1 minuto
+            });
+    });
+
+    // Política específica e mais restrita para o endpoint de login
+    options.AddPolicy("LoginPolicy", httpContext =>
+    {
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(), // Limita por IP
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5, // Apenas 5 tentativas de login
+                Window = TimeSpan.FromMinutes(1) // por minuto
+            });
+    });
+
+    options.RejectionStatusCode = 429; // Too Many Requests
+});
+
+// Configurar autenticação JWT
+var jwtSecretKey = builder.Configuration["JwtSettings:Secret"];
+if (string.IsNullOrEmpty(jwtSecretKey))
+{
+    throw new InvalidOperationException("A chave secreta do JWT (JwtSettings:Secret) não foi configurada. " +
+        "Defina-a no appsettings.Development.json para desenvolvimento ou como um segredo no ambiente de produção.");
+}
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = "gestao-escala-backend",  // Mesmo valor usado no token JWT
+        ValidAudience = "gestao-escala-frontend",  // Mesmo valor usado no token JWT
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey))
+    };
+});
+
+// Configurar autorização global (protegendo todas as rotas por padrão)
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
+// --- Infraestrutura (Banco de Dados, Firebase, RabbitMQ, etc.) ---
+builder.Services.AddDbContext<DefesaCivilMaricaContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("EmUso")));
+
 // Configurar Firebase Admin SDK
 FirebaseApp.Create(new AppOptions()
 {
     Credential = GoogleCredential.FromFile(Path.Combine(Directory.GetCurrentDirectory(), "firebase-adminsdk.json"))
 });
 
-#region Injecao de dependencias
-builder.Services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
-builder.Services.AddDbContext<DefesaCivilMaricaContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("EmUso")));
-
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-builder.Services.AddAutoMapper(typeof(MappingProfiles));
-builder.Services.AddResponseCompression();
-
-builder.Services.AddScoped<IDepartamentoService, DepartamentoService>();
-builder.Services.AddScoped<ICargoService, CargoService>();
-builder.Services.AddScoped<IFuncionarioService, FuncionarioService>();
-builder.Services.AddScoped<IEscalaService, EscalaService>();
-builder.Services.AddScoped<IPostoTrabalhoService, PostoTrabalhoService>();
-builder.Services.AddScoped<ITipoEscalaService, TipoEscalaService>();
-builder.Services.AddScoped<IEscalaProntaService, EscalaProntaService>();
-builder.Services.AddScoped<IPermutasService, PermutasService>();
-builder.Services.AddScoped<ILoginService, LoginService>();
-builder.Services.AddScoped<IUsuarioService, UsuarioService>();
-builder.Services.AddScoped<IPerfilService, PerfilService>();
-builder.Services.AddScoped<IFuncionalidadeService, FuncionalidadeService>();
-builder.Services.AddScoped<IPerfisFuncionalidadesService, PerfisFuncionalidadesService>();
-builder.Services.AddScoped<ICargoPerfisService, CargoPerfisService>();
-builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddScoped<ISetorService, SetorService>();
-builder.Services.AddScoped<IEscalaExtraService, CriacaoEscalaExtraService>();
-builder.Services.AddScoped<IEscalaExtraRepository, EscalaExtraRepository>();
-builder.Services.AddScoped<ISolicitacaoEscalaExtraService, SolicitacaoEscalaExtraService>();
-builder.Services.AddScoped<ISolicitacaoEscalaExtraRepository, SolicitacaoEscalaExtraRepository>();
-builder.Services.AddScoped<IEscalaExtraCargoRepository, EscalaExtraCargoRepository>();
-builder.Services.AddScoped<ILogRepository, LogRepository>();
-builder.Services.AddScoped<ILogService, LogService>();
-builder.Services.AddRepositoryServices();
-builder.Services.AddHostedService<PermutasMessageConsumer>();
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-// Configurar o HttpClientFactory
-builder.Services.AddHttpClient(); // Adiciona IHttpClientFactory ao container
-
-#endregion
-
-
 builder.Services.AddSingleton<IMessageBus>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
 
     // Priorizar variáveis de ambiente do Fly.io sobre appsettings
-    //var hostName = Environment.GetEnvironmentVariable("RABBITMQ_HOSTNAME") ?? configuration["RabbitMQ:HostName"] ?? "localhost";
-    //var userName = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? configuration["RabbitMQ:UserName"] ?? "guest";
-    //var password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? configuration["RabbitMQ:Password"] ?? "guest";
-    //var portStr = Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? configuration["RabbitMQ:Port"] ?? "5672";
-    //var vhost = Environment.GetEnvironmentVariable("RABBITMQ_VHOST") ?? configuration["RabbitMQ:VirtualHost"] ?? "/";
     var hostName = Environment.GetEnvironmentVariable("RABBITMQ_HOSTNAME") ?? configuration["RabbitMQ:HostName"] ?? "localhost";
     var userName = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? configuration["RabbitMQ:UserName"] ?? "guest";
     var password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? configuration["RabbitMQ:Password"] ?? "guest";
     var portStr = Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? configuration["RabbitMQ:Port"] ?? "5672";
     var vhost = Environment.GetEnvironmentVariable("RABBITMQ_VHOST") ?? configuration["RabbitMQ:VirtualHost"] ?? "/";
-
-
 
     // Converter porta para int com tratamento de erro
     if (!int.TryParse(portStr, out int port))
@@ -239,130 +253,94 @@ builder.Services.AddSingleton<IMessageBus>(sp =>
     }
 });
 
+// --- Serviços da Aplicação (Injeção de Dependência dos seus serviços e repositórios) ---
+#region Injecao de dependencias
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddAutoMapper(typeof(MappingProfiles));
+builder.Services.AddResponseCompression();
+builder.Services.AddScoped<IDepartamentoService, DepartamentoService>();
+builder.Services.AddScoped<ICargoService, CargoService>();
+builder.Services.AddScoped<IFuncionarioService, FuncionarioService>();
+builder.Services.AddScoped<IEscalaService, EscalaService>();
+builder.Services.AddScoped<IPostoTrabalhoService, PostoTrabalhoService>();
+builder.Services.AddScoped<ITipoEscalaService, TipoEscalaService>();
+builder.Services.AddScoped<IEscalaProntaService, EscalaProntaService>();
+builder.Services.AddScoped<IPermutasService, PermutasService>();
+builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IPerfilService, PerfilService>();
+builder.Services.AddScoped<IFuncionalidadeService, FuncionalidadeService>();
+builder.Services.AddScoped<IPerfisFuncionalidadesService, PerfisFuncionalidadesService>();
+builder.Services.AddScoped<ICargoPerfisService, CargoPerfisService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<ISetorService, SetorService>();
+builder.Services.AddScoped<IEscalaExtraService, CriacaoEscalaExtraService>();
+builder.Services.AddScoped<IEscalaExtraRepository, EscalaExtraRepository>();
+builder.Services.AddScoped<ISolicitacaoEscalaExtraService, SolicitacaoEscalaExtraService>();
+builder.Services.AddScoped<ISolicitacaoEscalaExtraRepository, SolicitacaoEscalaExtraRepository>();
+builder.Services.AddScoped<IEscalaExtraCargoRepository, EscalaExtraCargoRepository>();
+builder.Services.AddScoped<ILogRepository, LogRepository>();
+builder.Services.AddScoped<ILogService, LogService>();
+builder.Services.AddRepositoryServices();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+#endregion
+
+// --- Serviços em Background (Hosted Services) ---
+builder.Services.AddHostedService<PermutasMessageConsumer>();
 builder.Services.AddHostedService<UsuarioMessageConsumer>();
 
-
-// Definir ambiente de produção
-var environment = builder.Environment.EnvironmentName;
-var configuracoes = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-    .AddJsonFile($"appsettings.{environment}.json", optional: true)
-    .AddEnvironmentVariables()
-    .Build();
-
-// Configurar as opções do reCAPTCHA
+// --- Configurações Específicas (reCAPTCHA, Kestrel) ---
 // Configurar RecaptchaSettings
 builder.Services.AddOptions<RecaptchaSettings>()
     .Bind(builder.Configuration.GetSection("RecaptchaSettings"));
+builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<RecaptchaSettings>>().Value);
+builder.Services.AddTransient<RecaptchaService>();
+
 builder.Services.Configure<RecaptchaSettings>(builder.Configuration.GetSection("Recaptcha"));
+
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
     options.AllowSynchronousIO = true;
 });
 
-// Usamos .Value aqui para injetar diretamente o objeto RecaptchaSettings
-builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<RecaptchaSettings>>().Value);
-// Registrar o RecaptchaService
-builder.Services.AddTransient<RecaptchaService>(); // Use Transient ou Scoped, dependendo do ciclo de vida desejado
 
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigin", policy =>
-            policy.WithOrigins(
-            "https://dcmarica.vcorpsistem.com",
-            "https://appdcmarica.vcorpsistem.com",
-            "https://front-gestao-escala.fly.dev",
-            "https://mobile-gestao-escala.fly.dev"
-            //"http://192.168.0.10:8080", // Backend local.
-
-            //"http://172.17.16.1:8080", // Backend local
-            //"http://10.0.2.2:8080",   // Emulador Android
-            //"http://localhost:5173",   // Frontend
-            //"http://localhost:8080",   // Swagger local
-
-            //"http://10.0.2.2:7207",   // Emulador Android
-            //"http://localhost:5173",   // Frontend
-            //"http://localhost:8080",   // Swagger local
-            //"http://localhost:3000"    // Flutter Web
-            )
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials());
-});
-
-
-
-
-// Configurar autenticação JWT
-var chaveSecreta = "g9h0N7quw2S8mJAF8LKxUF0Os3leG+NDJoypOcWohOEa"; // Mesma chave usada no LoginService
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = "gestao-escala-backend",  // Mesmo valor usado no token JWT
-        ValidAudience = "gestao-escala-frontend",  // Mesmo valor usado no token JWT
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(chaveSecreta))
-    };
-});
-
-// Configurar autorização global (protegendo todas as rotas por padrão)
-
-builder.Services.AddAuthorization(options =>
-{
-    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-});
-
-//builder.WebHost.ConfigureKestrel(serverOptions =>
-//{
-//    serverOptions.ListenAnyIP(8080); // Isso permite conexões de qualquer IP
-//    serverOptions.ListenAnyIP(443, listenOptions =>
-//    {
-//        // Se tiver certificado, configure aqui
-//    });
-//});
 
 //gerarChave teste = new();
 //teste.teste();
+
+// =================================================================
+// SEÇÃO DE CONFIGURAÇÃO DO PIPELINE HTTP
+// =================================================================
 try
 {
     var app = builder.Build();
-    app.UseRateLimiter(); //segurança
+
+    app.UseRateLimiter();// Aplica o limitador de requisições
     app.UseDefaultFiles();
     app.UseStaticFiles();
-    app.UseDeveloperExceptionPage();
 
-    //if (app.Environment.IsDevelopment())
-    //{
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
+    // Em ambiente de desenvolvimento, mostrar exceções detalhadas e Swagger
+    if (app.Environment.IsDevelopment())
     {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
-    });
-    //}
+        app.UseDeveloperExceptionPage();
+        app.UseSwagger();
+        app.UseSwaggerUI(options =>
+        {
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+        });
+    }
 
-    app.UseMiddleware<PermissaoMiddleware>();
     app.UseRouting();
-
     app.UseCors("AllowSpecificOrigin");
-    Console.WriteLine(app.UseCors("AllowSpecificOrigin"));
 
     app.UseAuthentication();
     app.UseAuthorization();
 
+    app.UseMiddleware<PermissaoMiddleware>();
+
     app.MapControllers();
+
 
     app.Run();
 }

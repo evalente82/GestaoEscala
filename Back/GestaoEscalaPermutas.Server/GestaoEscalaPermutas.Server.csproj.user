@@ -4,4 +4,7 @@
     <ActiveDebugProfile>https</ActiveDebugProfile>
     <NameOfLastUsedPublishProfile>C:\Users\endri\Desktop\Projetos\GestaoEscala\Back\GestaoEscalaPermutas.Server\Properties\PublishProfiles\BackGestaoEscala - Web Deploy.pubxml</NameOfLastUsedPublishProfile>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
+  </PropertyGroup>
 </Project>

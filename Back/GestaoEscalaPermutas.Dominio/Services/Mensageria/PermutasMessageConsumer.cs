@@ -4,6 +4,7 @@ using GestaoEscalaPermutas.Dominio.Interfaces.Mensageria;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using FirebaseAdmin.Messaging;
+using Microsoft.Extensions.DependencyInjection; // <<< PASSO 1: Adicione este using
 
 namespace GestaoEscalaPermutas.Dominio.Services.Mensageria
 {
@@ -11,16 +12,19 @@ namespace GestaoEscalaPermutas.Dominio.Services.Mensageria
     {
         private readonly IMessageBus _messageBus;
         private readonly ILogger<PermutasMessageConsumer> _logger;
-        private readonly IFuncionarioService _funcionarioService;
+        // private readonly IFuncionarioService _funcionarioService; // <<< PASSO 2: Remova o serviço Scoped daqui
+
+        private readonly IServiceScopeFactory _scopeFactory; // <<< PASSO 3: Adicione a IServiceScopeFactory
 
         public PermutasMessageConsumer(
             IMessageBus messageBus,
             ILogger<PermutasMessageConsumer> logger,
-            IFuncionarioService funcionarioService)
+            // IFuncionarioService funcionarioService, // <<< PASSO 4: Remova o serviço Scoped do construtor
+            IServiceScopeFactory scopeFactory)
         {
             _messageBus = messageBus;
             _logger = logger;
-            _funcionarioService = funcionarioService;
+            _scopeFactory = scopeFactory; // <<< PASSO 5: Atribua a factory
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -28,16 +32,20 @@ namespace GestaoEscalaPermutas.Dominio.Services.Mensageria
             // Consumir mensagens de permutas solicitadas
             _messageBus.Subscribe<PermutaMensagemDTO>("permutas.solicitadas", async msg =>
             {
+                // PASSO 6: Crie um escopo para esta mensagem específica
+                using var scope = _scopeFactory.CreateScope();
+                // PASSO 7: Resolva o serviço Scoped DENTRO do escopo
+                var funcionarioService = scope.ServiceProvider.GetRequiredService<IFuncionarioService>();
+
                 _logger.LogInformation($"Permuta solicitada: {msg.NmNomeSolicitante} solicitou {msg.NmNomeSolicitado} para {msg.DtDataSolicitadaTroca}");
 
                 // Enviar notificação ao funcionário solicitado
                 try
                 {
-                    string fcmTokenSolicitado = await _funcionarioService.GetFcmTokenAsync(msg.IdFuncionarioSolicitado);
+                    string fcmTokenSolicitado = await funcionarioService.GetFcmTokenAsync(msg.IdFuncionarioSolicitado);
                     if (!string.IsNullOrEmpty(fcmTokenSolicitado))
                     {
-                        await SendFcmNotification(
-                            fcmTokenSolicitado,
+                        await SendFcmNotification(fcmTokenSolicitado,
                             "Nova Solicitação de Permuta",
                             $"{msg.NmNomeSolicitante} solicitou uma permuta para {msg.DtDataSolicitadaTroca}");
                     }
@@ -54,14 +62,13 @@ namespace GestaoEscalaPermutas.Dominio.Services.Mensageria
                 // Enviar notificação aos administradores
                 try
                 {
-                    var administradores = await _funcionarioService.GetAdministradoresAsync();
+                    var administradores = await funcionarioService.GetAdministradoresAsync();
                     foreach (var admin in administradores)
                     {
-                        string fcmTokenAdmin = await _funcionarioService.GetFcmTokenAsync(admin.IdFuncionario);
+                        string fcmTokenAdmin = await funcionarioService.GetFcmTokenAsync(admin.IdFuncionario);
                         if (!string.IsNullOrEmpty(fcmTokenAdmin))
                         {
-                            await SendFcmNotification(
-                                fcmTokenAdmin,
+                            await SendFcmNotification(fcmTokenAdmin,
                                 "Nova Permuta Solicitada",
                                 $"{msg.NmNomeSolicitante} solicitou uma permuta com {msg.NmNomeSolicitado} para {msg.DtDataSolicitadaTroca}");
                         }
@@ -76,19 +83,21 @@ namespace GestaoEscalaPermutas.Dominio.Services.Mensageria
             // Consumir mensagens de permutas pendentes
             _messageBus.Subscribe<PermutaMensagemDTO>("permutas.pendentes", async msg =>
             {
+                // Crie um novo escopo para esta outra mensagem
+                using var scope = _scopeFactory.CreateScope();
+                var funcionarioService = scope.ServiceProvider.GetRequiredService<IFuncionarioService>();
+
                 _logger.LogInformation($"Permuta pendente de aprovação: {msg.IdPermuta}");
 
-                // Notificar administradores sobre permuta pendente
                 try
                 {
-                    var administradores = await _funcionarioService.GetAdministradoresAsync();
+                    var administradores = await funcionarioService.GetAdministradoresAsync();
                     foreach (var admin in administradores)
                     {
-                        string fcmTokenAdmin = await _funcionarioService.GetFcmTokenAsync(admin.IdFuncionario);
+                        string fcmTokenAdmin = await funcionarioService.GetFcmTokenAsync(admin.IdFuncionario);
                         if (!string.IsNullOrEmpty(fcmTokenAdmin))
                         {
-                            await SendFcmNotification(
-                                fcmTokenAdmin,
+                            await SendFcmNotification(fcmTokenAdmin,
                                 "Permuta Pendente",
                                 $"Permuta {msg.IdPermuta} aguardando aprovação.");
                         }
@@ -103,12 +112,15 @@ namespace GestaoEscalaPermutas.Dominio.Services.Mensageria
             // Consumir mensagens de resultado
             _messageBus.Subscribe<PermutaMensagemDTO>("permutas.resultado", msg =>
             {
+                // Para este callback, que é síncrono e só faz log, não é necessário
+                // criar um escopo, pois não usa serviços Scoped.
                 _logger.LogInformation($"Permuta {msg.IdPermuta} foi {msg.NmStatus} para {msg.NmNomeSolicitante} e {msg.NmNomeSolicitado}");
             });
 
             return Task.CompletedTask;
         }
 
+        // Este método não precisa de alterações, pois não usa DI
         private async Task SendFcmNotification(string fcmToken, string title, string body)
         {
             try

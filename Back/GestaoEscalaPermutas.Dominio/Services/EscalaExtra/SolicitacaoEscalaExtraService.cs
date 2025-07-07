@@ -232,6 +232,8 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
                 var extrasDisponiveis = await _escalaExtraRepository.BuscarListaPorIdAsync(solicitacaoEscalaExtra.IdCriacaoEscalaExtra);
                 var escalasProntasDoFuncionario = await _escalaProntaRepository.BuscarPorIdFuncionario(solicitacoesEscalaExtraDTOs.IdFuncionario);
 
+
+
                 if (funcionario == null || extrasDisponiveis == null)
                     return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = "Funcionário ou Escala Extra não encontrados." };
                 if (!funcionario.IsAtivo)
@@ -248,8 +250,6 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
                 // 3. VALIDAÇÃO UNIFICADA DE SOBREPOSIÇÃO E DESCANSO MÍNIMO
                 // ===================================================================
                 DateTime inicioDoExtra = extrasDisponiveis.DtEscalaExtra;
-                // IMPORTANTE: Assumindo que um serviço extra dura 12 horas. Se a duração for variável,
-                // você precisará adicionar um campo de duração na tabela CriacaoEscalaExtra.
                 DateTime fimDoExtra = inicioDoExtra.AddHours(12);
 
                 var idsDasEscalasRegulares = escalasProntasDoFuncionario.Select(ep => ep.IdEscala).Distinct().ToList();
@@ -281,6 +281,12 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaExtra
                                 return new SolicitacaoEscalaExtraDTO { valido = false, mensagem = $"Descanso insuficiente. Mínimo de 11h necessário após o plantão que termina em {fimDoPlantao:dd/MM/yyyy HH:mm}h." };
                             }
                         }
+
+                        //VERIFICAÇÃO 3: DESCANSO APÓS OUTRO EXTRA
+                        //NÃO PODE PEGAR UM EXTRA ANTES DE 11H DE DESCANSO APOS SAIR DE UM EXTRA
+
+
+
 
                         // validar esta opção
                         // VERIFICAÇÃO 3: DESCANSO ANTES DO PLANTÃO

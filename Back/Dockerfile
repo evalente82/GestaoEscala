@@ -29,7 +29,6 @@ COPY --from=build /app/publish .
 # O certificado deve ser gerenciado por segredos, não copiado para a imagem.
 # Se for realmente necessário, copie-o, mas a melhor prática é usar segredos.
 COPY --from=build /src/docker-entrypoint.sh .
-COPY --from=build /src/GestaoEscalaPermutas.Server/certificado.pfx .
 
 RUN chmod +x ./docker-entrypoint.sh
 
