@@ -37,6 +37,7 @@ public partial class DefesaCivilMaricaContext : DbContext
     public DbSet<CriacaoEscalaExtra> CriacaoEscalaExtra { get; set; }
     public DbSet<CriacaoEscalaExtraCargo> CriacaoEscalaExtraCargo { get; set; }    
     public DbSet<LogGestaoEscala> LogGestaoEscala { get; set; }
+    public DbSet<Feriado> Feriados { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

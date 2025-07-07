@@ -22,7 +22,6 @@ namespace GestaoEscalaPermutas.Tests.Services.Escala
         {
             _escalaRepositoryMock = new Mock<IEscalaRepository>();
             _mapperMock = new Mock<IMapper>();
-            _escalaService = new EscalaService(_escalaRepositoryMock.Object, _mapperMock.Object);
         }
 
         // --- Testes para Incluir --- 

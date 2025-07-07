@@ -55,6 +55,8 @@ using GestaoEscalaPermutas.Dominio.Interfaces.LOGs;
 using GestaoEscalaPermutas.Dominio.Services.LOGs;
 using Microsoft.AspNetCore.Authorization;
 using System.Threading.RateLimiting;
+using GestaoEscalaPermutas.Dominio.Interfaces.Feriados;
+using GestaoEscalaPermutas.Dominio.Services.Feriados;
 #endregion
 
 // --- Configuração de Cultura (Globalização) ---
@@ -282,6 +284,8 @@ builder.Services.AddScoped<ILogService, LogService>();
 builder.Services.AddRepositoryServices();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IFeriadoRepository, FeriadoRepository>();
+builder.Services.AddScoped<IFeriadoService, FeriadoService>();
 #endregion
 
 // --- Serviços em Background (Hosted Services) ---
