@@ -6,8 +6,10 @@ WORKDIR /src
 COPY ["GestaoEscalaPermutas.Server/GestaoEscalaPermutas.Server.csproj", "GestaoEscalaPermutas.Server/"]
 COPY ["GestaoEscalaPermutas.Dominio/GestaoEscalaPermutas.Dominio.csproj", "GestaoEscalaPermutas.Dominio/"]
 COPY ["GestaoEscalaPermutas.Repository/GestaoEscalaPermutas.Repository.csproj", "GestaoEscalaPermutas.Repository/"]
+COPY ["GestaoEscalaPermuta.Infra/GestaoEscalaPermutas.Infra.csproj", "GestaoEscalaPermuta.Infra/"]
+COPY ["GestaoEscalaPermutas.Tests/GestaoEscalaPermutas.Tests.csproj", "GestaoEscalaPermutas.Tests/"]
 COPY ["GestaoEscalaPermutas.sln", "."]
-RUN dotnet restore "GestaoEscalaPermutas.sln"
+RUN dotnet restore "GestaoEscalaPermutas.sln" --runtime linux-x64
 
 # Copiar o restante do código fonte
 COPY . .
