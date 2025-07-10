@@ -108,7 +108,7 @@ namespace GestaoEscalaPermutas.Repository.Implementations
                 return null; // Retorna null se o ID for inválido
 
             return await _context.EscalaPronta
-                .Where(ep => ep.DtDataServico.Date == dia.Date && ep.IdPostoTrabalho == idPostoTrabalho)
+                .Where(ep => ep.DtDataServico.Date == dia.Date && ep.IdPostoTrabalho == idPostoTrabalho && ep.IdFuncionario == Guid.Empty)
                 .FirstOrDefaultAsync();
         }
                 

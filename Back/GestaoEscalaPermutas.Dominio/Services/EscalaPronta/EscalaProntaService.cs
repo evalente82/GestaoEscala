@@ -406,8 +406,8 @@ namespace GestaoEscalaPermutas.Dominio.Services.EscalaPronta
             foreach (var dia in diasDeTrabalho)
             {
                 var ocorrenciaParaRemover = await _escalaProntaRepository.ObterPorDataEPostoAsync(dia, escalaProntaDTO.IdPostoTrabalho);
-
-                if (ocorrenciaParaRemover != null)
+                
+                if (ocorrenciaParaRemover.IdFuncionario == Guid.Empty)
                 {
                     await _escalaProntaRepository.RemoverAsync(ocorrenciaParaRemover.IdEscalaPronta);
                 }

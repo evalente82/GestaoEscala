@@ -13,6 +13,7 @@
 		<IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
     <PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
+    <Version>$(VersionPrefix)</Version>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -1,14 +1,11 @@
-using Xunit;
 using Moq;
 using AutoMapper;
 using GestaoEscalaPermutas.Dominio.Services.Escala;
-using GestaoEscalaPermutas.Dominio.Interfaces.Escala;
 using GestaoEscalaPermutas.Dominio.DTO.Escala;
-using GestaoEscalaPermutas.Infra.Data.EntitiesDefesaCivilMarica;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using GestaoEscalaPermutas.Repository.Interfaces;
+using GestaoEscalaPermutas.Dominio.Interfaces.EscalaPronta;
+using GestaoEscalaPermutas.Dominio.Interfaces.Feriados;
+using GestaoEscalaPermutas.Dominio.Interfaces.Funcionarios;
 
 namespace GestaoEscalaPermutas.Tests.Services.Escala
 {
@@ -17,12 +14,36 @@ namespace GestaoEscalaPermutas.Tests.Services.Escala
         private readonly Mock<IEscalaRepository> _escalaRepositoryMock;
         private readonly Mock<IMapper> _mapperMock;
         private readonly EscalaService _escalaService;
+        private readonly Mock<IFuncionarioRepository> _funcionarioRepositoryMock;
+        private readonly Mock<IPostoTrabalhoRepository> _postoTrabalhoRepositoryMock;
+        private readonly Mock<ITipoEscalaRepository> _tipoEscalaRepositoryMock;
+        private readonly Mock<IEscalaProntaService> _escalaProntaServiceMock;
+        private readonly Mock<IFeriadoService> _feriadoServiceMock;
+        private readonly Mock<IFuncionarioService> _funcionarioServiceMock;
+        private readonly Mock<IPostoTrabalhoService> _postoTrabalhoServiceMock;
 
         public EscalaServiceTests()
         {
             _escalaRepositoryMock = new Mock<IEscalaRepository>();
+            _funcionarioRepositoryMock = new Mock<IFuncionarioRepository>();
+            _postoTrabalhoRepositoryMock = new Mock<IPostoTrabalhoRepository>();
+            _tipoEscalaRepositoryMock = new Mock<ITipoEscalaRepository>();
+            _escalaProntaServiceMock = new Mock<IEscalaProntaService>();
+            _feriadoServiceMock = new Mock<IFeriadoService>();
             _mapperMock = new Mock<IMapper>();
-            _escalaService = new EscalaService(_escalaRepositoryMock.Object, _mapperMock.Object);
+            _funcionarioServiceMock = new Mock<IFuncionarioService>();
+            _postoTrabalhoServiceMock = new Mock<IPostoTrabalhoService>();
+            _escalaService = new EscalaService(
+            _escalaRepositoryMock.Object,
+            _funcionarioRepositoryMock.Object,
+            _postoTrabalhoRepositoryMock.Object,
+            _tipoEscalaRepositoryMock.Object,
+            _escalaProntaServiceMock.Object,
+            _feriadoServiceMock.Object,
+            _mapperMock.Object,
+            _funcionarioServiceMock.Object,
+            _postoTrabalhoServiceMock.Object
+        );
         }
 
         // --- Testes para Incluir --- 
